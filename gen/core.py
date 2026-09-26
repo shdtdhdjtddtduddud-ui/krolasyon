@@ -180,7 +180,7 @@ class Anim:
         return self
 
     def java(self, const):
-        s = f"    public static final AnimationDefinition {const} = AnimationDefinition.Builder.withLength({f(self.length)})"
+        s = f"    public static final AnimationDefinition {const} = make{const}();\n\n    private static AnimationDefinition make{const}() {{\n        return AnimationDefinition.Builder.withLength({f(self.length)})"
         if self.loop:
             s += ".looping()"
         for bone, kind, keys in self.ch:
@@ -189,7 +189,7 @@ class Anim:
                 f"new Keyframe({f(t)}, KeyframeAnimations.{fn}({f(v[0])}, {f(v[1])}, {f(v[2])}), "
                 f"AnimationChannel.Interpolations.{'CATMULLROM' if i == 'C' else 'LINEAR'})" for t, v, i in keys)
             s += f"\n        .addAnimation(\"{bone}\", new AnimationChannel(AnimationChannel.Targets.{kind}, {kf}))"
-        return s + "\n        .build();"
+        return s + "\n        .build();\n    }"
 
     def sample(self, t):
         """returns dict bone -> {'ROTATION':vec,'POSITION':vec,'SCALE':vec} (vanilla semantic, pos in posVec units)"""
