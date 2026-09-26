@@ -354,14 +354,14 @@ public class SealWardenEntity extends BossEntity {
             if (random.nextInt(p2 ? 2 : 4) == 0)
                 l.addParticle(dust(random.nextBoolean() ? PINK : PINK_LIGHT, 0.9F), o.x + (random.nextDouble() - 0.5) * 0.7, o.y + (random.nextDouble() - 0.5) * 0.7, o.z + (random.nextDouble() - 0.5) * 0.7, 0, 0.01, 0);
         }
-        if (random.nextInt(3) == 0) {
+        if (random.nextInt(12) == 0) {
             l.addParticle(ParticleTypes.END_ROD, getX() + (random.nextDouble() - 0.5) * 0.4, getY() + 4.2 + random.nextDouble() * 0.5, getZ() + (random.nextDouble() - 0.5) * 0.4, 0, 0.02, 0);
         }
         if (p2 && random.nextInt(2) == 0) {
             l.addParticle(ParticleTypes.REVERSE_PORTAL, getX() + (random.nextDouble() - 0.5) * 2, getY() + random.nextDouble() * 3.5, getZ() + (random.nextDouble() - 0.5) * 2, 0, 0.05, 0);
         }
         if (clientAnimId == LASER || clientAnimId == SUMMON) {
-            for (Vec3 o : orbs) l.addParticle(ParticleTypes.END_ROD, o.x, o.y, o.z, (random.nextDouble() - 0.5) * 0.1, (random.nextDouble() - 0.5) * 0.1, (random.nextDouble() - 0.5) * 0.1);
+            for (Vec3 o : orbs) if (random.nextInt(3) == 0) l.addParticle(ParticleTypes.END_ROD, o.x, o.y, o.z, (random.nextDouble() - 0.5) * 0.1, (random.nextDouble() - 0.5) * 0.1, (random.nextDouble() - 0.5) * 0.1);
         }
         if (phaseFlash > 0) {
             for (int i = 0; i < 4; i++) l.addParticle(dust(PINK_LIGHT, 2F), getX() + (random.nextDouble() - 0.5) * 3, getY() + random.nextDouble() * 4, getZ() + (random.nextDouble() - 0.5) * 3, 0, 0.1, 0);

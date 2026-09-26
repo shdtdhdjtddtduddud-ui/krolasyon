@@ -142,8 +142,8 @@ def fur_paint(c, face, W, H, r, veins=0.0, light=1.0, tip=None):
     if tip is not None:
         # red gradient towards the tip (tip at local y = H)
         g = np.clip((yy / max(H - 1, 1) - tip) / (1 - tip), 0, 1)
-        col = lerp(col, (205, 40, 55), g * (0.55 + 0.45 * strands))
-        glow = glow_img(H, W, (255, 60, 60), g ** 1.5 * 0.8 * (0.6 + 0.4 * strands))
+        col = lerp(col, (190, 36, 52), g * (0.45 + 0.4 * strands))
+        glow = glow_img(H, W, (255, 60, 60), g ** 2 * 0.45 * (0.6 + 0.4 * strands))
     if veins > 0 and face not in ('bottom',):
         cm = cracks(H, W, r, max(1, int(veins * (W * H) / 90 + r.random() * veins)), length=0.5)
         core = cm >= 1
@@ -170,17 +170,17 @@ P.mats['fur_crack'] = lambda c, f, W, H, r: fur_paint(c, f, W, H, r, veins=1.6)
 P.mats['fur_arm'] = lambda c, f, W, H, r: fur_paint(c, f, W, H, r, veins=1.8)
 P.mats['fur_leg'] = lambda c, f, W, H, r: fur_paint(c, f, W, H, r, veins=1.3)
 P.mats['tail0'] = lambda c, f, W, H, r: fur_paint(c, f, W, H, r, veins=0.3, light=1.1)
-P.mats['tail1'] = lambda c, f, W, H, r: fur_paint(c, f, W, H, r, veins=0.2, light=1.1, tip=0.55)
-P.mats['tail2'] = lambda c, f, W, H, r: fur_paint(c, f, W, H, r, veins=0.0, light=1.0, tip=-0.2)
+P.mats['tail1'] = lambda c, f, W, H, r: fur_paint(c, f, W, H, r, veins=0.2, light=1.1, tip=0.8)
+P.mats['tail2'] = lambda c, f, W, H, r: fur_paint(c, f, W, H, r, veins=0.0, light=1.0, tip=0.3)
 
 
 @P.mat('fur_spike')
 def fur_spike(c, face, W, H, r):
     col, a, g = fur_paint(c, face, W, H, r, veins=0.0, light=0.9)
     yy, xx = np.mgrid[0:H, 0:W]
-    tipm = np.clip(1 - yy / max(H * 0.45, 1), 0, 1)   # top of spike = local -y = texture top
+    tipm = np.clip(1 - yy / max(H * 0.35, 1), 0, 1)   # top of spike = local -y = texture top
     col = lerp(col, (190, 34, 50), tipm * 0.8)
-    g = glow_img(H, W, (255, 50, 60), tipm ** 2 * 0.9)
+    g = glow_img(H, W, (255, 50, 60), tipm ** 2 * 0.6)
     return col, a, g
 
 

@@ -276,7 +276,8 @@ public class CrimsonHoundEntity extends BossEntity {
                 sl.sendParticles(dust(i % 2 == 0 ? RED : DARK_RED, 2.2F), getX() + Math.cos(a) * r, getY() + 0.4 + ((t / 3) % 2) * 0.6, getZ() + Math.sin(a) * r, 1, 0, 0.05, 0, 0);
             }
             Vec3 mouth = position().add(forward().scale(2.4)).add(0, 3.0, 0);
-            sl.sendParticles(ParticleTypes.SONIC_BOOM, mouth.x, mouth.y, mouth.z, 1, 0, 0, 0, 0);
+            sl.sendParticles(dust(RED, 3.0F), mouth.x, mouth.y, mouth.z, 8, 0.3, 0.3, 0.3, 0);
+            sl.sendParticles(ParticleTypes.FLAME, mouth.x, mouth.y, mouth.z, 6, 0.2, 0.4, 0.2, 0.06);
         }
         if (t == 12) {
             for (LivingEntity e : hostilesAround(position(), 18)) {

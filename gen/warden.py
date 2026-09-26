@@ -164,7 +164,11 @@ PLATES = {
 }
 
 
+BRIGHT = 1.22
+
+
 def plate_paint(p, face, W, H, r):
+    p = dict(p, hi=tuple(min(255, c * BRIGHT) for c in p['hi']), lo=tuple(min(255, c * BRIGHT) for c in p['lo']))
     n = noise2(H, W, r, 4)
     yy, xx = np.mgrid[0:H, 0:W]
     grad = 0.75 - 0.35 * (yy / max(H - 1, 1)) + 0.15 * (1 - xx / max(W - 1, 1))
