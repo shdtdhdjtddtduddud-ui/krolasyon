@@ -299,9 +299,10 @@ public final class DemonClient {
         pose.mulPose(Axis.XP.rotationDegrees(200.0F));
         pose.mulPose(Axis.YP.rotationDegrees(f * -135.0F));
         pose.translate(f * 5.6F, 0.0F, 0.0F);
-        // vanilla arm pivot, then pull the (longer) demon arm back so the claw sits where a hand would
-        pose.translate(f * -5.0F / 16.0F, -4.0F / 16.0F, 0.0F);
-        pose.scale(0.5F, 0.5F, 0.5F);
+        // vanilla arm pivot pushed a little forward so the thorned forearm and claws sit in view
+        pose.translate(f * -5.0F / 16.0F, 3.0F / 16.0F, 0.0F);
+        pose.mulPose(Axis.XP.rotationDegrees(-12.0F));
+        pose.scale(0.42F, 0.42F, 0.42F);
         ModelPart arm = renderer.getModel().arm(right);
         arm.getAllParts().forEach(ModelPart::resetPose);
         arm.x = 0; arm.y = 0; arm.z = 0;
