@@ -110,7 +110,7 @@ public final class AutoTest {
         client(2, null, mc -> { showGui = false; mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT); });
         client(1, null, mc -> { if (mc.player != null) mc.player.swing(net.minecraft.world.InteractionHand.MAIN_HAND); });
         wait(3, "player_slash");
-        client(1, null, mc -> { if (mc.player != null) mc.player.jumpFromGround(); });
+        client(1, null, mc -> { if (mc.player != null) mc.player.setDeltaMovement(0, 0.7, 0); });
         wait(5, "player_jump");
         client(1, null, mc -> { if (mc.player != null) mc.player.setDeltaMovement(0, 0.9, 0); });
         player(1, com.krolasyon.bosses.form.DemonForm::airJump);
