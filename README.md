@@ -4,7 +4,7 @@
 **Kalp Kırıcı Kılıcı** (yaratıcı sekmesi, Kalp Kırıcı İblis boss'unun düşürdüğü eşya veya tarif: ortada Nether Yıldızı, etrafında 3 Kızıltaş Bloğu, altta Netherit Kılıç).
 
 * **Sağ tık basılı tut (1 sn):** kılıcı kalbine saplarsın, karanlık enerji toplanır ve Kalp Kırıcı İblis'e dönüşürsün.
-* **Dönüşmüşken sağ tık:** insan formuna dön.
+* **Dönüşmüşken Shift + sağ tık:** insan formuna dön.
 * Form: 30 kalp, +9 hasar, +%35 hız, +12 zırh, ateş ve düşme hasarına bağışıklık, daha yüksek zıplama, **havada ikinci zıplama (takla)**, pençe saldırıları (sağ/sol pençe sırayla, yakındaki düşmanlara da sıçrar, can çalar).
 
 | Tuş | Yetenek | Etki |

@@ -90,6 +90,9 @@ public final class AutoTest {
         wait(8, "player_transform_b");
         wait(8, "player_transform_c");
         wait(40, "player_demon_front");
+        // regression: a held right click re-uses the blade right after transforming; it must not revert the form
+        player(1, p -> p.getMainHandItem().use(p.level(), p, net.minecraft.world.InteractionHand.MAIN_HAND));
+        wait(5, "player_still_demon");
         client(2, null, mc -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK));
         cmd(2, null, "tp @a 0 -60 4 200 15");
         wait(10, "player_demon_back");

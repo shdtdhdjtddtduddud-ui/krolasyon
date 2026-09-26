@@ -26,7 +26,7 @@ import java.util.List;
 
 /**
  * Kalp Kırıcı Kılıcı — hold right click to plunge the blade into your heart and become the Heartbreaker Demon.
- * Right click again while transformed to return to human form.
+ * Shift + right click while transformed returns to human form.
  */
 public class HeartbreakerBladeItem extends SwordItem {
     public static final int CHARGE_TICKS = 24;
@@ -39,6 +39,8 @@ public class HeartbreakerBladeItem extends SwordItem {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (DemonForm.isDemon(player)) {
+            // only a deliberate Shift + right click returns to human form; a held right click must never undo the transformation
+            if (!player.isShiftKeyDown()) return InteractionResultHolder.pass(stack);
             if (!level.isClientSide() && player instanceof ServerPlayer sp) DemonForm.revert(sp, true);
             player.getCooldowns().addCooldown(this, 60);
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
@@ -75,6 +77,7 @@ public class HeartbreakerBladeItem extends SwordItem {
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity user) {
+        if (user instanceof Player p) p.getCooldowns().addCooldown(this, 40);
         if (!level.isClientSide() && user instanceof ServerPlayer sp) DemonForm.transform(sp);
         return stack;
     }
