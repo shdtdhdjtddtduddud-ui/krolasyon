@@ -79,6 +79,7 @@ public abstract class BossEntity extends Monster {
     @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new FloatGoal(this));
+        this.goalSelector.addGoal(1, new CastGoal(this));
         this.goalSelector.addGoal(2, new ChaseGoal(this));
         this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 0.7D));
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 16.0F));
@@ -334,7 +335,23 @@ public abstract class BossEntity extends Monster {
         }
     }
 
-    // ------------------------------------------------------------------ chase goal
+    // ------------------------------------------------------------------ goals
+    /** holds movement/look while an ability is playing so wander/look goals can't interrupt it */
+    static class CastGoal extends Goal {
+        private final BossEntity boss;
+
+        CastGoal(BossEntity boss) {
+            this.boss = boss;
+            this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK, Goal.Flag.JUMP));
+        }
+
+        @Override
+        public boolean canUse() { return boss.isCasting(); }
+
+        @Override
+        public void start() { boss.getNavigation().stop(); }
+    }
+
     static class ChaseGoal extends Goal {
         private final BossEntity boss;
         private int repath;
