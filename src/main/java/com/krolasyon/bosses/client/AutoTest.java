@@ -41,7 +41,7 @@ public final class AutoTest {
     private int stepIndex;
     private int stepStart;
 
-    record Step(int wait, String shot, Consumer<MinecraftServer> action) {}
+    record Step(int delay, String shot, Consumer<MinecraftServer> action) {}
 
     public static void init() {
         LOG.info("[AUTOTEST] enabled");
@@ -160,7 +160,7 @@ public final class AutoTest {
                 }
             });
         }
-        if (tick - stepStart >= st.wait()) {
+        if (tick - stepStart >= st.delay()) {
             if (st.shot() != null) {
                 if (st.shot().equals("END")) {
                     LOG.info("[AUTOTEST] finished");
