@@ -32,6 +32,26 @@ public final class ClientEvents {
     }
 
     @SubscribeEvent
+    public static void addLayers(EntityRenderersEvent.AddLayers event) {
+        com.krolasyon.bosses.client.form.DemonClient.renderer = new com.krolasyon.bosses.client.form.DemonPlayerRenderer(event.getContext());
+    }
+
+    @SubscribeEvent
+    public static void registerKeys(net.minecraftforge.client.event.RegisterKeyMappingsEvent event) {
+        for (net.minecraft.client.KeyMapping k : com.krolasyon.bosses.client.form.KeyBinds.ABILITIES) event.register(k);
+    }
+
+    @SubscribeEvent
+    public static void registerOverlays(net.minecraftforge.client.event.RegisterGuiOverlaysEvent event) {
+        event.registerAboveAll("demon_form", com.krolasyon.bosses.client.form.DemonHud::render);
+    }
+
+    @SubscribeEvent
+    public static void clientSetup(net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent event) {
+        com.krolasyon.bosses.form.DemonForm.clientDemon = com.krolasyon.bosses.client.form.DemonClient::isDemon;
+    }
+
+    @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(ModEntities.SEAL_WARDEN.get(), SealWardenRenderer::new);
         event.registerEntityRenderer(ModEntities.CRIMSON_HOUND.get(), CrimsonHoundRenderer::new);

@@ -329,6 +329,7 @@ public class HeartDemonEntity extends BossEntity {
     protected void dropCustomDeathLoot(DamageSource src, int looting, boolean hitByPlayer) {
         super.dropCustomDeathLoot(src, looting, hitByPlayer);
         this.spawnAtLocation(new ItemStack(Items.NETHER_STAR));
+        this.spawnAtLocation(new ItemStack(com.krolasyon.bosses.registry.ModItems.HEARTBREAKER_BLADE.get()));
         this.spawnAtLocation(new ItemStack(Items.GOLDEN_APPLE, 2 + random.nextInt(2)));
         this.spawnAtLocation(new ItemStack(Items.NETHERITE_SCRAP, 2 + random.nextInt(2)));
         this.spawnAtLocation(new ItemStack(Items.EMERALD, 8 + random.nextInt(8)));

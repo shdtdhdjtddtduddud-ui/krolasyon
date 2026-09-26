@@ -541,3 +541,96 @@ death.pos('base', (0, (0, 0, 0)), (0.4, (0, 2, 0)), (1.2, (0, -24, 0)), (3.0, (0
 for n in THORNS:
     death.scl(n, (0, (1, 1, 1)), (1.5, (1, 1, 1)), (3.0, (0.01, 0.01, 0.01)))
 A['DEATH'] = death
+
+
+# ================= player "boss form" animations =================
+BODY = LIMBS + ['base']
+
+jump = Anim('jump', 0.8, True)
+jp = lambda s: sym({'right_arm': (-35 + 6 * s, 0, 38), 'right_fore': (-35, 0, 0)}) | {
+    'right_leg': (-55, 0, 0), 'right_shin': (75 + 5 * s, 0, 0), 'left_leg': (-18, 0, 0), 'left_shin': (45 - 5 * s, 0, 0),
+    'chest': (8, 0, 0), 'head': (-10, 0, 0)}
+add_rot(jump, [(0, jp(1)), (0.4, jp(-1)), (0.8, jp(1))])
+tail_wave(jump, 0.8, 0.6, speed=1, lift=-30)
+thorn_flicker(jump, 0.8, 2)
+A['JUMP'] = jump
+
+crouch = Anim('crouch', 1.6, True)
+cp = lambda s: sym({'right_arm': (-25, 0, 18 + s * 3), 'right_fore': (-45, 0, 0), 'right_leg': (-50, 0, 0), 'right_shin': (70, 0, 0)}) | {
+    'chest': (22, 0, 0), 'waist': (10, 0, 0), 'head': (-24, 0, 0)}
+add_rot(crouch, [(0, cp(1)), (0.8, cp(-1)), (1.6, cp(1))])
+crouch.pos('base', (0, (0, -5, 0)), (1.6, (0, -5, 0)))
+A['CROUCH'] = crouch
+
+flip = Anim('flip', 0.55)
+pose_seq(flip, [
+    (0.0, {}),
+    (0.12, sym({'right_arm': (-60, 0, 30), 'right_fore': (-70, 0, 0), 'right_leg': (-90, 0, 0), 'right_shin': (110, 0, 0)}) | {'head': (30, 0, 0), 'chest': (25, 0, 0)}),
+    (0.4, sym({'right_arm': (-60, 0, 30), 'right_fore': (-70, 0, 0), 'right_leg': (-90, 0, 0), 'right_shin': (110, 0, 0)}) | {'head': (30, 0, 0), 'chest': (25, 0, 0)}),
+    (0.55, {}),
+], LIMBS)
+flip.rot('base', (0, (0, 0, 0)), (0.45, (-360, 0, 0)), (0.451, (0, 0, 0)), (0.55, (0, 0, 0)), interp='L')
+tail_wave(flip, 0.55, 1.4, speed=1)
+A['FLIP'] = flip
+
+
+def slash(side):
+    s = 1 if side == 'right' else -1
+    o = 'left' if side == 'right' else 'right'
+    a = Anim(f'slash_{side}', 0.4)
+    pose_seq(a, [
+        (0.0, {}),
+        (0.08, {f'{side}_arm': (-150, 0, 55 if s > 0 else -55), f'{side}_fore': (-50, 0, 0), 'chest': (-6, 30 * s, 0), 'waist': (0, 10 * s, 0), f'{o}_arm': (20, 0, 0)}),
+        (0.18, {f'{side}_arm': (-40, -30 * s, -40 * s), f'{side}_fore': (-5, 0, 0), 'chest': (10, -30 * s, 0), 'waist': (0, -12 * s, 0), f'{o}_arm': (-25, 0, 0), 'head': (0, 12 * s, 0)}),
+        (0.4, {}),
+    ], LIMBS)
+    for k in range(3):
+        a.scl(f'athorn_{side}{k}', (0, (1, 1, 1)), (0.1, (1.2, 1.8, 1.2)), (0.2, (1.5, 2.6, 1.5)), (0.4, (1, 1, 1)))
+    return a
+
+
+A['SLASH_R'] = slash('right')
+A['SLASH_L'] = slash('left')
+
+tr = Anim('transform', 1.8)
+fetal = sym({'right_arm': (-70, 30, -30), 'right_fore': (-110, 0, 0), 'right_leg': (-95, 0, 0), 'right_shin': (130, 0, 0)}) | {
+    'head': (45, 0, 0), 'chest': (40, 0, 0), 'waist': (20, 0, 0)}
+roar = sym({'right_arm': (-30, 0, 85), 'right_fore': (-30, 0, 0), 'right_leg': (-10, 0, 8), 'right_shin': (15, 0, 0)}) | {
+    'head': (-40, 0, 0), 'chest': (-22, 0, 0), 'waist': (-8, 0, 0)}
+pose_seq(tr, [(0.0, fetal), (0.55, fetal), (0.8, roar), (1.35, roar), (1.8, {})], LIMBS)
+tr.pos('base', (0, (0, -30, 0)), (0.55, (0, -30, 0)), (0.8, (0, 4, 0)), (1.35, (0, 2, 0)), (1.8, (0, 0, 0)))
+tr.scl('base', (0, (0.55, 0.55, 0.55)), (0.55, (0.62, 0.62, 0.62)), (0.8, (1.12, 1.12, 1.12)), (1.0, (1.0, 1.0, 1.0)), (1.8, (1, 1, 1)))
+for n in THORNS:
+    tr.scl(n, (0, (0.01, 0.01, 0.01)), (0.55, (0.05, 0.05, 0.05)), (0.75, (1.4, 1.6, 1.4)), (1.0, (1, 1, 1)), (1.8, (1, 1, 1)))
+for i in range(5):
+    tr.rot(f'tail{i}', (0, (60, 40, 0)), (0.55, (60, 40, 0)), (0.8, (-30, 0, 20 * (1 if i % 2 else -1))), (1.35, (-10, 0, 0)), (1.8, (0, 0, 0)))
+thorn_flicker(tr, 1.8, 4)
+A['TRANSFORM'] = tr
+
+ur = Anim('ult_rise', 1.4)
+up = sym({'right_arm': (-165, 0, 25), 'right_fore': (-25, 0, 0), 'right_leg': (-60, 0, 0), 'right_shin': (95, 0, 0)}) | {'head': (-25, 0, 0), 'chest': (-18, 0, 0)}
+pose_seq(ur, [(0.0, {}), (0.15, sym({'right_arm': (30, 0, 20), 'right_leg': (-55, 0, 0), 'right_shin': (90, 0, 0)}) | {'chest': (35, 0, 0), 'head': (20, 0, 0)}),
+              (0.35, up), (1.4, up)], LIMBS)
+ur.pos('base', (0, (0, 0, 0)), (0.15, (0, -9, 0)), (0.35, (0, 0, 0)), (1.4, (0, 0, 0)))
+tail_wave(ur, 1.4, 1.2, speed=2, lift=-40)
+thorn_flicker(ur, 1.4, 4)
+A['ULT_RISE'] = ur
+
+us = Anim('ult_slam', 1.0)
+slam = sym({'right_arm': (-70, 0, 20), 'right_fore': (-20, 0, 0), 'right_leg': (-70, 0, 20), 'right_shin': (100, 0, 0)}) | {'head': (30, 0, 0), 'chest': (45, 0, 0), 'waist': (15, 0, 0)}
+pose_seq(us, [(0.0, up), (0.08, slam), (0.6, slam), (1.0, {})], LIMBS)
+us.pos('base', (0, (0, 0, 0)), (0.08, (0, -14, 0)), (0.6, (0, -13, 0)), (1.0, (0, 0, 0)))
+for n in THORNS:
+    us.scl(n, (0, (1, 1, 1)), (0.1, (1.8, 2.4, 1.8)), (0.5, (1.3, 1.5, 1.3)), (1.0, (1, 1, 1)))
+tail_wave(us, 1.0, 1.4, speed=1)
+A['ULT_SLAM'] = us
+
+tempest = Anim('tempest', 1.6)
+pose_seq(tempest, [(0.0, {}), (0.3, sym({'right_arm': (0, 0, 80), 'right_fore': (-20, 0, 0)})),
+                   (1.3, sym({'right_arm': (0, 0, 85), 'right_fore': (-20, 0, 0)})), (1.6, {})], LIMBS)
+tempest.rot('base', (0, (0, 0, 0)), (0.3, (0, -90, 0)), (1.3, (0, -990, 0)), (1.6, (0, -1080, 0)), interp='L')
+tempest.pos('base', (0, (0, 0, 0)), (0.3, (0, 4, 0)), (1.3, (0, 5, 0)), (1.6, (0, 0, 0)))
+for i in range(5):
+    tempest.rot(f'tail{i}', (0, (0, 0, 0)), (0.3, (-40 if i == 0 else -12, 0, 0)), (1.3, (-40 if i == 0 else -12, 0, 0)), (1.6, (0, 0, 0)))
+thorn_flicker(tempest, 1.6, 3)
+A['TEMPEST'] = tempest

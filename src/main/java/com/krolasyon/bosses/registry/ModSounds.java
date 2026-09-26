@@ -73,4 +73,14 @@ public final class ModSounds {
     public static final RegistryObject<SoundEvent> THORN_ERUPT = reg("thorn_erupt");
     public static final RegistryObject<SoundEvent> SCYTHE_SPIN = reg("scythe_spin");
     public static final RegistryObject<SoundEvent> DEMON_PHASE = reg("demon_phase");
+
+    // Player boss form
+    public static final RegistryObject<SoundEvent> TRANSFORM_CHARGE = reg("transform_charge");
+    public static final RegistryObject<SoundEvent> TRANSFORM_BURST = reg("transform_burst");
+    public static final RegistryObject<SoundEvent> DEMON_REVERT = reg("demon_revert");
+    public static final RegistryObject<SoundEvent> DEMON_ROAR = reg("demon_roar");
+    public static final RegistryObject<SoundEvent> DOUBLE_JUMP = reg("double_jump");
+    public static final RegistryObject<SoundEvent> GROUND_SLAM = reg("ground_slam");
+    public static final RegistryObject<SoundEvent> HEART_RIP = reg("heart_rip");
+    public static final RegistryObject<SoundEvent> CLAW_SWIPE = reg("claw_swipe");
 }

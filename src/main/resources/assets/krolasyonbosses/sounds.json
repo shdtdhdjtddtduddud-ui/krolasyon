@@ -546,5 +546,85 @@
     "attenuation_distance": 48
    }
   ]
+ },
+ "transform_charge": {
+  "subtitle": "subtitles.krolasyonbosses.transform_charge",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:transform_charge",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "transform_burst": {
+  "subtitle": "subtitles.krolasyonbosses.transform_burst",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:transform_burst",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "demon_revert": {
+  "subtitle": "subtitles.krolasyonbosses.demon_revert",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:demon_revert",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "demon_roar": {
+  "subtitle": "subtitles.krolasyonbosses.demon_roar",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:demon_roar",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "double_jump": {
+  "subtitle": "subtitles.krolasyonbosses.double_jump",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:double_jump",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "ground_slam": {
+  "subtitle": "subtitles.krolasyonbosses.ground_slam",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:ground_slam",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "heart_rip": {
+  "subtitle": "subtitles.krolasyonbosses.heart_rip",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:heart_rip",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "claw_swipe": {
+  "subtitle": "subtitles.krolasyonbosses.claw_swipe",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:claw_swipe1",
+    "attenuation_distance": 32
+   },
+   {
+    "name": "krolasyonbosses:claw_swipe2",
+    "attenuation_distance": 32
+   },
+   {
+    "name": "krolasyonbosses:claw_swipe3",
+    "attenuation_distance": 32
+   }
+  ]
  }
 }

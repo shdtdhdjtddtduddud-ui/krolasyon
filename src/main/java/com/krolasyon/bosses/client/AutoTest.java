@@ -54,6 +54,11 @@ public final class AutoTest {
         cmd(0, null, "gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false",
                 "time set 6000", "weather clear", "difficulty normal", "gamemode creative @a", "tp @a 1 -60 2 180 -6",
                 "kill @e[type=!player]");
+        playerRun();
+        if (!Boolean.getBoolean("krolasyon.autotest.bosses")) {
+            wait(20, "END");
+            return;
+        }
         bossRun("revenge", com.krolasyon.bosses.entity.RevengeEntity.class, new int[][]{{0, 10}, {1, 18}, {2, 18}, {3, 14}, {4, 26}, {5, 30}, {5, 46}});
         bossRun("heart_demon", com.krolasyon.bosses.entity.HeartDemonEntity.class, new int[][]{{0, 8}, {1, 11}, {2, 22}, {3, 9}, {4, 16}, {5, 14}});
         // all four bosses brawling with monsters around
@@ -69,6 +74,64 @@ public final class AutoTest {
         wait(80, "fight_c");
         wait(100, "fight_d");
         wait(20, "END");
+    }
+
+    private static final String DUMMY = " {NoAI:1b,PersistenceRequired:1b,Silent:1b,Health:1000f,Attributes:[{Name:\"generic.max_health\",Base:1000d}]}";
+
+    /** the player boss form: transformation, every ability, claws in first person and the HUD */
+    private void playerRun() {
+        cmd(10, null, "kill @e[type=!player]", "tp @a 0 -60 0 180 8", "clear @a",
+                "summon minecraft:husk 0 -60 -7" + DUMMY, "summon minecraft:husk -3 -60 -9" + DUMMY, "summon minecraft:husk 3 -60 -10" + DUMMY,
+                "give @a krolasyonbosses:heartbreaker_blade");
+        client(2, null, mc -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT));
+        wait(20, "player_human");
+        player(1, null, com.krolasyon.bosses.form.DemonForm::transform);
+        wait(4, "player_transform_a");
+        wait(8, "player_transform_b");
+        wait(8, "player_transform_c");
+        wait(40, "player_demon_front");
+        client(2, null, mc -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK));
+        cmd(2, null, "tp @a 0 -60 4 200 15");
+        wait(10, "player_demon_back");
+        int[][] shots = {{0, 9}, {1, 20}, {2, 8}, {3, 14}, {4, 12}};
+        for (int[] a : shots) {
+            final int slot = a[0];
+            cmd(2, null, "tp @a 0 -60 3 180 10");
+            player(1, null, p -> com.krolasyon.bosses.form.DemonForm.tryAbility(p, slot));
+            wait(a[1], "player_ability" + slot);
+            if (slot == 4) wait(14, "player_ability4_slam");
+            wait(70, null);
+        }
+        client(2, null, mc -> { showGui = true; mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON); });
+        cmd(2, null, "tp @a 0 -60 0 180 10");
+        wait(20, "player_first_person_hud");
+        client(1, null, mc -> { if (mc.player != null) mc.player.swing(net.minecraft.world.InteractionHand.MAIN_HAND); });
+        wait(2, "player_first_person_swing");
+        client(2, null, mc -> { showGui = false; mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT); });
+        client(1, null, mc -> { if (mc.player != null) mc.player.swing(net.minecraft.world.InteractionHand.MAIN_HAND); });
+        wait(3, "player_slash");
+        cmd(2, null, "tp @a 0 -58 0 180 10");
+        wait(6, "player_jump");
+        player(1, com.krolasyon.bosses.form.DemonForm::airJump);
+        wait(4, "player_flip");
+        wait(40, null);
+        player(1, p -> com.krolasyon.bosses.form.DemonForm.revert(p, true));
+        wait(8, "player_revert");
+        wait(30, null);
+    }
+
+    private boolean showGui;
+
+    private void player(int wait, Consumer<net.minecraft.server.level.ServerPlayer> c) { player(wait, null, c); }
+
+    private void player(int wait, String shot, Consumer<net.minecraft.server.level.ServerPlayer> c) {
+        steps.add(new Step(wait, shot, s -> {
+            for (net.minecraft.server.level.ServerPlayer p : s.getPlayerList().getPlayers()) c.accept(p);
+        }));
+    }
+
+    private void client(int wait, String shot, Consumer<Minecraft> c) {
+        steps.add(new Step(wait, shot, s -> Minecraft.getInstance().execute(() -> c.accept(Minecraft.getInstance()))));
     }
 
     private <T extends BossEntity> void bossRun(String id, Class<T> cls, int[][] abilities) {
@@ -142,7 +205,7 @@ public final class AutoTest {
         }
         if (mc.level == null || mc.player == null || mc.getSingleplayerServer() == null) return;
         if (mc.screen != null) mc.setScreen(null);
-        mc.options.hideGui = true;
+        mc.options.hideGui = !showGui;
         if (inWorld < 0) {
             inWorld = tick;
             stepStart = tick + 100;
@@ -166,6 +229,8 @@ public final class AutoTest {
                 srv.execute(() -> each(srv, BossEntity.class, b -> LOG.info("[AUTOTEST] state {} pos={} hp={} target={} ability={} t={} anim={}",
                         b.getName().getString(), b.position(), b.getHealth(), b.getTarget() == null ? null : b.getTarget().getName().getString(),
                         b.debugAbility(), b.debugAbilityTick(), st.shot())));
+                srv.execute(() -> srv.getPlayerList().getPlayers().forEach(p -> LOG.info("[AUTOTEST] player {} demon={} hp={}/{} pos={} shot={}",
+                        p.getName().getString(), com.krolasyon.bosses.form.DemonForm.isDemon(p), p.getHealth(), p.getMaxHealth(), p.position(), st.shot())));
                 if (st.shot().equals("END")) {
                     LOG.info("[AUTOTEST] finished");
                     mc.stop();

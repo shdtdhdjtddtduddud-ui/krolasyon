@@ -27,7 +27,7 @@ public class HeartOrbEntity extends AbstractHurtingProjectile {
         super(type, level);
     }
 
-    public void setup(Entity owner, LivingEntity target, Vec3 from, Vec3 dir, boolean empowered) {
+    public void setup(Entity owner, @Nullable LivingEntity target, Vec3 from, Vec3 dir, boolean empowered) {
         this.setOwner(owner);
         this.target = target;
         this.empowered = empowered;
@@ -55,6 +55,7 @@ public class HeartOrbEntity extends AbstractHurtingProjectile {
     @Override
     protected boolean canHitEntity(Entity e) {
         if (!super.canHitEntity(e) || e instanceof HeartOrbEntity) return false;
+        if (this.getOwner() instanceof net.minecraft.world.entity.player.Player p) return com.krolasyon.bosses.form.DemonForm.canHit(p, e);
         return !(this.getOwner() instanceof BossEntity boss) || boss.isHostileTo(e);
     }
 
@@ -67,6 +68,7 @@ public class HeartOrbEntity extends AbstractHurtingProjectile {
         if (e.hurt(this.damageSources().indirectMagic(this, this.getOwner()), empowered ? 8F : 6F) && e instanceof LivingEntity le) {
             le.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 80, 0));
             le.addEffect(new MobEffectInstance(MobEffects.WITHER, 40, 0));
+            if (this.getOwner() instanceof net.minecraft.world.entity.player.Player p) p.heal(1.5F);
         }
     }
 

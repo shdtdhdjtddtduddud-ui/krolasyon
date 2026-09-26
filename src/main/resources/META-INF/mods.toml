@@ -4,12 +4,13 @@ license="All Rights Reserved"
 
 [[mods]]
 modId="krolasyonbosses"
-version="1.1.0"
+version="1.2.0"
 displayName="Krolasyon Bosses"
 authors="krolasyon"
 description='''
 Dort boss: Muhur Bekcisi, Kizil Cehennem Kurdu, Intikam ve Kalp Kirici Iblis.
 Her birinin 5 ozel yetenegi vardir ve etraftaki tum canavarlara saldirirlar.
+Kalp Kirici Kilici ile sen de Kalp Kirici Iblis'e donus: 5 yetenek (R G V B N), cift ziplama, pence saldirilari.
 '''
 
 [[dependencies.krolasyonbosses]]

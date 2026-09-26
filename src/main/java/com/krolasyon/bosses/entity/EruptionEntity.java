@@ -35,6 +35,7 @@ public class EruptionEntity extends Entity {
     public static final int ACTIVE_TICKS = 22;
 
     @Nullable private BossEntity owner;
+    @Nullable private net.minecraft.world.entity.player.Player playerOwner;
     private float damage = 8F;
     private boolean struck;
 
@@ -49,6 +50,20 @@ public class EruptionEntity extends Entity {
         if (y == null) return;
         EruptionEntity e = new EruptionEntity(ModEntities.ERUPTION.get(), level);
         e.owner = owner;
+        e.damage = damage;
+        e.moveTo(x, y, z, owner.getRandom().nextFloat() * 360F, 0F);
+        e.entityData.set(DATA_KIND, kind);
+        e.entityData.set(DATA_WARMUP, warmup);
+        level.addFreshEntity(e);
+    }
+
+    /** eruption raised by a player in the Heartbreaker boss form */
+    public static void spawnFor(net.minecraft.world.entity.player.Player owner, double x, double z, double baseY, int kind, int warmup, float damage) {
+        Level level = owner.level();
+        Double y = findGround(level, x, z, baseY + 4, baseY - 7);
+        if (y == null) return;
+        EruptionEntity e = new EruptionEntity(ModEntities.ERUPTION.get(), level);
+        e.playerOwner = owner;
         e.damage = damage;
         e.moveTo(x, y, z, owner.getRandom().nextFloat() * 360F, 0F);
         e.entityData.set(DATA_KIND, kind);
@@ -152,10 +167,14 @@ public class EruptionEntity extends Entity {
         if (t >= 0 && t <= 3 && !struck) {
             struck = true;
             for (LivingEntity e : this.level().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(0.25, 0.4, 0.25))) {
-                if (owner != null && !owner.isHostileTo(e)) continue;
-                if (owner == null && e instanceof BossEntity) continue;
+                if (playerOwner != null) {
+                    if (!com.krolasyon.bosses.form.DemonForm.canHit(playerOwner, e)) continue;
+                } else {
+                    if (owner != null && !owner.isHostileTo(e)) continue;
+                    if (owner == null && e instanceof BossEntity) continue;
+                }
                 boolean magic = kind == KIND_CRYSTAL;
-                boolean hurt = owner != null
+                boolean hurt = playerOwner != null ? e.hurt(damageSources().playerAttack(playerOwner), damage) : owner != null
                         ? e.hurt(magic ? damageSources().indirectMagic(this, owner) : damageSources().mobAttack(owner), damage)
                         : e.hurt(damageSources().magic(), damage);
                 if (hurt) {
