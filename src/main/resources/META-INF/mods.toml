@@ -1,0 +1,27 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="krolasyonbosses"
+version="1.0.0"
+displayName="Krolasyon Bosses"
+authors="krolasyon"
+description='''
+Iki boss: Muhur Bekcisi (kristal tacli, uc gozlu muhur buyucusu) ve Kizil Cehennem Kurdu (alevli, kizil catlakli kurt).
+Her birinin 5 ozel yetenegi vardir ve etraftaki tum canavarlara saldirirlar.
+'''
+
+[[dependencies.krolasyonbosses]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.krolasyonbosses]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"
