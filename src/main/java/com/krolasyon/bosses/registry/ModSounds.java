@@ -47,4 +47,30 @@ public final class ModSounds {
     public static final RegistryObject<SoundEvent> FIREBALL_HIT = reg("fireball_hit");
     public static final RegistryObject<SoundEvent> FRENZY_SLASH = reg("frenzy_slash");
     public static final RegistryObject<SoundEvent> HOUND_PHASE = reg("hound_phase");
+
+    // Revenge + Heartbreaker Demon
+    public static final RegistryObject<SoundEvent> REVENGE_AMBIENT = reg("revenge_ambient");
+    public static final RegistryObject<SoundEvent> REVENGE_HURT = reg("revenge_hurt");
+    public static final RegistryObject<SoundEvent> REVENGE_DEATH = reg("revenge_death");
+    public static final RegistryObject<SoundEvent> REVENGE_STEP = reg("revenge_step");
+    public static final RegistryObject<SoundEvent> SPEAR_THRUST = reg("spear_thrust");
+    public static final RegistryObject<SoundEvent> LANCE_THROW = reg("lance_throw");
+    public static final RegistryObject<SoundEvent> LANCE_IMPACT = reg("lance_impact");
+    public static final RegistryObject<SoundEvent> BLOOD_WAVE = reg("blood_wave");
+    public static final RegistryObject<SoundEvent> BLADE_SLASH = reg("blade_slash");
+    public static final RegistryObject<SoundEvent> DRAIN = reg("drain");
+    public static final RegistryObject<SoundEvent> VENGEANCE_CHARGE = reg("vengeance_charge");
+    public static final RegistryObject<SoundEvent> VENGEANCE_BURST = reg("vengeance_burst");
+    public static final RegistryObject<SoundEvent> REVENGE_PHASE = reg("revenge_phase");
+    public static final RegistryObject<SoundEvent> DEMON_AMBIENT = reg("demon_ambient");
+    public static final RegistryObject<SoundEvent> DEMON_HURT = reg("demon_hurt");
+    public static final RegistryObject<SoundEvent> DEMON_DEATH = reg("demon_death");
+    public static final RegistryObject<SoundEvent> DEMON_STEP = reg("demon_step");
+    public static final RegistryObject<SoundEvent> THORN_WHIP = reg("thorn_whip");
+    public static final RegistryObject<SoundEvent> HEART_SHOOT = reg("heart_shoot");
+    public static final RegistryObject<SoundEvent> HEART_HIT = reg("heart_hit");
+    public static final RegistryObject<SoundEvent> SHADOW_DASH = reg("shadow_dash");
+    public static final RegistryObject<SoundEvent> THORN_ERUPT = reg("thorn_erupt");
+    public static final RegistryObject<SoundEvent> SCYTHE_SPIN = reg("scythe_spin");
+    public static final RegistryObject<SoundEvent> DEMON_PHASE = reg("demon_phase");
 }

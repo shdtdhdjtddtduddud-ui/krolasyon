@@ -4,6 +4,7 @@ import com.krolasyon.bosses.registry.ModEntities;
 import com.krolasyon.bosses.registry.ModSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -27,7 +28,7 @@ import javax.annotation.Nullable;
 
 /** Ground eruption: crystal spike (Seal Warden) or hellfire pillar (Crimson Hound). */
 public class EruptionEntity extends Entity {
-    public static final int KIND_CRYSTAL = 0, KIND_FIRE = 1;
+    public static final int KIND_CRYSTAL = 0, KIND_FIRE = 1, KIND_BLOOD = 2, KIND_THORN = 3;
     private static final EntityDataAccessor<Integer> DATA_KIND = SynchedEntityData.defineId(EruptionEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_WARMUP = SynchedEntityData.defineId(EruptionEntity.class, EntityDataSerializers.INT);
 
@@ -92,33 +93,60 @@ public class EruptionEntity extends Entity {
         super.tick();
         int warm = getWarmup();
         int t = this.tickCount - warm;
-        boolean crystal = getKind() == KIND_CRYSTAL;
+        int kind = getKind();
+        boolean crystal = kind == KIND_CRYSTAL;
         if (this.level().isClientSide()) {
             if (t < 0) {
-                // telegraph: glowing cracks on the ground
+                // telegraph on the ground
                 if (random.nextInt(2) == 0) {
-                    this.level().addParticle(crystal ? BossEntity.dust(SealWardenEntity.PINK, 1.0F) : ParticleTypes.SMALL_FLAME,
-                            getX() + (random.nextDouble() - 0.5) * 1.2, getY() + 0.05, getZ() + (random.nextDouble() - 0.5) * 1.2, 0, 0.02, 0);
+                    ParticleOptions p = switch (kind) {
+                        case KIND_CRYSTAL -> BossEntity.dust(SealWardenEntity.PINK, 1.0F);
+                        case KIND_BLOOD -> BossEntity.dust(0x7A0612, 1.2F);
+                        case KIND_THORN -> BossEntity.dust(0x1E060C, 1.2F);
+                        default -> ParticleTypes.SMALL_FLAME;
+                    };
+                    this.level().addParticle(p, getX() + (random.nextDouble() - 0.5) * 1.2, getY() + 0.05, getZ() + (random.nextDouble() - 0.5) * 1.2, 0, 0.02, 0);
                 }
             } else if (t < 14) {
-                for (int i = 0; i < (crystal ? 2 : 4); i++) {
-                    this.level().addParticle(crystal ? ParticleTypes.END_ROD : (i % 2 == 0 ? ParticleTypes.FLAME : ParticleTypes.LARGE_SMOKE),
-                            getX() + (random.nextDouble() - 0.5), getY() + random.nextDouble() * (crystal ? 1.5 : 2.8), getZ() + (random.nextDouble() - 0.5),
-                            (random.nextDouble() - 0.5) * 0.1, crystal ? 0.05 : 0.18, (random.nextDouble() - 0.5) * 0.1);
+                for (int i = 0; i < (kind == KIND_FIRE ? 4 : 2); i++) {
+                    ParticleOptions p = switch (kind) {
+                        case KIND_CRYSTAL -> ParticleTypes.END_ROD;
+                        case KIND_BLOOD -> BossEntity.dust(i == 0 ? 0xC21A28 : 0x6A0410, 1.4F);
+                        case KIND_THORN -> i == 0 ? ParticleTypes.SMOKE : BossEntity.dust(0x8C1028, 1.0F);
+                        default -> i % 2 == 0 ? ParticleTypes.FLAME : ParticleTypes.LARGE_SMOKE;
+                    };
+                    this.level().addParticle(p, getX() + (random.nextDouble() - 0.5), getY() + random.nextDouble() * (kind == KIND_FIRE ? 2.8 : 1.5),
+                            getZ() + (random.nextDouble() - 0.5), (random.nextDouble() - 0.5) * 0.1, kind == KIND_FIRE ? 0.18 : 0.05, (random.nextDouble() - 0.5) * 0.1);
                 }
             }
             return;
         }
         if (t == 0) {
             ServerLevel sl = (ServerLevel) this.level();
-            this.level().playSound(null, getX(), getY(), getZ(), crystal ? ModSounds.CRYSTAL_ERUPT.get() : ModSounds.FISSURE.get(),
-                    SoundSource.HOSTILE, crystal ? 0.9F : 1.0F, (crystal ? 1.2F : 0.8F) + random.nextFloat() * 0.4F);
-            if (crystal) {
-                sl.sendParticles(BossEntity.dust(SealWardenEntity.PINK_LIGHT, 1.6F), getX(), getY() + 0.3, getZ(), 14, 0.5, 0.3, 0.5, 0);
-                sl.sendParticles(ParticleTypes.ELECTRIC_SPARK, getX(), getY() + 0.8, getZ(), 6, 0.3, 0.5, 0.3, 0.2);
-            } else {
-                sl.sendParticles(ParticleTypes.LAVA, getX(), getY() + 0.3, getZ(), 5, 0.3, 0.2, 0.3, 0);
-                sl.sendParticles(ParticleTypes.FLAME, getX(), getY() + 0.5, getZ(), 18, 0.3, 0.8, 0.3, 0.08);
+            net.minecraft.sounds.SoundEvent snd = switch (kind) {
+                case KIND_CRYSTAL -> ModSounds.CRYSTAL_ERUPT.get();
+                case KIND_BLOOD -> ModSounds.BLOOD_WAVE.get();
+                case KIND_THORN -> ModSounds.THORN_ERUPT.get();
+                default -> ModSounds.FISSURE.get();
+            };
+            this.level().playSound(null, getX(), getY(), getZ(), snd, SoundSource.HOSTILE, 0.9F, 0.85F + random.nextFloat() * 0.4F);
+            switch (kind) {
+                case KIND_CRYSTAL -> {
+                    sl.sendParticles(BossEntity.dust(SealWardenEntity.PINK_LIGHT, 1.6F), getX(), getY() + 0.3, getZ(), 14, 0.5, 0.3, 0.5, 0);
+                    sl.sendParticles(ParticleTypes.ELECTRIC_SPARK, getX(), getY() + 0.8, getZ(), 6, 0.3, 0.5, 0.3, 0.2);
+                }
+                case KIND_BLOOD -> {
+                    sl.sendParticles(BossEntity.dust(0xB0121E, 2.0F), getX(), getY() + 0.4, getZ(), 16, 0.5, 0.4, 0.5, 0);
+                    sl.sendParticles(BossEntity.dust(0x5A020C, 1.5F), getX(), getY() + 0.8, getZ(), 10, 0.3, 0.8, 0.3, 0);
+                }
+                case KIND_THORN -> {
+                    sl.sendParticles(ParticleTypes.LARGE_SMOKE, getX(), getY() + 0.5, getZ(), 6, 0.3, 0.6, 0.3, 0.02);
+                    sl.sendParticles(BossEntity.dust(0x8C1028, 1.4F), getX(), getY() + 0.8, getZ(), 10, 0.4, 0.8, 0.4, 0);
+                }
+                default -> {
+                    sl.sendParticles(ParticleTypes.LAVA, getX(), getY() + 0.3, getZ(), 5, 0.3, 0.2, 0.3, 0);
+                    sl.sendParticles(ParticleTypes.FLAME, getX(), getY() + 0.5, getZ(), 18, 0.3, 0.8, 0.3, 0.08);
+                }
             }
         }
         if (t >= 0 && t <= 3 && !struck) {
@@ -126,13 +154,20 @@ public class EruptionEntity extends Entity {
             for (LivingEntity e : this.level().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(0.25, 0.4, 0.25))) {
                 if (owner != null && !owner.isHostileTo(e)) continue;
                 if (owner == null && e instanceof BossEntity) continue;
+                boolean magic = kind == KIND_CRYSTAL;
                 boolean hurt = owner != null
-                        ? e.hurt(crystal ? damageSources().indirectMagic(this, owner) : damageSources().mobAttack(owner), damage)
+                        ? e.hurt(magic ? damageSources().indirectMagic(this, owner) : damageSources().mobAttack(owner), damage)
                         : e.hurt(damageSources().magic(), damage);
                 if (hurt) {
-                    e.setDeltaMovement(e.getDeltaMovement().add(0, crystal ? 0.75 : 0.6, 0));
+                    double lift = switch (kind) { case KIND_CRYSTAL -> 0.75; case KIND_THORN -> 0.25; default -> 0.6; };
+                    e.setDeltaMovement(e.getDeltaMovement().add(0, lift, 0));
                     e.hurtMarked = true;
-                    if (!crystal) e.setSecondsOnFire(6);
+                    if (kind == KIND_FIRE) e.setSecondsOnFire(6);
+                    if (kind == KIND_BLOOD) e.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.WITHER, 60, 0));
+                    if (kind == KIND_THORN) {
+                        e.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN, 50, 4));
+                        e.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.POISON, 60, 0));
+                    }
                 }
             }
         }

@@ -24,6 +24,11 @@ public final class ClientEvents {
         event.registerLayerDefinition(SimpleEffectModel.CRYSTAL_SPIKE, ModelLayers::createCrystalSpike);
         event.registerLayerDefinition(SimpleEffectModel.FIRE_PILLAR, ModelLayers::createFirePillar);
         event.registerLayerDefinition(SimpleEffectModel.WATCHER, ModelLayers::createWatcher);
+        event.registerLayerDefinition(com.krolasyon.bosses.client.model.RevengeModel.LAYER, ModelLayers::createRevenge);
+        event.registerLayerDefinition(com.krolasyon.bosses.client.model.HeartDemonModel.LAYER, ModelLayers::createHeartDemon);
+        event.registerLayerDefinition(SimpleEffectModel.BLOOD_SPIKE, ModelLayers::createBloodSpike);
+        event.registerLayerDefinition(SimpleEffectModel.THORN_SPIKE, ModelLayers::createThornSpike);
+        event.registerLayerDefinition(SimpleEffectModel.BLOOD_LANCE, ModelLayers::createBloodLance);
     }
 
     @SubscribeEvent
@@ -35,5 +40,9 @@ public final class ClientEvents {
         event.registerEntityRenderer(ModEntities.WATCHER.get(), WatcherRenderer::new);
         event.registerEntityRenderer(ModEntities.SEAL_BOLT.get(), NoopRenderer::new);
         event.registerEntityRenderer(ModEntities.HELLFIRE_BALL.get(), NoopRenderer::new);
+        event.registerEntityRenderer(ModEntities.REVENGE.get(), RevengeRenderer::new);
+        event.registerEntityRenderer(ModEntities.HEART_DEMON.get(), HeartDemonRenderer::new);
+        event.registerEntityRenderer(ModEntities.BLOOD_LANCE.get(), BloodLanceRenderer::new);
+        event.registerEntityRenderer(ModEntities.HEART_ORB.get(), NoopRenderer::new);
     }
 }

@@ -290,5 +290,261 @@
     "attenuation_distance": 48
    }
   ]
+ },
+ "revenge_ambient": {
+  "subtitle": "subtitles.krolasyonbosses.revenge_ambient",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:revenge_ambient1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "krolasyonbosses:revenge_ambient2",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "revenge_hurt": {
+  "subtitle": "subtitles.krolasyonbosses.revenge_hurt",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:revenge_hurt1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "krolasyonbosses:revenge_hurt2",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "krolasyonbosses:revenge_hurt3",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "revenge_death": {
+  "subtitle": "subtitles.krolasyonbosses.revenge_death",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:revenge_death",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "revenge_step": {
+  "subtitle": "subtitles.krolasyonbosses.revenge_step",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:revenge_step1",
+    "attenuation_distance": 24
+   },
+   {
+    "name": "krolasyonbosses:revenge_step2",
+    "attenuation_distance": 24
+   },
+   {
+    "name": "krolasyonbosses:revenge_step3",
+    "attenuation_distance": 24
+   }
+  ]
+ },
+ "spear_thrust": {
+  "subtitle": "subtitles.krolasyonbosses.spear_thrust",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:spear_thrust",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "lance_throw": {
+  "subtitle": "subtitles.krolasyonbosses.lance_throw",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:lance_throw",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "lance_impact": {
+  "subtitle": "subtitles.krolasyonbosses.lance_impact",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:lance_impact",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "blood_wave": {
+  "subtitle": "subtitles.krolasyonbosses.blood_wave",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:blood_wave",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "blade_slash": {
+  "subtitle": "subtitles.krolasyonbosses.blade_slash",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:blade_slash",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "drain": {
+  "subtitle": "subtitles.krolasyonbosses.drain",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:drain",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "vengeance_charge": {
+  "subtitle": "subtitles.krolasyonbosses.vengeance_charge",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:vengeance_charge",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "vengeance_burst": {
+  "subtitle": "subtitles.krolasyonbosses.vengeance_burst",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:vengeance_burst",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "revenge_phase": {
+  "subtitle": "subtitles.krolasyonbosses.revenge_phase",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:revenge_phase",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "demon_ambient": {
+  "subtitle": "subtitles.krolasyonbosses.demon_ambient",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:demon_ambient1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "krolasyonbosses:demon_ambient2",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "demon_hurt": {
+  "subtitle": "subtitles.krolasyonbosses.demon_hurt",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:demon_hurt1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "krolasyonbosses:demon_hurt2",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "krolasyonbosses:demon_hurt3",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "demon_death": {
+  "subtitle": "subtitles.krolasyonbosses.demon_death",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:demon_death",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "demon_step": {
+  "subtitle": "subtitles.krolasyonbosses.demon_step",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:demon_step1",
+    "attenuation_distance": 24
+   },
+   {
+    "name": "krolasyonbosses:demon_step2",
+    "attenuation_distance": 24
+   },
+   {
+    "name": "krolasyonbosses:demon_step3",
+    "attenuation_distance": 24
+   }
+  ]
+ },
+ "thorn_whip": {
+  "subtitle": "subtitles.krolasyonbosses.thorn_whip",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:thorn_whip",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "heart_shoot": {
+  "subtitle": "subtitles.krolasyonbosses.heart_shoot",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:heart_shoot",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "heart_hit": {
+  "subtitle": "subtitles.krolasyonbosses.heart_hit",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:heart_hit",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "shadow_dash": {
+  "subtitle": "subtitles.krolasyonbosses.shadow_dash",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:shadow_dash",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "thorn_erupt": {
+  "subtitle": "subtitles.krolasyonbosses.thorn_erupt",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:thorn_erupt",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "scythe_spin": {
+  "subtitle": "subtitles.krolasyonbosses.scythe_spin",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:scythe_spin",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "demon_phase": {
+  "subtitle": "subtitles.krolasyonbosses.demon_phase",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:demon_phase",
+    "attenuation_distance": 48
+   }
+  ]
  }
 }

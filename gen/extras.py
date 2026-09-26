@@ -80,3 +80,41 @@ def prison_rune(size=256):
     img[..., 3] = 255 * np.clip(m, 0, 1)
     img[..., :3] *= img[..., 3:4] / 255.0
     return Image.fromarray(img.astype(np.uint8), 'RGBA')
+
+import revenge, demon
+
+# ---- blood spike cluster (Revenge eruptions) ----
+BS = Model('blood_spike', 128, 128)
+BS.bone('root', None, (0, 24, 0))
+for i, (x, z, lean, s, L) in enumerate(((0, 0, 0, 3.4, 26), (4, 2, 30, 2.4, 16), (-4, 1, -28, 2.6, 18), (1, -4, 22, 2.2, 13), (-2, 4, -20, 2.0, 12))):
+    n = f's{i}'
+    BS.bone_w(n, 'root', (x, 24, z), rot_zyx(math.radians(lean * 0.6), math.radians(i * 55), math.radians(-lean)))
+    BS.cube_l(n, (-s / 2, -L, -s / 2), (s, L, s), 'spear')
+    BS.cube_l(n, (-s / 4, -L - 5, -s / 4), (s / 2, 5, s / 2), 'spear')
+for i in range(6):
+    a = i / 6 * math.tau
+    BS.bone(f'w{i}', 'root', (math.cos(a) * 5, 24, math.sin(a) * 5), (-25, 90 - math.degrees(a), 0))
+    BS.cube_l(f'w{i}', (-5, -9, 0), (10, 9, 0), 'splash', plane=True)
+BSP = Painter(BS)
+BSP.mats.update({k: revenge.P.mats[k] for k in ('spear', 'splash')})
+
+# ---- black thorn spikes (Heartbreaker thorn cage / dash trail) ----
+TS = Model('thorn_spike', 128, 128)
+TS.bone('root', None, (0, 24, 0))
+for i, (yr, w, h) in enumerate(((0, 16, 36), (60, 14, 30), (120, 15, 33), (30, 10, 22), (150, 10, 20))):
+    TS.bone(f't{i}', 'root', (0, 24, 0), (0, yr, 0))
+    TS.cube_l(f't{i}', (-w / 2, -h, 0), (w, h, 0), 'thorn', plane=True)
+TSP = Painter(TS)
+TSP.mats['thorn'] = demon.P.mats['thorn']
+
+# ---- thrown blood lance (points along -z) ----
+BL = Model('blood_lance', 256, 128)
+BL.bone('root', None, (0, 16, 0))
+BL.cube_l('root', (-1, -1, -34), (2, 2, 60), 'spear')
+BL.cube_l('root', (-0.6, -0.6, -42), (1.2, 1.2, 8), 'spear')
+BL.cube_l('root', (-0.3, -0.3, -48), (0.6, 0.6, 6), 'spear')
+for k, (zz, ang) in enumerate(((24, 40), (24, -40), (22, 120), (22, -120), (19, 75), (17, -80))):
+    BL.bone_w(f'b{k}', 'root', (0, 16, zz), rot_zyx(math.radians(-60), 0, math.radians(ang)))
+    BL.cube_l(f'b{k}', (-0.7, -8, -0.7), (1.4, 8, 1.4), 'spear')
+BLP = Painter(BL)
+BLP.mats['spear'] = revenge.P.mats['spear']

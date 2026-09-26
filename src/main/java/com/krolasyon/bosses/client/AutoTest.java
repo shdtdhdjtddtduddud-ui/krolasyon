@@ -54,57 +54,44 @@ public final class AutoTest {
         cmd(0, null, "gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false",
                 "time set 6000", "weather clear", "difficulty normal", "gamemode creative @a", "tp @a 1 -60 2 180 -6",
                 "kill @e[type=!player]");
-        // ---------------- Seal Warden ----------------
-        cmd(40, null, TARGET, "summon krolasyonbosses:seal_warden 0 -60 -30 {Rotation:[0f,0f]}");
-        wait(18, "warden_run");
-        wait(70, "warden_idle_far");
-        cmd(20, "warden_front", "tp @a 1 -60 -5 180 -8");
-        cmd(20, "warden_side", "tp @a -9 -60 -16 -90 -6");
-        cmd(20, "warden_back", "tp @a 2 -60 -27 0 -6");
-        cmd(2, null, "tp @a 1 -60 -5 180 -8");
-        for (int[] a : new int[][]{{0, 8}, {1, 22}, {2, 18}, {3, 34}, {4, 13}, {5, 32}}) {
-            force(SealWardenEntity.class, a[0]);
-            wait(a[1], "warden_ability" + a[0]);
-            if (a[0] == 1) wait(6, "warden_ability1b");
-            if (a[0] == 2) wait(6, "warden_ability2b");
-            wait(40, null);
-        }
-        wait(40, "warden_watchers");
-        server(20, null, s -> each(s, SealWardenEntity.class, e -> e.hurt(e.damageSources().generic(), e.getMaxHealth() * 0.55F)));
-        wait(30, "warden_phase2");
-        server(20, null, s -> each(s, SealWardenEntity.class, LivingEntity::kill));
-        wait(28, "warden_death");
-        wait(80, null);
-        // ---------------- Crimson Hound ----------------
-        cmd(10, null, "kill @e[type=!player]", "tp @a 1 -60 2 180 -6", TARGET,
-                "summon krolasyonbosses:crimson_hound 0 -60 -32 {Rotation:[0f,0f]}");
-        wait(14, "hound_run");
-        wait(70, "hound_idle_far");
-        cmd(20, "hound_front", "tp @a 1 -60 -5 180 -8");
-        cmd(20, "hound_side", "tp @a -10 -60 -17 -90 -6");
-        cmd(20, "hound_back", "tp @a 2 -60 -28 0 -8");
-        cmd(2, null, "tp @a 1 -60 -5 180 -8");
-        for (int[] a : new int[][]{{0, 6}, {1, 12}, {2, 26}, {3, 20}, {4, 16}, {5, 9}}) {
-            force(CrimsonHoundEntity.class, a[0]);
-            wait(a[1], "hound_ability" + a[0]);
-            if (a[0] == 3) wait(8, "hound_ability3b");
-            wait(45, null);
-        }
-        server(10, null, s -> each(s, CrimsonHoundEntity.class, e -> e.hurt(e.damageSources().generic(), e.getMaxHealth() * 0.55F)));
-        wait(30, "hound_phase2");
-        server(20, null, s -> each(s, CrimsonHoundEntity.class, LivingEntity::kill));
-        wait(26, "hound_death");
-        // both bosses together with monsters around
-        cmd(80, null, "kill @e[type=!player]", "tp @a 0 -60 0 180 -10",
-                "summon krolasyonbosses:seal_warden -6 -60 -22 {Rotation:[0f,0f]}",
-                "summon krolasyonbosses:crimson_hound 6 -60 -22 {Rotation:[0f,0f]}",
+        bossRun("revenge", com.krolasyon.bosses.entity.RevengeEntity.class, new int[][]{{0, 10}, {1, 18}, {2, 18}, {3, 14}, {4, 26}, {5, 30}, {5, 46}});
+        bossRun("heart_demon", com.krolasyon.bosses.entity.HeartDemonEntity.class, new int[][]{{0, 8}, {1, 11}, {2, 22}, {3, 9}, {4, 16}, {5, 14}});
+        // all four bosses brawling with monsters around
+        cmd(80, null, "kill @e[type=!player]", "tp @a 0 -60 2 180 -10",
+                "summon krolasyonbosses:revenge -7 -60 -22 {Rotation:[0f,0f]}",
+                "summon krolasyonbosses:heart_demon 7 -60 -22 {Rotation:[0f,0f]}",
+                "summon krolasyonbosses:seal_warden -3 -60 -34 {Rotation:[0f,0f]}",
+                "summon krolasyonbosses:crimson_hound 4 -60 -34 {Rotation:[0f,0f]}",
                 "summon minecraft:husk 0 -60 -12", "summon minecraft:skeleton -3 -60 -14 {ArmorItems:[{},{},{},{id:\"minecraft:iron_helmet\",Count:1b}]}",
-                "summon minecraft:spider 3 -60 -13", "summon minecraft:husk 0 -60 -30", "summon minecraft:husk -8 -60 -12");
+                "summon minecraft:spider 3 -60 -13", "summon minecraft:husk -8 -60 -12");
         wait(60, "fight_a");
         wait(60, "fight_b");
-        wait(60, "fight_c");
+        wait(80, "fight_c");
         wait(100, "fight_d");
         wait(20, "END");
+    }
+
+    private <T extends BossEntity> void bossRun(String id, Class<T> cls, int[][] abilities) {
+        cmd(10, null, "kill @e[type=!player]", "tp @a 1 -60 2 180 -6", TARGET,
+                "summon krolasyonbosses:" + id + " 0 -60 -30 {Rotation:[0f,0f]}");
+        wait(18, id + "_run");
+        wait(70, id + "_idle_far");
+        cmd(20, id + "_front", "tp @a 1 -60 -5 180 -8");
+        cmd(20, id + "_side", "tp @a -9 -60 -16 -90 -6");
+        cmd(20, id + "_back", "tp @a 2 -60 -27 0 -6");
+        cmd(2, null, "tp @a 1 -60 -5 180 -8");
+        int last = -1;
+        for (int[] a : abilities) {
+            if (a[0] != last) force(cls, a[0]);
+            wait(a[1], id + "_ability" + a[0] + (a[0] == last ? "b" : ""));
+            last = a[0];
+            wait(40, null);
+        }
+        server(10, null, s -> each(s, cls, e -> e.hurt(e.damageSources().generic(), e.getMaxHealth() * 0.55F)));
+        wait(30, id + "_phase2");
+        server(20, null, s -> each(s, cls, LivingEntity::kill));
+        wait(28, id + "_death");
+        wait(70, null);
     }
 
     private void cmd(int wait, String shot, String... commands) {

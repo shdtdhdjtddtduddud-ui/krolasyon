@@ -41,4 +41,20 @@ public final class ModEntities {
     public static final RegistryObject<EntityType<HellfireBallEntity>> HELLFIRE_BALL = ENTITIES.register("hellfire_ball",
             () -> EntityType.Builder.<HellfireBallEntity>of(HellfireBallEntity::new, MobCategory.MISC)
                     .sized(0.8F, 0.8F).fireImmune().clientTrackingRange(8).updateInterval(1).build("hellfire_ball"));
+
+    public static final RegistryObject<EntityType<RevengeEntity>> REVENGE = ENTITIES.register("revenge",
+            () -> EntityType.Builder.of(RevengeEntity::new, MobCategory.MONSTER)
+                    .sized(1.3F, 4.0F).fireImmune().clientTrackingRange(12).build("revenge"));
+
+    public static final RegistryObject<EntityType<HeartDemonEntity>> HEART_DEMON = ENTITIES.register("heart_demon",
+            () -> EntityType.Builder.of(HeartDemonEntity::new, MobCategory.MONSTER)
+                    .sized(1.2F, 3.3F).fireImmune().clientTrackingRange(12).build("heart_demon"));
+
+    public static final RegistryObject<EntityType<BloodLanceEntity>> BLOOD_LANCE = ENTITIES.register("blood_lance",
+            () -> EntityType.Builder.<BloodLanceEntity>of(BloodLanceEntity::new, MobCategory.MISC)
+                    .sized(0.5F, 0.5F).clientTrackingRange(8).updateInterval(1).build("blood_lance"));
+
+    public static final RegistryObject<EntityType<HeartOrbEntity>> HEART_ORB = ENTITIES.register("heart_orb",
+            () -> EntityType.Builder.<HeartOrbEntity>of(HeartOrbEntity::new, MobCategory.MISC)
+                    .sized(0.5F, 0.5F).clientTrackingRange(8).updateInterval(1).build("heart_orb"));
 }

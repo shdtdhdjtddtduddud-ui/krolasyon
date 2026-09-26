@@ -30,5 +30,7 @@ public class KrolasyonBosses {
     private void onAttributes(EntityAttributeCreationEvent event) {
         event.put(ModEntities.SEAL_WARDEN.get(), SealWardenEntity.createAttributes().build());
         event.put(ModEntities.CRIMSON_HOUND.get(), CrimsonHoundEntity.createAttributes().build());
+        event.put(ModEntities.REVENGE.get(), com.krolasyon.bosses.entity.RevengeEntity.createAttributes().build());
+        event.put(ModEntities.HEART_DEMON.get(), com.krolasyon.bosses.entity.HeartDemonEntity.createAttributes().build());
     }
 }

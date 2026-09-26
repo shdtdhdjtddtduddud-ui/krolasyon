@@ -12,6 +12,9 @@ import net.minecraft.world.entity.Entity;
 public class SimpleEffectModel<T extends Entity> extends HierarchicalModel<T> {
     public static final ModelLayerLocation CRYSTAL_SPIKE = new ModelLayerLocation(new ResourceLocation(KrolasyonBosses.MODID, "crystal_spike"), "main");
     public static final ModelLayerLocation FIRE_PILLAR = new ModelLayerLocation(new ResourceLocation(KrolasyonBosses.MODID, "fire_pillar"), "main");
+    public static final ModelLayerLocation BLOOD_SPIKE = new ModelLayerLocation(new ResourceLocation(KrolasyonBosses.MODID, "blood_spike"), "main");
+    public static final ModelLayerLocation THORN_SPIKE = new ModelLayerLocation(new ResourceLocation(KrolasyonBosses.MODID, "thorn_spike"), "main");
+    public static final ModelLayerLocation BLOOD_LANCE = new ModelLayerLocation(new ResourceLocation(KrolasyonBosses.MODID, "blood_lance"), "main");
     public static final ModelLayerLocation WATCHER = new ModelLayerLocation(new ResourceLocation(KrolasyonBosses.MODID, "watcher"), "main");
 
     private final ModelPart root;
