@@ -59,7 +59,7 @@ public class SealBoltEntity extends AbstractHurtingProjectile {
         Entity e = result.getEntity();
         Entity owner = this.getOwner();
         if (e.hurt(this.damageSources().indirectMagic(this, owner), 6.0F) && e instanceof LivingEntity le) {
-            le.addEffect(new MobEffectInstance(MobEffects.GLOWING, 60, 0));
+            if (!(le instanceof BossEntity)) le.addEffect(new MobEffectInstance(MobEffects.GLOWING, 60, 0));
             le.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 40, 0));
         }
     }

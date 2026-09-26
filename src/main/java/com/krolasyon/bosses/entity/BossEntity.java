@@ -199,6 +199,9 @@ public abstract class BossEntity extends Monster {
         this.level().broadcastEntityEvent(this, (byte) (EVENT_ANIM_BASE + id));
     }
 
+    public int debugAbility() { return currentAbility; }
+    public int debugAbilityTick() { return abilityTick; }
+
     /** used by the CI visual self-test to trigger a specific ability */
     public void debugForceAbility(int id, LivingEntity target) {
         this.setTarget(target);
