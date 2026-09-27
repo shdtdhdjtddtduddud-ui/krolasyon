@@ -24,9 +24,9 @@ public final class AigoarHud {
         int total = Aigoar.ABILITIES * size + (Aigoar.ABILITIES - 1) * gap;
         int x0 = width / 2 + 91 + 10;
         int y0 = height - size - 3;
-        if (x0 + total > width - 4) {           // narrow screens: stack above the hotbar instead
-            x0 = width / 2 - total / 2;
-            y0 = height - 22 - 12 - size - 14;
+        if (x0 + total > width - 4) {           // narrow screens: right side, above the hunger and air bars
+            x0 = width / 2 + 91 - total;
+            y0 = height - 59 - size - 8;
         }
         float time = mc.player.tickCount + partial;
         for (int i = 0; i < Aigoar.ABILITIES; i++) {

@@ -89,7 +89,7 @@ public final class AutoTest {
         ability(0, new int[]{5, 11, 16}, "tp @a 0 -60 0 180 5");
         ability(1, new int[]{8, 20, 50, 106}, "tp @a 0 -60 0 180 5");
         ability(2, new int[]{8, 16, 24}, "tp @a 0 -60 0 180 5");
-        ability(3, new int[]{10, 30, 50}, "tp @a 0 -60 0 180 0");
+        ability(3, new int[]{10, 30, 50}, "tp @a 0 -60 0 150 0");
         ability(4, new int[]{9, 16, 24, 34}, "tp @a 0 -60 0 180 5");
         // first person claw + beam, and the HUD
         client(10, null, mc -> { mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON); showGui = true; });

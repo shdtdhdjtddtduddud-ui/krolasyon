@@ -90,7 +90,7 @@ public class TideVortexEntity extends AbilityEntity {
             sl.sendParticles(ParticleTypes.SPLASH, c.x, c.y + 1.5, c.z, 260, 2.5, 1.5, 2.5, 0.5);
             sl.sendParticles(ParticleTypes.BUBBLE_POP, c.x, c.y + 1.5, c.z, 60, 2.0, 1.5, 2.0, 0.1);
             sl.sendParticles(ParticleTypes.EXPLOSION, c.x, c.y + 1.2, c.z, 3, 1.0, 0.6, 1.0, 0);
-            sl.sendParticles(MorphServer.dust(0x7FFFF6, 2.2F), c.x, c.y + 2, c.z, 60, 2.2, 2.0, 2.2, 0);
+            sl.sendParticles(MorphServer.dust(0x7FFFF6, 1.6F), c.x, c.y + 2, c.z, 60, 2.2, 2.0, 2.2, 0);
             Player o = owner();
             if (o != null) {
                 for (LivingEntity e : targets(new AABB(c, c).inflate(RADIUS * 0.75, 4.0, RADIUS * 0.75))) {

@@ -41,7 +41,7 @@ public class TideVortexRenderer extends EntityRenderer<TideVortexEntity> {
             float[] L = layers[li];
             pose.pushPose();
             pose.mulPose(Axis.YP.rotationDegrees(time * L[4]));
-            float alpha = (0.75F - li * 0.1F) * s;
+            float alpha = (1.0F - li * 0.08F) * s;
             ring(pose, vc, L[0] * s, L[1] * s, L[2], L[3] * s, time * L[5], alpha, 24);
             pose.popPose();
         }

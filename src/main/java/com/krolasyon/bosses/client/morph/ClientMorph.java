@@ -177,10 +177,11 @@ public final class ClientMorph {
         var r = p.getRandom();
         float yaw = p.yBodyRot * Mth.DEG_TO_RAD;
         double cos = Mth.cos(yaw), sin = Mth.sin(yaw);
-        if (r.nextInt(3) == 0) {
-            double side = r.nextBoolean() ? 0.85 : -0.85;
+        if (r.nextInt(4) == 0) {
+            // water dripping off the liquid claws
+            double side = r.nextBoolean() ? 0.5 : -0.5;
             double x = p.getX() - cos * side, z = p.getZ() - sin * side;
-            mc.level.addParticle(r.nextInt(3) == 0 ? ParticleTypes.FALLING_WATER : ParticleTypes.DRIPPING_WATER, x, p.getY() + 0.75, z, 0, 0, 0);
+            mc.level.addParticle(ParticleTypes.FALLING_WATER, x + r.nextGaussian() * 0.05, p.getY() + 1.0, z + r.nextGaussian() * 0.05, 0, 0, 0);
         }
         if (r.nextInt(12) == 0) mc.level.addParticle(ParticleTypes.GLOW, p.getX() + r.nextGaussian() * 0.4, p.getY() + 1.9, p.getZ() + r.nextGaussian() * 0.4, 0, 0.02, 0);
         if (p.walkAnimation.speed() > 0.4F && p.onGround() && r.nextInt(3) == 0)

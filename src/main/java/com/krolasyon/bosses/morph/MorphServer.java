@@ -168,7 +168,7 @@ public final class MorphServer {
         ServerLevel sl = p.serverLevel();
         sl.sendParticles(ParticleTypes.SPLASH, p.getX(), p.getY() + 1.2, p.getZ(), 80, 0.6, 1.0, 0.6, 0.2);
         sl.sendParticles(ParticleTypes.BUBBLE_POP, p.getX(), p.getY() + 1.2, p.getZ(), 40, 0.5, 1.0, 0.5, 0.05);
-        sl.sendParticles(dust(0x3FE0E6, 1.6F), p.getX(), p.getY() + 1.2, p.getZ(), 40, 0.6, 1.2, 0.6, 0);
+        sl.sendParticles(dust(0x3FE0E6, 1.0F), p.getX(), p.getY() + 1.2, p.getZ(), 30, 0.6, 1.2, 0.6, 0);
         p.displayClientMessage(Component.translatable("msg.krolasyonbosses.reverted").withStyle(net.minecraft.ChatFormatting.GRAY), true);
     }
 
@@ -204,7 +204,7 @@ public final class MorphServer {
                 ServerLevel sl = p.serverLevel();
                 ring(sl, p.position(), 1.2, 24, ParticleTypes.SPLASH, 0.05);
                 sl.sendParticles(ParticleTypes.BUBBLE_POP, p.getX(), p.getY(), p.getZ(), 20, 0.5, 0.1, 0.5, 0.05);
-                sl.sendParticles(dust(0x7FFFF6, 1.3F), p.getX(), p.getY() + 0.2, p.getZ(), 16, 0.4, 0.1, 0.4, 0);
+                sl.sendParticles(dust(0x7FFFF6, 0.9F), p.getX(), p.getY() + 0.2, p.getZ(), 10, 0.4, 0.1, 0.4, 0);
                 anim(p, Aigoar.ANIM_DOUBLE_JUMP, false);
             }
         } else if (action == ModNetwork.KeyMsg.SWING) {
@@ -294,24 +294,23 @@ public final class MorphServer {
                 double a = t * 0.55 + i * Math.PI * 2 / 3;
                 double r = 1.6 - k * 0.9;
                 double y = (t % 10) * 0.28;
-                sl.sendParticles(dust(i == 0 ? 0x7FFFF6 : 0x2BC8D6, 1.4F), c.x + Math.cos(a) * r, c.y + y, c.z + Math.sin(a) * r, 1, 0, 0, 0, 0);
+                sl.sendParticles(dust(i == 0 ? 0x7FFFF6 : 0x2BC8D6, 0.9F), c.x + Math.cos(a) * r, c.y + y, c.z + Math.sin(a) * r, 1, 0, 0, 0, 0);
                 sl.sendParticles(ParticleTypes.SPLASH, c.x + Math.cos(a + 1) * r, c.y + y * 0.5, c.z + Math.sin(a + 1) * r, 2, 0, 0.1, 0, 0.1);
             }
-            sl.sendParticles(ParticleTypes.FALLING_WATER, c.x, c.y + 3.2, c.z, 4, 0.6, 0.2, 0.6, 0);
+            sl.sendParticles(ParticleTypes.FALLING_WATER, c.x, c.y + 3.2, c.z, 1, 0.6, 0.2, 0.6, 0);
             if (t % 3 == 0) sl.sendParticles(ParticleTypes.GLOW, c.x, c.y + 1.2, c.z, 2, 0.5, 0.8, 0.5, 0.02);
         } else if (t == Aigoar.TRANSFORM_BURST) {
             sl.sendParticles(ParticleTypes.SPLASH, c.x, c.y + 1.5, c.z, 220, 1.4, 1.4, 1.4, 0.4);
             sl.sendParticles(ParticleTypes.BUBBLE_POP, c.x, c.y + 1.5, c.z, 80, 1.2, 1.2, 1.2, 0.1);
             sl.sendParticles(ParticleTypes.GLOW, c.x, c.y + 1.6, c.z, 40, 1.0, 1.2, 1.0, 0.2);
             sl.sendParticles(ParticleTypes.NAUTILUS, c.x, c.y + 1.6, c.z, 60, 0.3, 0.4, 0.3, 1.2);
-            sl.sendParticles(ParticleTypes.EXPLOSION, c.x, c.y + 1.2, c.z, 2, 0.4, 0.2, 0.4, 0);
-            ring(sl, c.add(0, 0.1, 0), 2.5, 40, dust(0x7FFFF6, 2.0F), 0);
+            ring(sl, c.add(0, 0.1, 0), 2.5, 40, dust(0x7FFFF6, 1.0F), 0);
             ring(sl, c.add(0, 0.1, 0), 4.0, 50, ParticleTypes.SPLASH, 0.1);
             for (LivingEntity e : targets(p, new AABB(c, c).inflate(5, 3, 5))) {
                 hit(p, e, 5.0F, 1.4, 0.5);
             }
         } else if (t < Aigoar.TRANSFORM_BURST + 20 && t % 2 == 0) {
-            sl.sendParticles(ParticleTypes.DRIPPING_WATER, c.x, c.y + 2.2, c.z, 3, 0.8, 0.6, 0.8, 0);
+            sl.sendParticles(ParticleTypes.SPLASH, c.x, c.y + 0.1, c.z, 3, 0.8, 0.0, 0.8, 0.05);
         }
     }
 
@@ -337,7 +336,7 @@ public final class MorphServer {
         }
         if (t >= 4 && t <= 12) {
             Vec3 c = p.position().add(0, 1.0, 0);
-            sl.sendParticles(dust(0x3FE0E6, 1.8F), c.x, c.y, c.z, 6, 0.4, 0.6, 0.4, 0);
+            sl.sendParticles(dust(0x3FE0E6, 0.8F), c.x, c.y, c.z, 3, 0.4, 0.6, 0.4, 0);
             sl.sendParticles(ParticleTypes.SPLASH, c.x, c.y - 0.8, c.z, 10, 0.4, 0.1, 0.4, 0.1);
             sl.sendParticles(ParticleTypes.BUBBLE_POP, c.x, c.y, c.z, 6, 0.4, 0.5, 0.4, 0.05);
             for (LivingEntity e : targets(p, p.getBoundingBox().inflate(1.6, 0.8, 1.6))) {
@@ -371,7 +370,7 @@ public final class MorphServer {
             double a = t * 0.7;
             for (int i = 0; i < 4; i++) {
                 double b = a + i * Math.PI / 2;
-                sl.sendParticles(dust(0x3FE0E6, 1.3F), c.x + Math.cos(b) * 1.2, c.y, c.z + Math.sin(b) * 1.2, 1, 0, 0, 0, 0);
+                sl.sendParticles(dust(0x3FE0E6, 0.9F), c.x + Math.cos(b) * 1.2, c.y, c.z + Math.sin(b) * 1.2, 1, 0, 0, 0, 0);
             }
             sl.sendParticles(ParticleTypes.BUBBLE_POP, c.x, c.y, c.z, 3, 0.5, 0.2, 0.5, 0.02);
         }
@@ -385,7 +384,7 @@ public final class MorphServer {
             int n = (int) (d.length() * 2);
             for (int i = 0; i < n; i++) {
                 Vec3 q = from.add(d.scale(i / (double) n));
-                sl.sendParticles(dust(0x7FFFF6, 1.5F), q.x, q.y, q.z, 1, 0.05, 0.05, 0.05, 0);
+                sl.sendParticles(dust(0x7FFFF6, 1.0F), q.x, q.y, q.z, 1, 0.05, 0.05, 0.05, 0);
             }
         }
     }
@@ -401,8 +400,8 @@ public final class MorphServer {
             sound(p, ModSounds.GEYSER_SLAM.get(), 1.4F, 1.0F);
             Vec3 c = p.position();
             ring(sl, c.add(0, 0.1, 0), 2.2, 36, ParticleTypes.SPLASH, 0.2);
-            ring(sl, c.add(0, 0.1, 0), 3.0, 36, dust(0x2BC8D6, 1.8F), 0);
-            sl.sendParticles(ParticleTypes.CLOUD, c.x, c.y + 0.2, c.z, 14, 1.2, 0.1, 1.2, 0.05);
+            ring(sl, c.add(0, 0.1, 0), 3.0, 36, dust(0x2BC8D6, 1.0F), 0);
+            sl.sendParticles(ParticleTypes.POOF, c.x, c.y + 0.2, c.z, 14, 1.2, 0.1, 1.2, 0.05);
             for (LivingEntity e : targets(p, new AABB(c, c).inflate(3.2, 1.5, 3.2))) hit(p, e, 5.0F, 0.8, 0.4);
             for (int i = 1; i <= 10; i++) {
                 Vec3 q = c.add(dir.scale(1.2 + i * 1.7));
@@ -473,12 +472,12 @@ public final class MorphServer {
             p.hurtMarked = true;
             sound(p, ModSounds.TSUNAMI_LEAP.get(), 1.2F, 1.0F);
             ring(sl, p.position().add(0, 0.1, 0), 1.5, 30, ParticleTypes.SPLASH, 0.2);
-            sl.sendParticles(ParticleTypes.CLOUD, p.getX(), p.getY() + 0.1, p.getZ(), 10, 0.6, 0.1, 0.6, 0.05);
+            sl.sendParticles(ParticleTypes.POOF, p.getX(), p.getY() + 0.1, p.getZ(), 10, 0.6, 0.1, 0.6, 0.05);
         }
         if (t > 6 && !s.slammed) {
             Vec3 c = p.position().add(0, 1.2, 0);
-            sl.sendParticles(dust(0x3FE0E6, 1.6F), c.x, c.y, c.z, 4, 0.5, 0.8, 0.5, 0);
-            sl.sendParticles(ParticleTypes.FALLING_WATER, c.x, c.y, c.z, 3, 0.5, 0.5, 0.5, 0);
+            sl.sendParticles(dust(0x3FE0E6, 0.8F), c.x, c.y, c.z, 3, 0.5, 0.8, 0.5, 0);
+            sl.sendParticles(ParticleTypes.SPLASH, c.x, c.y - 0.6, c.z, 4, 0.5, 0.3, 0.5, 0.1);
         }
         if (t == 17 && !p.onGround()) {
             p.setDeltaMovement(dir.x * 0.3, -2.4, dir.z * 0.3);
@@ -490,7 +489,7 @@ public final class MorphServer {
             Vec3 c = p.position();
             sound(p, ModSounds.TSUNAMI_CRASH.get(), 2.0F, 1.0F);
             TsunamiWaveEntity.spawn(p, c);
-            sl.sendParticles(ParticleTypes.EXPLOSION_EMITTER, c.x, c.y + 0.3, c.z, 1, 0, 0, 0, 0);
+            ring(sl, c.add(0, 0.2, 0), 2.5, 30, ParticleTypes.POOF, 0.15);
             sl.sendParticles(ParticleTypes.SPLASH, c.x, c.y + 0.5, c.z, 200, 2.0, 0.6, 2.0, 0.5);
             sl.sendParticles(ParticleTypes.NAUTILUS, c.x, c.y + 1.0, c.z, 60, 0.4, 0.4, 0.4, 1.5);
             for (LivingEntity e : targets(p, new AABB(c, c).inflate(3.5, 2.0, 3.5))) hit(p, e, 10.0F, 1.0, 1.0);
@@ -572,7 +571,7 @@ public final class MorphServer {
             double a = -1.2 + i * (2.4 / 14);
             Vec3 q = c.add(dir.scale(Math.cos(a) * 2.6)).add(right.scale(Math.sin(a) * 2.6));
             if (rising) q = q.add(0, i * 0.18, 0);
-            sl.sendParticles(dust(i % 2 == 0 ? 0x7FFFF6 : 0x2BC8D6, 1.6F), q.x, q.y, q.z, 1, 0, 0, 0, 0);
+            sl.sendParticles(dust(i % 2 == 0 ? 0x7FFFF6 : 0x2BC8D6, 0.9F), q.x, q.y, q.z, 1, 0, 0, 0, 0);
             if (i % 3 == 0) sl.sendParticles(ParticleTypes.SPLASH, q.x, q.y, q.z, 3, 0.1, 0.1, 0.1, 0.1);
         }
     }

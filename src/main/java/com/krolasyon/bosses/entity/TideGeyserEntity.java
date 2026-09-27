@@ -74,7 +74,7 @@ public class TideGeyserEntity extends AbilityEntity {
             ServerLevel sl = (ServerLevel) this.level();
             if (loud) sl.playSound(null, getX(), getY(), getZ(), ModSounds.GEYSER_ERUPT.get(), SoundSource.PLAYERS, 1.1F, 0.85F + random.nextFloat() * 0.35F);
             sl.sendParticles(ParticleTypes.SPLASH, getX(), getY() + 0.5, getZ(), 30, 0.4, 0.8, 0.4, 0.3);
-            sl.sendParticles(MorphServer.dust(0x7FFFF6, 1.6F), getX(), getY() + 1.5, getZ(), 10, 0.3, 1.2, 0.3, 0);
+            sl.sendParticles(MorphServer.dust(0x7FFFF6, 1.0F), getX(), getY() + 1.5, getZ(), 10, 0.3, 1.2, 0.3, 0);
         }
         if (t >= 0 && t <= 3 && !struck) {
             struck = true;
