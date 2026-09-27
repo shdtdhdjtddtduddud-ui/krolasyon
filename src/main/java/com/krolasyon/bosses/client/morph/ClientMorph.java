@@ -192,7 +192,7 @@ public final class ClientMorph {
         } else if (f == Forms.SHADE) {
             if (r.nextInt(3) == 0) mc.level.addParticle(ParticleTypes.SMOKE, p.getX() + r.nextGaussian() * 0.35, p.getY() + 0.2 + r.nextDouble() * 1.6, p.getZ() + r.nextGaussian() * 0.35, 0, 0.01, 0);
             if (r.nextInt(10) == 0) mc.level.addParticle(ParticleTypes.CRIMSON_SPORE, p.getX() + r.nextGaussian() * 0.5, p.getY() + 1.5, p.getZ() + r.nextGaussian() * 0.5, 0, 0, 0);
-            if (moving && r.nextInt(3) == 0) mc.level.addParticle(ParticleTypes.LARGE_SMOKE, p.getX(), p.getY() + 0.1, p.getZ(), 0, 0.01, 0);
+            if (moving && r.nextInt(3) == 0) mc.level.addParticle(ParticleTypes.SMOKE, p.getX(), p.getY() + 0.1, p.getZ(), 0, 0.01, 0);
         } else {
             // embers drifting off the burning body and weapon
             if (r.nextInt(2) == 0) {
@@ -209,7 +209,7 @@ public final class ClientMorph {
                 for (int i = 0; i < 3; i++) {
                     double a = t * 0.5 + i * 2.1;
                     double rr = 1.2 + r.nextDouble() * 0.3;
-                    var part = f == Forms.AIGOAR ? ParticleTypes.SPLASH : f == Forms.SHADE ? ParticleTypes.LARGE_SMOKE : ParticleTypes.FLAME;
+                    var part = f == Forms.AIGOAR ? ParticleTypes.SPLASH : f == Forms.SHADE ? ParticleTypes.SMOKE : ParticleTypes.FLAME;
                     mc.level.addParticle(part, p.getX() + Math.cos(a) * rr, p.getY() + r.nextDouble() * 2.6, p.getZ() + Math.sin(a) * rr, 0, 0.1, 0);
                 }
             }

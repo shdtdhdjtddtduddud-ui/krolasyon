@@ -114,7 +114,7 @@ public class ShadeAbilities implements FormAbilities {
                 if (t == 2) sound(p, ModSounds.AWAKEN.get(), 1.8F, 1.0F);
                 if (t < 16) {
                     Vec3 c = p.position().add(0, 1, 0);
-                    sl.sendParticles(ParticleTypes.LARGE_SMOKE, c.x, c.y, c.z, 3, 1.2, 1, 1.2, 0.0);
+                    sl.sendParticles(ParticleTypes.SMOKE, c.x, c.y, c.z, 4, 1.2, 1, 1.2, 0.0);
                     sl.sendParticles(dust(0xD01828, 1.0F), c.x, c.y, c.z, 4, 0.8, 1.0, 0.8, 0);
                 }
                 if (t == 16) {
@@ -153,7 +153,8 @@ public class ShadeAbilities implements FormAbilities {
     @Override
     public void transformBurst(ServerPlayer p, ServerLevel sl) {
         Vec3 c = p.position();
-        sl.sendParticles(ParticleTypes.LARGE_SMOKE, c.x, c.y + 1.5, c.z, 40, 1.2, 1.4, 1.2, 0.08);
+        sl.sendParticles(ParticleTypes.LARGE_SMOKE, c.x, c.y + 1.5, c.z, 12, 1.2, 1.4, 1.2, 0.04);
+        sl.sendParticles(ParticleTypes.SMOKE, c.x, c.y + 1.5, c.z, 40, 1.2, 1.4, 1.2, 0.06);
         sl.sendParticles(dust(0xD01828, 1.5F), c.x, c.y + 1.5, c.z, 60, 1.2, 1.4, 1.2, 0);
         ring(sl, c.add(0, 0.1, 0), 3.0, 40, ParticleTypes.LARGE_SMOKE, 0.05);
     }
