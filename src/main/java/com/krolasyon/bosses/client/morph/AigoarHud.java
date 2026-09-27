@@ -14,11 +14,20 @@ import net.minecraftforge.client.gui.overlay.ForgeGui;
 public final class AigoarHud {
     private AigoarHud() {}
 
-    private static final ResourceLocation ICONS = new ResourceLocation(KrolasyonBosses.MODID, "textures/gui/aigoar_abilities.png");
+    private static final ResourceLocation[] ICONS = new ResourceLocation[com.krolasyon.bosses.morph.Forms.COUNT];
+
+    static {
+        for (int i = 0; i < ICONS.length; i++)
+            ICONS[i] = new ResourceLocation(KrolasyonBosses.MODID, "textures/gui/" + com.krolasyon.bosses.morph.Forms.KEY[i] + "_abilities.png");
+    }
 
     public static void render(ForgeGui gui, GuiGraphics g, float partial, int width, int height) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui || !ClientMorph.localMorphed()) return;
+        if (mc.player == null || mc.options.hideGui) return;
+        ClientMorph.CState me = ClientMorph.get(mc.player.getId());
+        if (me == null || !com.krolasyon.bosses.morph.Forms.valid(me.form)) return;
+        int form = me.form;
+        int accent = com.krolasyon.bosses.morph.Forms.COLOR[form];
         Font font = mc.font;
         int size = 22, gap = 4;
         int total = Aigoar.ABILITIES * size + (Aigoar.ABILITIES - 1) * gap;
@@ -35,9 +44,9 @@ public final class AigoarHud {
             boolean ready = cd <= 0;
             if (ready) {
                 int a = (int) (90 + 60 * Mth.sin(time * 0.15F + i));
-                g.fill(x - 1, y0 - 1, x + size + 1, y0 + size + 1, (a << 24) | 0x3FE0E6);
+                g.fill(x - 1, y0 - 1, x + size + 1, y0 + size + 1, (a << 24) | accent);
             }
-            g.blit(ICONS, x, y0, size, size, i * 32, 0, 32, 32, 192, 32);
+            g.blit(ICONS[form], x, y0, size, size, i * 32, 0, 32, 32, 192, 32);
             if (!ready) {
                 float k = Mth.clamp(cd / (float) ClientMorph.COOLDOWN_MAX[i], 0F, 1F);
                 int h = Math.round(size * k);
@@ -51,7 +60,7 @@ public final class AigoarHud {
             g.pose().pushPose();
             g.pose().translate(x + size - font.width(ks) * 0.75F - 1, y0 - 7, 0);
             g.pose().scale(0.75F, 0.75F, 1F);
-            g.drawString(font, ks, 0, 0, ready ? 0xFF8CFFF8 : 0xFF6A7C8C, true);
+            g.drawString(font, ks, 0, 0, ready ? (0xFF000000 | com.krolasyon.bosses.morph.Forms.COLOR2[form]) : 0xFF6A7C8C, true);
             g.pose().popPose();
         }
     }

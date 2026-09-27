@@ -1,7 +1,7 @@
 package com.krolasyon.bosses.client.morph;
 
 import com.krolasyon.bosses.KrolasyonBosses;
-import com.krolasyon.bosses.client.model.AigoarAnimations;
+import com.krolasyon.bosses.client.model.FormAnimSets;
 import com.krolasyon.bosses.morph.Aigoar;
 import net.minecraft.client.animation.AnimationDefinition;
 import net.minecraft.client.animation.KeyframeAnimations;
@@ -14,22 +14,30 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.joml.Vector3f;
 
-/** The tide lord model worn by transformed players; blends locomotion, air, crouch, swim and ability animations. */
-public class AigoarModel extends HierarchicalModel<AbstractClientPlayer> {
-    public static final ModelLayerLocation LAYER = new ModelLayerLocation(new ResourceLocation(KrolasyonBosses.MODID, "aigoar"), "main");
+import javax.annotation.Nullable;
+
+/** A transformation model worn by players; blends locomotion, air, crouch, swim and ability animations of its form. */
+public class FormModel extends HierarchicalModel<AbstractClientPlayer> {
+    public static ModelLayerLocation layer(String form) {
+        return new ModelLayerLocation(new ResourceLocation(KrolasyonBosses.MODID, form), "main");
+    }
 
     private final ModelPart root;
     private final ModelPart head;
     final ModelPart rightArm;
-    final ModelPart rightPauldron;
+    @Nullable final ModelPart rightPauldron;
+    @Nullable final ModelPart weapon;
+    private final AnimationDefinition[] set;
     private final Vector3f cache = new Vector3f();
 
-    public AigoarModel(ModelPart root) {
+    public FormModel(ModelPart root, int form) {
         super(RenderType::entityCutoutNoCull);
         this.root = root;
+        this.set = FormAnimSets.SETS[form];
         this.head = this.getAnyDescendantWithName("head").orElseThrow();
         this.rightArm = this.getAnyDescendantWithName("right_arm").orElseThrow();
-        this.rightPauldron = this.getAnyDescendantWithName("right_pauldron").orElseThrow();
+        this.rightPauldron = this.getAnyDescendantWithName("right_pauldron").orElse(null);
+        this.weapon = this.getAnyDescendantWithName("weapon").orElse(null);
     }
 
     @Override
@@ -43,17 +51,14 @@ public class AigoarModel extends HierarchicalModel<AbstractClientPlayer> {
         KeyframeAnimations.animate(this, def, (long) (seconds * 1000F), weight, cache);
     }
 
-    static AnimationDefinition cast(int id) {
+    @Nullable
+    AnimationDefinition cast(int id) {
+        if (id >= 0 && id < Aigoar.ABILITIES) return set[FormAnimSets.ABILITY + id];
         return switch (id) {
-            case Aigoar.REND -> AigoarAnimations.REND;
-            case Aigoar.MAELSTROM -> AigoarAnimations.MAELSTROM;
-            case Aigoar.GEYSER -> AigoarAnimations.GEYSER;
-            case Aigoar.BEAM -> AigoarAnimations.BEAM;
-            case Aigoar.TSUNAMI -> AigoarAnimations.TSUNAMI;
-            case Aigoar.ANIM_TRANSFORM -> AigoarAnimations.TRANSFORM;
-            case Aigoar.ANIM_ATTACK_R -> AigoarAnimations.ATTACK_R;
-            case Aigoar.ANIM_ATTACK_L -> AigoarAnimations.ATTACK_L;
-            case Aigoar.ANIM_DOUBLE_JUMP -> AigoarAnimations.JUMP;
+            case Aigoar.ANIM_TRANSFORM -> set[FormAnimSets.TRANSFORM];
+            case Aigoar.ANIM_ATTACK_R -> set[FormAnimSets.ATTACK_R];
+            case Aigoar.ANIM_ATTACK_L -> set[FormAnimSets.ATTACK_L];
+            case Aigoar.ANIM_DOUBLE_JUMP -> set[FormAnimSets.JUMP];
             default -> null;
         };
     }
@@ -66,7 +71,7 @@ public class AigoarModel extends HierarchicalModel<AbstractClientPlayer> {
         this.root().getAllParts().forEach(ModelPart::resetPose);
         float age = p.tickCount + partial;
         if (p.deathTime > 0 || !p.isAlive()) {
-            play(AigoarAnimations.DEATH, (p.deathTime + partial) / 20F, 1F);
+            play(set[FormAnimSets.DEATH], (p.deathTime + partial) / 20F, 1F);
             return;
         }
 
@@ -96,15 +101,15 @@ public class AigoarModel extends HierarchicalModel<AbstractClientPlayer> {
         float move = Math.min(p.walkAnimation.speed(partial) * 1.6F, 1F);
         float pos = p.walkAnimation.position(partial);
 
-        play(AigoarAnimations.IDLE, age / 20F, base * ground * (1F - move) * (1F - crouch));
-        play(AigoarAnimations.CROUCH, age / 20F, base * ground * crouch);
+        play(set[FormAnimSets.IDLE], age / 20F, base * ground * (1F - move) * (1F - crouch));
+        play(set[FormAnimSets.CROUCH], age / 20F, base * ground * crouch);
         if (move > 0.001F) {
-            play(AigoarAnimations.WALK, pos * 0.07F, base * ground * move * (1F - run) * (1F - crouch * 0.5F));
-            play(AigoarAnimations.RUN, pos * 0.052F, base * ground * move * run * (1F - crouch));
+            play(set[FormAnimSets.WALK], pos * 0.07F, base * ground * move * (1F - run) * (1F - crouch * 0.5F));
+            play(set[FormAnimSets.RUN], pos * 0.052F, base * ground * move * run * (1F - crouch));
         }
-        play(AigoarAnimations.JUMP, age / 20F, base * air * rise);
-        play(AigoarAnimations.FALL, age / 20F, base * air * (1F - rise));
-        play(AigoarAnimations.SWIM, age / 20F, base * swim);
+        play(set[FormAnimSets.JUMP], age / 20F, base * air * rise);
+        play(set[FormAnimSets.FALL], age / 20F, base * air * (1F - rise));
+        play(set[FormAnimSets.SWIM], age / 20F, base * swim);
         if (cast != null) play(cast, castT, castW);
 
         float netHeadYaw = Mth.wrapDegrees(Mth.rotLerp(partial, p.yHeadRotO, p.yHeadRot) - Mth.rotLerp(partial, p.yBodyRotO, p.yBodyRot));

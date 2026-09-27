@@ -23,11 +23,11 @@ public class TsunamiWaveRenderer extends EntityRenderer<TsunamiWaveEntity> {
     @Override
     public void render(TsunamiWaveEntity e, float yaw, float partial, PoseStack pose, MultiBufferSource buffers, int light) {
         float t = e.tickCount + partial;
-        float r = TsunamiWaveEntity.radius(t);
-        float h = TsunamiWaveEntity.height(t);
+        float r = e.radius(t);
+        float h = e.height(t);
         float fade = Mth.clamp(1F - (t - TsunamiWaveEntity.LIFE) / 8F, 0F, 1F);
         if (fade <= 0.01F) return;
-        VertexConsumer vc = buffers.getBuffer(RenderType.entityTranslucentEmissive(TideVortexRenderer.WAVE));
+        VertexConsumer vc = buffers.getBuffer(RenderType.entityTranslucentEmissive(tex(e)));
         int seg = 48;
         // main wall leaning outward
         TideVortexRenderer.ring(pose, vc, r - 0.9F, r + 0.4F, 0F, Math.max(0.2F, h), t * 0.03F, 0.85F * fade, seg);
@@ -38,6 +38,12 @@ public class TsunamiWaveRenderer extends EntityRenderer<TsunamiWaveEntity> {
         super.render(e, yaw, partial, pose, buffers, light);
     }
 
+    private static final ResourceLocation FIRE = EruptionRenderer.tex("fire_wave"), SHADOW = EruptionRenderer.tex("shadow_wave");
+
+    static ResourceLocation tex(TsunamiWaveEntity e) {
+        return switch (e.getKind()) { case TsunamiWaveEntity.FIRE -> FIRE; case TsunamiWaveEntity.SHADOW -> SHADOW; default -> TideVortexRenderer.WAVE; };
+    }
+
     @Override
-    public ResourceLocation getTextureLocation(TsunamiWaveEntity e) { return TideVortexRenderer.WAVE; }
+    public ResourceLocation getTextureLocation(TsunamiWaveEntity e) { return tex(e); }
 }

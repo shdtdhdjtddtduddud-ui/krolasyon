@@ -741,5 +741,648 @@
     "attenuation_distance": 48
    }
   ]
+ },
+ "solar_ambient": {
+  "subtitle": "subtitles.krolasyonbosses.solar_ambient",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:solar_ambient1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "krolasyonbosses:solar_ambient2",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "solar_hurt": {
+  "subtitle": "subtitles.krolasyonbosses.solar_hurt",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:solar_hurt1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "krolasyonbosses:solar_hurt2",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "krolasyonbosses:solar_hurt3",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "solar_death": {
+  "subtitle": "subtitles.krolasyonbosses.solar_death",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:solar_death",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "solar_step": {
+  "subtitle": "subtitles.krolasyonbosses.solar_step",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:solar_step1",
+    "attenuation_distance": 24
+   },
+   {
+    "name": "krolasyonbosses:solar_step2",
+    "attenuation_distance": 24
+   },
+   {
+    "name": "krolasyonbosses:solar_step3",
+    "attenuation_distance": 24
+   }
+  ]
+ },
+ "solar_transform": {
+  "subtitle": "subtitles.krolasyonbosses.solar_transform",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:solar_transform",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "solar_revert": {
+  "subtitle": "subtitles.krolasyonbosses.solar_revert",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:solar_revert",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "dragon_ambient": {
+  "subtitle": "subtitles.krolasyonbosses.dragon_ambient",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:dragon_ambient1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "krolasyonbosses:dragon_ambient2",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "dragon_hurt": {
+  "subtitle": "subtitles.krolasyonbosses.dragon_hurt",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:dragon_hurt1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "krolasyonbosses:dragon_hurt2",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "krolasyonbosses:dragon_hurt3",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "dragon_death": {
+  "subtitle": "subtitles.krolasyonbosses.dragon_death",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:dragon_death",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "dragon_step": {
+  "subtitle": "subtitles.krolasyonbosses.dragon_step",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:dragon_step1",
+    "attenuation_distance": 24
+   },
+   {
+    "name": "krolasyonbosses:dragon_step2",
+    "attenuation_distance": 24
+   },
+   {
+    "name": "krolasyonbosses:dragon_step3",
+    "attenuation_distance": 24
+   }
+  ]
+ },
+ "dragon_transform": {
+  "subtitle": "subtitles.krolasyonbosses.dragon_transform",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:dragon_transform",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "dragon_revert": {
+  "subtitle": "subtitles.krolasyonbosses.dragon_revert",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:dragon_revert",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "flame_ambient": {
+  "subtitle": "subtitles.krolasyonbosses.flame_ambient",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:flame_ambient1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "krolasyonbosses:flame_ambient2",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "flame_hurt": {
+  "subtitle": "subtitles.krolasyonbosses.flame_hurt",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:flame_hurt1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "krolasyonbosses:flame_hurt2",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "krolasyonbosses:flame_hurt3",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "flame_death": {
+  "subtitle": "subtitles.krolasyonbosses.flame_death",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:flame_death",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "flame_step": {
+  "subtitle": "subtitles.krolasyonbosses.flame_step",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:flame_step1",
+    "attenuation_distance": 24
+   },
+   {
+    "name": "krolasyonbosses:flame_step2",
+    "attenuation_distance": 24
+   },
+   {
+    "name": "krolasyonbosses:flame_step3",
+    "attenuation_distance": 24
+   }
+  ]
+ },
+ "flame_transform": {
+  "subtitle": "subtitles.krolasyonbosses.flame_transform",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:flame_transform",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "flame_revert": {
+  "subtitle": "subtitles.krolasyonbosses.flame_revert",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:flame_revert",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "shade_ambient": {
+  "subtitle": "subtitles.krolasyonbosses.shade_ambient",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:shade_ambient1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "krolasyonbosses:shade_ambient2",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "shade_hurt": {
+  "subtitle": "subtitles.krolasyonbosses.shade_hurt",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:shade_hurt1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "krolasyonbosses:shade_hurt2",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "krolasyonbosses:shade_hurt3",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "shade_death": {
+  "subtitle": "subtitles.krolasyonbosses.shade_death",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:shade_death",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "shade_step": {
+  "subtitle": "subtitles.krolasyonbosses.shade_step",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:shade_step1",
+    "attenuation_distance": 24
+   },
+   {
+    "name": "krolasyonbosses:shade_step2",
+    "attenuation_distance": 24
+   },
+   {
+    "name": "krolasyonbosses:shade_step3",
+    "attenuation_distance": 24
+   }
+  ]
+ },
+ "shade_transform": {
+  "subtitle": "subtitles.krolasyonbosses.shade_transform",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:shade_transform",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "shade_revert": {
+  "subtitle": "subtitles.krolasyonbosses.shade_revert",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:shade_revert",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "lancer_ambient": {
+  "subtitle": "subtitles.krolasyonbosses.lancer_ambient",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:lancer_ambient1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "krolasyonbosses:lancer_ambient2",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "lancer_hurt": {
+  "subtitle": "subtitles.krolasyonbosses.lancer_hurt",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:lancer_hurt1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "krolasyonbosses:lancer_hurt2",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "krolasyonbosses:lancer_hurt3",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "lancer_death": {
+  "subtitle": "subtitles.krolasyonbosses.lancer_death",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:lancer_death",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "lancer_step": {
+  "subtitle": "subtitles.krolasyonbosses.lancer_step",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:lancer_step1",
+    "attenuation_distance": 24
+   },
+   {
+    "name": "krolasyonbosses:lancer_step2",
+    "attenuation_distance": 24
+   },
+   {
+    "name": "krolasyonbosses:lancer_step3",
+    "attenuation_distance": 24
+   }
+  ]
+ },
+ "lancer_transform": {
+  "subtitle": "subtitles.krolasyonbosses.lancer_transform",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:lancer_transform",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "lancer_revert": {
+  "subtitle": "subtitles.krolasyonbosses.lancer_revert",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:lancer_revert",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "cleave": {
+  "subtitle": "subtitles.krolasyonbosses.cleave",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:cleave",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "cyclone": {
+  "subtitle": "subtitles.krolasyonbosses.cyclone",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:cyclone",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "seal_charge": {
+  "subtitle": "subtitles.krolasyonbosses.seal_charge",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:seal_charge",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "phoenix_dash": {
+  "subtitle": "subtitles.krolasyonbosses.phoenix_dash",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:phoenix_dash",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "meteor_call": {
+  "subtitle": "subtitles.krolasyonbosses.meteor_call",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:meteor_call",
+    "attenuation_distance": 64
+   }
+  ]
+ },
+ "breath": {
+  "subtitle": "subtitles.krolasyonbosses.breath",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:breath",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "fireball_whoosh": {
+  "subtitle": "subtitles.krolasyonbosses.fireball_whoosh",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:fireball_whoosh",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "shield_up": {
+  "subtitle": "subtitles.krolasyonbosses.shield_up",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:shield_up",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "dive": {
+  "subtitle": "subtitles.krolasyonbosses.dive",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:dive",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "dragon_summon": {
+  "subtitle": "subtitles.krolasyonbosses.dragon_summon",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:dragon_summon",
+    "attenuation_distance": 64
+   }
+  ]
+ },
+ "flame_blink": {
+  "subtitle": "subtitles.krolasyonbosses.flame_blink",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:flame_blink",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "ember_rain": {
+  "subtitle": "subtitles.krolasyonbosses.ember_rain",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:ember_rain",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "nova": {
+  "subtitle": "subtitles.krolasyonbosses.nova",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:nova",
+    "attenuation_distance": 64
+   }
+  ]
+ },
+ "crescent": {
+  "subtitle": "subtitles.krolasyonbosses.crescent",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:crescent",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "phoenix_rise": {
+  "subtitle": "subtitles.krolasyonbosses.phoenix_rise",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:phoenix_rise",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "shadow_step": {
+  "subtitle": "subtitles.krolasyonbosses.shadow_step",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:shadow_step",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "blood_flurry": {
+  "subtitle": "subtitles.krolasyonbosses.blood_flurry",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:blood_flurry",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "tail_lash": {
+  "subtitle": "subtitles.krolasyonbosses.tail_lash",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:tail_lash",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "awaken": {
+  "subtitle": "subtitles.krolasyonbosses.awaken",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:awaken",
+    "attenuation_distance": 64
+   }
+  ]
+ },
+ "spear_throw": {
+  "subtitle": "subtitles.krolasyonbosses.spear_throw",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:spear_throw",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "spear_impact": {
+  "subtitle": "subtitles.krolasyonbosses.spear_impact",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:spear_impact",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "charge": {
+  "subtitle": "subtitles.krolasyonbosses.charge",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:charge",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "lava_erupt": {
+  "subtitle": "subtitles.krolasyonbosses.lava_erupt",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:lava_erupt",
+    "attenuation_distance": 64
+   }
+  ]
+ },
+ "hell_gate": {
+  "subtitle": "subtitles.krolasyonbosses.hell_gate",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:hell_gate",
+    "attenuation_distance": 64
+   }
+  ]
+ },
+ "spear_fall": {
+  "subtitle": "subtitles.krolasyonbosses.spear_fall",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:spear_fall",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "fire_explode": {
+  "subtitle": "subtitles.krolasyonbosses.fire_explode",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:fire_explode",
+    "attenuation_distance": 64
+   }
+  ]
+ },
+ "heavy_swing": {
+  "subtitle": "subtitles.krolasyonbosses.heavy_swing",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:heavy_swing1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "krolasyonbosses:heavy_swing2",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "blade_swing": {
+  "subtitle": "subtitles.krolasyonbosses.blade_swing",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:blade_swing1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "krolasyonbosses:blade_swing2",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "spear_swing": {
+  "subtitle": "subtitles.krolasyonbosses.spear_swing",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:spear_swing1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "krolasyonbosses:spear_swing2",
+    "attenuation_distance": 48
+   }
+  ]
  }
 }

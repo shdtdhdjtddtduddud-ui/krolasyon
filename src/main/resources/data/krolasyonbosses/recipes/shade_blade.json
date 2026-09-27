@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "PHP",
+    "CSC",
+    " C "
+  ],
+  "key": {
+    "S": {
+      "item": "minecraft:netherite_sword"
+    },
+    "H": {
+      "item": "minecraft:wither_rose"
+    },
+    "C": {
+      "item": "minecraft:obsidian"
+    },
+    "P": {
+      "item": "minecraft:echo_shard"
+    }
+  },
+  "result": {
+    "item": "krolasyonbosses:shade_blade"
+  }
+}

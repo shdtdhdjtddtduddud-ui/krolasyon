@@ -68,13 +68,14 @@ public final class ModNetwork {
         }
     }
 
-    public record SyncMsg(int entityId, boolean morphed) {
-        void encode(FriendlyByteBuf buf) { buf.writeVarInt(entityId); buf.writeBoolean(morphed); }
+    /** form -1 = not transformed */
+    public record SyncMsg(int entityId, byte form) {
+        void encode(FriendlyByteBuf buf) { buf.writeVarInt(entityId); buf.writeByte(form); }
 
-        static SyncMsg decode(FriendlyByteBuf buf) { return new SyncMsg(buf.readVarInt(), buf.readBoolean()); }
+        static SyncMsg decode(FriendlyByteBuf buf) { return new SyncMsg(buf.readVarInt(), buf.readByte()); }
 
         void handle(Supplier<NetworkEvent.Context> ctx) {
-            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> com.krolasyon.bosses.client.morph.ClientMorph.onSync(entityId, morphed));
+            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> com.krolasyon.bosses.client.morph.ClientMorph.onSync(entityId, form));
             ctx.get().setPacketHandled(true);
         }
     }

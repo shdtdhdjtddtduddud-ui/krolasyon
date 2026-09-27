@@ -6,6 +6,7 @@ import com.krolasyon.bosses.client.model.ModelLayers;
 import com.krolasyon.bosses.client.model.SealWardenModel;
 import com.krolasyon.bosses.client.model.SimpleEffectModel;
 import com.krolasyon.bosses.client.render.*;
+import com.krolasyon.bosses.client.morph.FormModel;
 import com.krolasyon.bosses.registry.ModEntities;
 import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraftforge.api.distmarker.Dist;
@@ -29,7 +30,13 @@ public final class ClientEvents {
         event.registerLayerDefinition(SimpleEffectModel.BLOOD_SPIKE, ModelLayers::createBloodSpike);
         event.registerLayerDefinition(SimpleEffectModel.THORN_SPIKE, ModelLayers::createThornSpike);
         event.registerLayerDefinition(SimpleEffectModel.BLOOD_LANCE, ModelLayers::createBloodLance);
-        event.registerLayerDefinition(com.krolasyon.bosses.client.morph.AigoarModel.LAYER, ModelLayers::createAigoar);
+        event.registerLayerDefinition(FormModel.layer("aigoar"), ModelLayers::createAigoar);
+        event.registerLayerDefinition(FormModel.layer("solar"), ModelLayers::createSolar);
+        event.registerLayerDefinition(FormModel.layer("dragon"), ModelLayers::createDragon);
+        event.registerLayerDefinition(FormModel.layer("flame"), ModelLayers::createFlame);
+        event.registerLayerDefinition(FormModel.layer("shade"), ModelLayers::createShade);
+        event.registerLayerDefinition(FormModel.layer("lancer"), ModelLayers::createLancer);
+        event.registerLayerDefinition(FormProjectileRenderer.SPEAR_LAYER, ModelLayers::createHellSpear);
         event.registerLayerDefinition(TideGeyserRenderer.LAYER, ModelLayers::createTideGeyser);
     }
 
@@ -49,11 +56,13 @@ public final class ClientEvents {
         event.registerEntityRenderer(ModEntities.TIDE_VORTEX.get(), TideVortexRenderer::new);
         event.registerEntityRenderer(ModEntities.TIDE_GEYSER.get(), TideGeyserRenderer::new);
         event.registerEntityRenderer(ModEntities.TSUNAMI_WAVE.get(), TsunamiWaveRenderer::new);
+        event.registerEntityRenderer(ModEntities.ZONE.get(), ZoneRenderer::new);
+        event.registerEntityRenderer(ModEntities.FORM_PROJECTILE.get(), FormProjectileRenderer::new);
     }
 
     @SubscribeEvent
     public static void bakeMorph(EntityRenderersEvent.AddLayers event) {
-        com.krolasyon.bosses.client.morph.AigoarRenderer.bake(event.getEntityModels());
+        com.krolasyon.bosses.client.morph.FormRenderer.bake(event.getEntityModels());
     }
 
     @SubscribeEvent

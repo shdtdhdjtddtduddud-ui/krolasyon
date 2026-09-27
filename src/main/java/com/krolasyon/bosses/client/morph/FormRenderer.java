@@ -1,9 +1,12 @@
 package com.krolasyon.bosses.client.morph;
 
 import com.krolasyon.bosses.KrolasyonBosses;
+import com.krolasyon.bosses.morph.Forms;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.EntityModelSet;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -14,25 +17,33 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 
-import javax.annotation.Nullable;
+/** Draws a transformed player as its form (third person) and the form's arm / weapon (first person). */
+public final class FormRenderer {
+    private FormRenderer() {}
 
-/** Draws a transformed player as Aigoar (third person) and Aigoar's liquid claw (first person). */
-public final class AigoarRenderer {
-    private AigoarRenderer() {}
+    static final ResourceLocation[] TEXTURE = new ResourceLocation[Forms.COUNT];
+    static final ResourceLocation[] GLOW = new ResourceLocation[Forms.COUNT];
+    /** model units -> world: every form stands about 2.8-2.9 blocks tall */
+    static final float[] SCALE = {0.46F, 0.47F, 0.46F, 0.46F, 0.46F, 0.47F};
+    static final FormModel[] MODELS = new FormModel[Forms.COUNT];
 
-    public static final ResourceLocation TEXTURE = new ResourceLocation(KrolasyonBosses.MODID, "textures/entity/aigoar.png");
-    public static final ResourceLocation GLOW = new ResourceLocation(KrolasyonBosses.MODID, "textures/entity/aigoar_glow.png");
-    /** model units -> world: the tide lord stands about 2.9 blocks tall including the crown */
-    public static final float SCALE = 0.46F;
-
-    @Nullable static AigoarModel model;
-
-    public static void bake(net.minecraft.client.model.geom.EntityModelSet models) {
-        model = new AigoarModel(models.bakeLayer(AigoarModel.LAYER));
+    static {
+        for (int i = 0; i < Forms.COUNT; i++) {
+            TEXTURE[i] = new ResourceLocation(KrolasyonBosses.MODID, "textures/entity/" + Forms.KEY[i] + ".png");
+            GLOW[i] = new ResourceLocation(KrolasyonBosses.MODID, "textures/entity/" + Forms.KEY[i] + "_glow.png");
+        }
     }
 
+    public static void bake(EntityModelSet models) {
+        for (int i = 0; i < Forms.COUNT; i++) MODELS[i] = new FormModel(models.bakeLayer(FormModel.layer(Forms.KEY[i])), i);
+    }
+
+    static boolean ready(int form) { return Forms.valid(form) && MODELS[form] != null; }
+
     public static void render(AbstractClientPlayer p, ClientMorph.CState st, float partial, PoseStack ps, MultiBufferSource buffers, int light) {
-        if (model == null) return;
+        int f = st.form;
+        if (!ready(f)) return;
+        FormModel model = MODELS[f];
         boolean invisible = p.isInvisible();
         Minecraft mc = Minecraft.getInstance();
         if (invisible && mc.player != null && p.isInvisibleTo(mc.player)) return;
@@ -42,8 +53,8 @@ public final class AigoarRenderer {
         ps.mulPose(Axis.YP.rotationDegrees(180.0F - bodyYaw));
         float swim = p.getSwimAmount(partial);
         if (p.isFallFlying()) {
-            float f = (float) p.getFallFlyingTicks() + partial;
-            float f1 = Mth.clamp(f * f / 100.0F, 0.0F, 1.0F);
+            float fl = (float) p.getFallFlyingTicks() + partial;
+            float f1 = Mth.clamp(fl * fl / 100.0F, 0.0F, 1.0F);
             if (!p.isAutoSpinAttack()) ps.mulPose(Axis.XP.rotationDegrees(f1 * (-90.0F - p.getXRot())));
         } else if (swim > 0.0F) {
             float target = p.isInWater() ? -90.0F - p.getXRot() : -90.0F;
@@ -51,8 +62,8 @@ public final class AigoarRenderer {
             if (p.isVisuallySwimming()) ps.translate(0.0F, -1.0F, 0.3F);
         }
         ps.scale(-1.0F, -1.0F, 1.0F);
-        // the inventory preview draws the player full-bright inside a container screen: shrink so the crown fits the frame
-        float sc = SCALE;
+        // the inventory preview draws the player full-bright inside a container screen: shrink so the whole form fits
+        float sc = SCALE[f];
         if (light == LightTexture.FULL_BRIGHT && mc.screen instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?>) sc *= 0.6F;
         ps.scale(sc, sc, sc);
         ps.translate(0.0F, -1.501F, 0.0F);
@@ -60,15 +71,17 @@ public final class AigoarRenderer {
         model.setup(p, st, partial);
         int overlay = LivingEntityRenderer.getOverlayCoords(p, 0.0F);
         float alpha = invisible ? 0.15F : 1.0F;
-        RenderType rt = invisible ? RenderType.itemEntityTranslucentCull(TEXTURE) : RenderType.entityCutoutNoCull(TEXTURE);
+        RenderType rt = invisible ? RenderType.itemEntityTranslucentCull(TEXTURE[f]) : RenderType.entityCutoutNoCull(TEXTURE[f]);
         model.renderToBuffer(ps, buffers.getBuffer(rt), light, overlay, 1.0F, 1.0F, 1.0F, alpha);
-        if (!invisible) model.renderToBuffer(ps, buffers.getBuffer(RenderType.eyes(GLOW)), LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+        if (!invisible) model.renderToBuffer(ps, buffers.getBuffer(RenderType.eyes(GLOW[f])), LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         ps.popPose();
     }
 
-    /** first person: the liquid claw arm in place of the vanilla hand (same transforms as the empty-hand renderer) */
+    /** first person: the form's arm (and weapon, shrunk) in place of the vanilla hand */
     public static void renderArm(AbstractClientPlayer p, PoseStack ps, MultiBufferSource buffers, int light, float equip, float swing, HumanoidArm side) {
-        if (model == null) return;
+        ClientMorph.CState st = ClientMorph.get(p.getId());
+        if (st == null || !ready(st.form)) return;
+        FormModel model = MODELS[st.form];
         ps.pushPose();
         boolean right = side != HumanoidArm.LEFT;
         float f = right ? 1.0F : -1.0F;
@@ -89,11 +102,8 @@ public final class AigoarRenderer {
         ps.translate(f * 5.6F, 0.0F, 0.0F);
         if (!right) ps.scale(-1.0F, 1.0F, 1.0F);
 
-        ClientMorph.CState st = ClientMorph.get(p.getId());
-        if (st != null) model.setup(p, st, Minecraft.getInstance().getFrameTime());
-        else model.root().getAllParts().forEach(net.minecraft.client.model.geom.ModelPart::resetPose);
-        // the arm alone, pointing straight down from a vanilla-like shoulder pivot
-        var arm = model.rightArm;
+        model.setup(p, st, Minecraft.getInstance().getFrameTime());
+        ModelPart arm = model.rightArm;
         float ox = arm.x, oy = arm.y, oz = arm.z, rx = arm.xRot, ry = arm.yRot, rz = arm.zRot;
         arm.x = -5.0F / 0.42F;
         arm.y = 1.0F / 0.42F;
@@ -101,11 +111,20 @@ public final class AigoarRenderer {
         arm.xRot = 0.0F;
         arm.yRot = 0.0F;
         arm.zRot = 0.1F;
-        model.rightPauldron.visible = false;
+        if (model.rightPauldron != null) model.rightPauldron.visible = false;
+        ModelPart w = model.weapon;
+        if (w != null) {
+            // blade forward like a held sword, smaller so it does not cover the screen
+            w.xRot = -1.35F;
+            w.yRot = 0.0F;
+            w.zRot = 0.0F;
+            w.xScale = w.yScale = w.zScale = 0.55F;
+        }
         ps.scale(0.42F, 0.42F, 0.42F);
-        arm.render(ps, buffers.getBuffer(RenderType.entityCutoutNoCull(TEXTURE)), light, OverlayTexture.NO_OVERLAY);
-        arm.render(ps, buffers.getBuffer(RenderType.eyes(GLOW)), LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY);
-        model.rightPauldron.visible = true;
+        arm.render(ps, buffers.getBuffer(RenderType.entityCutoutNoCull(TEXTURE[st.form])), light, OverlayTexture.NO_OVERLAY);
+        arm.render(ps, buffers.getBuffer(RenderType.eyes(GLOW[st.form])), LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY);
+        if (model.rightPauldron != null) model.rightPauldron.visible = true;
+        if (w != null) w.xScale = w.yScale = w.zScale = 1.0F;
         arm.x = ox; arm.y = oy; arm.z = oz; arm.xRot = rx; arm.yRot = ry; arm.zRot = rz;
         ps.popPose();
     }

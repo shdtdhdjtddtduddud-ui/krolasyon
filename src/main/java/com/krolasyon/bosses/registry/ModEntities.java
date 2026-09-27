@@ -69,4 +69,12 @@ public final class ModEntities {
     public static final RegistryObject<EntityType<TsunamiWaveEntity>> TSUNAMI_WAVE = ENTITIES.register("tsunami_wave",
             () -> EntityType.Builder.<TsunamiWaveEntity>of(TsunamiWaveEntity::new, MobCategory.MISC)
                     .sized(2.0F, 1.0F).fireImmune().clientTrackingRange(10).updateInterval(4).build("tsunami_wave"));
+
+    public static final RegistryObject<EntityType<ZoneEntity>> ZONE = ENTITIES.register("zone",
+            () -> EntityType.Builder.<ZoneEntity>of(ZoneEntity::new, MobCategory.MISC)
+                    .sized(2.0F, 0.5F).fireImmune().clientTrackingRange(10).updateInterval(10).build("zone"));
+
+    public static final RegistryObject<EntityType<FormProjectileEntity>> FORM_PROJECTILE = ENTITIES.register("form_projectile",
+            () -> EntityType.Builder.<FormProjectileEntity>of(FormProjectileEntity::new, MobCategory.MISC)
+                    .sized(0.6F, 0.6F).fireImmune().clientTrackingRange(10).updateInterval(1).build("form_projectile"));
 }

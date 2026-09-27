@@ -78,10 +78,16 @@ public final class MorphEvents {
     @SubscribeEvent
     public static void onFall(LivingFallEvent e) {
         if (!(e.getEntity() instanceof Player p) || !MorphServer.isMorphed(p)) return;
+        int f = MorphServer.form(p);
         if (!p.level().isClientSide() && e.getDistance() > 3.5F) {
-            MorphServer.sound(p, ModSounds.AIGOAR_LAND.get(), Math.min(1.6F, 0.5F + e.getDistance() * 0.05F), 1.0F);
             ServerLevel sl = (ServerLevel) p.level();
-            MorphServer.ring(sl, p.position().add(0, 0.1, 0), 1.3, 24, ParticleTypes.SPLASH, 0.15);
+            if (f == Forms.AIGOAR) {
+                MorphServer.sound(p, ModSounds.AIGOAR_LAND.get(), Math.min(1.6F, 0.5F + e.getDistance() * 0.05F), 1.0F);
+                MorphServer.ring(sl, p.position().add(0, 0.1, 0), 1.3, 24, ParticleTypes.SPLASH, 0.15);
+            } else {
+                MorphServer.sound(p, ModSounds.DIVE.get(), Math.min(1.2F, 0.3F + e.getDistance() * 0.04F), 1.3F);
+                MorphServer.ring(sl, p.position().add(0, 0.1, 0), 1.3, 24, f == Forms.SHADE ? ParticleTypes.LARGE_SMOKE : ParticleTypes.FLAME, 0.05);
+            }
             sl.sendParticles(ParticleTypes.CLOUD, p.getX(), p.getY() + 0.1, p.getZ(), 6, 0.5, 0.05, 0.5, 0.03);
         }
         e.setDistance(0F);
@@ -100,51 +106,90 @@ public final class MorphEvents {
     @SubscribeEvent
     public static void onAttack(AttackEntityEvent e) {
         Player p = e.getEntity();
-        if (p.level().isClientSide() || !MorphServer.isMorphed(p) || !(e.getTarget() instanceof LivingEntity t)) return;
+        int f = MorphServer.form(p);
+        if (p.level().isClientSide() || f < 0 || !(e.getTarget() instanceof LivingEntity t)) return;
         ServerLevel sl = (ServerLevel) p.level();
-        sl.sendParticles(ParticleTypes.SPLASH, t.getX(), t.getY(0.6), t.getZ(), 18, 0.3, 0.3, 0.3, 0.25);
-        sl.sendParticles(MorphServer.dust(0x3FE0E6, 1.4F), t.getX(), t.getY(0.6), t.getZ(), 8, 0.3, 0.4, 0.3, 0);
-        if (p.getAttackStrengthScale(0.5F) > 0.9F) t.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 30, 1));
+        boolean full = p.getAttackStrengthScale(0.5F) > 0.9F;
+        switch (f) {
+            case Forms.AIGOAR -> {
+                sl.sendParticles(ParticleTypes.SPLASH, t.getX(), t.getY(0.6), t.getZ(), 18, 0.3, 0.3, 0.3, 0.25);
+                sl.sendParticles(MorphServer.dust(0x3FE0E6, 1.4F), t.getX(), t.getY(0.6), t.getZ(), 8, 0.3, 0.4, 0.3, 0);
+                if (full) t.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 30, 1));
+            }
+            case Forms.SHADE -> {
+                sl.sendParticles(MorphServer.dust(0xD01828, 1.2F), t.getX(), t.getY(0.6), t.getZ(), 12, 0.3, 0.4, 0.3, 0);
+                sl.sendParticles(ParticleTypes.SMOKE, t.getX(), t.getY(0.6), t.getZ(), 6, 0.2, 0.3, 0.2, 0.02);
+                if (full) t.addEffect(new MobEffectInstance(MobEffects.WITHER, 40, 0));
+            }
+            default -> {
+                sl.sendParticles(ParticleTypes.FLAME, t.getX(), t.getY(0.6), t.getZ(), 16, 0.3, 0.4, 0.3, 0.06);
+                sl.sendParticles(ParticleTypes.LAVA, t.getX(), t.getY(0.6), t.getZ(), 2, 0.2, 0.2, 0.2, 0);
+                t.setSecondsOnFire(full ? 5 : 2);
+            }
+        }
+    }
+
+    /** form buffs: the Dragon's Scale Aegis burns attackers, the Shade's awakening drains life */
+    @SubscribeEvent
+    public static void onHurt(net.minecraftforge.event.entity.living.LivingHurtEvent e) {
+        if (e.getEntity().level().isClientSide()) return;
+        if (e.getEntity() instanceof ServerPlayer victim && MorphServer.form(victim) == Forms.DRAGON && MorphServer.state(victim).buffTicks > 0) {
+            e.setAmount(e.getAmount() * 0.6F);
+            if (e.getSource().getEntity() instanceof LivingEntity att && att != victim) {
+                att.setSecondsOnFire(4);
+                att.hurt(victim.damageSources().thorns(victim), 3F);
+            }
+        }
+        if (e.getSource().getEntity() instanceof ServerPlayer att && MorphServer.form(att) == Forms.SHADE && MorphServer.state(att).buffTicks > 0) {
+            att.heal(e.getAmount() * 0.25F);
+        }
     }
 
     // ------------------------------------------------------------------ voice & footsteps of the tide lord
     @SubscribeEvent
     public static void onSoundAtPos(PlayLevelSoundEvent.AtPosition e) {
         Holder<SoundEvent> h = e.getSound();
-        if (h == null) return;
-        SoundEvent repl = replacement(h.value());
-        if (repl == null) return;
+        if (h == null || !isPlayerSound(h.value())) return;
         Vec3 pos = e.getPosition();
         Level level = e.getLevel();
         List<Player> ps = level.getEntitiesOfClass(Player.class, new AABB(pos, pos).inflate(0.05), MorphServer::isMorphed);
         if (ps.isEmpty()) return;
-        swap(e, repl);
+        SoundEvent repl = replacement(h.value(), MorphServer.form(ps.get(0)));
+        if (repl != null) swap(e, repl);
     }
 
     @SubscribeEvent
     public static void onSoundAtEntity(PlayLevelSoundEvent.AtEntity e) {
         Holder<SoundEvent> h = e.getSound();
         if (h == null || !(e.getEntity() instanceof Player p) || !MorphServer.isMorphed(p)) return;
-        SoundEvent repl = replacement(h.value());
+        SoundEvent repl = replacement(h.value(), MorphServer.form(p));
         if (repl != null) swap(e, repl);
     }
 
     private static void swap(PlayLevelSoundEvent e, SoundEvent repl) {
         e.setSound(ForgeRegistries.SOUND_EVENTS.getHolder(repl).orElse(Holder.direct(repl)));
-        if (repl == ModSounds.AIGOAR_STEP.get()) e.setNewVolume(Math.max(0.35F, e.getOriginalVolume()));
+        if (repl == ModSounds.AIGOAR_STEP.get() || repl.getLocation().getPath().endsWith("_step")) e.setNewVolume(Math.max(0.35F, e.getOriginalVolume()));
         e.setSource(SoundSource.PLAYERS);
     }
 
+    private static boolean isPlayerSound(SoundEvent s) {
+        ResourceLocation id = s.getLocation();
+        if (!"minecraft".equals(id.getNamespace())) return false;
+        String p = id.getPath();
+        return p.startsWith("entity.player.") || (p.endsWith(".step") && p.startsWith("block."));
+    }
+
     @Nullable
-    private static SoundEvent replacement(SoundEvent s) {
+    private static SoundEvent replacement(SoundEvent s, int form) {
+        if (form < 0) return null;
         ResourceLocation id = s.getLocation();
         if (!"minecraft".equals(id.getNamespace())) return null;
         String p = id.getPath();
-        if (p.startsWith("entity.player.hurt")) return ModSounds.AIGOAR_HURT.get();
-        if (p.equals("entity.player.death")) return ModSounds.AIGOAR_DEATH.get();
-        if (p.startsWith("entity.player.attack.")) return ModSounds.CLAW_SWIPE.get();
-        if (p.equals("entity.player.big_fall") || p.equals("entity.player.small_fall")) return ModSounds.AIGOAR_LAND.get();
-        if (p.endsWith(".step") && p.startsWith("block.")) return ModSounds.AIGOAR_STEP.get();
+        if (p.startsWith("entity.player.hurt")) return Forms.hurt(form);
+        if (p.equals("entity.player.death")) return Forms.death(form);
+        if (p.startsWith("entity.player.attack.")) return Forms.swing(form);
+        if (p.equals("entity.player.big_fall") || p.equals("entity.player.small_fall")) return form == Forms.AIGOAR ? ModSounds.AIGOAR_LAND.get() : ModSounds.DIVE.get();
+        if (p.endsWith(".step") && p.startsWith("block.")) return Forms.step(form);
         return null;
     }
 }

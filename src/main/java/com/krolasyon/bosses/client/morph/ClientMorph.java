@@ -2,7 +2,8 @@ package com.krolasyon.bosses.client.morph;
 
 import com.krolasyon.bosses.KrolasyonBosses;
 import com.krolasyon.bosses.client.render.BeamRenderer;
-import com.krolasyon.bosses.item.TideBladeItem;
+import com.krolasyon.bosses.item.FormBladeItem;
+import com.krolasyon.bosses.morph.Forms;
 import com.krolasyon.bosses.morph.Aigoar;
 import com.krolasyon.bosses.morph.MorphServer;
 import com.krolasyon.bosses.network.ModNetwork;
@@ -58,7 +59,7 @@ public final class ClientMorph {
     }
 
     static {
-        TideBladeItem.keyNames = () -> {
+        FormBladeItem.keyNames = () -> {
             String[] s = new String[6];
             for (int i = 0; i < 5; i++) s[i] = ABILITY_KEYS[i].getTranslatedKeyMessage().getString();
             s[5] = TRANSFORM_KEY.getTranslatedKeyMessage().getString();
@@ -68,6 +69,7 @@ public final class ClientMorph {
 
     public static final class CState {
         public boolean morphed;
+        public int form = -1;
         public int anim = -1;
         public float animStart;
         public float air, prevAir, rise, prevRise, swim, prevSwim, crouch, prevCrouch, run, prevRun;
@@ -76,7 +78,7 @@ public final class ClientMorph {
 
     private static final Map<Integer, CState> STATES = new ConcurrentHashMap<>();
     static final int[] COOLDOWN = new int[Aigoar.ABILITIES];
-    static final int[] COOLDOWN_MAX = Aigoar.COOLDOWN.clone();
+    static final int[] COOLDOWN_MAX = Forms.COOLDOWN[0].clone();
     private static boolean jumpWasDown;
     private static boolean doubleJumpSent;
 
@@ -92,12 +94,13 @@ public final class ClientMorph {
     }
 
     // ------------------------------------------------------------------ packets
-    public static void onSync(int id, boolean morphed) {
+    public static void onSync(int id, byte form) {
         CState s = STATES.computeIfAbsent(id, k -> new CState());
-        s.morphed = morphed;
-        if (morphed) Aigoar.CLIENT_MORPHED.add(id);
+        s.morphed = Forms.valid(form);
+        s.form = s.morphed ? form : -1;
+        if (s.morphed) Aigoar.CLIENT_FORM.put(id, (int) form);
         else {
-            Aigoar.CLIENT_MORPHED.remove(id);
+            Aigoar.CLIENT_FORM.remove(id);
             s.anim = -1;
         }
     }
@@ -109,10 +112,7 @@ public final class ClientMorph {
         CState s = STATES.computeIfAbsent(id, k -> new CState());
         s.anim = anim;
         s.animStart = e != null ? e.tickCount : 0;
-        if (anim == Aigoar.ANIM_TRANSFORM) {
-            s.morphed = true;
-            Aigoar.CLIENT_MORPHED.add(id);
-        }
+
     }
 
     public static void onCooldowns(int[] remaining, int[] total) {
@@ -125,7 +125,7 @@ public final class ClientMorph {
     @SubscribeEvent
     public static void onLogout(ClientPlayerNetworkEvent.LoggingOut e) {
         STATES.clear();
-        Aigoar.CLIENT_MORPHED.clear();
+        Aigoar.CLIENT_FORM.clear();
         java.util.Arrays.fill(COOLDOWN, 0);
     }
 
@@ -177,22 +177,40 @@ public final class ClientMorph {
         var r = p.getRandom();
         float yaw = p.yBodyRot * Mth.DEG_TO_RAD;
         double cos = Mth.cos(yaw), sin = Mth.sin(yaw);
-        if (r.nextInt(4) == 0) {
-            // water dripping off the liquid claws
-            double side = r.nextBoolean() ? 0.5 : -0.5;
-            double x = p.getX() - cos * side, z = p.getZ() - sin * side;
-            mc.level.addParticle(ParticleTypes.FALLING_WATER, x + r.nextGaussian() * 0.05, p.getY() + 1.0, z + r.nextGaussian() * 0.05, 0, 0, 0);
+        int f = st.form;
+        boolean moving = p.walkAnimation.speed() > 0.4F && p.onGround();
+        if (f == Forms.AIGOAR) {
+            if (r.nextInt(4) == 0) {
+                // water dripping off the liquid claws
+                double side = r.nextBoolean() ? 0.5 : -0.5;
+                double x = p.getX() - cos * side, z = p.getZ() - sin * side;
+                mc.level.addParticle(ParticleTypes.FALLING_WATER, x + r.nextGaussian() * 0.05, p.getY() + 1.0, z + r.nextGaussian() * 0.05, 0, 0, 0);
+            }
+            if (r.nextInt(12) == 0) mc.level.addParticle(ParticleTypes.GLOW, p.getX() + r.nextGaussian() * 0.4, p.getY() + 1.9, p.getZ() + r.nextGaussian() * 0.4, 0, 0.02, 0);
+            if (moving && r.nextInt(3) == 0)
+                mc.level.addParticle(ParticleTypes.SPLASH, p.getX() + r.nextGaussian() * 0.3, p.getY() + 0.05, p.getZ() + r.nextGaussian() * 0.3, 0, 0.1, 0);
+        } else if (f == Forms.SHADE) {
+            if (r.nextInt(3) == 0) mc.level.addParticle(ParticleTypes.SMOKE, p.getX() + r.nextGaussian() * 0.35, p.getY() + 0.2 + r.nextDouble() * 1.6, p.getZ() + r.nextGaussian() * 0.35, 0, 0.01, 0);
+            if (r.nextInt(10) == 0) mc.level.addParticle(ParticleTypes.CRIMSON_SPORE, p.getX() + r.nextGaussian() * 0.5, p.getY() + 1.5, p.getZ() + r.nextGaussian() * 0.5, 0, 0, 0);
+            if (moving && r.nextInt(3) == 0) mc.level.addParticle(ParticleTypes.LARGE_SMOKE, p.getX(), p.getY() + 0.1, p.getZ(), 0, 0.01, 0);
+        } else {
+            // embers drifting off the burning body and weapon
+            if (r.nextInt(2) == 0) {
+                double side = r.nextBoolean() ? 0.5 : -0.5;
+                mc.level.addParticle(r.nextInt(3) == 0 ? ParticleTypes.FLAME : ParticleTypes.SMALL_FLAME, p.getX() - cos * side + r.nextGaussian() * 0.15,
+                        p.getY() + 0.6 + r.nextDouble() * 1.4, p.getZ() - sin * side + r.nextGaussian() * 0.15, 0, 0.03, 0);
+            }
+            if (r.nextInt(8) == 0) mc.level.addParticle(ParticleTypes.LAVA, p.getX(), p.getY() + 1.2, p.getZ(), 0, 0, 0);
+            if (moving && r.nextInt(2) == 0) mc.level.addParticle(ParticleTypes.FLAME, p.getX() + r.nextGaussian() * 0.25, p.getY() + 0.05, p.getZ() + r.nextGaussian() * 0.25, 0, 0.02, 0);
         }
-        if (r.nextInt(12) == 0) mc.level.addParticle(ParticleTypes.GLOW, p.getX() + r.nextGaussian() * 0.4, p.getY() + 1.9, p.getZ() + r.nextGaussian() * 0.4, 0, 0.02, 0);
-        if (p.walkAnimation.speed() > 0.4F && p.onGround() && r.nextInt(3) == 0)
-            mc.level.addParticle(ParticleTypes.SPLASH, p.getX() + r.nextGaussian() * 0.3, p.getY() + 0.05, p.getZ() + r.nextGaussian() * 0.3, 0, 0.1, 0);
         if (st.anim == Aigoar.ANIM_TRANSFORM) {
             float t = p.tickCount - st.animStart;
             if (t < Aigoar.TRANSFORM_BURST) {
                 for (int i = 0; i < 3; i++) {
                     double a = t * 0.5 + i * 2.1;
                     double rr = 1.2 + r.nextDouble() * 0.3;
-                    mc.level.addParticle(ParticleTypes.SPLASH, p.getX() + Math.cos(a) * rr, p.getY() + r.nextDouble() * 2.6, p.getZ() + Math.sin(a) * rr, 0, 0.2, 0);
+                    var part = f == Forms.AIGOAR ? ParticleTypes.SPLASH : f == Forms.SHADE ? ParticleTypes.LARGE_SMOKE : ParticleTypes.FLAME;
+                    mc.level.addParticle(part, p.getX() + Math.cos(a) * rr, p.getY() + r.nextDouble() * 2.6, p.getZ() + Math.sin(a) * rr, 0, 0.1, 0);
                 }
             }
         }
@@ -216,19 +234,20 @@ public final class ClientMorph {
     public static void onRenderPlayer(RenderPlayerEvent.Pre e) {
         if (!(e.getEntity() instanceof AbstractClientPlayer p)) return;
         CState st = get(p.getId());
-        if (st == null || AigoarRenderer.model == null) return;
+        if (st == null || !FormRenderer.ready(st.form)) return;
         e.setCanceled(true);
-        AigoarRenderer.render(p, st, e.getPartialTick(), e.getPoseStack(), e.getMultiBufferSource(), e.getPackedLight());
+        FormRenderer.render(p, st, e.getPartialTick(), e.getPoseStack(), e.getMultiBufferSource(), e.getPackedLight());
     }
 
     @SubscribeEvent
     public static void onRenderHand(RenderHandEvent e) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || get(mc.player.getId()) == null || AigoarRenderer.model == null) return;
+        ClientMorph.CState me = mc.player == null ? null : get(mc.player.getId());
+        if (me == null || !FormRenderer.ready(me.form)) return;
         if (e.getHand() != InteractionHand.MAIN_HAND) return;
         e.setCanceled(true);
         HumanoidArm arm = mc.player.getMainArm();
-        AigoarRenderer.renderArm(mc.player, e.getPoseStack(), e.getMultiBufferSource(), e.getPackedLight(), e.getEquipProgress(), e.getSwingProgress(), arm);
+        FormRenderer.renderArm(mc.player, e.getPoseStack(), e.getMultiBufferSource(), e.getPackedLight(), e.getEquipProgress(), e.getSwingProgress(), arm);
     }
 
     @SubscribeEvent
@@ -243,7 +262,7 @@ public final class ClientMorph {
         boolean any = false;
         for (Player p : mc.level.players()) {
             CState st = get(p.getId());
-            if (st == null || st.anim != Aigoar.BEAM) continue;
+            if (st == null || st.form != Forms.AIGOAR || st.anim != Aigoar.BEAM) continue;
             float t = p.tickCount + partial - st.animStart;
             if (t < 2 || t > Aigoar.BEAM_END + 2) continue;
             if (!any) {
