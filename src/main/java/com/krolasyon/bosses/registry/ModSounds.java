@@ -73,4 +73,25 @@ public final class ModSounds {
     public static final RegistryObject<SoundEvent> THORN_ERUPT = reg("thorn_erupt");
     public static final RegistryObject<SoundEvent> SCYTHE_SPIN = reg("scythe_spin");
     public static final RegistryObject<SoundEvent> DEMON_PHASE = reg("demon_phase");
+
+    // Aigoar (player transformation)
+    public static final RegistryObject<SoundEvent> AIGOAR_AMBIENT = reg("aigoar_ambient");
+    public static final RegistryObject<SoundEvent> AIGOAR_HURT = reg("aigoar_hurt");
+    public static final RegistryObject<SoundEvent> AIGOAR_DEATH = reg("aigoar_death");
+    public static final RegistryObject<SoundEvent> AIGOAR_STEP = reg("aigoar_step");
+    public static final RegistryObject<SoundEvent> AIGOAR_LAND = reg("aigoar_land");
+    public static final RegistryObject<SoundEvent> CLAW_SWIPE = reg("claw_swipe");
+    public static final RegistryObject<SoundEvent> TRANSFORM = reg("transform");
+    public static final RegistryObject<SoundEvent> REVERT = reg("revert");
+    public static final RegistryObject<SoundEvent> TIDAL_REND = reg("tidal_rend");
+    public static final RegistryObject<SoundEvent> MAELSTROM = reg("maelstrom");
+    public static final RegistryObject<SoundEvent> VORTEX_LOOP = reg("vortex_loop");
+    public static final RegistryObject<SoundEvent> VORTEX_BURST = reg("vortex_burst");
+    public static final RegistryObject<SoundEvent> GEYSER_SLAM = reg("geyser_slam");
+    public static final RegistryObject<SoundEvent> GEYSER_ERUPT = reg("geyser_erupt");
+    public static final RegistryObject<SoundEvent> BEAM_CHARGE = reg("beam_charge");
+    public static final RegistryObject<SoundEvent> BEAM_FIRE = reg("beam_fire");
+    public static final RegistryObject<SoundEvent> TSUNAMI_LEAP = reg("tsunami_leap");
+    public static final RegistryObject<SoundEvent> TSUNAMI_CRASH = reg("tsunami_crash");
+    public static final RegistryObject<SoundEvent> DOUBLE_JUMP = reg("double_jump");
 }

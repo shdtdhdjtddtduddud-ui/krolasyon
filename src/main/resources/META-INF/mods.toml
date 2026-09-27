@@ -4,12 +4,13 @@ license="All Rights Reserved"
 
 [[mods]]
 modId="krolasyonbosses"
-version="1.1.0"
+version="1.2.0"
 displayName="Krolasyon Bosses"
 authors="krolasyon"
 description='''
 Dort boss: Muhur Bekcisi, Kizil Cehennem Kurdu, Intikam ve Kalp Kirici Iblis.
 Her birinin 5 ozel yetenegi vardir ve etraftaki tum canavarlara saldirirlar.
+Aigoar'in Gelgit Kilici ile derinliklerin efendisi Aigoar'a donus: 5 su yetenegi, cift ziplama, ozel animasyon ve sesler.
 '''
 
 [[dependencies.krolasyonbosses]]

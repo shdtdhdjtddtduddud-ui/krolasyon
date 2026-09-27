@@ -8,6 +8,7 @@ def bubbles(d, n=12, lo=150, hi=450):
         s = int(R.random() * (len(out) - 3000))
         L = 0.03 + R.random() * 0.05
         b = osc(glide(L, lo + R.random() * (hi - lo), (lo + R.random() * (hi - lo)) * 1.8)) * env(int(L * SR), 0.002, L * 0.5)
+        b = b[:len(out) - s]
         out[s:s + len(b)] += b * (0.4 + R.random() * 0.6)
     return out
 

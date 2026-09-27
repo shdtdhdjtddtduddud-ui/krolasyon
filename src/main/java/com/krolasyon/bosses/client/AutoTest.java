@@ -3,6 +3,7 @@ package com.krolasyon.bosses.client;
 import com.krolasyon.bosses.entity.BossEntity;
 import com.krolasyon.bosses.entity.CrimsonHoundEntity;
 import com.krolasyon.bosses.entity.SealWardenEntity;
+import com.krolasyon.bosses.morph.MorphServer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.core.registries.Registries;
@@ -48,27 +49,84 @@ public final class AutoTest {
         MinecraftForge.EVENT_BUS.register(new AutoTest());
     }
 
-    private static final String TARGET = "summon minecraft:husk 4 -60 -13 {NoAI:1b,PersistenceRequired:1b,Silent:1b,Health:1000f,Attributes:[{Name:\"generic.max_health\",Base:1000d}]}";
+    private static final String TARGET = "summon minecraft:husk %s -60 %s {NoAI:1b,PersistenceRequired:1b,Silent:1b,Health:1000f,Attributes:[{Name:\"generic.max_health\",Base:1000d}]}";
+    private boolean showGui;
 
     private AutoTest() {
         cmd(0, null, "gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false",
-                "time set 6000", "weather clear", "difficulty normal", "gamemode creative @a", "tp @a 1 -60 2 180 -6",
-                "kill @e[type=!player]");
-        bossRun("revenge", com.krolasyon.bosses.entity.RevengeEntity.class, new int[][]{{0, 10}, {1, 18}, {2, 18}, {3, 14}, {4, 26}, {5, 30}, {5, 46}});
-        bossRun("heart_demon", com.krolasyon.bosses.entity.HeartDemonEntity.class, new int[][]{{0, 8}, {1, 11}, {2, 22}, {3, 9}, {4, 16}, {5, 14}});
-        // all four bosses brawling with monsters around
-        cmd(80, null, "kill @e[type=!player]", "tp @a 0 -60 2 180 -10",
-                "summon krolasyonbosses:revenge -7 -60 -22 {Rotation:[0f,0f]}",
-                "summon krolasyonbosses:heart_demon 7 -60 -22 {Rotation:[0f,0f]}",
-                "summon krolasyonbosses:seal_warden -3 -60 -34 {Rotation:[0f,0f]}",
-                "summon krolasyonbosses:crimson_hound 4 -60 -34 {Rotation:[0f,0f]}",
-                "summon minecraft:husk 0 -60 -12", "summon minecraft:skeleton -3 -60 -14 {ArmorItems:[{},{},{},{id:\"minecraft:iron_helmet\",Count:1b}]}",
-                "summon minecraft:spider 3 -60 -13", "summon minecraft:husk -8 -60 -12");
-        wait(60, "fight_a");
-        wait(60, "fight_b");
-        wait(80, "fight_c");
-        wait(100, "fight_d");
+                "time set 6000", "weather clear", "difficulty normal", "gamemode survival @a", "tp @a 0 -60 0 180 5",
+                "kill @e[type=!player]", "give @a krolasyonbosses:tide_blade", "effect give @a minecraft:resistance 99999 4 true",
+                "effect give @a minecraft:saturation 99999 1 true");
+        client(10, "blade_in_hand", mc -> { mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT); showGui = true; });
+        client(1, null, mc -> showGui = false);
+        targets();
+        player(5, "transform_a", MorphServer::transform);
+        wait(12, "transform_b");
+        wait(10, "transform_burst");
+        wait(14, "transform_roar");
+        wait(40, "idle_front");
+        client(20, "idle_back", mc -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK));
+        client(2, null, mc -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT));
+        cmd(20, "idle_side", "tp @a 0 -60 0 90 5");
+        cmd(2, null, "tp @a 0 -60 0 180 5");
+        client(10, null, mc -> { mc.options.keyUp.setDown(true); mc.options.keySprint.setDown(true); });
+        wait(12, "run_a");
+        wait(5, "run_b");
+        client(2, null, mc -> { mc.options.keyUp.setDown(false); mc.options.keySprint.setDown(false); });
+        cmd(10, null, "tp @a 0 -60 0 180 5");
+        client(1, null, mc -> { mc.options.keyUp.setDown(true); });
+        wait(8, "walk");
+        client(2, null, mc -> mc.options.keyUp.setDown(false));
+        cmd(10, null, "tp @a 0 -60 0 180 5");
+        client(3, null, mc -> mc.options.keyJump.setDown(true));
+        client(4, "jump", mc -> mc.options.keyJump.setDown(false));
+        client(3, null, mc -> mc.options.keyJump.setDown(true));
+        client(5, "double_jump", mc -> mc.options.keyJump.setDown(false));
+        wait(25, "landed");
+        client(10, "crouch", mc -> mc.options.keyShift.setDown(true));
+        client(10, null, mc -> mc.options.keyShift.setDown(false));
+        // abilities, seen from behind-right so the effects in front are visible
+        ability(0, new int[]{5, 11, 16}, "tp @a 0 -60 0 180 5");
+        ability(1, new int[]{8, 20, 50, 106}, "tp @a 0 -60 0 180 5");
+        ability(2, new int[]{8, 16, 24}, "tp @a 0 -60 0 180 5");
+        ability(3, new int[]{10, 30, 50}, "tp @a 0 -60 0 180 0");
+        ability(4, new int[]{9, 16, 24, 34}, "tp @a 0 -60 0 180 5");
+        // first person claw + beam, and the HUD
+        client(10, null, mc -> { mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON); showGui = true; });
+        cmd(10, "first_person", "tp @a 0 -60 0 180 0");
+        player(30, "first_person_beam", p -> MorphServer.debugForce(p, 3));
+        wait(40, null);
+        client(10, "hud_cooldowns", mc -> {});
+        client(5, null, mc -> { showGui = false; mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT); });
+        player(20, "revert", MorphServer::revert);
         wait(20, "END");
+    }
+
+    private void targets() {
+        cmd(2, null, String.format(TARGET, "0", "-9"), String.format(TARGET, "-3", "-12"), String.format(TARGET, "3", "-13"),
+                String.format(TARGET, "0", "-18"), String.format(TARGET, "-5", "-20"), String.format(TARGET, "5", "-19"));
+    }
+
+    private void ability(int id, int[] shots, String tp) {
+        cmd(5, null, "kill @e[type=minecraft:husk]", tp);
+        targets();
+        client(5, null, mc -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK));
+        player(1, null, p -> MorphServer.debugForce(p, id));
+        int last = 0;
+        for (int s : shots) {
+            wait(s - last, "ability" + id + "_t" + s);
+            last = s;
+        }
+        wait(40, null);
+        client(2, null, mc -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT));
+    }
+
+    private void player(int wait, String shot, Consumer<net.minecraft.server.level.ServerPlayer> c) {
+        steps.add(new Step(wait, shot, s -> { for (net.minecraft.server.level.ServerPlayer p : s.getPlayerList().getPlayers()) c.accept(p); }));
+    }
+
+    private void client(int wait, String shot, Consumer<Minecraft> c) {
+        steps.add(new Step(wait, shot, s -> Minecraft.getInstance().execute(() -> c.accept(Minecraft.getInstance()))));
     }
 
     private <T extends BossEntity> void bossRun(String id, Class<T> cls, int[][] abilities) {
@@ -142,7 +200,7 @@ public final class AutoTest {
         }
         if (mc.level == null || mc.player == null || mc.getSingleplayerServer() == null) return;
         if (mc.screen != null) mc.setScreen(null);
-        mc.options.hideGui = true;
+        mc.options.hideGui = !showGui;
         if (inWorld < 0) {
             inWorld = tick;
             stepStart = tick + 100;

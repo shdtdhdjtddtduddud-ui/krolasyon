@@ -57,4 +57,16 @@ public final class ModEntities {
     public static final RegistryObject<EntityType<HeartOrbEntity>> HEART_ORB = ENTITIES.register("heart_orb",
             () -> EntityType.Builder.<HeartOrbEntity>of(HeartOrbEntity::new, MobCategory.MISC)
                     .sized(0.5F, 0.5F).clientTrackingRange(8).updateInterval(1).build("heart_orb"));
+
+    public static final RegistryObject<EntityType<TideVortexEntity>> TIDE_VORTEX = ENTITIES.register("tide_vortex",
+            () -> EntityType.Builder.<TideVortexEntity>of(TideVortexEntity::new, MobCategory.MISC)
+                    .sized(2.0F, 3.0F).fireImmune().clientTrackingRange(10).updateInterval(4).build("tide_vortex"));
+
+    public static final RegistryObject<EntityType<TideGeyserEntity>> TIDE_GEYSER = ENTITIES.register("tide_geyser",
+            () -> EntityType.Builder.<TideGeyserEntity>of(TideGeyserEntity::new, MobCategory.MISC)
+                    .sized(1.2F, 3.0F).fireImmune().clientTrackingRange(8).updateInterval(4).build("tide_geyser"));
+
+    public static final RegistryObject<EntityType<TsunamiWaveEntity>> TSUNAMI_WAVE = ENTITIES.register("tsunami_wave",
+            () -> EntityType.Builder.<TsunamiWaveEntity>of(TsunamiWaveEntity::new, MobCategory.MISC)
+                    .sized(2.0F, 1.0F).fireImmune().clientTrackingRange(10).updateInterval(4).build("tsunami_wave"));
 }

@@ -147,13 +147,19 @@ def pad(x, d):
 def save(name, x, gain_db=-1.0):
     x = fade(np.nan_to_num(x))
     x = x / (np.abs(x).max() + 1e-9) * 10 ** (gain_db / 20)
+    os.makedirs('/tmp/claude-0', exist_ok=True)
     wav = f'/tmp/claude-0/{name}.wav'
     import wave
     with wave.open(wav, 'wb') as w:
         w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR)
         w.writeframes((x * 32767).astype(np.int16).tobytes())
-    subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-i', wav, '-c:a', 'libvorbis', '-q:a', '5', '-ac', '1',
-                    os.path.join(OUT, f'{name}.ogg')], check=True)
+    import shutil
+    if shutil.which('ffmpeg'):
+        subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-i', wav, '-c:a', 'libvorbis', '-q:a', '5', '-ac', '1',
+                        os.path.join(OUT, f'{name}.ogg')], check=True)
+    else:
+        import soundfile as sf
+        sf.write(os.path.join(OUT, f'{name}.ogg'), x.astype(np.float32), SR, format='OGG', subtype='VORBIS')
 
 
 # ======================= SEAL WARDEN (crystal / arcane / stone) =======================

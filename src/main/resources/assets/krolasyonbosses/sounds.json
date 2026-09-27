@@ -546,5 +546,200 @@
     "attenuation_distance": 48
    }
   ]
+ },
+ "aigoar_ambient": {
+  "subtitle": "subtitles.krolasyonbosses.aigoar_ambient",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:aigoar_ambient1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "krolasyonbosses:aigoar_ambient2",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "aigoar_hurt": {
+  "subtitle": "subtitles.krolasyonbosses.aigoar_hurt",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:aigoar_hurt1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "krolasyonbosses:aigoar_hurt2",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "krolasyonbosses:aigoar_hurt3",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "aigoar_death": {
+  "subtitle": "subtitles.krolasyonbosses.aigoar_death",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:aigoar_death",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "aigoar_step": {
+  "subtitle": "subtitles.krolasyonbosses.aigoar_step",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:aigoar_step1",
+    "attenuation_distance": 24
+   },
+   {
+    "name": "krolasyonbosses:aigoar_step2",
+    "attenuation_distance": 24
+   },
+   {
+    "name": "krolasyonbosses:aigoar_step3",
+    "attenuation_distance": 24
+   }
+  ]
+ },
+ "aigoar_land": {
+  "subtitle": "subtitles.krolasyonbosses.aigoar_land",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:aigoar_land",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "claw_swipe": {
+  "subtitle": "subtitles.krolasyonbosses.claw_swipe",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:claw_swipe1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "krolasyonbosses:claw_swipe2",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "transform": {
+  "subtitle": "subtitles.krolasyonbosses.transform",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:transform",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "revert": {
+  "subtitle": "subtitles.krolasyonbosses.revert",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:revert",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "tidal_rend": {
+  "subtitle": "subtitles.krolasyonbosses.tidal_rend",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:tidal_rend",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "maelstrom": {
+  "subtitle": "subtitles.krolasyonbosses.maelstrom",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:maelstrom",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "vortex_loop": {
+  "subtitle": "subtitles.krolasyonbosses.vortex_loop",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:vortex_loop",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "vortex_burst": {
+  "subtitle": "subtitles.krolasyonbosses.vortex_burst",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:vortex_burst",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "geyser_slam": {
+  "subtitle": "subtitles.krolasyonbosses.geyser_slam",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:geyser_slam",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "geyser_erupt": {
+  "subtitle": "subtitles.krolasyonbosses.geyser_erupt",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:geyser_erupt",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "beam_charge": {
+  "subtitle": "subtitles.krolasyonbosses.beam_charge",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:beam_charge",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "beam_fire": {
+  "subtitle": "subtitles.krolasyonbosses.beam_fire",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:beam_fire",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "tsunami_leap": {
+  "subtitle": "subtitles.krolasyonbosses.tsunami_leap",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:tsunami_leap",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "tsunami_crash": {
+  "subtitle": "subtitles.krolasyonbosses.tsunami_crash",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:tsunami_crash",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "double_jump": {
+  "subtitle": "subtitles.krolasyonbosses.double_jump",
+  "sounds": [
+   {
+    "name": "krolasyonbosses:double_jump",
+    "attenuation_distance": 48
+   }
+  ]
  }
 }

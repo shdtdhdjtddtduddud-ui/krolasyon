@@ -29,6 +29,8 @@ public final class ClientEvents {
         event.registerLayerDefinition(SimpleEffectModel.BLOOD_SPIKE, ModelLayers::createBloodSpike);
         event.registerLayerDefinition(SimpleEffectModel.THORN_SPIKE, ModelLayers::createThornSpike);
         event.registerLayerDefinition(SimpleEffectModel.BLOOD_LANCE, ModelLayers::createBloodLance);
+        event.registerLayerDefinition(com.krolasyon.bosses.client.morph.AigoarModel.LAYER, ModelLayers::createAigoar);
+        event.registerLayerDefinition(TideGeyserRenderer.LAYER, ModelLayers::createTideGeyser);
     }
 
     @SubscribeEvent
@@ -44,5 +46,25 @@ public final class ClientEvents {
         event.registerEntityRenderer(ModEntities.HEART_DEMON.get(), HeartDemonRenderer::new);
         event.registerEntityRenderer(ModEntities.BLOOD_LANCE.get(), BloodLanceRenderer::new);
         event.registerEntityRenderer(ModEntities.HEART_ORB.get(), NoopRenderer::new);
+        event.registerEntityRenderer(ModEntities.TIDE_VORTEX.get(), TideVortexRenderer::new);
+        event.registerEntityRenderer(ModEntities.TIDE_GEYSER.get(), TideGeyserRenderer::new);
+        event.registerEntityRenderer(ModEntities.TSUNAMI_WAVE.get(), TsunamiWaveRenderer::new);
+    }
+
+    @SubscribeEvent
+    public static void bakeMorph(EntityRenderersEvent.AddLayers event) {
+        com.krolasyon.bosses.client.morph.AigoarRenderer.bake(event.getEntityModels());
+    }
+
+    @SubscribeEvent
+    public static void registerKeys(net.minecraftforge.client.event.RegisterKeyMappingsEvent event) {
+        for (net.minecraft.client.KeyMapping k : com.krolasyon.bosses.client.morph.ClientMorph.ABILITY_KEYS) event.register(k);
+        event.register(com.krolasyon.bosses.client.morph.ClientMorph.TRANSFORM_KEY);
+    }
+
+    @SubscribeEvent
+    public static void registerOverlays(net.minecraftforge.client.event.RegisterGuiOverlaysEvent event) {
+        event.registerAbove(net.minecraftforge.client.gui.overlay.VanillaGuiOverlay.HOTBAR.id(), "aigoar_abilities",
+                com.krolasyon.bosses.client.morph.AigoarHud::render);
     }
 }
