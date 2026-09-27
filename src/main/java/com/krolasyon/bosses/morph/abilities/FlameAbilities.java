@@ -54,7 +54,7 @@ public class FlameAbilities implements FormAbilities {
                 if (t == 12) sound(p, ModSounds.NOVA.get(), 1.8F, 1.0F);
                 if (t == 14) {
                     Vec3 c = p.position();
-                    sl.sendParticles(ParticleTypes.EXPLOSION, c.x, c.y + 1, c.z, 3, 0.6, 0.6, 0.6, 0);
+                    sl.sendParticles(ParticleTypes.LAVA, c.x, c.y + 1, c.z, 20, 0.6, 0.6, 0.6, 0);
                     sl.sendParticles(ParticleTypes.FLAME, c.x, c.y + 1, c.z, 120, 0.4, 0.4, 0.4, 0.45);
                     TsunamiWaveEntity.spawn(p, c, TsunamiWaveEntity.FIRE, 12F, 10F);
                     for (LivingEntity e : targets(p, new AABB(c, c).inflate(3.5, 2, 3.5))) burn(p, e, 10F, 1.4, 0.7, 8);

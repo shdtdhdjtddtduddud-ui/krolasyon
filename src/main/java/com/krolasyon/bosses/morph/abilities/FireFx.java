@@ -30,8 +30,8 @@ final class FireFx {
 
     static void burst(ServerPlayer p, ServerLevel sl, int color, ParticleOptions main, ParticleOptions extra) {
         Vec3 c = p.position();
-        sl.sendParticles(main, c.x, c.y + 1.5, c.z, 160, 1.2, 1.4, 1.2, 0.15);
-        sl.sendParticles(extra, c.x, c.y + 1.5, c.z, 40, 1.0, 1.2, 1.0, 0.05);
+        sl.sendParticles(main, c.x, c.y + 1.5, c.z, 80, 1.2, 1.4, 1.2, 0.15);
+        sl.sendParticles(extra, c.x, c.y + 1.5, c.z, 20, 1.0, 1.2, 1.0, 0.05);
         sl.sendParticles(ParticleTypes.LAVA, c.x, c.y + 1, c.z, 20, 0.8, 0.5, 0.8, 0);
         MorphServer.ring(sl, c.add(0, 0.1, 0), 2.5, 40, MorphServer.dust(color, 1.0F), 0);
         MorphServer.ring(sl, c.add(0, 0.1, 0), 4.0, 50, main, 0.08);

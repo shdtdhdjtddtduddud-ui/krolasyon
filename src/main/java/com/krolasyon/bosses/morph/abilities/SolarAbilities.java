@@ -27,7 +27,7 @@ public class SolarAbilities implements FormAbilities {
                     sound(p, ModSounds.CLEAVE.get(), 1.6F, 1.0F);
                     Vec3 c = p.position();
                     Vec3 front = c.add(dir.scale(2.5));
-                    sl.sendParticles(ParticleTypes.EXPLOSION, front.x, front.y + 0.3, front.z, 1, 0, 0, 0, 0);
+                    sl.sendParticles(ParticleTypes.LAVA, front.x, front.y + 0.3, front.z, 12, 0.8, 0.1, 0.8, 0);
                     ring(sl, front.add(0, 0.1, 0), 2.0, 30, ParticleTypes.FLAME, 0.1);
                     for (LivingEntity e : cone(p, dir, 4.5, 0.4)) burn(p, e, 10F, 0.8, 0.6, 6);
                     for (int i = 1; i <= 9; i++) {

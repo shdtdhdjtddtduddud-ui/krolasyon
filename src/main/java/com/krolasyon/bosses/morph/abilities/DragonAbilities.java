@@ -29,7 +29,7 @@ public class DragonAbilities implements FormAbilities {
                 if (t == 8) sound(p, ModSounds.BREATH.get(), 1.5F, 1.0F);
                 if (t >= 10 && t <= 44) {
                     Vec3 look = p.getLookAngle();
-                    Vec3 mouth = p.getEyePosition().add(0, 0.1, 0).add(look.scale(0.9));
+                    Vec3 mouth = p.getEyePosition().add(0, 0.35, 0).add(look.scale(0.9));
                     for (int i = 0; i < 10; i++) {
                         Vec3 spread = look.add(p.getRandom().nextGaussian() * 0.12, p.getRandom().nextGaussian() * 0.08, p.getRandom().nextGaussian() * 0.12).normalize();
                         double sp = 0.6 + p.getRandom().nextDouble() * 0.5;
@@ -87,7 +87,7 @@ public class DragonAbilities implements FormAbilities {
                     s.slammed = true;
                     p.fallDistance = 0;
                     Vec3 c = p.position();
-                    sl.sendParticles(ParticleTypes.EXPLOSION, c.x, c.y + 0.3, c.z, 3, 1, 0.2, 1, 0);
+                    sl.sendParticles(ParticleTypes.FLAME, c.x, c.y + 0.3, c.z, 60, 1.5, 0.2, 1.5, 0.12);
                     sl.sendParticles(ParticleTypes.LAVA, c.x, c.y + 0.3, c.z, 20, 1.5, 0.2, 1.5, 0);
                     TsunamiWaveEntity.spawn(p, c, TsunamiWaveEntity.FIRE, 8F, 8F);
                     for (LivingEntity e : targets(p, new AABB(c, c).inflate(3.5, 2, 3.5))) burn(p, e, 12F, 1.0, 1.0, 6);

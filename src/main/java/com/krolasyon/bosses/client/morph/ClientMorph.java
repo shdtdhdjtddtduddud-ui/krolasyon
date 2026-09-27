@@ -262,15 +262,18 @@ public final class ClientMorph {
         boolean any = false;
         for (Player p : mc.level.players()) {
             CState st = get(p.getId());
-            if (st == null || st.form != Forms.AIGOAR || st.anim != Aigoar.BEAM) continue;
+            if (st == null) continue;
             float t = p.tickCount + partial - st.animStart;
-            if (t < 2 || t > Aigoar.BEAM_END + 2) continue;
+            boolean beam = st.form == Forms.AIGOAR && st.anim == Aigoar.BEAM && t >= 2 && t <= Aigoar.BEAM_END + 2;
+            boolean breath = st.form == Forms.DRAGON && st.anim == 0 && t >= 9 && t <= 46;
+            if (!beam && !breath) continue;
             if (!any) {
                 ps.pushPose();
                 ps.translate(-cam.x, -cam.y, -cam.z);
                 any = true;
             }
-            drawBeam(mc, p, t, partial, ps.last().pose(), buffers.getBuffer(RenderType.lightning()));
+            if (beam) drawBeam(mc, p, t, partial, ps.last().pose(), buffers.getBuffer(RenderType.lightning()));
+            else drawBreath(mc, p, t, partial, ps.last().pose(), buffers.getBuffer(RenderType.lightning()));
         }
         if (any) {
             ps.popPose();
@@ -328,6 +331,35 @@ public final class ClientMorph {
         BeamRenderer.beam(m, vc, end.subtract(dn.scale(0.05)), end.add(dn.scale(0.05)), ir, 0.4F, 1F, 1F, 0.5F);
         if (mc.level.random.nextInt(2) == 0 && !mc.isPaused())
             mc.level.addParticle(ParticleTypes.SPLASH, end.x, end.y, end.z, mc.level.random.nextGaussian() * 0.2, 0.3, mc.level.random.nextGaussian() * 0.2);
+    }
+
+    /** Ejder Nefesi: a roaring cone of dragon fire from the mask */
+    private static void drawBreath(Minecraft mc, Player p, float t, float partial, Matrix4f m, VertexConsumer vc) {
+        Vec3 look = p.getViewVector(partial);
+        Vec3 mouth = p.getEyePosition(partial).add(0, 0.35, 0).add(look.scale(0.9));
+        float time = p.tickCount + partial;
+        float fade = Mth.clamp((t - 9F) / 3F, 0F, 1F) * Mth.clamp((46F - t) / 4F, 0F, 1F);
+        float len = 8.5F * Mth.clamp((t - 9F) / 5F, 0.2F, 1F);
+        Vec3 end = mouth.add(look.scale(len));
+        BlockHitResult bh = mc.level.clip(new ClipContext(mouth, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, p));
+        if (bh.getType() != HitResult.Type.MISS) end = bh.getLocation();
+        Vec3 d = end.subtract(mouth);
+        int seg = 10;
+        for (int i = 0; i < seg; i++) {
+            float k0 = i / (float) seg, k1 = (i + 1) / (float) seg;
+            Vec3 a = mouth.add(d.scale(k0)), b = mouth.add(d.scale(k1));
+            float w = (0.15F + 1.5F * k1) * (1F + 0.12F * Mth.sin(time * 1.9F + i));
+            BeamRenderer.beam(m, vc, a, b, w * fade, 1F, 0.35F + 0.2F * (1 - k1), 0.05F, 0.28F * (1F - k1 * 0.6F));
+            BeamRenderer.beam(m, vc, a, b, w * 0.55F * fade, 1F, 0.7F, 0.2F, 0.4F * (1F - k1 * 0.7F));
+            BeamRenderer.beam(m, vc, a, b, w * 0.22F * fade, 1F, 0.95F, 0.7F, 0.6F * (1F - k1));
+        }
+        if (!mc.isPaused()) {
+            var r = mc.level.random;
+            for (int i = 0; i < 4; i++) {
+                Vec3 v = look.add(r.nextGaussian() * 0.12, r.nextGaussian() * 0.08, r.nextGaussian() * 0.12).normalize().scale(0.5 + r.nextDouble() * 0.4);
+                mc.level.addParticle(i == 0 ? ParticleTypes.LARGE_SMOKE : ParticleTypes.FLAME, mouth.x, mouth.y, mouth.z, v.x, v.y, v.z);
+            }
+        }
     }
 
     /** used by the transformation check in shared code paths */

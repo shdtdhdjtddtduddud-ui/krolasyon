@@ -1,28 +1,25 @@
 # Krolasyon Bosses (Forge 1.20.1)
 
-## Aigoar — Derinliklerin Efendisi (dönüşüm)
+## Boss dönüşümleri
 
-**Aigoar'ın Gelgit Kılıcı** ile Aigoar'a dönüşürsün (Yaratıcı sekmesi "Krolasyon Bossları" veya tarif).
+Her formun kendi **dönüşüm silahı** vardır (Yaratıcı sekmesi "Krolasyon Bossları" veya tarif).
+Silahla **sağ tık** veya **H** → dönüşüm. **Eğilip sağ tık** veya **H** → geri dönüş.
+Yetenek tuşları (Ayarlar > Kontroller'den değiştirilebilir): **R, G, V, Z, B**. Havada **Boşluk**: çift zıplama.
 
-| Eylem | Tuş (Ayarlar > Kontroller'den değiştirilebilir) |
-|---|---|
-| Dönüş | Kılıçla **sağ tık** veya **H** |
-| Geri dön | **Eğilip (Shift) sağ tık** veya **H** |
-| 1 · Gelgit Yırtığı — su itişli atılma, çapraz + yükselen pençe | **R** |
-| 2 · Girdap — düşmanları içine çeken, döndüren ve patlayan girdap | **G** |
-| 3 · Derinlik Fışkırması — yere pençe darbesi, ileri doğru su gayzerleri | **V** |
-| 4 · Basınç Işını — su küresi toplar, delici yüksek basınçlı su ışını | **Z** |
-| 5 · Tsunami Çöküşü — takla atarak sıçrama, genişleyen dev dalga halkası | **B** |
-| Çift zıplama (su itişi) | Havada **Boşluk** |
+| Form (silah) | R | G | V | Z | B |
+|---|---|---|---|---|---|
+| Aigoar (Gelgit Kılıcı) | Gelgit Yırtığı | Girdap | Derinlik Fışkırması | Basınç Işını | Tsunami Çöküşü |
+| Güneş Alevi Hükümdarı (Güneş Büyük Kılıcı) | Güneş Yarığı | Alev Kasırgası | Güneş Mührü | Anka Atılışı | Güneş Düşüşü (göktaşı) |
+| Ejder Muhafızı (Ejder Palası) | Ejder Nefesi | İkiz Ejder Başı | Pul Kalkanı | Ejder Dalışı | Kızıl Ejder |
+| Alev Ruhu (Kor Kılıcı) | Alev Adımı | Kor Yağmuru | Cehennem Novası | Alev Hilalleri | Kül Anka |
+| Kızıl Gölge (Gölge Kılıcı) | Gölge Adımı | Kan Fırtınası | Gölge Kuyrukları | Kara Dikenler | İblis Uyanışı |
+| Cehennem Mızrakçısı (Cehennem Mızrağı) | Cehennem Mızrağı | Delici Hücum | Kuyruk Kasırgası | Lav Sütunları | Cehennem Kapısı |
 
-Pasifler: +30 can, +7 saldırı, +10 zırh, hız, erişim; suda nefes, su/yağmurda yenilenme,
-düşme hasarı yok, suda hızlı yüzme. Kendine özel yürüme/koşma/zıplama/düşme/eğilme/yüzme/saldırı/
-ölüm animasyonları ve tüm sesler (adım, hasar, pençe, yetenekler) moda özgüdür.
-
-Tarif: `P H P / C S C / _ N _` — P prizmarin kırığı, H deniz kalbi, C prizmarin kristali,
-S elmas kılıç, N nautilus kabuğu.
+Tüm formlar: +30 can, +7 saldırı, +10 zırh, hız, erişim, düşme hasarı yok, çift zıplama; kendine özel
+yürüme/koşma/zıplama/düşme/eğilme/yüzme/saldırı/ölüm animasyonları, sesler ve 1. şahıs kol/silah görünümü.
+Ateş formları ateşe bağışıktır ve ateşte iyileşir; Kızıl Gölge karanlıkta görür ve iyileşir; Aigoar suda nefes alır.
 
 ## Geliştirme
 Model, doku, animasyon ve sesler `gen/` altındaki Python betikleriyle üretilir:
-`python3 gen/build.py` (model/doku/animasyon), `python3 gen/sounds3.py` (Aigoar sesleri).
+`python3 gen/build.py` (modeller/dokular/animasyonlar), `python3 gen/sounds3.py` ve `gen/sounds4.py` (sesler).
 Jar, her push'ta GitHub Actions tarafından derlenir ve Releases'e eklenir.

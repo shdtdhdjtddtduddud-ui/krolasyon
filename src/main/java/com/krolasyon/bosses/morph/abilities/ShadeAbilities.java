@@ -123,7 +123,7 @@ public class ShadeAbilities implements FormAbilities {
                     p.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, AWAKEN_TICKS, 1, false, true));
                     p.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, AWAKEN_TICKS, 1, false, true));
                     p.addEffect(new MobEffectInstance(MobEffects.REGENERATION, AWAKEN_TICKS, 0, false, true));
-                    sl.sendParticles(ParticleTypes.SONIC_BOOM, c.x, c.y + 1, c.z, 1, 0, 0, 0, 0);
+                    ring(sl, c.add(0, 1.0, 0), 2.0, 40, dust(0xD01828, 1.4F), 0);
                     TsunamiWaveEntity.spawn(p, c, TsunamiWaveEntity.SHADOW, 11F, 7F);
                 }
             }
@@ -132,7 +132,7 @@ public class ShadeAbilities implements FormAbilities {
     }
 
     private static void smoke(ServerLevel sl, Vec3 at) {
-        sl.sendParticles(ParticleTypes.LARGE_SMOKE, at.x, at.y + 1, at.z, 30, 0.4, 0.8, 0.4, 0.03);
+        sl.sendParticles(ParticleTypes.SMOKE, at.x, at.y + 1, at.z, 30, 0.4, 0.8, 0.4, 0.03);
         sl.sendParticles(dust(0xD01828, 1.2F), at.x, at.y + 1, at.z, 20, 0.4, 0.8, 0.4, 0);
         sl.sendParticles(ParticleTypes.REVERSE_PORTAL, at.x, at.y + 1, at.z, 20, 0.3, 0.6, 0.3, 0.05);
     }
@@ -147,15 +147,14 @@ public class ShadeAbilities implements FormAbilities {
 
     @Override
     public void transformTick(ServerPlayer p, ServerLevel sl, int t) {
-        FireFx.cocoon(p, sl, t, Forms.COLOR[Forms.SHADE], ParticleTypes.LARGE_SMOKE, ParticleTypes.REVERSE_PORTAL);
+        FireFx.cocoon(p, sl, t, Forms.COLOR[Forms.SHADE], ParticleTypes.SMOKE, ParticleTypes.REVERSE_PORTAL);
     }
 
     @Override
     public void transformBurst(ServerPlayer p, ServerLevel sl) {
         Vec3 c = p.position();
-        sl.sendParticles(ParticleTypes.LARGE_SMOKE, c.x, c.y + 1.5, c.z, 120, 1.2, 1.4, 1.2, 0.08);
+        sl.sendParticles(ParticleTypes.LARGE_SMOKE, c.x, c.y + 1.5, c.z, 40, 1.2, 1.4, 1.2, 0.08);
         sl.sendParticles(dust(0xD01828, 1.5F), c.x, c.y + 1.5, c.z, 60, 1.2, 1.4, 1.2, 0);
-        sl.sendParticles(ParticleTypes.SONIC_BOOM, c.x, c.y + 1, c.z, 1, 0, 0, 0, 0);
         ring(sl, c.add(0, 0.1, 0), 3.0, 40, ParticleTypes.LARGE_SMOKE, 0.05);
     }
 }
