@@ -60,7 +60,7 @@ const GEN = {
     const n = tileNoise(u, v, 6, 5) * 0.5 + 0.5, n2 = tileNoise(u, v, 22, 2) * 0.5 + 0.5;
     const g = 212 + n * 34 + n2 * 9; return [g, g, g];
   }), 160, false),
-  terrainNormal: () => toTex(normalFromHeight(256, (u, v) => tileNoise(u, v, 9, 5) + tileNoise(u, v, 30, 2) * 0.35, 6), 160, false),
+  terrainNormal: () => toTex(normalFromHeight(256, (u, v) => tileNoise(u, v, 9, 5) + tileNoise(u, v, 30, 2) * 0.35, 3), 160, false),
   bark: () => toTex(pixels(256, (u, v) => {
     const n = nz.fbm(Math.cos(u * 6.283) * 2 + v * 1.5, Math.sin(u * 6.283) * 2 + 50, 4);
     const s = Math.abs(Math.sin(u * 40 + n * 6)); const k = 0.55 + s * 0.3 + n * 0.25;

@@ -64,7 +64,7 @@ class Game {
   initRenderer() {
     const q = this.q;
     const r = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: q.aa && !q.bloom, powerPreference: 'high-performance', preserveDrawingBuffer: !!window.__TEST__ });
-    r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping; r.toneMappingExposure = 1.0;
+    r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping; r.toneMappingExposure = 1.08;
     r.shadowMap.enabled = q.shadows; r.shadowMap.type = THREE.PCFSoftShadowMap;
     this.pixelRatio = Math.min(devicePixelRatio || 1, q.pr); r.setPixelRatio(this.pixelRatio);
     r.setSize(innerWidth, innerHeight, false); this.renderer = r; setAniso(Math.min(8, r.capabilities.getMaxAnisotropy()));
@@ -79,7 +79,7 @@ class Game {
     const rt = new THREE.WebGLRenderTarget(innerWidth * this.pixelRatio, innerHeight * this.pixelRatio, { type: THREE.HalfFloatType, samples: q.aa ? 4 : 0 });
     const c = new EffectComposer(r, rt); c.setPixelRatio(this.pixelRatio); c.setSize(innerWidth, innerHeight);
     c.addPass(new RenderPass(this.scene, this.camera));
-    this.bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth / 2, innerHeight / 2), 0.55, 0.45, 0.92); c.addPass(this.bloom);
+    this.bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth / 2, innerHeight / 2), 0.42, 0.4, 1.05); c.addPass(this.bloom);
     this.grade = new ShaderPass(GradeShader); c.addPass(this.grade);
     c.addPass(new OutputPass()); this.composer = c;
   }
@@ -374,7 +374,7 @@ class Game {
   updateMenu(rdt) {
     this.time += rdt; this.world.update(rdt * 0.3, { pos: new THREE.Vector3(0, 0, 0) }, this.camera);
     if (this.state === 'title') { const a = this.time * 0.05; this.camera.position.set(Math.cos(a) * 75, heightAt(Math.cos(a) * 75, Math.sin(a) * 75) + 26, Math.sin(a) * 75); this.camera.lookAt(0, 6, 0); }
-    else { const k = this.selClass; const p = this.previews?.[k]; const tx = p ? p.x : 0; this.camX = damp(this.camX ?? 0, tx * 0.7, 3, rdt); const y = heightAt(0, 14); this.camera.position.set(this.camX, y + 2.1, 20.5); this.camera.lookAt(this.camX, y + 0.9, 13); }
+    else { const k = this.selClass; const p = this.previews?.[k]; const tx = p ? p.x : 0; this.camX = damp(this.camX ?? 0, tx * 0.7, 3, rdt); const y = heightAt(0, 14); this.camera.position.set(this.camX, y + 1.6, 19.2); this.camera.lookAt(this.camX, y - 0.35, 13); }
     for (const k in this.previews || {}) { const p = this.previews[k]; p.st.time += rdt; if (p.st.act) { p.st.act.t += rdt / 1.2; if (p.st.act.t >= 1) p.st.act = null; } animate(p.m, p.st, rdt); }
     this.world.updateChunks(0, 0);
     for (const f of this.structs.animated) f(rdt, this.time);

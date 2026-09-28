@@ -14,8 +14,8 @@ const BC = {
   grass: [C(0.36, 0.56, 0.2), C(0.52, 0.62, 0.26)],
   forest: [C(0.2, 0.3, 0.13), C(0.3, 0.33, 0.16)],
   desert: [C(0.88, 0.7, 0.45), C(0.82, 0.5, 0.3)],
-  snow: [C(0.9, 0.93, 0.98), C(0.78, 0.84, 0.92)],
-  volcano: [C(0.17, 0.14, 0.13), C(0.3, 0.16, 0.12)],
+  snow: [C(0.74, 0.78, 0.86), C(0.64, 0.7, 0.8)],
+  volcano: [C(0.09, 0.075, 0.07), C(0.19, 0.09, 0.07)],
 };
 const ROCKC = { def: C(0.45, 0.42, 0.39), snow: C(0.52, 0.55, 0.6), desert: C(0.62, 0.42, 0.3), volcano: C(0.12, 0.1, 0.1) };
 const ROAD = C(0.5, 0.39, 0.25), SAND = C(0.76, 0.68, 0.5), MUD = C(0.3, 0.27, 0.2);
@@ -79,10 +79,27 @@ export class World {
       col[k * 3] = _c.r * 1.25; col[k * 3 + 1] = _c.g * 1.25; col[k * 3 + 2] = _c.b * 1.25;
     }
     g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    const glow = new Float32Array(N * N);
+    for (let k = 0; k < N * N; k++) glow[k] = smoothstep(0.45, 0.8, biomeWeights(pos[k * 3], pos[k * 3 + 2]).volcano) * smoothstep(0.55, 0.85, nrm.getY(k) + 0.1);
+    g.setAttribute('aGlow', new THREE.BufferAttribute(glow, 1));
     const detail = tex('terrainDetail'), nmap = tex('terrainNormal');
-    const mat = new THREE.MeshStandardMaterial({ vertexColors: true, map: detail, normalMap: nmap, normalScale: new THREE.Vector2(0.45, 0.45), roughness: 0.95, metalness: 0 });
+    const mat = new THREE.MeshStandardMaterial({ vertexColors: true, map: detail, normalMap: nmap, normalScale: new THREE.Vector2(0.25, 0.25), roughness: 0.95, metalness: 0 });
     // uv (0-1) → detay tekrarını shader'da yap: map.repeat ile
     detail.repeat.set(220, 220); nmap.repeat.set(220, 220);
+    mat.onBeforeCompile = (sh) => {
+      sh.uniforms.uTime = globalUniforms.uTime;
+      sh.vertexShader = 'attribute float aGlow; varying float vGlow; varying vec3 vWp;\n' + sh.vertexShader.replace('#include <worldpos_vertex>', '#include <worldpos_vertex>\n vGlow = aGlow; vWp = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+      sh.fragmentShader = 'uniform float uTime; varying float vGlow; varying vec3 vWp;\nfloat th(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }\nfloat tn(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f); return mix(mix(th(i),th(i+vec2(1,0)),f.x), mix(th(i+vec2(0,1)),th(i+vec2(1,1)),f.x), f.y); }\n' +
+        sh.fragmentShader.replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
+        if (vGlow > 0.01) {
+          vec2 q = vWp.xz * 0.22;
+          float n = tn(q) * 0.6 + tn(q * 2.3 + 7.0) * 0.3 + tn(q * 5.1) * 0.1;
+          float crack = (1.0 - smoothstep(0.0, 0.018, abs(n - 0.5))) * smoothstep(0.35, 0.6, tn(vWp.xz * 0.03 + 3.0));
+          float pulse = 0.75 + 0.25 * sin(uTime * 1.5 + n * 12.0);
+          totalEmissiveRadiance += vec3(2.2, 0.45, 0.05) * crack * vGlow * pulse;
+          diffuseColor.rgb *= 1.0 - crack * vGlow * 0.8;
+        }`);
+    };
     const m = new THREE.Mesh(g, mat); m.receiveShadow = true; m.name = 'terrain';
     this.scene.add(m); this.terrain = m;
   }
@@ -149,6 +166,8 @@ export class World {
   }
   buildSky() {
     const sky = new Sky(); sky.scale.setScalar(4500); this.sky = sky; this.scene.add(sky);
+    sky.material.uniforms.uGain = { value: 0.42 };
+    sky.material.fragmentShader = 'uniform float uGain;\n' + sky.material.fragmentShader.replace('gl_FragColor = vec4( retColor, 1.0 );', 'gl_FragColor = vec4( retColor * uGain, 1.0 );');
     const u = sky.material.uniforms; u.turbidity.value = 6; u.rayleigh.value = 1.6; u.mieCoefficient.value = 0.005; u.mieDirectionalG.value = 0.82;
     // yıldızlar
     const sp = [], r = mulberry32(9); for (let i = 0; i < 2500; i++) { const th = r() * Math.PI * 2, ph = Math.acos(r() * 1.9 - 0.9); sp.push(Math.sin(ph) * Math.cos(th) * 3800, Math.cos(ph) * 3800, Math.sin(ph) * Math.sin(th) * 3800); }
@@ -327,7 +346,7 @@ export class World {
     this.sunDir.set(sx * 0.8, sy, 0.45).normalize();
     const day = smoothstep(-0.12, 0.2, sy), dusk = smoothstep(0.35, 0.02, Math.abs(sy)) ;
     const su = this.sky.material.uniforms; su.sunPosition.value.copy(this.sunDir);
-    su.rayleigh.value = lerp(0.5, 1.6, day); su.turbidity.value = lerp(2, 6, day);
+    su.rayleigh.value = lerp(0.5, 2.4, day); su.turbidity.value = lerp(1.5, 3, day);
     this.stars.material.opacity = smoothstep(0.05, -0.2, sy);
     this.stars.rotation.y += dt * 0.004;
     const moonDir = this.sunDir.clone().negate();
@@ -343,7 +362,7 @@ export class World {
     L.target.position.set(fx, p.y, fz); L.position.set(fx + ld.x * 180, p.y + ld.y * 180, fz + ld.z * 180);
     // biyom tonu
     const w = biomeWeights(p.x, p.z);
-    const dayFog = new THREE.Color(0.66, 0.78, 0.9);
+    const dayFog = new THREE.Color(0.52, 0.64, 0.8);
     dayFog.lerp(new THREE.Color(0.95, 0.78, 0.55), w.desert * 0.7).lerp(new THREE.Color(0.88, 0.92, 1), w.snow * 0.8).lerp(new THREE.Color(0.45, 0.52, 0.42), w.forest * 0.6).lerp(new THREE.Color(0.45, 0.25, 0.18), w.volcano * 0.85);
     const duskFog = new THREE.Color(0.95, 0.55, 0.35); const nightFog = new THREE.Color(0.04, 0.06, 0.11).lerp(new THREE.Color(0.18, 0.05, 0.03), w.volcano * 0.8);
     const fog = nightFog.clone().lerp(dayFog, day).lerp(duskFog, dusk * 0.45 * day);
