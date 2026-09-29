@@ -1,0 +1,55 @@
+{
+ "format_version": "1.14.0",
+ "sound_definitions": {
+  "cm.engine_idle": {
+   "category": "player",
+   "max_distance": 32,
+   "sounds": [
+    {
+     "name": "sounds/cm/engine_idle",
+     "volume": 0.55
+    }
+   ]
+  },
+  "cm.engine_rev": {
+   "category": "player",
+   "max_distance": 48,
+   "sounds": [
+    {
+     "name": "sounds/cm/engine_rev",
+     "volume": 0.9
+    }
+   ]
+  },
+  "cm.engine_roar": {
+   "category": "player",
+   "max_distance": 64,
+   "sounds": [
+    {
+     "name": "sounds/cm/engine_roar",
+     "volume": 1.0
+    }
+   ]
+  },
+  "cm.blade_hit": {
+   "category": "player",
+   "max_distance": 32,
+   "sounds": [
+    {
+     "name": "sounds/cm/blade_hit",
+     "volume": 0.9
+    }
+   ]
+  },
+  "cm.blade_swing": {
+   "category": "player",
+   "max_distance": 32,
+   "sounds": [
+    {
+     "name": "sounds/cm/blade_swing",
+     "volume": 0.9
+    }
+   ]
+  }
+ }
+}

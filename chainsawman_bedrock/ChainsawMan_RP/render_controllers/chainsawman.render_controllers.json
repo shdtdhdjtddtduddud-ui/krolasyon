@@ -1,0 +1,41 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.cm.third_person": {
+      "geometry": "Geometry.chainsawman",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.chainsawman"
+      ]
+    },
+    "controller.render.cm.first_person": {
+      "geometry": "Geometry.chainsawman",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Texture.chainsawman"
+      ],
+      "part_visibility": [
+        {
+          "*": false
+        },
+        {
+          "rightArm": "query.get_equipped_item_name(0, 1) == '' || query.is_item_name_any('slot.weapon.mainhand', 0, 'chainsaw_man:pochita_heart', 'chainsaw_man:blade_slash', 'chainsaw_man:hurricane', 'chainsaw_man:chainsaw_dash', 'chainsaw_man:roar', 'chainsaw_man:blood_spray')"
+        },
+        {
+          "rightCuff": "query.get_equipped_item_name(0, 1) == '' || query.is_item_name_any('slot.weapon.mainhand', 0, 'chainsaw_man:pochita_heart', 'chainsaw_man:blade_slash', 'chainsaw_man:hurricane', 'chainsaw_man:chainsaw_dash', 'chainsaw_man:roar', 'chainsaw_man:blood_spray')"
+        },
+        {
+          "bladeR": "query.get_equipped_item_name(0, 1) == '' || query.is_item_name_any('slot.weapon.mainhand', 0, 'chainsaw_man:pochita_heart', 'chainsaw_man:blade_slash', 'chainsaw_man:hurricane', 'chainsaw_man:chainsaw_dash', 'chainsaw_man:roar', 'chainsaw_man:blood_spray')"
+        }
+      ]
+    }
+  }
+}

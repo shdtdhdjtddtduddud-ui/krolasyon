@@ -1,0 +1,54 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "Chainsaw Man BP",
+    "description": "Chainsaw Man donusumu ve yetenekleri",
+    "uuid": "62ca5e5a-5cb3-494a-8d55-f90258185cbc",
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      21,
+      60
+    ]
+  },
+  "modules": [
+    {
+      "type": "data",
+      "uuid": "7f5bf899-8472-47cc-a69e-d2b05ae1595c",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "script",
+      "language": "javascript",
+      "uuid": "731ec4f2-4bbf-42c2-bf02-7cbb0a0bdb47",
+      "version": [
+        1,
+        0,
+        0
+      ],
+      "entry": "scripts/main.js"
+    }
+  ],
+  "dependencies": [
+    {
+      "uuid": "6b6f674d-2a89-40c1-9a04-83540181ad2f",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "module_name": "@minecraft/server",
+      "version": "1.15.0"
+    }
+  ]
+}

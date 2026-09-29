@@ -1,0 +1,24 @@
+{
+ "resource_pack_name": "chainsaw_man",
+ "texture_name": "atlas.items",
+ "texture_data": {
+  "cm_heart": {
+   "textures": "textures/items/cm_heart"
+  },
+  "cm_slash": {
+   "textures": "textures/items/cm_slash"
+  },
+  "cm_hurricane": {
+   "textures": "textures/items/cm_hurricane"
+  },
+  "cm_dash": {
+   "textures": "textures/items/cm_dash"
+  },
+  "cm_roar": {
+   "textures": "textures/items/cm_roar"
+  },
+  "cm_spray": {
+   "textures": "textures/items/cm_spray"
+  }
+ }
+}

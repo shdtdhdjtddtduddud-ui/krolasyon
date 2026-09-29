@@ -1,0 +1,114 @@
+{
+ "format_version": "1.10.0",
+ "animation_controllers": {
+  "controller.animation.cm.ability": {
+   "initial_state": "default",
+   "states": {
+    "default": {
+     "animations": [],
+     "transitions": [
+      {
+       "transform": "query.property('cm:anim') == 1"
+      },
+      {
+       "untransform": "query.property('cm:anim') == 2"
+      },
+      {
+       "slash": "query.property('cm:anim') == 3"
+      },
+      {
+       "spin": "query.property('cm:anim') == 4"
+      },
+      {
+       "dash": "query.property('cm:anim') == 5"
+      },
+      {
+       "roar": "query.property('cm:anim') == 6"
+      },
+      {
+       "spray": "query.property('cm:anim') == 7"
+      }
+     ],
+     "blend_transition": 0.15
+    },
+    "transform": {
+     "animations": [
+      "cm_transform"
+     ],
+     "blend_transition": 0.1,
+     "transitions": [
+      {
+       "default": "query.property('cm:anim') != 1"
+      }
+     ]
+    },
+    "untransform": {
+     "animations": [
+      "cm_untransform"
+     ],
+     "blend_transition": 0.1,
+     "transitions": [
+      {
+       "default": "query.property('cm:anim') != 2"
+      }
+     ]
+    },
+    "slash": {
+     "animations": [
+      "cm_slash"
+     ],
+     "blend_transition": 0.1,
+     "transitions": [
+      {
+       "default": "query.property('cm:anim') != 3"
+      }
+     ]
+    },
+    "spin": {
+     "animations": [
+      "cm_spin"
+     ],
+     "blend_transition": 0.1,
+     "transitions": [
+      {
+       "default": "query.property('cm:anim') != 4"
+      }
+     ]
+    },
+    "dash": {
+     "animations": [
+      "cm_dash"
+     ],
+     "blend_transition": 0.1,
+     "transitions": [
+      {
+       "default": "query.property('cm:anim') != 5"
+      }
+     ]
+    },
+    "roar": {
+     "animations": [
+      "cm_roar"
+     ],
+     "blend_transition": 0.1,
+     "transitions": [
+      {
+       "default": "query.property('cm:anim') != 6"
+      }
+     ]
+    },
+    "spray": {
+     "animations": [
+      "cm_spray"
+     ],
+     "blend_transition": 0.1,
+     "transitions": [
+      {
+       "default": "query.property('cm:anim') != 7"
+      }
+     ]
+    }
+   }
+  }
+ }
+}

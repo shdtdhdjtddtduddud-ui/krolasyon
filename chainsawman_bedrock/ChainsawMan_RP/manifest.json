@@ -1,0 +1,29 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "Chainsaw Man RP",
+    "description": "Denji / Chainsaw Man modeli, dokusu, animasyonlari",
+    "uuid": "6b6f674d-2a89-40c1-9a04-83540181ad2f",
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      21,
+      60
+    ]
+  },
+  "modules": [
+    {
+      "type": "resources",
+      "uuid": "6db8e4fe-354f-46d9-97a6-faf0f1db011f",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ]
+}
