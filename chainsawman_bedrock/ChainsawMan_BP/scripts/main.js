@@ -51,6 +51,9 @@ function later(player, ticks, fn) {
             fn();
         } catch (err) {
             console.warn(`[chainsawman] ${err}`);
+            try {
+                player.sendMessage(`§c[Chainsaw Man] Hata: ${err}`);
+            } catch { /* ignore */ }
         }
     }, Math.max(1, ticks));
 }
@@ -465,8 +468,12 @@ world.afterEvents.itemUse.subscribe((ev) => {
     if ((lastUse.get(p.id) ?? 0) + 4 > now) return; // debounce double-fire
     lastUse.set(p.id, now);
     const id = ev.itemStack?.typeId;
-    if (id === HEART) toggleForm(p);
-    else if (ABILITIES[id]) useAbility(p, id);
+    try {
+        if (id === HEART) toggleForm(p);
+        else if (ABILITIES[id]) useAbility(p, id);
+    } catch (err) {
+        p.sendMessage(`§c[Chainsaw Man] Hata: ${err}`);
+    }
 });
 
 world.afterEvents.entityHitEntity.subscribe((ev) => {
@@ -519,8 +526,12 @@ world.afterEvents.playerSpawn.subscribe((ev) => {
             p.sendMessage("§c[Chainsaw Man] §fPochita'nın Kalbi envanterine eklendi. Kullanarak dönüş!");
         }
         // sync client property with the saved tag after re-joining
-        p.setProperty("cm:form", p.hasTag(TAG_FORM));
-        p.setProperty("cm:anim", ANIM.NONE);
+        try {
+            p.setProperty("cm:form", p.hasTag(TAG_FORM));
+            p.setProperty("cm:anim", ANIM.NONE);
+        } catch (err) {
+            p.sendMessage(`§c[Chainsaw Man] Oyuncu özellikleri yüklenemedi (BP player.json aktif mi?): ${err}`);
+        }
     } else if (p.hasTag(TAG_FORM)) {
         forceReset(p); // died in Chainsaw form → back to human
     }
