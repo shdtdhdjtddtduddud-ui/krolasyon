@@ -1,0 +1,12 @@
+{
+  "resource_pack_name": "hulk",
+  "texture_name": "atlas.items",
+  "texture_data": {
+    "hulk_radioactive_apple": {
+      "textures": "textures/items/radioactive_apple"
+    },
+    "hulk_calm_pill": {
+      "textures": "textures/items/calm_pill"
+    }
+  }
+}

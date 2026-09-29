@@ -1,0 +1,39 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "§aHulk Mod §7RP",
+    "description": "Hulk dönüşümü: model, texture, animasyonlar",
+    "uuid": "6f1c1a40-3b2e-4a8d-9c11-0a5d7e1f0004",
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      21,
+      60
+    ]
+  },
+  "modules": [
+    {
+      "type": "resources",
+      "uuid": "6f1c1a40-3b2e-4a8d-9c11-0a5d7e1f0005",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "uuid": "6f1c1a40-3b2e-4a8d-9c11-0a5d7e1f0001",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ]
+}

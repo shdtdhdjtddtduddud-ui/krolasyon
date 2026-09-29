@@ -1,0 +1,54 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "§aHulk Mod §7BP",
+    "description": "Radyoaktif elmayı ye, HULK ol!",
+    "uuid": "6f1c1a40-3b2e-4a8d-9c11-0a5d7e1f0001",
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      21,
+      60
+    ]
+  },
+  "modules": [
+    {
+      "type": "data",
+      "uuid": "6f1c1a40-3b2e-4a8d-9c11-0a5d7e1f0002",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "script",
+      "language": "javascript",
+      "uuid": "6f1c1a40-3b2e-4a8d-9c11-0a5d7e1f0003",
+      "version": [
+        1,
+        0,
+        0
+      ],
+      "entry": "scripts/main.js"
+    }
+  ],
+  "dependencies": [
+    {
+      "uuid": "6f1c1a40-3b2e-4a8d-9c11-0a5d7e1f0004",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "module_name": "@minecraft/server",
+      "version": "1.16.0"
+    }
+  ]
+}

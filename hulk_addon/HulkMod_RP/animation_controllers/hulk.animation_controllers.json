@@ -1,0 +1,553 @@
+{
+  "format_version": "1.10.0",
+  "animation_controllers": {
+    "controller.animation.hulk.loco": {
+      "initial_state": "off",
+      "states": {
+        "off": {
+          "blend_transition": 0.18,
+          "transitions": [
+            {
+              "busy": "(q.property('hulk:anim') != 0) && !((!q.property('hulk:active')))"
+            },
+            {
+              "swim": "(q.is_in_water && !q.is_on_ground) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0))"
+            },
+            {
+              "sneak": "(q.is_sneaking && q.is_on_ground) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground))"
+            },
+            {
+              "jump": "(!q.is_on_ground && q.vertical_speed > 0.1) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground))"
+            },
+            {
+              "fall": "(!q.is_on_ground) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1))"
+            },
+            {
+              "run": "(q.is_sprinting && q.modified_move_speed > 0.15) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1) || (!q.is_on_ground))"
+            },
+            {
+              "walk": "(q.modified_move_speed > 0.04) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1) || (!q.is_on_ground) || (q.is_sprinting && q.modified_move_speed > 0.15))"
+            },
+            {
+              "idle": "(1) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1) || (!q.is_on_ground) || (q.is_sprinting && q.modified_move_speed > 0.15) || (q.modified_move_speed > 0.04))"
+            }
+          ]
+        },
+        "busy": {
+          "blend_transition": 0.18,
+          "transitions": [
+            {
+              "off": "(!q.property('hulk:active'))"
+            },
+            {
+              "swim": "(q.is_in_water && !q.is_on_ground) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0))"
+            },
+            {
+              "sneak": "(q.is_sneaking && q.is_on_ground) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground))"
+            },
+            {
+              "jump": "(!q.is_on_ground && q.vertical_speed > 0.1) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground))"
+            },
+            {
+              "fall": "(!q.is_on_ground) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1))"
+            },
+            {
+              "run": "(q.is_sprinting && q.modified_move_speed > 0.15) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1) || (!q.is_on_ground))"
+            },
+            {
+              "walk": "(q.modified_move_speed > 0.04) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1) || (!q.is_on_ground) || (q.is_sprinting && q.modified_move_speed > 0.15))"
+            },
+            {
+              "idle": "(1) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1) || (!q.is_on_ground) || (q.is_sprinting && q.modified_move_speed > 0.15) || (q.modified_move_speed > 0.04))"
+            }
+          ]
+        },
+        "swim": {
+          "blend_transition": 0.18,
+          "transitions": [
+            {
+              "off": "(!q.property('hulk:active'))"
+            },
+            {
+              "busy": "(q.property('hulk:anim') != 0) && !((!q.property('hulk:active')))"
+            },
+            {
+              "sneak": "(q.is_sneaking && q.is_on_ground) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground))"
+            },
+            {
+              "jump": "(!q.is_on_ground && q.vertical_speed > 0.1) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground))"
+            },
+            {
+              "fall": "(!q.is_on_ground) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1))"
+            },
+            {
+              "run": "(q.is_sprinting && q.modified_move_speed > 0.15) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1) || (!q.is_on_ground))"
+            },
+            {
+              "walk": "(q.modified_move_speed > 0.04) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1) || (!q.is_on_ground) || (q.is_sprinting && q.modified_move_speed > 0.15))"
+            },
+            {
+              "idle": "(1) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1) || (!q.is_on_ground) || (q.is_sprinting && q.modified_move_speed > 0.15) || (q.modified_move_speed > 0.04))"
+            }
+          ],
+          "animations": [
+            "hulk_swim"
+          ]
+        },
+        "sneak": {
+          "blend_transition": 0.18,
+          "transitions": [
+            {
+              "off": "(!q.property('hulk:active'))"
+            },
+            {
+              "busy": "(q.property('hulk:anim') != 0) && !((!q.property('hulk:active')))"
+            },
+            {
+              "swim": "(q.is_in_water && !q.is_on_ground) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0))"
+            },
+            {
+              "jump": "(!q.is_on_ground && q.vertical_speed > 0.1) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground))"
+            },
+            {
+              "fall": "(!q.is_on_ground) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1))"
+            },
+            {
+              "run": "(q.is_sprinting && q.modified_move_speed > 0.15) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1) || (!q.is_on_ground))"
+            },
+            {
+              "walk": "(q.modified_move_speed > 0.04) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1) || (!q.is_on_ground) || (q.is_sprinting && q.modified_move_speed > 0.15))"
+            },
+            {
+              "idle": "(1) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1) || (!q.is_on_ground) || (q.is_sprinting && q.modified_move_speed > 0.15) || (q.modified_move_speed > 0.04))"
+            }
+          ],
+          "animations": [
+            "hulk_sneak"
+          ]
+        },
+        "jump": {
+          "blend_transition": 0.18,
+          "transitions": [
+            {
+              "off": "(!q.property('hulk:active'))"
+            },
+            {
+              "busy": "(q.property('hulk:anim') != 0) && !((!q.property('hulk:active')))"
+            },
+            {
+              "swim": "(q.is_in_water && !q.is_on_ground) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0))"
+            },
+            {
+              "sneak": "(q.is_sneaking && q.is_on_ground) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground))"
+            },
+            {
+              "fall": "(!q.is_on_ground) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1))"
+            },
+            {
+              "run": "(q.is_sprinting && q.modified_move_speed > 0.15) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1) || (!q.is_on_ground))"
+            },
+            {
+              "walk": "(q.modified_move_speed > 0.04) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1) || (!q.is_on_ground) || (q.is_sprinting && q.modified_move_speed > 0.15))"
+            },
+            {
+              "idle": "(1) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1) || (!q.is_on_ground) || (q.is_sprinting && q.modified_move_speed > 0.15) || (q.modified_move_speed > 0.04))"
+            }
+          ],
+          "animations": [
+            "hulk_jump"
+          ]
+        },
+        "fall": {
+          "blend_transition": 0.18,
+          "transitions": [
+            {
+              "off": "(!q.property('hulk:active'))"
+            },
+            {
+              "busy": "(q.property('hulk:anim') != 0) && !((!q.property('hulk:active')))"
+            },
+            {
+              "swim": "(q.is_in_water && !q.is_on_ground) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0))"
+            },
+            {
+              "sneak": "(q.is_sneaking && q.is_on_ground) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground))"
+            },
+            {
+              "jump": "(!q.is_on_ground && q.vertical_speed > 0.1) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground))"
+            },
+            {
+              "run": "(q.is_sprinting && q.modified_move_speed > 0.15) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1) || (!q.is_on_ground))"
+            },
+            {
+              "walk": "(q.modified_move_speed > 0.04) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1) || (!q.is_on_ground) || (q.is_sprinting && q.modified_move_speed > 0.15))"
+            },
+            {
+              "idle": "(1) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1) || (!q.is_on_ground) || (q.is_sprinting && q.modified_move_speed > 0.15) || (q.modified_move_speed > 0.04))"
+            }
+          ],
+          "animations": [
+            "hulk_fall"
+          ]
+        },
+        "run": {
+          "blend_transition": 0.18,
+          "transitions": [
+            {
+              "off": "(!q.property('hulk:active'))"
+            },
+            {
+              "busy": "(q.property('hulk:anim') != 0) && !((!q.property('hulk:active')))"
+            },
+            {
+              "swim": "(q.is_in_water && !q.is_on_ground) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0))"
+            },
+            {
+              "sneak": "(q.is_sneaking && q.is_on_ground) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground))"
+            },
+            {
+              "jump": "(!q.is_on_ground && q.vertical_speed > 0.1) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground))"
+            },
+            {
+              "fall": "(!q.is_on_ground) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1))"
+            },
+            {
+              "walk": "(q.modified_move_speed > 0.04) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1) || (!q.is_on_ground) || (q.is_sprinting && q.modified_move_speed > 0.15))"
+            },
+            {
+              "idle": "(1) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1) || (!q.is_on_ground) || (q.is_sprinting && q.modified_move_speed > 0.15) || (q.modified_move_speed > 0.04))"
+            }
+          ],
+          "animations": [
+            {
+              "hulk_run": "math.clamp(q.modified_move_speed * 1.3, 0.45, 1.0)"
+            }
+          ]
+        },
+        "walk": {
+          "blend_transition": 0.18,
+          "transitions": [
+            {
+              "off": "(!q.property('hulk:active'))"
+            },
+            {
+              "busy": "(q.property('hulk:anim') != 0) && !((!q.property('hulk:active')))"
+            },
+            {
+              "swim": "(q.is_in_water && !q.is_on_ground) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0))"
+            },
+            {
+              "sneak": "(q.is_sneaking && q.is_on_ground) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground))"
+            },
+            {
+              "jump": "(!q.is_on_ground && q.vertical_speed > 0.1) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground))"
+            },
+            {
+              "fall": "(!q.is_on_ground) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1))"
+            },
+            {
+              "run": "(q.is_sprinting && q.modified_move_speed > 0.15) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1) || (!q.is_on_ground))"
+            },
+            {
+              "idle": "(1) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1) || (!q.is_on_ground) || (q.is_sprinting && q.modified_move_speed > 0.15) || (q.modified_move_speed > 0.04))"
+            }
+          ],
+          "animations": [
+            {
+              "hulk_walk": "math.clamp(q.modified_move_speed * 1.6, 0.35, 1.0)"
+            }
+          ]
+        },
+        "idle": {
+          "blend_transition": 0.18,
+          "transitions": [
+            {
+              "off": "(!q.property('hulk:active'))"
+            },
+            {
+              "busy": "(q.property('hulk:anim') != 0) && !((!q.property('hulk:active')))"
+            },
+            {
+              "swim": "(q.is_in_water && !q.is_on_ground) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0))"
+            },
+            {
+              "sneak": "(q.is_sneaking && q.is_on_ground) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground))"
+            },
+            {
+              "jump": "(!q.is_on_ground && q.vertical_speed > 0.1) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground))"
+            },
+            {
+              "fall": "(!q.is_on_ground) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1))"
+            },
+            {
+              "run": "(q.is_sprinting && q.modified_move_speed > 0.15) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1) || (!q.is_on_ground))"
+            },
+            {
+              "walk": "(q.modified_move_speed > 0.04) && !((!q.property('hulk:active')) || (q.property('hulk:anim') != 0) || (q.is_in_water && !q.is_on_ground) || (q.is_sneaking && q.is_on_ground) || (!q.is_on_ground && q.vertical_speed > 0.1) || (!q.is_on_ground) || (q.is_sprinting && q.modified_move_speed > 0.15))"
+            }
+          ],
+          "animations": [
+            "hulk_idle"
+          ]
+        }
+      }
+    },
+    "controller.animation.hulk.action": {
+      "initial_state": "none",
+      "states": {
+        "none": {
+          "blend_transition": 0.18,
+          "transitions": [
+            {
+              "transform": "(q.property('hulk:anim') == 1) && !((q.property('hulk:anim') == 0))"
+            },
+            {
+              "revert": "(q.property('hulk:anim') == 2) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1))"
+            },
+            {
+              "roar": "(q.property('hulk:anim') == 3) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2))"
+            },
+            {
+              "smash": "(q.property('hulk:anim') == 4) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2) || (q.property('hulk:anim') == 3))"
+            },
+            {
+              "clap": "(q.property('hulk:anim') == 5) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2) || (q.property('hulk:anim') == 3) || (q.property('hulk:anim') == 4))"
+            },
+            {
+              "land": "(q.property('hulk:anim') == 6) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2) || (q.property('hulk:anim') == 3) || (q.property('hulk:anim') == 4) || (q.property('hulk:anim') == 5))"
+            },
+            {
+              "dive": "(q.property('hulk:anim') == 7) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2) || (q.property('hulk:anim') == 3) || (q.property('hulk:anim') == 4) || (q.property('hulk:anim') == 5) || (q.property('hulk:anim') == 6))"
+            }
+          ]
+        },
+        "transform": {
+          "blend_transition": 0.18,
+          "transitions": [
+            {
+              "none": "(q.property('hulk:anim') == 0)"
+            },
+            {
+              "revert": "(q.property('hulk:anim') == 2) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1))"
+            },
+            {
+              "roar": "(q.property('hulk:anim') == 3) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2))"
+            },
+            {
+              "smash": "(q.property('hulk:anim') == 4) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2) || (q.property('hulk:anim') == 3))"
+            },
+            {
+              "clap": "(q.property('hulk:anim') == 5) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2) || (q.property('hulk:anim') == 3) || (q.property('hulk:anim') == 4))"
+            },
+            {
+              "land": "(q.property('hulk:anim') == 6) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2) || (q.property('hulk:anim') == 3) || (q.property('hulk:anim') == 4) || (q.property('hulk:anim') == 5))"
+            },
+            {
+              "dive": "(q.property('hulk:anim') == 7) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2) || (q.property('hulk:anim') == 3) || (q.property('hulk:anim') == 4) || (q.property('hulk:anim') == 5) || (q.property('hulk:anim') == 6))"
+            }
+          ],
+          "animations": [
+            "hulk_transform"
+          ]
+        },
+        "revert": {
+          "blend_transition": 0.18,
+          "transitions": [
+            {
+              "none": "(q.property('hulk:anim') == 0)"
+            },
+            {
+              "transform": "(q.property('hulk:anim') == 1) && !((q.property('hulk:anim') == 0))"
+            },
+            {
+              "roar": "(q.property('hulk:anim') == 3) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2))"
+            },
+            {
+              "smash": "(q.property('hulk:anim') == 4) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2) || (q.property('hulk:anim') == 3))"
+            },
+            {
+              "clap": "(q.property('hulk:anim') == 5) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2) || (q.property('hulk:anim') == 3) || (q.property('hulk:anim') == 4))"
+            },
+            {
+              "land": "(q.property('hulk:anim') == 6) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2) || (q.property('hulk:anim') == 3) || (q.property('hulk:anim') == 4) || (q.property('hulk:anim') == 5))"
+            },
+            {
+              "dive": "(q.property('hulk:anim') == 7) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2) || (q.property('hulk:anim') == 3) || (q.property('hulk:anim') == 4) || (q.property('hulk:anim') == 5) || (q.property('hulk:anim') == 6))"
+            }
+          ],
+          "animations": [
+            "hulk_revert"
+          ]
+        },
+        "roar": {
+          "blend_transition": 0.18,
+          "transitions": [
+            {
+              "none": "(q.property('hulk:anim') == 0)"
+            },
+            {
+              "transform": "(q.property('hulk:anim') == 1) && !((q.property('hulk:anim') == 0))"
+            },
+            {
+              "revert": "(q.property('hulk:anim') == 2) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1))"
+            },
+            {
+              "smash": "(q.property('hulk:anim') == 4) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2) || (q.property('hulk:anim') == 3))"
+            },
+            {
+              "clap": "(q.property('hulk:anim') == 5) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2) || (q.property('hulk:anim') == 3) || (q.property('hulk:anim') == 4))"
+            },
+            {
+              "land": "(q.property('hulk:anim') == 6) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2) || (q.property('hulk:anim') == 3) || (q.property('hulk:anim') == 4) || (q.property('hulk:anim') == 5))"
+            },
+            {
+              "dive": "(q.property('hulk:anim') == 7) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2) || (q.property('hulk:anim') == 3) || (q.property('hulk:anim') == 4) || (q.property('hulk:anim') == 5) || (q.property('hulk:anim') == 6))"
+            }
+          ],
+          "animations": [
+            "hulk_roar"
+          ]
+        },
+        "smash": {
+          "blend_transition": 0.18,
+          "transitions": [
+            {
+              "none": "(q.property('hulk:anim') == 0)"
+            },
+            {
+              "transform": "(q.property('hulk:anim') == 1) && !((q.property('hulk:anim') == 0))"
+            },
+            {
+              "revert": "(q.property('hulk:anim') == 2) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1))"
+            },
+            {
+              "roar": "(q.property('hulk:anim') == 3) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2))"
+            },
+            {
+              "clap": "(q.property('hulk:anim') == 5) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2) || (q.property('hulk:anim') == 3) || (q.property('hulk:anim') == 4))"
+            },
+            {
+              "land": "(q.property('hulk:anim') == 6) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2) || (q.property('hulk:anim') == 3) || (q.property('hulk:anim') == 4) || (q.property('hulk:anim') == 5))"
+            },
+            {
+              "dive": "(q.property('hulk:anim') == 7) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2) || (q.property('hulk:anim') == 3) || (q.property('hulk:anim') == 4) || (q.property('hulk:anim') == 5) || (q.property('hulk:anim') == 6))"
+            }
+          ],
+          "animations": [
+            "hulk_smash"
+          ]
+        },
+        "clap": {
+          "blend_transition": 0.18,
+          "transitions": [
+            {
+              "none": "(q.property('hulk:anim') == 0)"
+            },
+            {
+              "transform": "(q.property('hulk:anim') == 1) && !((q.property('hulk:anim') == 0))"
+            },
+            {
+              "revert": "(q.property('hulk:anim') == 2) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1))"
+            },
+            {
+              "roar": "(q.property('hulk:anim') == 3) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2))"
+            },
+            {
+              "smash": "(q.property('hulk:anim') == 4) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2) || (q.property('hulk:anim') == 3))"
+            },
+            {
+              "land": "(q.property('hulk:anim') == 6) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2) || (q.property('hulk:anim') == 3) || (q.property('hulk:anim') == 4) || (q.property('hulk:anim') == 5))"
+            },
+            {
+              "dive": "(q.property('hulk:anim') == 7) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2) || (q.property('hulk:anim') == 3) || (q.property('hulk:anim') == 4) || (q.property('hulk:anim') == 5) || (q.property('hulk:anim') == 6))"
+            }
+          ],
+          "animations": [
+            "hulk_clap"
+          ]
+        },
+        "land": {
+          "blend_transition": 0.18,
+          "transitions": [
+            {
+              "none": "(q.property('hulk:anim') == 0)"
+            },
+            {
+              "transform": "(q.property('hulk:anim') == 1) && !((q.property('hulk:anim') == 0))"
+            },
+            {
+              "revert": "(q.property('hulk:anim') == 2) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1))"
+            },
+            {
+              "roar": "(q.property('hulk:anim') == 3) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2))"
+            },
+            {
+              "smash": "(q.property('hulk:anim') == 4) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2) || (q.property('hulk:anim') == 3))"
+            },
+            {
+              "clap": "(q.property('hulk:anim') == 5) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2) || (q.property('hulk:anim') == 3) || (q.property('hulk:anim') == 4))"
+            },
+            {
+              "dive": "(q.property('hulk:anim') == 7) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2) || (q.property('hulk:anim') == 3) || (q.property('hulk:anim') == 4) || (q.property('hulk:anim') == 5) || (q.property('hulk:anim') == 6))"
+            }
+          ],
+          "animations": [
+            "hulk_land"
+          ]
+        },
+        "dive": {
+          "blend_transition": 0.18,
+          "transitions": [
+            {
+              "none": "(q.property('hulk:anim') == 0)"
+            },
+            {
+              "transform": "(q.property('hulk:anim') == 1) && !((q.property('hulk:anim') == 0))"
+            },
+            {
+              "revert": "(q.property('hulk:anim') == 2) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1))"
+            },
+            {
+              "roar": "(q.property('hulk:anim') == 3) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2))"
+            },
+            {
+              "smash": "(q.property('hulk:anim') == 4) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2) || (q.property('hulk:anim') == 3))"
+            },
+            {
+              "clap": "(q.property('hulk:anim') == 5) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2) || (q.property('hulk:anim') == 3) || (q.property('hulk:anim') == 4))"
+            },
+            {
+              "land": "(q.property('hulk:anim') == 6) && !((q.property('hulk:anim') == 0) || (q.property('hulk:anim') == 1) || (q.property('hulk:anim') == 2) || (q.property('hulk:anim') == 3) || (q.property('hulk:anim') == 4) || (q.property('hulk:anim') == 5))"
+            }
+          ],
+          "animations": [
+            "hulk_dive"
+          ]
+        }
+      }
+    },
+    "controller.animation.hulk.attack": {
+      "initial_state": "none",
+      "states": {
+        "none": {
+          "transitions": [
+            {
+              "punch": "variable.attack_time > 0.0 && q.property('hulk:anim') == 0"
+            }
+          ]
+        },
+        "punch": {
+          "animations": [
+            "hulk_attack"
+          ],
+          "blend_transition": 0.06,
+          "transitions": [
+            {
+              "none": "variable.attack_time <= 0.0 || q.property('hulk:anim') != 0"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
