@@ -362,22 +362,25 @@ def build_bp():
     os.makedirs(f"{BP}/scripts", exist_ok=True)
     shutil.copy(os.path.join(HERE, "main.js"), f"{BP}/scripts/main.js")
 
-    def food(ident, icon, nutrition, glint=True, stack=16, use=1.6):
+    def food(ident, icon, nutrition, stack=16, use=1.6):
+        # same shape as the vanilla apple item (format 1.20.x): numeric saturation, texture icon object
         return {
-            "format_version": "1.21.0",
+            "format_version": "1.20.80",
             "minecraft:item": {
-                "description": {"identifier": ident, "menu_category": {"category": "items", "group": "itemGroup.name.miscFood"}},
+                "description": {"identifier": ident,
+                                "menu_category": {"category": "items", "group": "itemGroup.name.miscFood"}},
                 "components": {
                     "minecraft:icon": {"texture": icon},
+                    "minecraft:display_name": {"value": f"item.{ident}.name"},
                     "minecraft:max_stack_size": stack,
-                    "minecraft:glint": glint,
-                    "minecraft:food": {"nutrition": nutrition, "saturation_modifier": "good", "can_always_eat": True},
-                    "minecraft:use_modifiers": {"use_duration": use, "movement_modifier": 0.4},
+                    "minecraft:use_animation": "eat",
+                    "minecraft:use_modifiers": {"use_duration": use, "movement_modifier": 0.35},
+                    "minecraft:food": {"nutrition": nutrition, "saturation_modifier": 0.6, "can_always_eat": True},
                 },
             },
         }
-    w(f"{BP}/items/radioactive_apple.json", food("hulk:radioactive_apple", "hulk_radioactive_apple", 6, True, 16, 1.6))
-    w(f"{BP}/items/calm_pill.json", food("hulk:calm_pill", "hulk_calm_pill", 0, False, 16, 1.2))
+    w(f"{BP}/items/radioactive_apple.json", food("hulk:radioactive_apple", "hulk_radioactive_apple", 6, 16, 1.6))
+    w(f"{BP}/items/calm_pill.json", food("hulk:calm_pill", "hulk_calm_pill", 1, 16, 1.2))
     w(f"{BP}/recipes/radioactive_apple.json", {
         "format_version": "1.20.10",
         "minecraft:recipe_shapeless": {

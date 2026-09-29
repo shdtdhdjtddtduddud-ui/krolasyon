@@ -534,3 +534,19 @@ system.afterEvents.scriptEventReceive.subscribe((ev) => {
   if (ev.id === "hulk:transform") startTransform(p);
   if (ev.id === "hulk:revert") startRevert(p, "§7Geri dönüyorsun...");
 });
+
+// yedek: /scriptevent hulk:give  -> Radyoaktif Elma + Sakinleştirici Hap verir
+system.afterEvents.scriptEventReceive.subscribe((ev) => {
+  const p = ev.sourceEntity;
+  if (p?.typeId !== "minecraft:player" || ev.id !== "hulk:give") return;
+  try {
+    const c = p.getComponent("minecraft:inventory").container;
+    c.addItem(new ItemStack("hulk:radioactive_apple", 4));
+    c.addItem(new ItemStack("hulk:calm_pill", 2));
+  } catch (e) { p.sendMessage("§c[Hulk Mod] Eşya verilemedi: " + e); }
+});
+
+// script yüklendi mi? (dünyaya girince sohbete yazar)
+system.runTimeout(() => {
+  try { world.sendMessage("§a[Hulk Mod] Script yüklendi. §7/scriptevent hulk:give ile elma alabilirsin."); } catch { /* */ }
+}, 100);
