@@ -14,7 +14,7 @@ Radyoaktif Elma'yı ye → dönüşüm sekansı → **HULK**.
 | Sakinleştirici Hap (geri dön) | `/give @s hulk:calm_pill` veya craft: lapis + şeker + kemik tozu (2 adet verir) |
 | Zorla dönüş / geri dönüş | `/scriptevent hulk:transform` · `/scriptevent hulk:revert` |
 
-Dönüşüm için üstünde 3 blok boşluk olmalı; süre 5 dk, süre bitince/hap yiyince/ölünce Bruce'a dönersin.
+Elmayı **hayatta kalma (Survival) modunda** yiyebilirsin; **Creative**'de yemek mümkün olmadığından elmaya sağ tık yeterli. Dönüşüm için üstünde 3 blok boşluk olmalı; süre 5 dk, süre bitince/hap yiyince/ölünce Bruce'a dönersin.
 
 ### Yetenekler
 * **Dönüşüm animasyonu (3.6 sn):** Bruce dokusu → gömlek yırtılır → yeşile döner → damarlar belirir → kükreme + şok dalgası (5 aşamalı texture, büzülmeden büyümeye ölçek animasyonu, titreme, kas şişmesi, kumaş parçacıkları, kamera sarsıntısı)

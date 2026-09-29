@@ -145,8 +145,7 @@ def build_rp(model, atlases):
         "header": {"name": "§aHulk Mod §7RP", "description": "Hulk dönüşümü: model, texture, animasyonlar",
                    "uuid": UUID["rp"], "version": VERSION, "min_engine_version": [1, 21, 60]},
         "modules": [{"type": "resources", "uuid": UUID["rp_res"], "version": VERSION}],
-        "dependencies": [{"uuid": UUID["bp"], "version": VERSION}],
-    })
+    })  # no dependency on the BP: BP -> RP only (a BP <-> RP loop makes the game refuse the RP)
     for i, a in enumerate(atlases):
         save_png(a, f"{RP}/textures/entity/hulk/hulk_s{i}.png")
     apple, pill = make_item_icons()

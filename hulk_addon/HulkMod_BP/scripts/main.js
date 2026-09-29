@@ -550,3 +550,12 @@ system.afterEvents.scriptEventReceive.subscribe((ev) => {
 system.runTimeout(() => {
   try { world.sendMessage("§a[Hulk Mod] Script yüklendi. §7/scriptevent hulk:give ile elma alabilirsin."); } catch { /* */ }
 }, 100);
+
+// Yaratıcı modda yemek mümkün olmadığı için: elmaya sağ tık = dönüşüm (elma harcanmaz)
+world.afterEvents.itemUse.subscribe((ev) => {
+  const p = ev.source;
+  if (ev.itemStack?.typeId !== "hulk:radioactive_apple") return;
+  let mode = "";
+  try { mode = String(p.getGameMode()); } catch { /* */ }
+  if (mode === "creative") startTransform(p);
+});
