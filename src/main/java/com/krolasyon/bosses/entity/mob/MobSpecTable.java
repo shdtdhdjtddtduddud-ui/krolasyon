@@ -9,11 +9,45 @@ final class MobSpecTable {
     private MobSpecTable() {}
 
     static void fill(Map<String, MobSpec> m) {
+        m.put("ash_phoenix", new MobSpec("ash_phoenix", Faction.EMBER)
+                .stats(64, 3, 7.0, 0.22)
+                .size(1.5F, 1.3F, 1.35F).fly(3.2).reach(2.8).kb(0.3).follow(40).anim(2.0, 2.0).voice("hound", 1.8F).egg(0x5A5048, 0xFF8A20).spawn(5, 1, 2, "ember_wastes", "ashen_barrens").xp(22, 30).head("head")
+                .ab(Ab.of(Ab.Kind.MELEE, "peck").time(16, 8).cd(18).dmg(1.0F).p(0.5, 0).color(0xFF8A20).fx("flame"))
+                .ab(Ab.of(Ab.Kind.DIVE, "dive").time(30, 10, 22).cd(140).w(4).range(6, 20).dmg(1.5F).p(1.4, 0.9).color(0xFF5A10).fx("flame").air())
+                .ab(Ab.of(Ab.Kind.VOLLEY, "feathers").time(30, 16).cd(130).w(4).range(5, 20).dmg(0.7F).p(7, 0.7).color(0xFF9A30).fx("flame").los())
+                .ab(Ab.of(Ab.Kind.CONE, "breath").time(44, 14, 24).cd(210).w(3).range(0, 11).dmg(0.55F).p(24, 0).color(0xFF7A1A).fx("flame")));
+        m.put("bone_knight", new MobSpec("bone_knight", Faction.BONE)
+                .stats(46, 6, 6.0, 0.25)
+                .size(0.7F, 2.05F, 1.0F).reach(2.6).kb(0.3).anim(1.5, 1.7).voice("warden", 1.35F).egg(0xE6DCC0, 0x3AC8E8).spawn(9, 2, 3, "bone_marches", "ossuary_fields").xp(12, 26)
+                .ab(Ab.of(Ab.Kind.MELEE, "attack").time(22, 12).cd(20).dmg(1.0F).p(0.8, 0).color(0x9AE8FF).fx("soul"))
+                .ab(Ab.of(Ab.Kind.CHARGE, "bash").time(26, 8).cd(130).w(3).range(3, 11).dmg(1.2F).p(10, 0.95).color(0xE8E0C8).fx("ash").eff("minecraft:slowness", 50, 1))
+                .ab(Ab.of(Ab.Kind.SHIELD, "guard").time(50, 4).cd(200).w(2).range(0, 9).dmg(1.0F).p(0.85, 0.5).color(0x9AE8FF).fx("soul"))
+                .ab(Ab.of(Ab.Kind.BUFF, "rally").time(30, 12).cd(420).w(1).range(0, 14).dmg(1.0F).p(10, 4).color(0x9AE8FF).fx("soul").eff("minecraft:strength", 200, 0)));
         m.put("cinder_imp", new MobSpec("cinder_imp", Faction.EMBER)
                 .stats(22, 1, 3.5, 0.24)
                 .size(0.8F, 1.4F, 1.0F).fly(2.2).reach(2.2).anim(2.6, 2.6).voice("demon", 1.7F).egg(0x2A1E1A, 0xFF8A1E).spawn(10, 2, 4, "ember_wastes", "ashen_barrens").xp(6, 22)
                 .ab(Ab.of(Ab.Kind.MELEE, "attack").time(14, 7).cd(18).dmg(1.0F).p(0.3, 0).color(0xFF7A1A).fx("flame"))
                 .ab(Ab.of(Ab.Kind.BOLT, "spit").time(20, 10).cd(70).w(4).range(4, 18).dmg(1.4F).p(1.0, 0).color(0xFF8A22).fx("flame").los())
                 .ab(Ab.of(Ab.Kind.DIVE, "dive").time(26, 8, 18).cd(150).w(3).range(5, 16).dmg(1.6F).p(1.25, 0.8).color(0xFF5A10).fx("flame").air()));
+        m.put("ember_archer", new MobSpec("ember_archer", Faction.EMBER)
+                .stats(34, 2, 5.0, 0.27)
+                .size(0.65F, 2.0F, 1.0F).reach(13).kb(0.1).follow(40).anim(1.6, 1.8).voice("demon", 1.15F).egg(0x3A2018, 0xFFB030).spawn(8, 2, 3, "ember_wastes", "ashen_barrens").xp(12, 22)
+                .ab(Ab.of(Ab.Kind.BOLT, "shoot").time(26, 14).cd(26).range(5, 22).dmg(1.0F).p(1.7, 0).color(0xFF8A22).fx("flame").los())
+                .ab(Ab.of(Ab.Kind.VOLLEY, "volley").time(34, 20).cd(150).w(4).range(5, 20).dmg(0.8F).p(5, 0.45).color(0xFF6A10).fx("flame").los())
+                .ab(Ab.of(Ab.Kind.RETREAT, "leap").time(20, 6).cd(110).w(5).range(0, 5).dmg(1.0F).p(1.0, 0.5).color(0xFFA040).fx("flame"))
+                .ab(Ab.of(Ab.Kind.METEOR, "skyshot").time(40, 14, 18, 22, 26).cd(300).w(2).range(8, 24).dmg(1.1F).p(2.2, 6).color(0xFF5A10).fx("flame")));
+        m.put("lava_slug", new MobSpec("lava_slug", Faction.EMBER)
+                .stats(40, 3, 5.0, 0.18)
+                .size(1.5F, 1.2F, 1.0F).reach(2.4).kb(0.4).anim(2.0, 2.0).voice("hound", 0.5F).egg(0x2A1A14, 0xFF7A18).spawn(9, 1, 3, "ember_wastes", "lava_lakes").xp(10, 26).head("head")
+                .ab(Ab.of(Ab.Kind.MELEE, "bite").time(18, 9).cd(20).dmg(1.0F).p(0.5, 0).color(0xFF7A18).fx("flame"))
+                .ab(Ab.of(Ab.Kind.ERUPT, "spit").time(26, 14).cd(140).w(4).range(3, 14).dmg(0.8F).p(1, 5).color(0xFF6A10).fx("flame"))
+                .ab(Ab.of(Ab.Kind.LEAP, "flop").time(30, 12).cd(170).w(3).range(4, 12).dmg(1.2F).p(1.2, 0.55).color(0xFF7A18).fx("flame").eff("minecraft:slowness", 60, 1)));
+        m.put("magma_brute", new MobSpec("magma_brute", Faction.EMBER)
+                .stats(110, 8, 11.0, 0.21)
+                .size(1.7F, 3.4F, 1.0F).reach(3.3).kb(0.75).anim(1.25, 1.35).voice("warden", 0.62F).egg(0x241812, 0xFF5A10).spawn(5, 1, 2, "ember_wastes", "ashen_barrens").xp(30, 34)
+                .ab(Ab.of(Ab.Kind.MELEE, "attack").time(26, 13, 19).cd(24).dmg(1.0F).p(1.0, 0).color(0xFF6A1A).fx("flame"))
+                .ab(Ab.of(Ab.Kind.SLAM, "slam").time(34, 20).cd(130).w(4).range(0, 7).dmg(1.3F).p(5.5, 1.5).color(0xFF7A20).fx("flame").eff("minecraft:slowness", 50, 1))
+                .ab(Ab.of(Ab.Kind.CHARGE, "charge").time(34, 12).cd(190).w(3).range(6, 16).dmg(1.2F).p(16, 0.85).color(0xFF5A10).fx("smoke"))
+                .ab(Ab.of(Ab.Kind.ERUPT, "stomp").time(36, 16, 22, 28).cd(240).w(2).range(2, 14).dmg(0.9F).p(1, 6).color(0xFF6A1A).fx("flame")));
     }
 }

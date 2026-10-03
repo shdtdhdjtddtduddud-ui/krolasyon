@@ -75,5 +75,20 @@
  "faction.krolasyonbosses.blood": "Kan Konseyi",
  "faction.krolasyonbosses.shadow": "Gölge Tarikatı",
  "faction.krolasyonbosses.rot": "Çürük Divanı",
- "faction.krolasyonbosses.outcast": "Yetimler"
+ "faction.krolasyonbosses.outcast": "Yetimler",
+ "entity.krolasyonbosses.ash_phoenix": "Kül Anka",
+ "item.krolasyonbosses.ash_phoenix_spawn_egg": "Kül Anka Çağırma Yumurtası",
+ "bestiary.krolasyonbosses.ash_phoenix": "Küllerinden defalarca doğan kuş. Kanat çırpışı sıcak bir fırtına estirir; tüyleri düştüğü yerde kor bırakır.",
+ "entity.krolasyonbosses.bone_knight": "Kemik Şövalye",
+ "item.krolasyonbosses.bone_knight_spawn_egg": "Kemik Şövalye Çağırma Yumurtası",
+ "bestiary.krolasyonbosses.bone_knight": "Kemik Krallığı'nın değişmez ordusu. Yemin ettikleri kralın emri dışında hiçbir şey duymazlar; kalkanları kırılmadan asla geri çekilmezler.",
+ "entity.krolasyonbosses.ember_archer": "Kor Okçusu",
+ "item.krolasyonbosses.ember_archer_spawn_egg": "Kor Okçusu Çağırma Yumurtası",
+ "bestiary.krolasyonbosses.ember_archer": "Kor Hanedanı'nın gözcüleri. Ok uçları kor halindedir; hedef yandığında bile atış durmaz.",
+ "entity.krolasyonbosses.lava_slug": "Lav Sümüklüsü",
+ "item.krolasyonbosses.lava_slug_spawn_egg": "Lav Sümüklüsü Çağırma Yumurtası",
+ "bestiary.krolasyonbosses.lava_slug": "Yanardağ göllerinde yaşayan yavaş ama ölümcül yaratık. Geçtiği yerde zemin kızarır, ısırığı kemik eritir.",
+ "entity.krolasyonbosses.magma_brute": "Magma Canavarı",
+ "item.krolasyonbosses.magma_brute_spawn_egg": "Magma Canavarı Çağırma Yumurtası",
+ "bestiary.krolasyonbosses.magma_brute": "Eriyik kayanın ve öfkenin yoğrulduğu dev. Kor Hanedanı'nın kuşatma makinesi; yumruğunun düştüğü yerde yer yarılır."
 }

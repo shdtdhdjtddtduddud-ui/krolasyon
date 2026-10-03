@@ -390,9 +390,10 @@ public class HellMob extends BossEntity {
         public void start() {
             double a = mob.getRandom().nextDouble() * Math.PI * 2;
             double d = 6 + mob.getRandom().nextDouble() * 8;
-            double gy = mob.level().getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) mob.getX(), (int) mob.getZ());
-            double y = Math.max(mob.getY() - 3, Math.min(mob.getY() + 4, Math.max(gy + 2, mob.getY() + (mob.getRandom().nextDouble() - 0.4) * 4)));
-            mob.getNavigation().moveTo(mob.getX() + Math.cos(a) * d, y, mob.getZ() + Math.sin(a) * d, 0.7);
+            double nx = mob.getX() + Math.cos(a) * d, nz = mob.getZ() + Math.sin(a) * d;
+            double gy = mob.level().getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) nx, (int) nz);
+            double y = gy + 1.5 + mob.getRandom().nextDouble() * (mob.spec().hoverHeight + 1.5);
+            mob.getNavigation().moveTo(nx, y, nz, 0.7);
         }
     }
 

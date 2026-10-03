@@ -86,10 +86,10 @@ public final class AutoTest {
         for (com.krolasyon.bosses.entity.mob.MobSpec sp : com.krolasyon.bosses.entity.mob.MobSpecs.ALL.values()) {
             if (!only.isEmpty() && !only.contains(sp.id)) continue;
             double dist = 9 + sp.height * 2.2;
-            cmd(8, null, "kill @e[type=!player]", "tp @a 1 -60 2 180 -4", TARGET.replace("-13", "-" + (int) (dist + 4)),
+            cmd(8, null, "kill @e[type=!player]", "tp @a 1 -60 2 180 -4", TARGET.replace("4 -60 -13", "-7 -60 -" + (int) (dist + 8)),
                     "summon krolasyonbosses:" + sp.id + " 0 -60 -" + (int) (dist + 8) + " {Rotation:[0f,0f]}");
             cmd(14, sp.id + "_a_idle", "tp @a 1 -60 -" + (int) Math.max(3, dist - 4) + " 180 -6");
-            cmd(24, sp.id + "_b_side", "tp @a " + (int) (sp.height * 2.5 + 3) + " -60 -" + (int) (dist + 4) + " 90 -8");
+            cmd(24, sp.id + "_b_side", "tp @a " + (int) (sp.height * 2.5 + 4) + " -60 -" + (int) (dist + 8) + " 90 -8");
             cmd(2, null, "tp @a 1 -60 -" + (int) Math.max(3, dist - 4) + " 180 -6");
             for (int i = 0; i < sp.abilities.size(); i++) {
                 final int ab = i;

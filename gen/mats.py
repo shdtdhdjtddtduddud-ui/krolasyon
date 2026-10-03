@@ -406,7 +406,7 @@ def flame(core=(255, 244, 190), mid=(255, 150, 40), edge=(200, 40, 10), sway=0.5
     """emissive fire tongue (tip at the top of the face, bright base); ragged alpha cut-out"""
     def f(c, face, W, H, r):
         yy, xx = np.mgrid[0:H, 0:W]
-        v = 1.0 - (yy + 0.5) / max(H, 1)           # 0 at the tip, 1 at the base
+        v = (yy + 0.5) / max(H, 1)           # 0 at the tip (top of the face), 1 at the base
         n = noise2(H, W, r, 2.0, 3)
         cx = W / 2 + np.sin(v * 5 + r.random() * 6) * W * 0.12 * sway
         half = (W / 2) * (np.clip(v, 0, 1) ** 0.75) * (0.75 + 0.5 * n)
@@ -555,4 +555,58 @@ def membrane(pal, vein_col=None, scallops=3, edge_dark=True, vgrad=0.05):
             col = np.where(vm[..., None] > 0, lerp(col, vein_col, 0.55), col)
             glow = glow_img(H, W, vein_col, vm * 0.55)
         return col, alpha, glow
+    return f
+
+
+def feather(pal, tip=None, glow_tip=None, rachis=True, width=0.5, tip_start=0.55):
+    """feather on a vertical card; quill at the top, tip at the bottom; lens shaped alpha"""
+    def f(c, face, W, H, r):
+        yy, xx = np.mgrid[0:H, 0:W]
+        v = (yy + 0.5) / max(H, 1)
+        n = noise2(H, W, r, 2.0)
+        prof = np.sin(np.clip(v, 0, 1) * math.pi * 0.95 + 0.15) * width + 0.08
+        d = np.abs((xx + 0.5) / W - 0.5)
+        inside = d < prof * 0.5 + 0.02
+        t = 0.55 - v * 0.2 + (n - 0.5) * 0.35 - d * 0.5
+        col = ramp(np.clip(t, 0, 1), pal)
+        g = None
+        if rachis:
+            m = np.abs((xx + 0.5) - W / 2) < 0.6
+            col = np.where(m[..., None], np.array(pal[-1], np.float32), col)
+        if tip is not None:
+            m = np.clip((v - tip_start) / (1 - tip_start), 0, 1)
+            col = lerp(col, tip, m[..., None][..., 0] * 0.9) if False else col * (1 - m[..., None]) + np.array(tip, np.float32) * m[..., None]
+            if glow_tip is not None:
+                g = glow_img(H, W, glow_tip, m * 0.9 * inside)
+        return col, inside.astype(float), g
+    return f
+
+
+def feather_sheet(pal, tip=None, glow_tip=None, rows=3, fw=3, tip_depth=5, tip_start=0.55, vein=None):
+    """a wing panel painted as rows of overlapping feathers (roof-tile style); bottom edge ends in pointed feather tips"""
+    def f(c, face, W, H, r):
+        yy, xx = np.mgrid[0:H, 0:W]
+        n = noise2(H, W, r, 2.0)
+        rh = max(3, H // (rows + 1))
+        row = yy // rh
+        off = (row * (fw // 2 + 1)) % fw
+        fx = (xx + off) % fw
+        # each feather: lighter centre line, darker edges, curved bottom lip
+        inrow = yy % rh
+        t = 0.62 - (inrow / rh) * 0.25 + (1 - np.abs(fx - (fw - 1) / 2) / (fw / 2)) * 0.12 + (n - 0.5) * 0.3
+        t = t - ((inrow == rh - 1) * 0.22)
+        col = ramp(np.clip(t, 0, 1), pal)
+        # pointed tips along the bottom edge
+        tipw = max(2, fw)
+        cx = (xx % tipw) / max(tipw - 1, 1)
+        point = (1 - np.abs(cx * 2 - 1)) * tip_depth * (0.7 + 0.5 * noise2(H, W, r, 1.5))
+        alpha = (yy < (H - tip_depth + point)).astype(float)
+        v = np.clip(yy / max(H - 1, 1), 0, 1)
+        g = None
+        if tip is not None:
+            m = np.clip((v - tip_start) / (1 - tip_start), 0, 1)[..., None]
+            col = col * (1 - m * 0.85) + np.array(tip, np.float32) * m * 0.85
+            if glow_tip is not None:
+                g = glow_img(H, W, glow_tip, m[..., 0] * 0.85 * alpha)
+        return col, alpha, g
     return f

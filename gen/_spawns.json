@@ -1,8 +1,53 @@
 {
+ "ash_phoenix": {
+  "weight": 5,
+  "min": 1,
+  "max": 2,
+  "biomes": [
+   "ember_wastes",
+   "ashen_barrens"
+  ]
+ },
+ "bone_knight": {
+  "weight": 9,
+  "min": 2,
+  "max": 3,
+  "biomes": [
+   "bone_marches",
+   "ossuary_fields"
+  ]
+ },
  "cinder_imp": {
   "weight": 10,
   "min": 2,
   "max": 4,
+  "biomes": [
+   "ember_wastes",
+   "ashen_barrens"
+  ]
+ },
+ "ember_archer": {
+  "weight": 8,
+  "min": 2,
+  "max": 3,
+  "biomes": [
+   "ember_wastes",
+   "ashen_barrens"
+  ]
+ },
+ "lava_slug": {
+  "weight": 9,
+  "min": 1,
+  "max": 3,
+  "biomes": [
+   "ember_wastes",
+   "lava_lakes"
+  ]
+ },
+ "magma_brute": {
+  "weight": 5,
+  "min": 1,
+  "max": 2,
   "biomes": [
    "ember_wastes",
    "ashen_barrens"

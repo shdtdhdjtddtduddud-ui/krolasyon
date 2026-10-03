@@ -75,5 +75,20 @@
  "faction.krolasyonbosses.blood": "Blood Conclave",
  "faction.krolasyonbosses.shadow": "Shadow Covenant",
  "faction.krolasyonbosses.rot": "Rot Court",
- "faction.krolasyonbosses.outcast": "Outcasts"
+ "faction.krolasyonbosses.outcast": "Outcasts",
+ "entity.krolasyonbosses.ash_phoenix": "Ash Phoenix",
+ "item.krolasyonbosses.ash_phoenix_spawn_egg": "Ash Phoenix Spawn Egg",
+ "bestiary.krolasyonbosses.ash_phoenix": "Küllerinden defalarca doğan kuş. Kanat çırpışı sıcak bir fırtına estirir; tüyleri düştüğü yerde kor bırakır.",
+ "entity.krolasyonbosses.bone_knight": "Bone Knight",
+ "item.krolasyonbosses.bone_knight_spawn_egg": "Bone Knight Spawn Egg",
+ "bestiary.krolasyonbosses.bone_knight": "Kemik Krallığı'nın değişmez ordusu. Yemin ettikleri kralın emri dışında hiçbir şey duymazlar; kalkanları kırılmadan asla geri çekilmezler.",
+ "entity.krolasyonbosses.ember_archer": "Ember Archer",
+ "item.krolasyonbosses.ember_archer_spawn_egg": "Ember Archer Spawn Egg",
+ "bestiary.krolasyonbosses.ember_archer": "Kor Hanedanı'nın gözcüleri. Ok uçları kor halindedir; hedef yandığında bile atış durmaz.",
+ "entity.krolasyonbosses.lava_slug": "Lava Slug",
+ "item.krolasyonbosses.lava_slug_spawn_egg": "Lava Slug Spawn Egg",
+ "bestiary.krolasyonbosses.lava_slug": "Yanardağ göllerinde yaşayan yavaş ama ölümcül yaratık. Geçtiği yerde zemin kızarır, ısırığı kemik eritir.",
+ "entity.krolasyonbosses.magma_brute": "Magma Brute",
+ "item.krolasyonbosses.magma_brute_spawn_egg": "Magma Brute Spawn Egg",
+ "bestiary.krolasyonbosses.magma_brute": "Eriyik kayanın ve öfkenin yoğrulduğu dev. Kor Hanedanı'nın kuşatma makinesi; yumruğunun düştüğü yerde yer yarılır."
 }

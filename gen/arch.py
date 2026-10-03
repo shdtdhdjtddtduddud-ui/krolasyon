@@ -71,6 +71,11 @@ def plane(M, bone, pos_c, size_wh, mat, rot=None):
     return M.cube(bone, (pos_c[0] - w / 2, pos_c[1] - h, pos_c[2]), (w, h, 0), mat, plane=True)
 
 
+def world_bone(M, name, parent, pivot, rx=0.0, ry=0.0, rz=0.0):
+    """bone at an absolute pivot with an absolute (world) rest rotation in degrees"""
+    return M.bone_w(name, parent, pivot, rot_zyx(math.radians(rx), math.radians(ry), math.radians(rz)))
+
+
 def mirror_names(d):
     """mirror right_* rotation entries to left_* (y,z negated)"""
     o = dict(d)
@@ -426,3 +431,105 @@ def swing(a_name, length, frames, M=None, loop=False):
     a = Anim(a_name, length, loop)
     poses(a, frames)
     return a
+
+
+# ------------------------------------------------------------------ humanoid builder
+def _rx(p, pivot, deg):
+    """rotate point p about the x axis through pivot (positive deg = things above the pivot lean forward, i.e. towards -z)"""
+    a = math.radians(deg)
+    y, z = p[1] - pivot[1], p[2] - pivot[2]
+    return (p[0], pivot[1] + y * math.cos(a) - z * math.sin(a), pivot[2] + y * math.sin(a) + z * math.cos(a))
+
+
+HUMAN_MATS = dict(pelvis='pelvis', torso='torso', head='head', arm='arm', fore='fore', hand='hand', leg='leg', shin='shin', foot='foot')
+
+
+def humanoid(M, leg=(11, 11), leg_w=4.6, foot=(5.2, 2.6, 7.5), hip_w=9.5, pelvis_h=4.6, torso=(11, 12, 6.5), shoulder_w=None, neck=2.2,
+             head=(8, 8, 8), arm=(9.5, 9.5), arm_w=3.9, hand=(3.3, 3.8, 3.3), hunch=0.0, arm_out=1.0, arm_fwd=1.0, bend=0.0,
+             mats=None, head_fwd=0.0, stance=0.0, hand_bone=True, foot_bone=True, torso_taper=1.0):
+    """standard rig: base > hips > chest(seg) > neck > head, arms on chest, legs on hips.
+    returns dict of key points.  Everything is in absolute rest coordinates (ground y=24, front -z)."""
+    mt = {**HUMAN_MATS, **(mats or {})}
+    foot_h = foot[1]
+    ankle_y = 24 - foot_h
+    hip_y = ankle_y - leg[0] - leg[1]
+    M.bone('base', None, (0, 24, 0))
+    M.bone('hips', 'base', (0, hip_y, 0))
+    box(M, 'hips', (0, hip_y - pelvis_h * 0.35, 0), (hip_w, pelvis_h, torso[2] * 0.92), mt['pelvis'])
+    waist = (0, hip_y - pelvis_h * 0.7, 0)
+    Rv = lambda v: _rx((v[0], v[1], v[2]), waist, hunch)
+    P1 = Rv((0, waist[1] - torso[1], 0))
+    M.seg('chest', 'hips', waist, P1, torso[0], torso[2], mt['torso'], extend=0.3)
+    sw = shoulder_w if shoulder_w else torso[0] / 2 + arm_w / 2 - 0.4
+    K = dict(hip_y=hip_y, ankle_y=ankle_y, waist=waist, P1=P1, leg_w=leg_w)
+    # neck + head
+    npv = (0, P1[1] - 0.3, P1[2] - head_fwd * 0.3)
+    zero_bone(M, 'neck', 'chest', npv)
+    if neck > 0.1:
+        box(M, 'neck', (npv[0], npv[1] - neck / 2 + 0.3, npv[2]), (head[0] * 0.5, neck + 0.6, head[2] * 0.5), mt['torso'])
+    hpv = (0, npv[1] - neck, npv[2] - head_fwd)
+    zero_bone(M, 'head', 'neck', hpv)
+    hc = (0, hpv[1] - head[1] / 2 + 0.6, hpv[2])
+    box(M, 'head', hc, head, mt['head'])
+    K.update(neck=npv, head_pivot=hpv, head_c=hc, head_top=hc[1] - head[1] / 2)
+    # arms
+    K['hands'] = {}
+    bends = bend if isinstance(bend, (tuple, list)) else (bend, bend)
+    for sx, s in ((-1, 'right'), (1, 'left')):
+        bd = bends[0] if sx < 0 else bends[1]
+        A = Rv((sx * sw, waist[1] - torso[1] + 1.2, 0))
+        B = (A[0] + sx * arm_out * 0.9, A[1] + arm[0], A[2] - 0.8 * arm_fwd - bd * 0.5)
+        C = (B[0] - sx * 0.2 * arm_out, B[1] + arm[1] * (1 - bd * 0.6), B[2] - 2.0 * arm_fwd - bd * arm[1] * 0.8)
+        M.seg(f'{s}_arm', 'chest', A, B, arm_w, arm_w, mt['arm'], extend=0.7)
+        M.seg(f'{s}_fore', f'{s}_arm', B, C, arm_w * 0.9, arm_w * 0.9, mt['fore'], extend=0.5)
+        if hand_bone:
+            zero_bone(M, f'{s}_hand', f'{s}_fore', C)
+            M.cube_l(f'{s}_hand', (-hand[0] / 2, -0.3, -hand[2] / 2), hand, mt['hand'])
+        K['hands'][s] = C
+        K[f'{s}_A'], K[f'{s}_B'] = A, B
+    # legs
+    for sx, s in ((-1, 'right'), (1, 'left')):
+        x = sx * (hip_w / 2 - leg_w / 2 + 0.2 + stance)
+        A = (x, hip_y - 0.2, 0.0)
+        B = (x + sx * stance * 0.4, hip_y + leg[0], -0.5)
+        C = (x + sx * stance * 0.2, ankle_y, 0.4)
+        M.seg(f'{s}_leg', 'hips', A, B, leg_w, leg_w, mt['leg'], extend=0.6)
+        M.seg(f'{s}_shin', f'{s}_leg', B, C, leg_w * 0.9, leg_w * 0.9, mt['shin'], extend=0.4)
+        if foot_bone:
+            zero_bone(M, f'{s}_foot', f'{s}_shin', C)
+            M.cube_l(f'{s}_foot', (-foot[0] / 2, -0.4, -foot[2] * 0.62), (foot[0], foot[1] + 0.4, foot[2]), mt['foot'])
+        K[f'{s}_knee'] = B
+    return K
+
+
+def sword(M, hand_bone, length=14, width=2.2, thick=0.9, mat='blade', guard=(5.5, 1.2, 1.6), guard_mat='guard', grip=4.0, grip_mat='grip',
+          pommel=None, dir='up', flip=False, offset=(0, 0, 0)):
+    """blade held in the hand bone; dir 'up' (blade along -y) or 'fwd' (along -z)"""
+    ox, oy, oz = offset
+    if dir == 'up':
+        M.cube_l(hand_bone, (-thick / 2 + ox, -grip - length + oy, -width / 2 + oz), (thick, length, width), mat)
+        M.cube_l(hand_bone, (-guard[2] / 2 + ox, -grip + oy, -guard[0] / 2 + oz), (guard[2], guard[1], guard[0]), guard_mat)
+        M.cube_l(hand_bone, (-0.8 + ox, -grip + 0.8 + oy, -0.8 + oz), (1.6, grip, 1.6), grip_mat)
+        if pommel:
+            M.cube_l(hand_bone, (-1.2 + ox, grip * 0.6 + oy, -1.2 + oz), (2.4, 1.6, 2.4), pommel)
+    else:
+        M.cube_l(hand_bone, (-thick / 2 + ox, -width / 2 + 1.0 + oy, -grip - length + oz), (thick, width, length), mat)
+        M.cube_l(hand_bone, (-guard[2] / 2 + ox, -guard[0] / 2 + 1.0 + oy, -grip + oz), (guard[2], guard[0], guard[1]), guard_mat)
+        M.cube_l(hand_bone, (-0.8 + ox, 0.2 + oy, -grip + oz), (1.6, 1.6, grip), grip_mat)
+
+
+# ------------------------------------------------------------------ pixel stamps (emblems painted on faces)
+def stamp(col, bitmap, x0, y0, colors, glow=None, glow_chars=''):
+    """paint a small ascii bitmap into col[H,W,3]; colors maps char -> rgb; chars in glow_chars also write glow"""
+    H, W = col.shape[:2]
+    g = None
+    for j, row in enumerate(bitmap):
+        for i, ch in enumerate(row):
+            if ch == ' ' or ch == '.':
+                continue
+            x, y = x0 + i, y0 + j
+            if 0 <= x < W and 0 <= y < H and ch in colors:
+                col[y, x] = colors[ch]
+                if glow is not None and ch in glow_chars:
+                    glow[y, x] = (*colors[ch], 255)
+    return col
