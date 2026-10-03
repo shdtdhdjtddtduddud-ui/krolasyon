@@ -14,6 +14,26 @@ public final class RealmClientSetup {
     private RealmClientSetup() {}
 
     @SubscribeEvent
+    public static void registerLayers(net.minecraftforge.client.event.EntityRenderersEvent.RegisterLayerDefinitions e) {
+        for (com.krolasyon.bosses.realm.client.gen.GenModels.Info info : com.krolasyon.bosses.realm.client.gen.GenModels.ALL.values()) {
+            e.registerLayerDefinition(com.krolasyon.bosses.realm.client.render.RealmMobRenderer.layer(info.id()), info.layer());
+        }
+    }
+
+    @SubscribeEvent
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static void registerRenderers(net.minecraftforge.client.event.EntityRenderersEvent.RegisterRenderers e) {
+        for (com.krolasyon.bosses.realm.client.gen.GenModels.Info info : com.krolasyon.bosses.realm.client.gen.GenModels.ALL.values()) {
+            net.minecraft.world.entity.EntityType type = com.krolasyon.bosses.realm.entity.RealmEntities.type(info.id());
+            com.krolasyon.bosses.realm.entity.MobSpec spec = com.krolasyon.bosses.realm.entity.RealmEntities.spec(info.id());
+            if (type == null || spec == null) continue;
+            if (spec.boss()) e.registerEntityRenderer(type, ctx -> new com.krolasyon.bosses.realm.client.render.RealmBossRenderer(ctx, info));
+            else e.registerEntityRenderer(type, ctx -> new com.krolasyon.bosses.realm.client.render.RealmMobRenderer(ctx, info));
+        }
+        e.registerEntityRenderer(com.krolasyon.bosses.realm.entity.RealmEntities.SPELL.get(), com.krolasyon.bosses.realm.client.render.SpellProjectileRenderer::new);
+    }
+
+    @SubscribeEvent
     public static void registerEffects(RegisterDimensionSpecialEffectsEvent e) {
         e.register(Realm.rl("crimson_realm"), new RealmSky());
     }

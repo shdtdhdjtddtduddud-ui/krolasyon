@@ -32,7 +32,44 @@
   }
  },
  "spawners": {
-  "monster": [],
+  "monster": [
+   {
+    "type": "krolasyonbosses:ash_walker",
+    "weight": 25,
+    "minCount": 1,
+    "maxCount": 2
+   },
+   {
+    "type": "krolasyonbosses:cinder_beetle",
+    "weight": 25,
+    "minCount": 2,
+    "maxCount": 4
+   },
+   {
+    "type": "krolasyonbosses:iron_sentinel",
+    "weight": 6,
+    "minCount": 1,
+    "maxCount": 1
+   },
+   {
+    "type": "krolasyonbosses:throne_gargoyle",
+    "weight": 40,
+    "minCount": 1,
+    "maxCount": 2
+   },
+   {
+    "type": "krolasyonbosses:magma_worm",
+    "weight": 18,
+    "minCount": 1,
+    "maxCount": 1
+   },
+   {
+    "type": "krolasyonbosses:crimson_revenant",
+    "weight": 30,
+    "minCount": 1,
+    "maxCount": 2
+   }
+  ],
   "creature": [],
   "ambient": [],
   "axolotls": [],

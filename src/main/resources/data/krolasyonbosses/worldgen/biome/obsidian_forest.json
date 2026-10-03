@@ -32,8 +32,58 @@
   }
  },
  "spawners": {
-  "monster": [],
-  "creature": [],
+  "monster": [
+   {
+    "type": "krolasyonbosses:bloodsucker",
+    "weight": 15,
+    "minCount": 1,
+    "maxCount": 2
+   },
+   {
+    "type": "krolasyonbosses:shadow_assassin",
+    "weight": 50,
+    "minCount": 1,
+    "maxCount": 3
+   },
+   {
+    "type": "krolasyonbosses:void_watcher",
+    "weight": 30,
+    "minCount": 1,
+    "maxCount": 2
+   },
+   {
+    "type": "krolasyonbosses:nightmare_steed",
+    "weight": 25,
+    "minCount": 1,
+    "maxCount": 2
+   },
+   {
+    "type": "krolasyonbosses:whisperer",
+    "weight": 30,
+    "minCount": 1,
+    "maxCount": 2
+   },
+   {
+    "type": "krolasyonbosses:crystal_golem",
+    "weight": 12,
+    "minCount": 1,
+    "maxCount": 1
+   },
+   {
+    "type": "krolasyonbosses:shadow_scorpion",
+    "weight": 30,
+    "minCount": 1,
+    "maxCount": 2
+   }
+  ],
+  "creature": [
+   {
+    "type": "krolasyonbosses:shadow_envoy",
+    "weight": 6,
+    "minCount": 1,
+    "maxCount": 1
+   }
+  ],
   "ambient": [],
   "axolotls": [],
   "underground_water_creature": [],

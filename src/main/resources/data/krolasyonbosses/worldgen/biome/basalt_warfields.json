@@ -32,8 +32,76 @@
   }
  },
  "spawners": {
-  "monster": [],
-  "creature": [],
+  "monster": [
+   {
+    "type": "krolasyonbosses:ember_hound",
+    "weight": 30,
+    "minCount": 1,
+    "maxCount": 3
+   },
+   {
+    "type": "krolasyonbosses:flame_djinn",
+    "weight": 15,
+    "minCount": 1,
+    "maxCount": 1
+   },
+   {
+    "type": "krolasyonbosses:shadow_scorpion",
+    "weight": 10,
+    "minCount": 1,
+    "maxCount": 1
+   },
+   {
+    "type": "krolasyonbosses:legion_footsoldier",
+    "weight": 80,
+    "minCount": 2,
+    "maxCount": 4
+   },
+   {
+    "type": "krolasyonbosses:legion_archer",
+    "weight": 45,
+    "minCount": 1,
+    "maxCount": 3
+   },
+   {
+    "type": "krolasyonbosses:war_bull",
+    "weight": 20,
+    "minCount": 1,
+    "maxCount": 1
+   },
+   {
+    "type": "krolasyonbosses:brimstone_mortar",
+    "weight": 15,
+    "minCount": 1,
+    "maxCount": 1
+   },
+   {
+    "type": "krolasyonbosses:chain_demon",
+    "weight": 25,
+    "minCount": 1,
+    "maxCount": 1
+   },
+   {
+    "type": "krolasyonbosses:iron_sentinel",
+    "weight": 10,
+    "minCount": 1,
+    "maxCount": 1
+   },
+   {
+    "type": "krolasyonbosses:infernal_imp",
+    "weight": 30,
+    "minCount": 2,
+    "maxCount": 3
+   }
+  ],
+  "creature": [
+   {
+    "type": "krolasyonbosses:legion_envoy",
+    "weight": 6,
+    "minCount": 1,
+    "maxCount": 1
+   }
+  ],
   "ambient": [],
   "axolotls": [],
   "underground_water_creature": [],

@@ -32,8 +32,52 @@
   }
  },
  "spawners": {
-  "monster": [],
-  "creature": [],
+  "monster": [
+   {
+    "type": "krolasyonbosses:bloodsucker",
+    "weight": 60,
+    "minCount": 2,
+    "maxCount": 4
+   },
+   {
+    "type": "krolasyonbosses:blood_guard",
+    "weight": 50,
+    "minCount": 1,
+    "maxCount": 3
+   },
+   {
+    "type": "krolasyonbosses:flesh_abomination",
+    "weight": 20,
+    "minCount": 1,
+    "maxCount": 1
+   },
+   {
+    "type": "krolasyonbosses:blood_leech",
+    "weight": 40,
+    "minCount": 2,
+    "maxCount": 4
+   },
+   {
+    "type": "krolasyonbosses:blood_witch",
+    "weight": 30,
+    "minCount": 1,
+    "maxCount": 2
+   },
+   {
+    "type": "krolasyonbosses:bone_spider",
+    "weight": 30,
+    "minCount": 1,
+    "maxCount": 3
+   }
+  ],
+  "creature": [
+   {
+    "type": "krolasyonbosses:blood_envoy",
+    "weight": 6,
+    "minCount": 1,
+    "maxCount": 1
+   }
+  ],
   "ambient": [],
   "axolotls": [],
   "underground_water_creature": [],

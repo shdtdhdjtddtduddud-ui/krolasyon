@@ -6,7 +6,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, 'realm'))
 sys.path.insert(0, HERE)
-import blocks_tex, items_tex, worldgen, assets, lang  # noqa: E402
+import blocks_tex, items_tex, worldgen, assets, lang, gui_tex  # noqa: E402
 
 ROOT = os.path.join(HERE, '..', 'src', 'main', 'resources')
 M = 'krolasyonbosses'
@@ -38,6 +38,13 @@ def main():
     write(f'assets/{M}/textures/block/realm_portal.png.mcmeta', {"animation": {"frametime": 2, "interpolate": True}})
     save(f'assets/{M}/textures/environment/eclipse.png', blocks_tex.eclipse())
     save(f'assets/{M}/textures/environment/shattered_moon.png', blocks_tex.shattered_moon())
+    save(f'assets/{M}/textures/entity/realm/spell_orb.png', gui_tex.spell_orb())
+    save(f'assets/{M}/textures/gui/chronicle.png', gui_tex.chronicle())
+    steel = ['#3a0a0e', '#7a1a20', '#b83a3a', '#e88a80']
+    save(f'assets/{M}/textures/models/armor/infernal_steel_layer_1.png', gui_tex.armor_layer(steel, '#ffcf40', '#ff3020', 1))
+    save(f'assets/{M}/textures/models/armor/infernal_steel_layer_2.png', gui_tex.armor_layer(steel, '#ffcf40', '#ff3020', 2))
+    save(f'assets/{M}/textures/models/armor/sovereign_layer_1.png', gui_tex.armor_layer(steel, '#ffcf40', '#ff3020', 1, crown=True))
+    save(f'assets/{M}/textures/models/armor/sovereign_layer_2.png', gui_tex.armor_layer(steel, '#ffcf40', '#ff3020', 2))
     for name, c in items_tex.build().items():
         save(f'assets/{M}/textures/item/{name}.png', c.image())
     # models, loot, recipes, tags

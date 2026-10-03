@@ -24,6 +24,10 @@ public class KrolasyonBosses {
         com.krolasyon.bosses.realm.registry.RealmItems.ITEMS.register(bus);
         com.krolasyon.bosses.realm.registry.RealmItems.TABS.register(bus);
         com.krolasyon.bosses.realm.world.RealmFeatures.FEATURES.register(bus);
+        com.krolasyon.bosses.realm.entity.RealmEntities.ENTITIES.register(bus);
+        bus.addListener(com.krolasyon.bosses.realm.entity.RealmEntities::onAttributes);
+        bus.addListener(com.krolasyon.bosses.realm.entity.RealmEntities::onSpawnPlacements);
+        bus.addListener((net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent e) -> e.enqueueWork(com.krolasyon.bosses.realm.net.RealmNet::register));
         net.minecraftforge.fml.ModLoadingContext.get().registerConfig(net.minecraftforge.fml.config.ModConfig.Type.COMMON,
                 com.krolasyon.bosses.realm.RealmConfig.SPEC, "krolasyon-realm.toml");
         bus.addListener(this::onAttributes);

@@ -4,12 +4,13 @@ license="All Rights Reserved"
 
 [[mods]]
 modId="krolasyonbosses"
-version="1.1.0"
-displayName="Krolasyon Bosses"
+version="2.0.0"
+displayName="Krolasyon: Kizil Taht"
 authors="krolasyon"
 description='''
-Dort boss: Muhur Bekcisi, Kizil Cehennem Kurdu, Intikam ve Kalp Kirici Iblis.
-Her birinin 5 ozel yetenegi vardir ve etraftaki tum canavarlara saldirirlar.
+Kizil Diyar: kendiliginden olusan kizil portallar, 6 biyom ve 5 krallik, 30+ canavar, 6 krallik lordu ve Tiran Azgaroth.
+Itibar, ittifak ve fetih siyaseti; hikaye boyunca Kizil Taht'in hukumdari ol. Buyu kitaplari, efsanevi kiliclar, mana ve lutuflar.
+Ayrica dort boss: Muhur Bekcisi, Kizil Cehennem Kurdu, Intikam ve Kalp Kirici Iblis.
 '''
 
 [[dependencies.krolasyonbosses]]
