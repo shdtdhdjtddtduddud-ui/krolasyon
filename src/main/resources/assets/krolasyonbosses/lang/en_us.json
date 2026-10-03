@@ -360,5 +360,7 @@
  "item.krolasyonbosses.tome_thorn_burst.desc": "Thorns erupt around you, poisoning and rooting foes.",
  "item.krolasyonbosses.tome_bone_prison.desc": "Cages a foe in bone.",
  "item.krolasyonbosses.tome_summon_imp.desc": "Summons two imps to fight for you.",
- "item.krolasyonbosses.tome_decree.desc": "Break the will of everything near; heal your servants (Sovereign only)."
+ "item.krolasyonbosses.tome_decree.desc": "Break the will of everything near; heal your servants (Sovereign only).",
+ "msg.seal.locked": "The seal does not answer. Sigils carried: %s / %s.",
+ "msg.seal.broken": "%s has broken the seal of the Ash Throne!"
 }

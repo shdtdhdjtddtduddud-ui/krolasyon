@@ -397,6 +397,7 @@ public final class Dialogue {
     public static void conquered(ServerPlayer killer, Faction f) {
         if (PlayerData.oath(killer, f) == PlayerData.OATH_NONE) PlayerData.setOath(killer, f, PlayerData.OATH_CONQUEROR);
         PlayerData.setStage(killer, f, 4);
+        give(killer, f.id + "_sigil", 1);
         int rep = PlayerData.rep(killer, f);
         PlayerData.addRep(killer, f, 40 - rep, false);
         for (Faction o : Faction.HOUSES) {

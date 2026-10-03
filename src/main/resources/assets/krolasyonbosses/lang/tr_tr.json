@@ -360,5 +360,7 @@
  "item.krolasyonbosses.tome_thorn_burst.desc": "Etrafında dikenler patlar; zehirler ve yerinden oynatmaz.",
  "item.krolasyonbosses.tome_bone_prison.desc": "Bir düşmanı kemikle hapseder.",
  "item.krolasyonbosses.tome_summon_imp.desc": "Senin için savaşan iki ufaklık çağırır.",
- "item.krolasyonbosses.tome_decree.desc": "Yakındaki her şeyin iradesini kır; hizmetkârlarını iyileştir (yalnızca Egemen)."
+ "item.krolasyonbosses.tome_decree.desc": "Yakındaki her şeyin iradesini kır; hizmetkârlarını iyileştir (yalnızca Egemen).",
+ "msg.seal.locked": "Mühür cevap vermiyor. Taşıdığın mühür: %s / %s.",
+ "msg.seal.broken": "%s, Kül Taht'ın mührünü kırdı!"
 }

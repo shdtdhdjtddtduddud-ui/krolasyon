@@ -155,6 +155,8 @@ DESC = {
 }
 for k, (e, t) in DESC.items():
     both(f'item.krolasyonbosses.{k}.desc', e, t)
+both('msg.seal.locked','The seal does not answer. Sigils carried: %s / %s.','Mühür cevap vermiyor. Taşıdığın mühür: %s / %s.')
+both('msg.seal.broken','%s has broken the seal of the Ash Throne!','%s, Kül Taht\'ın mührünü kırdı!')
 both('itemGroup.krolasyonbosses', 'Azrakor', 'Azrakor')
 
 json.dump(en, open(f'{A}/en_us.json', 'w'), indent=1, ensure_ascii=False)
