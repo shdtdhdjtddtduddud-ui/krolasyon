@@ -1,0 +1,8 @@
+{
+ "parent": "minecraft:block/cube_bottom_top",
+ "textures": {
+  "top": "krolasyonbosses:block/scorched_earth_top",
+  "side": "krolasyonbosses:block/scorched_earth_side",
+  "bottom": "minecraft:block/basalt_side"
+ }
+}

@@ -1,0 +1,23 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  " C ",
+  "EBE",
+  " C "
+ ],
+ "key": {
+  "C": {
+   "item": "krolasyonbosses:arcane_crystal"
+  },
+  "E": {
+   "item": "krolasyonbosses:shadow_shard"
+  },
+  "B": {
+   "item": "minecraft:book"
+  }
+ },
+ "result": {
+  "item": "krolasyonbosses:tome_shadow_step",
+  "count": 1
+ }
+}

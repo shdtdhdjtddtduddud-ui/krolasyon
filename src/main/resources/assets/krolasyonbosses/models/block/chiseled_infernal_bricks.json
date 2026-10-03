@@ -1,0 +1,6 @@
+{
+ "parent": "minecraft:block/cube_all",
+ "textures": {
+  "all": "krolasyonbosses:block/chiseled_infernal_bricks"
+ }
+}

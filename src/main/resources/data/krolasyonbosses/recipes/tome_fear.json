@@ -1,0 +1,23 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "CEC",
+  "EBE",
+  "CEC"
+ ],
+ "key": {
+  "C": {
+   "item": "krolasyonbosses:arcane_crystal"
+  },
+  "E": {
+   "item": "krolasyonbosses:soul_essence"
+  },
+  "B": {
+   "item": "minecraft:book"
+  }
+ },
+ "result": {
+  "item": "krolasyonbosses:tome_fear",
+  "count": 1
+ }
+}

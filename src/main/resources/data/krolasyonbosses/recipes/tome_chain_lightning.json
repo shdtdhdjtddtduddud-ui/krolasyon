@@ -1,0 +1,23 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  " C ",
+  "EBE",
+  " C "
+ ],
+ "key": {
+  "C": {
+   "item": "krolasyonbosses:arcane_crystal"
+  },
+  "E": {
+   "item": "minecraft:lightning_rod"
+  },
+  "B": {
+   "item": "minecraft:book"
+  }
+ },
+ "result": {
+  "item": "krolasyonbosses:tome_chain_lightning",
+  "count": 1
+ }
+}

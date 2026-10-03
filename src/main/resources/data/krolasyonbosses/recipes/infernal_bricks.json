@@ -1,0 +1,16 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "##",
+  "##"
+ ],
+ "key": {
+  "#": {
+   "item": "krolasyonbosses:infernal_stone"
+  }
+ },
+ "result": {
+  "item": "krolasyonbosses:infernal_bricks",
+  "count": 4
+ }
+}

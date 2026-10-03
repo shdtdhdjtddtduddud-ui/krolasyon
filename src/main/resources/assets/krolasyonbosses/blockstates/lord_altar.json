@@ -1,0 +1,19 @@
+{
+ "variants": {
+  "faction=0": {
+   "model": "krolasyonbosses:block/altar_ash"
+  },
+  "faction=1": {
+   "model": "krolasyonbosses:block/altar_blood"
+  },
+  "faction=2": {
+   "model": "krolasyonbosses:block/altar_shadow"
+  },
+  "faction=3": {
+   "model": "krolasyonbosses:block/altar_legion"
+  },
+  "faction=4": {
+   "model": "krolasyonbosses:block/altar_soul"
+  }
+ }
+}

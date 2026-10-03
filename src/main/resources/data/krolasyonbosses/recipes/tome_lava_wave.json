@@ -1,0 +1,23 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  " C ",
+  "EBE",
+  " C "
+ ],
+ "key": {
+  "C": {
+   "item": "krolasyonbosses:arcane_crystal"
+  },
+  "E": {
+   "item": "minecraft:magma_cream"
+  },
+  "B": {
+   "item": "minecraft:book"
+  }
+ },
+ "result": {
+  "item": "krolasyonbosses:tome_lava_wave",
+  "count": 1
+ }
+}

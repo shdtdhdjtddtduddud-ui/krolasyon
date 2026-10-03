@@ -1,0 +1,26 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "GSG",
+  "TBT",
+  " S "
+ ],
+ "key": {
+  "G": {
+   "item": "minecraft:gold_ingot"
+  },
+  "S": {
+   "item": "minecraft:stick"
+  },
+  "T": {
+   "item": "krolasyonbosses:tyrant_heart"
+  },
+  "B": {
+   "item": "minecraft:red_banner"
+  }
+ },
+ "result": {
+  "item": "krolasyonbosses:ally_banner",
+  "count": 1
+ }
+}

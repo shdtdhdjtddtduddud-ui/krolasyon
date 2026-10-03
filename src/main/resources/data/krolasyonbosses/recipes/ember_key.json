@@ -1,0 +1,23 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "  G",
+  " I ",
+  "F  "
+ ],
+ "key": {
+  "G": {
+   "item": "minecraft:gold_ingot"
+  },
+  "I": {
+   "item": "minecraft:iron_ingot"
+  },
+  "F": {
+   "item": "minecraft:flint"
+  }
+ },
+ "result": {
+  "item": "krolasyonbosses:ember_key",
+  "count": 1
+ }
+}

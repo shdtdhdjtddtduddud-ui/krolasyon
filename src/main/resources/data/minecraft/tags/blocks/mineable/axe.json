@@ -1,0 +1,9 @@
+{
+ "replace": false,
+ "values": [
+  "krolasyonbosses:blood_stem",
+  "krolasyonbosses:shadow_stem",
+  "krolasyonbosses:blood_planks",
+  "krolasyonbosses:shadow_planks"
+ ]
+}

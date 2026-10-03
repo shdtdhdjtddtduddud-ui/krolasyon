@@ -1,0 +1,10 @@
+{
+ "replace": false,
+ "values": [
+  "krolasyonbosses:ash_soil",
+  "krolasyonbosses:crimson_sand",
+  "krolasyonbosses:blood_moss",
+  "krolasyonbosses:shadow_turf",
+  "krolasyonbosses:coagulated_blood"
+ ]
+}

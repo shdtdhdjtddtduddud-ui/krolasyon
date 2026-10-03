@@ -20,6 +20,12 @@ public class KrolasyonBosses {
         ModItems.ITEMS.register(bus);
         ModItems.TABS.register(bus);
         ModSounds.SOUNDS.register(bus);
+        com.krolasyon.bosses.realm.registry.RealmBlocks.BLOCKS.register(bus);
+        com.krolasyon.bosses.realm.registry.RealmItems.ITEMS.register(bus);
+        com.krolasyon.bosses.realm.registry.RealmItems.TABS.register(bus);
+        com.krolasyon.bosses.realm.world.RealmFeatures.FEATURES.register(bus);
+        net.minecraftforge.fml.ModLoadingContext.get().registerConfig(net.minecraftforge.fml.config.ModConfig.Type.COMMON,
+                com.krolasyon.bosses.realm.RealmConfig.SPEC, "krolasyon-realm.toml");
         bus.addListener(this::onAttributes);
         if (Boolean.getBoolean("krolasyon.autotest")) {
             net.minecraftforge.fml.DistExecutor.unsafeRunWhenOn(net.minecraftforge.api.distmarker.Dist.CLIENT,

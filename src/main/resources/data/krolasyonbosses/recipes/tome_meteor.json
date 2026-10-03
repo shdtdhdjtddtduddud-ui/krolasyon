@@ -1,0 +1,23 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "CEC",
+  "EBE",
+  "CEC"
+ ],
+ "key": {
+  "C": {
+   "item": "krolasyonbosses:arcane_crystal"
+  },
+  "E": {
+   "item": "krolasyonbosses:brimstone"
+  },
+  "B": {
+   "item": "minecraft:book"
+  }
+ },
+ "result": {
+  "item": "krolasyonbosses:tome_meteor",
+  "count": 1
+ }
+}

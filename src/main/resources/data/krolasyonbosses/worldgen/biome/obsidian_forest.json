@@ -1,0 +1,69 @@
+{
+ "has_precipitation": false,
+ "temperature": 2.0,
+ "downfall": 0.0,
+ "effects": {
+  "fog_color": 1706544,
+  "sky_color": 3807834,
+  "water_color": 9048096,
+  "water_fog_color": 3146760,
+  "particle": {
+   "options": {
+    "type": "minecraft:portal"
+   },
+   "probability": 0.02
+  },
+  "ambient_sound": "minecraft:ambient.warped_forest.loop",
+  "mood_sound": {
+   "sound": "minecraft:ambient.warped_forest.mood",
+   "tick_delay": 6000,
+   "block_search_extent": 8,
+   "offset": 2.0
+  },
+  "additions_sound": {
+   "sound": "minecraft:ambient.warped_forest.additions",
+   "tick_chance": 0.0111
+  },
+  "music": {
+   "sound": "minecraft:music.nether.warped_forest",
+   "min_delay": 12000,
+   "max_delay": 24000,
+   "replace_current_music": false
+  }
+ },
+ "spawners": {
+  "monster": [],
+  "creature": [],
+  "ambient": [],
+  "axolotls": [],
+  "underground_water_creature": [],
+  "water_creature": [],
+  "water_ambient": [],
+  "misc": []
+ },
+ "spawn_costs": {},
+ "carvers": {},
+ "features": [
+  [],
+  [],
+  [],
+  [],
+  [
+   "krolasyonbosses:shadow_keep",
+   "krolasyonbosses:crystal_spire"
+  ],
+  [],
+  [
+   "krolasyonbosses:ore_infernal_steel",
+   "krolasyonbosses:ore_arcane_crystal",
+   "krolasyonbosses:ore_magma"
+  ],
+  [],
+  [],
+  [
+   "krolasyonbosses:shadow_tree",
+   "krolasyonbosses:patch_shadow_fern"
+  ],
+  []
+ ]
+}

@@ -1,0 +1,173 @@
+{
+ "parent": "minecraft:block/block",
+ "textures": {
+  "particle": "krolasyonbosses:block/altar_soul_side",
+  "side": "krolasyonbosses:block/altar_soul_side",
+  "top": "krolasyonbosses:block/altar_soul_top",
+  "base": "minecraft:block/polished_blackstone"
+ },
+ "elements": [
+  {
+   "from": [
+    0,
+    0,
+    0
+   ],
+   "to": [
+    16,
+    4,
+    16
+   ],
+   "faces": {
+    "north": {
+     "uv": [
+      0,
+      12,
+      16,
+      16
+     ],
+     "texture": "#base"
+    },
+    "south": {
+     "uv": [
+      0,
+      12,
+      16,
+      16
+     ],
+     "texture": "#base"
+    },
+    "east": {
+     "uv": [
+      0,
+      12,
+      16,
+      16
+     ],
+     "texture": "#base"
+    },
+    "west": {
+     "uv": [
+      0,
+      12,
+      16,
+      16
+     ],
+     "texture": "#base"
+    },
+    "up": {
+     "texture": "#base"
+    },
+    "down": {
+     "texture": "#base"
+    }
+   }
+  },
+  {
+   "from": [
+    2,
+    4,
+    2
+   ],
+   "to": [
+    14,
+    12,
+    14
+   ],
+   "faces": {
+    "north": {
+     "uv": [
+      2,
+      4,
+      14,
+      12
+     ],
+     "texture": "#side"
+    },
+    "south": {
+     "uv": [
+      2,
+      4,
+      14,
+      12
+     ],
+     "texture": "#side"
+    },
+    "east": {
+     "uv": [
+      2,
+      4,
+      14,
+      12
+     ],
+     "texture": "#side"
+    },
+    "west": {
+     "uv": [
+      2,
+      4,
+      14,
+      12
+     ],
+     "texture": "#side"
+    }
+   }
+  },
+  {
+   "from": [
+    1,
+    12,
+    1
+   ],
+   "to": [
+    15,
+    15,
+    15
+   ],
+   "faces": {
+    "north": {
+     "uv": [
+      1,
+      0,
+      15,
+      3
+     ],
+     "texture": "#side"
+    },
+    "south": {
+     "uv": [
+      1,
+      0,
+      15,
+      3
+     ],
+     "texture": "#side"
+    },
+    "east": {
+     "uv": [
+      1,
+      0,
+      15,
+      3
+     ],
+     "texture": "#side"
+    },
+    "west": {
+     "uv": [
+      1,
+      0,
+      15,
+      3
+     ],
+     "texture": "#side"
+    },
+    "up": {
+     "texture": "#top"
+    },
+    "down": {
+     "texture": "#base"
+    }
+   }
+  }
+ ]
+}

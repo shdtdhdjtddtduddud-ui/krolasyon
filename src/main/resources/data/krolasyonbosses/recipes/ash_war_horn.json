@@ -1,0 +1,20 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "EEG",
+  "EG ",
+  "G  "
+ ],
+ "key": {
+  "E": {
+   "item": "krolasyonbosses:ash_essence"
+  },
+  "G": {
+   "item": "minecraft:gold_ingot"
+  }
+ },
+ "result": {
+  "item": "krolasyonbosses:ash_war_horn",
+  "count": 1
+ }
+}

@@ -1,0 +1,23 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "B#B",
+  "#E#",
+  "B#B"
+ ],
+ "key": {
+  "#": {
+   "item": "krolasyonbosses:infernal_bricks"
+  },
+  "B": {
+   "item": "minecraft:blaze_powder"
+  },
+  "E": {
+   "item": "krolasyonbosses:ash_essence"
+  }
+ },
+ "result": {
+  "item": "krolasyonbosses:infernal_lantern",
+  "count": 4
+ }
+}

@@ -1,0 +1,9 @@
+{
+ "type": "minecraft:blasting",
+ "ingredient": {
+  "item": "krolasyonbosses:infernal_steel_ore"
+ },
+ "result": "krolasyonbosses:infernal_steel_ingot",
+ "experience": 0.7,
+ "cookingtime": 100
+}

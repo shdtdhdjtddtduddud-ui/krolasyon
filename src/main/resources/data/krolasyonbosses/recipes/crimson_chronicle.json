@@ -1,0 +1,19 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "E",
+  "B"
+ ],
+ "key": {
+  "E": {
+   "item": "minecraft:blaze_powder"
+  },
+  "B": {
+   "item": "minecraft:book"
+  }
+ },
+ "result": {
+  "item": "krolasyonbosses:crimson_chronicle",
+  "count": 1
+ }
+}

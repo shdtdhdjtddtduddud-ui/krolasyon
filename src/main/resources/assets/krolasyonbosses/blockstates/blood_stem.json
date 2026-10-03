@@ -1,0 +1,16 @@
+{
+ "variants": {
+  "axis=y": {
+   "model": "krolasyonbosses:block/blood_stem"
+  },
+  "axis=z": {
+   "model": "krolasyonbosses:block/blood_stem",
+   "x": 90
+  },
+  "axis=x": {
+   "model": "krolasyonbosses:block/blood_stem",
+   "x": 90,
+   "y": 90
+  }
+ }
+}

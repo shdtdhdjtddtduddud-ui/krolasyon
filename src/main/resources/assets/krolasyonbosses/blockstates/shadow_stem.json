@@ -1,0 +1,16 @@
+{
+ "variants": {
+  "axis=y": {
+   "model": "krolasyonbosses:block/shadow_stem"
+  },
+  "axis=z": {
+   "model": "krolasyonbosses:block/shadow_stem",
+   "x": 90
+  },
+  "axis=x": {
+   "model": "krolasyonbosses:block/shadow_stem",
+   "x": 90,
+   "y": 90
+  }
+ }
+}

@@ -1,0 +1,8 @@
+{
+ "replace": false,
+ "values": [
+  "krolasyonbosses:infernal_steel_ore",
+  "krolasyonbosses:arcane_crystal_ore",
+  "krolasyonbosses:infernal_steel_block"
+ ]
+}

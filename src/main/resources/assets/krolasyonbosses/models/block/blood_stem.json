@@ -1,0 +1,7 @@
+{
+ "parent": "minecraft:block/cube_column",
+ "textures": {
+  "end": "krolasyonbosses:block/blood_stem_top",
+  "side": "krolasyonbosses:block/blood_stem"
+ }
+}

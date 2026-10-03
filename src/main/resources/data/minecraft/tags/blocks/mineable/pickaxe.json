@@ -1,0 +1,17 @@
+{
+ "replace": false,
+ "values": [
+  "krolasyonbosses:infernal_stone",
+  "krolasyonbosses:infernal_bricks",
+  "krolasyonbosses:chiseled_infernal_bricks",
+  "krolasyonbosses:cursed_obsidian",
+  "krolasyonbosses:infernal_steel_ore",
+  "krolasyonbosses:arcane_crystal_ore",
+  "krolasyonbosses:infernal_steel_block",
+  "krolasyonbosses:infernal_lantern",
+  "krolasyonbosses:shadow_crystal",
+  "krolasyonbosses:lord_altar",
+  "krolasyonbosses:crimson_throne",
+  "krolasyonbosses:scorched_earth"
+ ]
+}

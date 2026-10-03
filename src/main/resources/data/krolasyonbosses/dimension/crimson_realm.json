@@ -1,0 +1,192 @@
+{
+ "type": "krolasyonbosses:crimson_realm",
+ "generator": {
+  "type": "minecraft:noise",
+  "settings": "krolasyonbosses:crimson_realm",
+  "biome_source": {
+   "type": "minecraft:multi_noise",
+   "biomes": [
+    {
+     "biome": "krolasyonbosses:ash_wastes",
+     "parameters": {
+      "temperature": [
+       0.18,
+       1.0
+      ],
+      "humidity": [
+       -1.0,
+       0.0
+      ],
+      "continentalness": [
+       -1.0,
+       1.0
+      ],
+      "erosion": [
+       -1.0,
+       1.0
+      ],
+      "weirdness": [
+       -1.0,
+       1.0
+      ],
+      "depth": [
+       -1.0,
+       1.0
+      ],
+      "offset": 0.0
+     }
+    },
+    {
+     "biome": "krolasyonbosses:basalt_warfields",
+     "parameters": {
+      "temperature": [
+       0.18,
+       1.0
+      ],
+      "humidity": [
+       0.0,
+       1.0
+      ],
+      "continentalness": [
+       -1.0,
+       1.0
+      ],
+      "erosion": [
+       -1.0,
+       1.0
+      ],
+      "weirdness": [
+       -1.0,
+       1.0
+      ],
+      "depth": [
+       -1.0,
+       1.0
+      ],
+      "offset": 0.0
+     }
+    },
+    {
+     "biome": "krolasyonbosses:throne_wastes",
+     "parameters": {
+      "temperature": [
+       -0.18,
+       0.18
+      ],
+      "humidity": [
+       -1.0,
+       0.0
+      ],
+      "continentalness": [
+       -1.0,
+       1.0
+      ],
+      "erosion": [
+       -1.0,
+       1.0
+      ],
+      "weirdness": [
+       -1.0,
+       1.0
+      ],
+      "depth": [
+       -1.0,
+       1.0
+      ],
+      "offset": 0.0
+     }
+    },
+    {
+     "biome": "krolasyonbosses:blood_marsh",
+     "parameters": {
+      "temperature": [
+       -0.18,
+       0.18
+      ],
+      "humidity": [
+       0.0,
+       1.0
+      ],
+      "continentalness": [
+       -1.0,
+       1.0
+      ],
+      "erosion": [
+       -1.0,
+       1.0
+      ],
+      "weirdness": [
+       -1.0,
+       1.0
+      ],
+      "depth": [
+       -1.0,
+       1.0
+      ],
+      "offset": 0.0
+     }
+    },
+    {
+     "biome": "krolasyonbosses:soul_valley",
+     "parameters": {
+      "temperature": [
+       -1.0,
+       -0.18
+      ],
+      "humidity": [
+       -1.0,
+       0.0
+      ],
+      "continentalness": [
+       -1.0,
+       1.0
+      ],
+      "erosion": [
+       -1.0,
+       1.0
+      ],
+      "weirdness": [
+       -1.0,
+       1.0
+      ],
+      "depth": [
+       -1.0,
+       1.0
+      ],
+      "offset": 0.0
+     }
+    },
+    {
+     "biome": "krolasyonbosses:obsidian_forest",
+     "parameters": {
+      "temperature": [
+       -1.0,
+       -0.18
+      ],
+      "humidity": [
+       0.0,
+       1.0
+      ],
+      "continentalness": [
+       -1.0,
+       1.0
+      ],
+      "erosion": [
+       -1.0,
+       1.0
+      ],
+      "weirdness": [
+       -1.0,
+       1.0
+      ],
+      "depth": [
+       -1.0,
+       1.0
+      ],
+      "offset": 0.0
+     }
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,10 @@
+{
+ "variants": {
+  "axis=x": {
+   "model": "krolasyonbosses:block/realm_portal_ns"
+  },
+  "axis=z": {
+   "model": "krolasyonbosses:block/realm_portal_ew"
+  }
+ }
+}

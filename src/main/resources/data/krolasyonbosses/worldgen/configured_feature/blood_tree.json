@@ -1,0 +1,29 @@
+{
+ "type": "minecraft:huge_fungus",
+ "config": {
+  "hat_state": {
+   "Name": "krolasyonbosses:blood_cap"
+  },
+  "decor_state": {
+   "Name": "minecraft:shroomlight"
+  },
+  "stem_state": {
+   "Name": "krolasyonbosses:blood_stem",
+   "Properties": {
+    "axis": "y"
+   }
+  },
+  "valid_base_block": {
+   "Name": "krolasyonbosses:blood_moss"
+  },
+  "replaceable_blocks": {
+   "type": "minecraft:matching_blocks",
+   "blocks": [
+    "krolasyonbosses:ember_flower",
+    "krolasyonbosses:shadow_fern",
+    "krolasyonbosses:blood_thorn"
+   ]
+  },
+  "planted": false
+ }
+}

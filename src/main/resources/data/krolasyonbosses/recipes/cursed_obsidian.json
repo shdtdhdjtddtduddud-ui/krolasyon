@@ -1,0 +1,23 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  " B ",
+  "BOB",
+  " M "
+ ],
+ "key": {
+  "B": {
+   "item": "minecraft:blaze_powder"
+  },
+  "O": {
+   "item": "minecraft:obsidian"
+  },
+  "M": {
+   "item": "minecraft:magma_cream"
+  }
+ },
+ "result": {
+  "item": "krolasyonbosses:cursed_obsidian",
+  "count": 2
+ }
+}

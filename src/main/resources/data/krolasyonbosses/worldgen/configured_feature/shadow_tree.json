@@ -1,0 +1,29 @@
+{
+ "type": "minecraft:huge_fungus",
+ "config": {
+  "hat_state": {
+   "Name": "krolasyonbosses:shadow_crystal"
+  },
+  "decor_state": {
+   "Name": "minecraft:crying_obsidian"
+  },
+  "stem_state": {
+   "Name": "krolasyonbosses:shadow_stem",
+   "Properties": {
+    "axis": "y"
+   }
+  },
+  "valid_base_block": {
+   "Name": "krolasyonbosses:shadow_turf"
+  },
+  "replaceable_blocks": {
+   "type": "minecraft:matching_blocks",
+   "blocks": [
+    "krolasyonbosses:ember_flower",
+    "krolasyonbosses:shadow_fern",
+    "krolasyonbosses:blood_thorn"
+   ]
+  },
+  "planted": false
+ }
+}

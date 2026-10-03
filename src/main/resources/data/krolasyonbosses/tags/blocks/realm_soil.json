@@ -1,0 +1,12 @@
+{
+ "replace": false,
+ "values": [
+  "krolasyonbosses:infernal_stone",
+  "krolasyonbosses:ash_soil",
+  "krolasyonbosses:blood_moss",
+  "krolasyonbosses:shadow_turf",
+  "krolasyonbosses:scorched_earth",
+  "krolasyonbosses:crimson_sand",
+  "krolasyonbosses:coagulated_blood"
+ ]
+}

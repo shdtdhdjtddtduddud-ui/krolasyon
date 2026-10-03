@@ -34,7 +34,7 @@ public class EruptionEntity extends Entity {
 
     public static final int ACTIVE_TICKS = 22;
 
-    @Nullable private BossEntity owner;
+    @Nullable private LivingEntity owner;
     private float damage = 8F;
     private boolean struck;
 
@@ -43,7 +43,7 @@ public class EruptionEntity extends Entity {
         this.noPhysics = true;
     }
 
-    public static void spawn(BossEntity owner, double x, double z, double baseY, int kind, int warmup, float damage) {
+    public static void spawn(LivingEntity owner, double x, double z, double baseY, int kind, int warmup, float damage) {
         Level level = owner.level();
         Double y = findGround(level, x, z, baseY + 4, baseY - 7);
         if (y == null) return;
@@ -152,7 +152,7 @@ public class EruptionEntity extends Entity {
         if (t >= 0 && t <= 3 && !struck) {
             struck = true;
             for (LivingEntity e : this.level().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(0.25, 0.4, 0.25))) {
-                if (owner != null && !owner.isHostileTo(e)) continue;
+                if (owner != null && !com.krolasyon.bosses.realm.Allegiance.hostile(owner, e)) continue;
                 if (owner == null && e instanceof BossEntity) continue;
                 boolean magic = kind == KIND_CRYSTAL;
                 boolean hurt = owner != null

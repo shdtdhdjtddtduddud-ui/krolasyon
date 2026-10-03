@@ -1,0 +1,27 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "ingredients": [
+  {
+   "item": "krolasyonbosses:ash_sigil"
+  },
+  {
+   "item": "krolasyonbosses:blood_sigil"
+  },
+  {
+   "item": "krolasyonbosses:shadow_sigil"
+  },
+  {
+   "item": "krolasyonbosses:legion_sigil"
+  },
+  {
+   "item": "krolasyonbosses:soul_sigil"
+  },
+  {
+   "item": "minecraft:gold_block"
+  }
+ ],
+ "result": {
+  "item": "krolasyonbosses:throne_key",
+  "count": 1
+ }
+}

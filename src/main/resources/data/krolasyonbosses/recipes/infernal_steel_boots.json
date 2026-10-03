@@ -1,0 +1,16 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "I I",
+  "I I"
+ ],
+ "key": {
+  "I": {
+   "item": "krolasyonbosses:infernal_steel_ingot"
+  }
+ },
+ "result": {
+  "item": "krolasyonbosses:infernal_steel_boots",
+  "count": 1
+ }
+}

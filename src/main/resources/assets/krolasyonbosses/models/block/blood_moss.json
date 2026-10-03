@@ -1,0 +1,8 @@
+{
+ "parent": "minecraft:block/cube_bottom_top",
+ "textures": {
+  "top": "krolasyonbosses:block/blood_moss_top",
+  "side": "krolasyonbosses:block/blood_moss_side",
+  "bottom": "krolasyonbosses:block/infernal_stone"
+ }
+}
