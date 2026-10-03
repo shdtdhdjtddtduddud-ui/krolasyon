@@ -253,7 +253,8 @@ def biome(b, spawners):
     fog, sky, (part, prob), amb, music = BIOME_LOOK[b]
     feats = [[] for _ in range(11)]
     feats[6] = [f'{M}:ore_infernal_steel', f'{M}:ore_arcane_crystal', f'{M}:ore_magma']
-    for kind, f in BIOME_FEATURES[b]:
+    order = list(CONFIGURED)
+    for kind, f in sorted(BIOME_FEATURES[b], key=lambda kf: order.index(kf[1])):
         feats[STEP[kind]].append(f'{M}:{f}')
     return {
         "has_precipitation": False, "temperature": 2.0, "downfall": 0.0,
