@@ -65,7 +65,7 @@ def build():
     Pt.mats['shell'] = mats.rock(SHELL, lava=LAVA, cell=5, crack_w=0.5)
     Pt.mats['jaw'] = mats.skin(pal('#1a0a06', '#3a1a0c', '#6a2c10', '#8a4018'), 0.3)
     Pt.mats['tooth'] = mats.horn(pal('#3a2a1c', '#7a5a38', '#c8a878', '#f0dcb0'), 3)
-    Pt.mats['eye'] = mats.solid((255, 240, 150))
+    Pt.mats['eye'] = mats.eyeball((255, 200, 60), (255, 244, 210))
     Pt.mats['flame'] = mats.flame()
 
     segs = ['seg0', 'seg1', 'seg2', 'seg3', 'seg4']

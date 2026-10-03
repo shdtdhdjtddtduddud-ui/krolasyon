@@ -610,3 +610,35 @@ def feather_sheet(pal, tip=None, glow_tip=None, rows=3, fw=3, tip_depth=5, tip_s
                 g = glow_img(H, W, glow_tip, m[..., 0] * 0.85 * alpha)
         return col, alpha, g
     return f
+
+
+def ragged(base, depth=3.0, freq=1.6, top_frac=0.0):
+    """wrap a material: lower edge is torn into ragged strips (alpha cut-out)"""
+    def f(c, face, W, H, r):
+        col, a, g = base(c, face, W, H, r)
+        yy, xx = np.mgrid[0:H, 0:W]
+        if face in ('top', 'bottom') or H < 4:
+            return col, a, g
+        strip = np.zeros(W)
+        n = noise2(1, W, r, freq, 2)[0]
+        cut = (1.0 - n) * depth + (r.random(W) * 1.2)
+        keep = yy < (H - cut[None, :])
+        a = a * keep
+        return col, a, g
+    return f
+
+
+def eyeball(iris=(255, 200, 40), sclera=(236, 228, 200), pupil=(10, 6, 4), glow_iris=True):
+    """small round eye on every face: sclera ring, coloured iris, dark slit pupil"""
+    def f(c, face, W, H, r):
+        yy, xx = np.mgrid[0:H, 0:W]
+        cx, cy = W / 2, H / 2
+        d = np.hypot(xx + 0.5 - cx, yy + 0.5 - cy) / (max(W, H) / 2)
+        col = np.zeros((H, W, 3), np.float32) + np.array(sclera, np.float32) * (0.6 + 0.4 * (1 - d))[..., None]
+        col = np.where((d < 0.72)[..., None], np.array(iris, np.float32), col)
+        col = np.where(((np.abs(xx + 0.5 - cx) < max(0.6, W * 0.1)) & (d < 0.6))[..., None], np.array(pupil, np.float32), col)
+        g = None
+        if glow_iris:
+            g = glow_img(H, W, iris, np.where(d < 0.72, 0.6, 0))
+        return col, np.ones((H, W)), g
+    return f

@@ -8,6 +8,33 @@
    "ashen_barrens"
   ]
  },
+ "blood_acolyte": {
+  "weight": 7,
+  "min": 1,
+  "max": 2,
+  "biomes": [
+   "crimson_gardens",
+   "blood_spires"
+  ]
+ },
+ "bog_maw": {
+  "weight": 4,
+  "min": 1,
+  "max": 2,
+  "biomes": [
+   "rot_bog",
+   "weeping_marsh"
+  ]
+ },
+ "bone_hound": {
+  "weight": 11,
+  "min": 3,
+  "max": 5,
+  "biomes": [
+   "bone_marches",
+   "ossuary_fields"
+  ]
+ },
  "bone_knight": {
   "weight": 9,
   "min": 2,
@@ -15,6 +42,25 @@
   "biomes": [
    "bone_marches",
    "ossuary_fields"
+  ]
+ },
+ "bone_marksman": {
+  "weight": 7,
+  "min": 1,
+  "max": 2,
+  "biomes": [
+   "bone_marches",
+   "ossuary_fields"
+  ]
+ },
+ "chain_devil": {
+  "weight": 5,
+  "min": 1,
+  "max": 2,
+  "biomes": [
+   "ember_wastes",
+   "ashen_barrens",
+   "bone_marches"
   ]
  },
  "cinder_imp": {
@@ -26,6 +72,15 @@
    "ashen_barrens"
   ]
  },
+ "crimson_duelist": {
+  "weight": 6,
+  "min": 1,
+  "max": 2,
+  "biomes": [
+   "crimson_gardens",
+   "blood_spires"
+  ]
+ },
  "ember_archer": {
   "weight": 8,
   "min": 2,
@@ -33,6 +88,54 @@
   "biomes": [
    "ember_wastes",
    "ashen_barrens"
+  ]
+ },
+ "flesh_abomination": {
+  "weight": 4,
+  "min": 1,
+  "max": 1,
+  "biomes": [
+   "crimson_gardens",
+   "blood_spires"
+  ]
+ },
+ "gargoyle": {
+  "weight": 5,
+  "min": 1,
+  "max": 2,
+  "biomes": [
+   "ember_wastes",
+   "bone_marches",
+   "ashen_barrens"
+  ]
+ },
+ "gloom_eye": {
+  "weight": 5,
+  "min": 1,
+  "max": 2,
+  "biomes": [
+   "umbral_reach",
+   "gloam_forest"
+  ]
+ },
+ "grave_wraith": {
+  "weight": 7,
+  "min": 1,
+  "max": 2,
+  "biomes": [
+   "bone_marches",
+   "weeping_marsh"
+  ]
+ },
+ "hell_crow": {
+  "weight": 12,
+  "min": 3,
+  "max": 5,
+  "biomes": [
+   "ember_wastes",
+   "ashen_barrens",
+   "bone_marches",
+   "ossuary_fields"
   ]
  },
  "lava_slug": {
@@ -44,6 +147,15 @@
    "lava_lakes"
   ]
  },
+ "leech_bat": {
+  "weight": 12,
+  "min": 3,
+  "max": 6,
+  "biomes": [
+   "crimson_gardens",
+   "blood_spires"
+  ]
+ },
  "magma_brute": {
   "weight": 5,
   "min": 1,
@@ -51,6 +163,99 @@
   "biomes": [
    "ember_wastes",
    "ashen_barrens"
+  ]
+ },
+ "mirror_phantom": {
+  "weight": 5,
+  "min": 1,
+  "max": 2,
+  "biomes": [
+   "umbral_reach",
+   "gloam_forest"
+  ]
+ },
+ "ossuary_giant": {
+  "weight": 2,
+  "min": 1,
+  "max": 1,
+  "biomes": [
+   "ossuary_fields"
+  ]
+ },
+ "rotwing_moth": {
+  "weight": 10,
+  "min": 2,
+  "max": 4,
+  "biomes": [
+   "rot_bog",
+   "weeping_marsh",
+   "gloam_forest"
+  ]
+ },
+ "shade_stalker": {
+  "weight": 7,
+  "min": 1,
+  "max": 2,
+  "biomes": [
+   "umbral_reach",
+   "gloam_forest"
+  ]
+ },
+ "spore_shambler": {
+  "weight": 9,
+  "min": 1,
+  "max": 3,
+  "biomes": [
+   "rot_bog",
+   "weeping_marsh"
+  ]
+ },
+ "thorn_strider": {
+  "weight": 9,
+  "min": 1,
+  "max": 3,
+  "biomes": [
+   "rot_bog",
+   "gloam_forest"
+  ]
+ },
+ "tormented_soul": {
+  "weight": 9,
+  "min": 1,
+  "max": 3,
+  "biomes": [
+   "bone_marches",
+   "weeping_marsh",
+   "umbral_reach",
+   "ashen_barrens"
+  ]
+ },
+ "umbral_serpent": {
+  "weight": 6,
+  "min": 1,
+  "max": 2,
+  "biomes": [
+   "umbral_reach",
+   "gloam_forest",
+   "weeping_marsh"
+  ]
+ },
+ "venom_wasp": {
+  "weight": 11,
+  "min": 2,
+  "max": 4,
+  "biomes": [
+   "rot_bog",
+   "weeping_marsh"
+  ]
+ },
+ "void_cultist": {
+  "weight": 7,
+  "min": 1,
+  "max": 2,
+  "biomes": [
+   "umbral_reach",
+   "gloam_forest"
   ]
  }
 }

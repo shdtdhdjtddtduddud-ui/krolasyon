@@ -39,6 +39,21 @@ public final class ModItems {
         }
     }
 
+    /** plain materials, relics and sigils (generated table) */
+    public static final java.util.Map<String, RegistryObject<Item>> MATERIALS = new java.util.LinkedHashMap<>();
+
+    static {
+        for (String[] row : MaterialTable.ROWS) {
+            Rarity rarity = switch (row[1]) {
+                case "uncommon" -> Rarity.UNCOMMON;
+                case "rare" -> Rarity.RARE;
+                case "epic" -> Rarity.EPIC;
+                default -> Rarity.COMMON;
+            };
+            MATERIALS.put(row[0], ITEMS.register(row[0], () -> new Item(new Item.Properties().rarity(rarity))));
+        }
+    }
+
     public static final RegistryObject<CreativeModeTab> TAB = TABS.register("bosses", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.krolasyonbosses"))
             .icon(() -> new ItemStack(SEAL_WARDEN_EGG.get()))
@@ -48,6 +63,7 @@ public final class ModItems {
                 output.accept(REVENGE_EGG.get());
                 output.accept(HEART_DEMON_EGG.get());
                 for (RegistryObject<Item> egg : MOB_EGGS.values()) output.accept(egg.get());
+                for (RegistryObject<Item> m : MATERIALS.values()) output.accept(m.get());
             })
             .build());
 }

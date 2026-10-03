@@ -533,3 +533,56 @@ def stamp(col, bitmap, x0, y0, colors, glow=None, glow_chars=''):
                 if glow is not None and ch in glow_chars:
                     glow[y, x] = (*colors[ch], 255)
     return col
+
+
+# ------------------------------------------------------------------ quadruped builder
+QUAD_MATS = dict(body='body', neck='body', head='head', snout='head', jaw='jaw', leg='leg', shin='leg', foot='foot', tail='tail')
+
+
+def quadruped(M, body=(11, 10, 20), leg=(7.5, 8.0), leg_w=3.4, foot=(3.8, 2.2, 5.6), neck_len=4.5, neck_rise=4.5, neck_w=5.5,
+              head=(8, 7.5, 7), snout=(5.2, 4.0, 6.0), jaw=(4.6, 1.8, 6.0), tail_segs=4, tail_len=4.2, tail_w=2.2, mats=None, rise=0.0):
+    mt = {**QUAD_MATS, **(mats or {})}
+    ankle_y = 24 - foot[1]
+    knee_y = ankle_y - leg[1]
+    hip_y = knee_y - leg[0]
+    bc = (0, hip_y - body[1] / 2 + 2.0 - rise, 0)
+    M.bone('base', None, (0, 24, 0))
+    M.bone('body', 'base', bc)
+    box(M, 'body', bc, body, mt['body'])
+    K = dict(body_c=bc, hip_y=hip_y, ankle_y=ankle_y, knee_y=knee_y)
+    # neck + head
+    nb = (0, bc[1] - body[1] * 0.2, bc[2] - body[2] / 2 + 1.5)
+    nt = (0, nb[1] - neck_rise, nb[2] - neck_len)
+    M.seg('neck', 'body', nb, nt, neck_w, neck_w, mt['neck'], extend=0.8)
+    hp = (0, nt[1] - 0.5, nt[2] - 0.2)
+    zero_bone(M, 'head', 'neck', hp)
+    hc = (0, hp[1] - head[1] * 0.1, hp[2] - head[2] / 2 + 1.0)
+    box(M, 'head', hc, head, mt['head'])
+    sc = (0, hc[1] + head[1] * 0.12, hc[2] - head[2] / 2 - snout[2] / 2 + 0.6)
+    box(M, 'head', sc, snout, mt['snout'])
+    jp = (0, hc[1] + head[1] / 2 - 0.4, hc[2] + head[2] / 2 - 1.0)
+    zero_bone(M, 'jaw', 'head', jp)
+    M.cube_l('jaw', (-jaw[0] / 2, -jaw[1] / 2 + 0.2, -jaw[2] - head[2] * 0.6 + 1.2), jaw, mt['jaw'])
+    K.update(head_c=hc, snout_c=sc, jaw_p=jp, neck_base=nb, head_p=hp)
+    # legs
+    for fb, sx, sz in (('fr', -1, -1), ('fl', 1, -1), ('br', -1, 1), ('bl', 1, 1)):
+        x = sx * (body[0] / 2 - leg_w * 0.35)
+        z = sz * (body[2] / 2 - leg_w * 0.9)
+        back = sz > 0
+        A = (x, hip_y, z)
+        B = (x, knee_y, z + (1.8 if back else -0.6))
+        C = (x, ankle_y, z + (-0.8 if back else 0.6))
+        M.seg(f'{fb}_leg', 'body', A, B, leg_w * (1.15 if back else 1.0), leg_w, mt['leg'], extend=0.5)
+        M.seg(f'{fb}_shin', f'{fb}_leg', B, C, leg_w * 0.85, leg_w * 0.85, mt['shin'], extend=0.3)
+        zero_bone(M, f'{fb}_foot', f'{fb}_shin', C)
+        M.cube_l(f'{fb}_foot', (-foot[0] / 2, -0.4, -foot[2] * 0.65), (foot[0], foot[1] + 0.4, foot[2]), mt['foot'])
+        K[f'{fb}_knee'] = B
+    # tail
+    pts = [(0, bc[1] - body[1] * 0.1, bc[2] + body[2] / 2 - 1)]
+    for i in range(tail_segs):
+        a = pts[-1]
+        pts.append((0, a[1] + 1.2 - i * 0.2, a[2] + tail_len))
+    tn = chain(M, 'tail', 'body', pts, (tail_w * 1.1, tail_w, tail_w * 0.8, tail_w * 0.6), mt['tail'], ext=0.4)
+    K['tail_names'] = tn
+    K['tail_pts'] = pts
+    return K
