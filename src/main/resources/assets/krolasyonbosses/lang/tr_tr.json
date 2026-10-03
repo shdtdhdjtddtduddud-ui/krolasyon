@@ -432,5 +432,6 @@
  "entity.krolasyonbosses.ilvaine": "Ruh Kâhini Ilvaine",
  "item.krolasyonbosses.ilvaine_spawn_egg": "Ruh Kâhini Ilvaine Çağırma Yumurtası",
  "entity.krolasyonbosses.azgaroth": "Kızıl Tahtın Tiranı Azgaroth",
- "item.krolasyonbosses.azgaroth_spawn_egg": "Kızıl Tahtın Tiranı Azgaroth Çağırma Yumurtası"
+ "item.krolasyonbosses.azgaroth_spawn_egg": "Kızıl Tahtın Tiranı Azgaroth Çağırma Yumurtası",
+ "entity.krolasyonbosses.spell_projectile": "Büyü Küresi"
 }

@@ -281,6 +281,10 @@ public class RealmMob extends Monster implements FactionMember, AnimState.Holder
     @Override
     public boolean removeWhenFarAway(double d) { return !isAlly() && super.removeWhenFarAway(d); }
 
+    /** realm creatures live in the light of lava and embers: no darkness preference */
+    @Override
+    public float getWalkTargetValue(BlockPos pos, net.minecraft.world.level.LevelReader level) { return 0F; }
+
     @Override
     protected boolean shouldDespawnInPeaceful() { return !isAlly(); }
 

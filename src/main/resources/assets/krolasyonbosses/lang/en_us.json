@@ -432,5 +432,6 @@
  "entity.krolasyonbosses.ilvaine": "Ilvaine, the Soul Oracle",
  "item.krolasyonbosses.ilvaine_spawn_egg": "Ilvaine, the Soul Oracle Spawn Egg",
  "entity.krolasyonbosses.azgaroth": "Azgaroth, Tyrant of the Crimson Throne",
- "item.krolasyonbosses.azgaroth_spawn_egg": "Azgaroth, Tyrant of the Crimson Throne Spawn Egg"
+ "item.krolasyonbosses.azgaroth_spawn_egg": "Azgaroth, Tyrant of the Crimson Throne Spawn Egg",
+ "entity.krolasyonbosses.spell_projectile": "Spell Orb"
 }

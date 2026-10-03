@@ -286,3 +286,4 @@ ADV = {
 for k, (tr, en, dtr, den) in ADV.items():
     t(f'advancements.{M}.{k}.title', tr, en)
     t(f'advancements.{M}.{k}.description', dtr, den)
+t(f'entity.{M}.spell_projectile', 'Büyü Küresi', 'Spell Orb')

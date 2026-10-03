@@ -42,7 +42,7 @@
    "shift_y": 0.0,
    "shift_z": "minecraft:shift_z"
   },
-  "continentalness": 0.0,
+  "continents": 0.0,
   "erosion": 0.0,
   "depth": 0.0,
   "ridges": 0.0,

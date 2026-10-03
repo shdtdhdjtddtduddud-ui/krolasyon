@@ -103,7 +103,7 @@ def noise_settings():
     router = {
         "barrier": 0.0, "fluid_level_floodedness": 0.0, "fluid_level_spread": 0.0, "lava": 0.0,
         "temperature": shifted('realm_temperature', 0.25), "vegetation": shifted('realm_humidity', 0.25),
-        "continentalness": 0.0, "erosion": 0.0, "depth": 0.0, "ridges": 0.0,
+        "continents": 0.0, "erosion": 0.0, "depth": 0.0, "ridges": 0.0,
         "initial_density_without_jaggedness": terrain(False), "final_density": final,
         "vein_toggle": 0.0, "vein_ridged": 0.0, "vein_gap": 0.0}
     top_rules, fill_rules = [], []
