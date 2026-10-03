@@ -61,10 +61,10 @@ public class HellMob extends BossEntity {
     private float shieldReduce = 0.8F, shieldReflect = 0F;
 
     public HellMob(EntityType<? extends HellMob> type, Level level) {
-        super(type, level, BossEvent.BossBarColor.WHITE, MobSpecs.of(type).abilities.size(), false);
+        super(type, level, MobSpecs.of(type).barColor(), MobSpecs.of(type).abilities.size(), MobSpecs.of(type).boss);
         MobSpec s = spec();
-        this.xpReward = s.xp;
-        this.setMaxUpStep(1.0F);
+        this.xpReward = s.boss ? Math.max(s.xp, 400) : s.xp;
+        this.setMaxUpStep(s.boss ? 1.5F : 1.0F);
         if (s.flying) {
             this.moveControl = new FlyingMoveControl(this, 20, true);
             this.setNoGravity(true);
@@ -147,15 +147,27 @@ public class HellMob extends BossEntity {
     }
 
     @Override
+    public Faction houseOf() { return faction().isHouse() ? faction() : null; }
+
+    @Override
+    public boolean isSpeaker() { return spec().npc || spec().ruler; }
+
+    @Override
+    public boolean isEnvoy() { return spec().npc; }
+
+    @Override
     protected boolean wantsToAttackPlayer(Player p) {
         UUID o = getOwnerUUID();
         if (o != null) return false;
+        if (provoked.contains(p.getUUID())) return true;
+        if (spec().npc) return false;
         if (!faction().isHouse()) return true;
         return PlayerData.isHostileTo(p, faction());
     }
 
     @Override
     protected boolean isMonsterPrey(LivingEntity e) {
+        if (spec().npc) return false;
         if (!(e instanceof HellMob m) || m == this || !m.isAlive()) return false;
         Player me = getOwnerPlayer();
         Player them = m.getOwnerPlayer();
@@ -192,7 +204,23 @@ public class HellMob extends BossEntity {
     @Override public double walkSpeed() { return 1.0; }
     @Override public double runSpeed() { return 1.25; }
     @Override protected int deathTicks() { return spec().deathTicks; }
-    @Override protected void onPhase2() {}
+    @Override
+    protected void onPhase2() {
+        sound(ModSounds.DEMON_PHASE.get(), 4.0F, 0.8F);
+        this.heal(this.getMaxHealth() * 0.1F);
+        var atk = this.getAttribute(Attributes.ATTACK_DAMAGE);
+        if (atk != null) atk.setBaseValue(atk.getBaseValue() * 1.2);
+        var spd = this.getAttribute(Attributes.MOVEMENT_SPEED);
+        if (spd != null) spd.setBaseValue(spd.getBaseValue() * 1.12);
+        ServerLevel sl = serverLevel();
+        int c = faction().color;
+        sl.sendParticles(ParticleTypes.FLASH, getX(), getY() + getBbHeight() * 0.6, getZ(), 2, 0, 0, 0, 0);
+        for (int i = 0; i < 90; i++) {
+            double a = i * Math.PI * 2 / 90;
+            sl.sendParticles(dust(c, 2.5F), getX(), getY() + 0.5, getZ(), 0, Math.cos(a), 0.15, Math.sin(a), 0.9);
+        }
+        for (LivingEntity e : hostilesAround(position(), 8)) hit(e, damageSources().mobAttack(this), 6F, 1.8, 0.5);
+    }
 
     @Override
     protected boolean isAirborneAbility() {
@@ -219,7 +247,7 @@ public class HellMob extends BossEntity {
         int[] w = new int[abs.size()];
         for (int i = 1; i < abs.size(); i++) {
             Ab ab = abs.get(i);
-            if (!ready(i) || !inRange(ab, distSqr, target)) continue;
+            if (!ready(i) || (ab.phase2Only && !isPhase2()) || !inRange(ab, distSqr, target)) continue;
             w[i] = ab.weight;
             total += w[i];
         }
@@ -249,6 +277,8 @@ public class HellMob extends BossEntity {
 
     @Override
     public boolean hurt(DamageSource src, float amount) {
+        if (spec().npc && src.getEntity() != null && !(src.getEntity() instanceof Player)) return false;
+        if (src.getEntity() instanceof Player pl && isSpeaker() && !isShielded() && !this.level().isClientSide() && amount > 0) provoke(pl);
         if (isShielded() && !src.is(net.minecraft.tags.DamageTypeTags.BYPASSES_INVULNERABILITY)) {
             amount *= (1F - shieldReduce);
             if (!this.level().isClientSide()) {
@@ -295,6 +325,14 @@ public class HellMob extends BossEntity {
 
     @Override
     protected void deathFx(int t) {
+        if (!this.level().isClientSide() && isBoss) {
+            if (t == 1) sound(ModSounds.voice(spec().voice).death(), 4.0F, spec().pitch);
+            if (t == deathTicks() - 1) {
+                ServerLevel sl = serverLevel();
+                sl.sendParticles(ParticleTypes.EXPLOSION_EMITTER, getX(), getY() + getBbHeight() * 0.5, getZ(), 1, 0, 0, 0, 0);
+                sl.sendParticles(dust(faction().color, 3F), getX(), getY() + 1, getZ(), 100, 1.5, 1.0, 1.5, 0);
+            }
+        }
         if (this.level().isClientSide()) {
             int n = Math.max(1, t / 6);
             for (int i = 0; i < n; i++) {

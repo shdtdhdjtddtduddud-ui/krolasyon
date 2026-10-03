@@ -23,6 +23,8 @@ public final class MobSpec {
     public int eggA = 0x333333, eggB = 0xCC3333;
     public int spawnWeight = 6, groupMin = 1, groupMax = 2;
     public String[] biomes = {};
+    public boolean boss = false, ruler = false, npc = false;
+    public String bar = "WHITE";
     public final List<Ab> abilities = new ArrayList<>();
     public MobSpec(String id, Faction faction) {
         this.id = id;
@@ -48,4 +50,8 @@ public final class MobSpec {
     public MobSpec shadow(float s) { this.shadow = s; return this; }
 
     public MobSpec ab(Ab ab) { this.abilities.add(ab); return this; }
+    public MobSpec npc() { this.npc = true; return this; }
+    public MobSpec boss(String bar, boolean ruler) { this.boss = true; this.bar = bar; this.ruler = ruler; return this; }
+
+    public net.minecraft.world.BossEvent.BossBarColor barColor() { return net.minecraft.world.BossEvent.BossBarColor.valueOf(bar); }
 }

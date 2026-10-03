@@ -13,7 +13,7 @@ for d in (ASSETS + '/mobmodels', ASSETS + '/textures/entity', ASSETS + '/models/
     os.makedirs(d, exist_ok=True)
 
 want = set(sys.argv[1:])
-ids = sorted(m.name for m in pkgutil.iter_modules(mobs.__path__))
+ids = sorted(m.name for m in pkgutil.iter_modules(mobs.__path__) if not m.name.startswith('_'))
 specs = []
 for mid in ids:
     mod = importlib.import_module('mobs.' + mid)
@@ -64,6 +64,10 @@ for mid, S in specs:
         L += f'.head("{S["head"]}")'
     if S.get('shadow'):
         L += f'.shadow({jf(S["shadow"])})'
+    if S.get('npc'):
+        L += '.npc()'
+    if S.get('boss'):
+        L += f'.boss("{S["boss"][0]}", {"true" if S["boss"][1] else "false"})'
     for ab in S['abilities']:
         a = f'Ab.of(Ab.Kind.{ab["kind"]}, "{ab["anim"]}")'
         dur, *hits = ab.get('time', (20, 8))
@@ -87,6 +91,8 @@ for mid, S in specs:
             a += '.los()'
         if ab.get('air'):
             a += '.air()'
+        if ab.get('p2'):
+            a += '.p2()'
         L += f'\n                .ab({a})'
     L += ');'
     lines.append(L)
@@ -124,7 +130,7 @@ for mid, S in specs:
     en[f'bestiary.krolasyonbosses.{mid}'] = S.get('lore_en', S['lore'])
     tr[f'bestiary.krolasyonbosses.{mid}'] = S['lore']
     spawns[mid] = dict(weight=S['spawn'][0], min=S['spawn'][1], max=S['spawn'][2], biomes=S['spawn'][3])
-    bestiary[mid] = dict(faction=S['faction'], tr=S['tr'], en=S['en'], hp=S['hp'], boss=False)
+    bestiary[mid] = dict(faction=S['faction'], tr=S['tr'], en=S['en'], hp=S['hp'], boss=bool(S.get('boss')))
 for k, v in FAC_TR.items():
     tr[f'faction.krolasyonbosses.{k.lower()}'] = v
     en[f'faction.krolasyonbosses.{k.lower()}'] = FAC_EN[k]

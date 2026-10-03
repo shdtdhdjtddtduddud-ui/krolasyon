@@ -15,6 +15,8 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
@@ -85,8 +87,39 @@ public abstract class BossEntity extends Monster {
 
     protected int deathTicks() { return DEATH_TICKS; }
 
+    /** the house this creature serves (null = serves nobody and attacks everyone) */
+    @Nullable
+    public com.krolasyon.bosses.faction.Faction houseOf() { return null; }
+
+    /** true if right-clicking this creature opens a dialogue (rulers and envoys) */
+    public boolean isSpeaker() { return false; }
+
+    /** true for peaceful envoys (as opposed to rulers) */
+    public boolean isEnvoy() { return false; }
+
+    protected final java.util.Set<java.util.UUID> provoked = new java.util.HashSet<>();
+
+    /** a player challenged this creature to a duel (or hit it): it fights that player from now on */
+    public void provoke(Player p) {
+        provoked.add(p.getUUID());
+        this.setTarget(p);
+    }
+
     /** players this mob picks as a target on its own */
-    protected boolean wantsToAttackPlayer(Player p) { return true; }
+    protected boolean wantsToAttackPlayer(Player p) {
+        com.krolasyon.bosses.faction.Faction f = houseOf();
+        if (f == null) return true;
+        return provoked.contains(p.getUUID()) || com.krolasyon.bosses.faction.PlayerData.isHostileTo(p, f);
+    }
+
+    @Override
+    protected InteractionResult mobInteract(Player player, InteractionHand hand) {
+        if (isSpeaker() && hand == InteractionHand.MAIN_HAND && !isHostileTo(player) && this.getTarget() != player) {
+            if (!this.level().isClientSide() && player instanceof ServerPlayer sp) com.krolasyon.bosses.faction.Dialogue.open(sp, this);
+            return InteractionResult.sidedSuccess(this.level().isClientSide());
+        }
+        return super.mobInteract(player, hand);
+    }
 
     // ------------------------------------------------------------------ setup
     @Override
@@ -118,7 +151,7 @@ public abstract class BossEntity extends Monster {
     public boolean isHostileTo(Entity e) {
         if (!(e instanceof LivingEntity le) || e == this || !e.isAlive()) return false;
         if (e.getType() == this.getType()) return false;
-        if (e instanceof Player p) return !p.isCreative() && !p.isSpectator();
+        if (e instanceof Player p) return !p.isCreative() && !p.isSpectator() && (houseOf() == null || p == this.getTarget() || wantsToAttackPlayer(p));
         return e instanceof Enemy || e == this.getTarget() || le.getLastHurtMob() == this || (le instanceof Mob m && m.getTarget() == this);
     }
 

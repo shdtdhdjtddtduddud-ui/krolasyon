@@ -27,6 +27,19 @@ public final class ModEvents {
         if (killer == null) return;
         Faction f = m.faction();
         if (f.isHouse() && m.getOwnerUUID() == null) PlayerData.addRep(killer, f, m.isBossMob() ? -12 : -2, true);
+        if (!(killer instanceof ServerPlayer sp) || m.getOwnerUUID() != null) return;
+        if (m.isEnvoy()) PlayerData.addRep(killer, f, -25, true);
+        // hunt quests: every house whose envoy has set a hunt counts the kills of its enemies
+        if (f.isHouse() && !m.isSpeaker()) {
+            for (Faction h : Faction.HOUSES) {
+                if (h.isEnemyOf(f) && PlayerData.stage(sp, h) == 1) PlayerData.addCounter(sp, "hunt_" + h.id, 1);
+            }
+        }
+        if (m.isSpeaker() && !m.isEnvoy() && f.isHouse()) com.krolasyon.bosses.faction.Dialogue.conquered(sp, f);
+        if (m.getType() == com.krolasyon.bosses.registry.ModEntities.MOBS.get("ash_sovereign").get()) {
+            PlayerData.setFlag(sp, "sovereign", true);
+            sp.server.getPlayerList().broadcastSystemMessage(net.minecraft.network.chat.Component.translatable("msg.sovereign", sp.getDisplayName()), false);
+        }
     }
 
     @SubscribeEvent

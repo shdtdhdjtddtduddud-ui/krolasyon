@@ -86,6 +86,7 @@ public class RevengeEntity extends BossEntity {
         for (EntityDataAccessor<Integer> d : DATA_DRAIN) this.entityData.set(d, -1);
     }
 
+    @Override public com.krolasyon.bosses.faction.Faction houseOf() { return com.krolasyon.bosses.faction.Faction.BLOOD; }
     @Override public double meleeReach() { return 4.6; }
     @Override public double walkSpeed() { return 0.9; }
     @Override public double runSpeed() { return 1.4; }

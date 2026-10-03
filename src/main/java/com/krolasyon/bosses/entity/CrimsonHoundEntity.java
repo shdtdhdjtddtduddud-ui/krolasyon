@@ -47,6 +47,7 @@ public class CrimsonHoundEntity extends BossEntity {
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.85D);
     }
 
+    @Override public com.krolasyon.bosses.faction.Faction houseOf() { return com.krolasyon.bosses.faction.Faction.EMBER; }
     @Override public double meleeReach() { return 3.6; }
     @Override public double walkSpeed() { return 0.85; }
     @Override public double runSpeed() { return 1.45; }

@@ -21,6 +21,7 @@ public final class Ab {
     public String summon = "";
     public boolean needLos = false;
     public boolean airborne = false;
+    public boolean phase2Only = false;
     public String sound = "";
 
     private Ab(Kind kind, String anim) {
@@ -42,5 +43,6 @@ public final class Ab {
     public Ab summon(String id) { this.summon = id; return this; }
     public Ab los() { this.needLos = true; return this; }
     public Ab air() { this.airborne = true; return this; }
+    public Ab p2() { this.phase2Only = true; return this; }
     public Ab snd(String s) { this.sound = s; return this; }
 }

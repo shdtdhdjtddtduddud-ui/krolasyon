@@ -586,3 +586,32 @@ def quadruped(M, body=(11, 10, 20), leg=(7.5, 8.0), leg_w=3.4, foot=(3.8, 2.2, 5
     K['tail_names'] = tn
     K['tail_pts'] = pts
     return K
+
+
+# ------------------------------------------------------------------ wings
+def wings(M, parent, shoulder, tips, heights, strut_mat, sheet_mats, sx_list=(-1, 1), widths=(2.4, 2.0, 1.6), prefix=('right_wing', 'left_wing'), cov_mat=None):
+    """symmetric 3-segment wings.  shoulder=(x,y,z) for the +x (left) wing; tips=(e1,e2,e3) points likewise for +x.
+    sheet_mats: material name (or per-segment tuple) for the vertical wing panels; heights per segment."""
+    sm = sheet_mats if isinstance(sheet_mats, (tuple, list)) else (sheet_mats,) * 3
+    for sx, s in ((-1, prefix[0]), (1, prefix[1])):
+        sh = (shoulder[0] * sx, shoulder[1], shoulder[2])
+        pts = [(t[0] * sx, t[1], t[2]) for t in tips]
+        M.seg(s + '0', parent, sh, pts[0], widths[0], widths[0], strut_mat, extend=0.4)
+        M.seg(s + '1', s + '0', pts[0], pts[1], widths[1], widths[1], strut_mat, extend=0.3)
+        M.seg(s + '2', s + '1', pts[1], pts[2], widths[2], widths[2], strut_mat, extend=0.3)
+        spans = ((sh, pts[0]), (pts[0], pts[1]), (pts[1], pts[2]))
+        for i, (pa, pb) in enumerate(spans):
+            zero_bone(M, f'{s}_m{i}', s + str(i), pa)
+            x0, x1 = sorted((pa[0], pb[0]))
+            M.cube(f'{s}_m{i}', (x0, min(pa[1], pb[1]) + 0.2, (pa[2] + pb[2]) / 2), (x1 - x0, heights[i], 0), sm[i], plane=True)
+        if cov_mat:
+            zero_bone(M, f'{s}_cov', s + '0', sh)
+            x0, x1 = sorted((sh[0], pts[1][0]))
+            M.cube(f'{s}_cov', (x0, min(sh[1], pts[1][1]) - 0.4, sh[2] - 1.0), (x1 - x0, heights[0] * 0.55, 0), cov_mat, plane=True)
+
+
+def add_wing_flap(a, amp=1.0, speed=1.0, base=0.0, names=('right_wing', 'left_wing'), segs=3):
+    """add a flapping channel set to an existing looping Anim"""
+    for sx, nm in ((-1, names[0]), (1, names[1])):
+        for i in range(segs):
+            gen(a, f'{nm}{i}', 'r', lambda ph, sx=sx, i=i: (3 * amp * S(ph, speed, -0.07 * i), 0, sx * (base + 26 * amp * (1 - 0.2 * i) * S(ph, speed, -0.07 * i))), n=10)
