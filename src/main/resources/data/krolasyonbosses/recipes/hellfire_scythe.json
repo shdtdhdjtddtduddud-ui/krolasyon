@@ -1,0 +1,24 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "equipment",
+ "pattern": [
+  "IIE",
+  " S ",
+  " S "
+ ],
+ "key": {
+  "I": {
+   "item": "krolasyonbosses:hellsteel_ingot"
+  },
+  "E": {
+   "item": "krolasyonbosses:ember_shard"
+  },
+  "S": {
+   "item": "minecraft:stick"
+  }
+ },
+ "result": {
+  "item": "krolasyonbosses:hellfire_scythe",
+  "count": 1
+ }
+}

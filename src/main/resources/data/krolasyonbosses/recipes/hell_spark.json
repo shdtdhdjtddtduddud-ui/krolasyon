@@ -1,0 +1,19 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "category": "misc",
+ "ingredients": [
+  {
+   "item": "minecraft:blaze_powder"
+  },
+  {
+   "item": "krolasyonbosses:hellsteel_nugget"
+  },
+  {
+   "item": "minecraft:flint"
+  }
+ ],
+ "result": {
+  "item": "krolasyonbosses:hell_spark",
+  "count": 1
+ }
+}

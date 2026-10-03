@@ -73,4 +73,26 @@ public final class ModSounds {
     public static final RegistryObject<SoundEvent> THORN_ERUPT = reg("thorn_erupt");
     public static final RegistryObject<SoundEvent> SCYTHE_SPIN = reg("scythe_spin");
     public static final RegistryObject<SoundEvent> DEMON_PHASE = reg("demon_phase");
+
+    /** a family of four voice sounds shared by several creatures */
+    public record Voice(RegistryObject<SoundEvent> ambientR, RegistryObject<SoundEvent> hurtR, RegistryObject<SoundEvent> deathR, RegistryObject<SoundEvent> stepR) {
+        public SoundEvent ambient() { return ambientR.get(); }
+        public SoundEvent hurt() { return hurtR.get(); }
+        public SoundEvent death() { return deathR.get(); }
+        public SoundEvent step() { return stepR.get(); }
+    }
+
+    private static final java.util.Map<String, Voice> VOICES = new java.util.HashMap<>();
+
+    static {
+        VOICES.put("demon", new Voice(DEMON_AMBIENT, DEMON_HURT, DEMON_DEATH, DEMON_STEP));
+        VOICES.put("hound", new Voice(HOUND_AMBIENT, HOUND_HURT, HOUND_DEATH, HOUND_STEP));
+        VOICES.put("warden", new Voice(WARDEN_AMBIENT, WARDEN_HURT, WARDEN_DEATH, WARDEN_STEP));
+        VOICES.put("revenge", new Voice(REVENGE_AMBIENT, REVENGE_HURT, REVENGE_DEATH, REVENGE_STEP));
+    }
+
+    public static Voice voice(String name) {
+        Voice v = VOICES.get(name);
+        return v != null ? v : VOICES.get("demon");
+    }
 }

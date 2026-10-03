@@ -25,10 +25,11 @@ jobs:
           echo "status=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
       - name: Visual self-test (headless client)
         id: vt
-        if: steps.b.outputs.status == '0' && contains(github.event.head_commit.message, '[vtest]')
+        if: steps.b.outputs.status == '0' && (contains(github.event.head_commit.message, '[vtest]') || contains(github.event.head_commit.message, '[vmobs]') || contains(github.event.head_commit.message, '[vdim]'))
         continue-on-error: true
         shell: bash
         env:
+          KR_TEST_MODE: ${{ contains(github.event.head_commit.message, '[vmobs]') && 'mobs' || (contains(github.event.head_commit.message, '[vdim]') && 'dim' || 'bosses') }}
           LIBGL_ALWAYS_SOFTWARE: '1'
           MESA_GL_VERSION_OVERRIDE: '4.5'
         run: |

@@ -1,0 +1,24 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "equipment",
+ "pattern": [
+  "I",
+  "O",
+  "S"
+ ],
+ "key": {
+  "I": {
+   "item": "krolasyonbosses:hellsteel_ingot"
+  },
+  "O": {
+   "item": "krolasyonbosses:obsidian_core"
+  },
+  "S": {
+   "item": "minecraft:stick"
+  }
+ },
+ "result": {
+  "item": "krolasyonbosses:sealbreaker",
+  "count": 1
+ }
+}

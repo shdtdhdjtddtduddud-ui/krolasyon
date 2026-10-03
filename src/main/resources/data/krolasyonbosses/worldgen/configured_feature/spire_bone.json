@@ -1,0 +1,14 @@
+{
+ "type": "krolasyonbosses:spire",
+ "config": {
+  "to_place": {
+   "type": "minecraft:simple_state_provider",
+   "state": {
+    "Name": "minecraft:bone_block",
+    "Properties": {
+     "axis": "y"
+    }
+   }
+  }
+ }
+}

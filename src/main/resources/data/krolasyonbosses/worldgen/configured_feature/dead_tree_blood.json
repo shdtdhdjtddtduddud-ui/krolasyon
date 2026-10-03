@@ -1,0 +1,14 @@
+{
+ "type": "krolasyonbosses:dead_tree",
+ "config": {
+  "to_place": {
+   "type": "minecraft:simple_state_provider",
+   "state": {
+    "Name": "minecraft:crimson_stem",
+    "Properties": {
+     "axis": "y"
+    }
+   }
+  }
+ }
+}

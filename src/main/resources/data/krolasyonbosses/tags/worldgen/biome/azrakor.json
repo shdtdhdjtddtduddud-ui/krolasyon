@@ -1,0 +1,15 @@
+{
+ "replace": false,
+ "values": [
+  "krolasyonbosses:ember_wastes",
+  "krolasyonbosses:ashen_barrens",
+  "krolasyonbosses:bone_marches",
+  "krolasyonbosses:ossuary_fields",
+  "krolasyonbosses:crimson_gardens",
+  "krolasyonbosses:blood_spires",
+  "krolasyonbosses:umbral_reach",
+  "krolasyonbosses:gloam_forest",
+  "krolasyonbosses:rot_bog",
+  "krolasyonbosses:weeping_marsh"
+ ]
+}

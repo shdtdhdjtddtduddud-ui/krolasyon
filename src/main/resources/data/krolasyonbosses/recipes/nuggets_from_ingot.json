@@ -1,0 +1,13 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "category": "misc",
+ "ingredients": [
+  {
+   "item": "krolasyonbosses:hellsteel_ingot"
+  }
+ ],
+ "result": {
+  "item": "krolasyonbosses:hellsteel_nugget",
+  "count": 9
+ }
+}

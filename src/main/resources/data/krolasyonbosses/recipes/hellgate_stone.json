@@ -1,0 +1,19 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "category": "misc",
+ "ingredients": [
+  {
+   "item": "minecraft:obsidian"
+  },
+  {
+   "item": "minecraft:obsidian"
+  },
+  {
+   "item": "krolasyonbosses:hellsteel_ingot"
+  }
+ ],
+ "result": {
+  "item": "krolasyonbosses:hellgate_stone",
+  "count": 2
+ }
+}

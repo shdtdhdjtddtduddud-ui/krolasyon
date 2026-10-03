@@ -49,6 +49,8 @@ public class HeartDemonEntity extends BossEntity {
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.9D);
     }
 
+    @Override public com.krolasyon.bosses.faction.Faction houseOf() { return com.krolasyon.bosses.faction.Faction.BLOOD; }
+    @Override public boolean isSpeaker() { return true; }
     @Override public double meleeReach() { return 3.6; }
     @Override public double walkSpeed() { return 0.9; }
     @Override public double runSpeed() { return 1.5; }

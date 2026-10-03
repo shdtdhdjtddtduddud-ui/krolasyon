@@ -1,0 +1,14 @@
+{
+ "type": "krolasyonbosses:crystals",
+ "config": {
+  "to_place": {
+   "type": "minecraft:simple_state_provider",
+   "state": {
+    "Name": "minecraft:crimson_hyphae",
+    "Properties": {
+     "axis": "y"
+    }
+   }
+  }
+ }
+}

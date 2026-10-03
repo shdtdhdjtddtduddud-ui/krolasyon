@@ -1,0 +1,105 @@
+{
+ "has_precipitation": false,
+ "temperature": 2.0,
+ "downfall": 0.0,
+ "effects": {
+  "fog_color": 4854792,
+  "sky_color": 6167050,
+  "water_color": 4159204,
+  "water_fog_color": 329011,
+  "particle": {
+   "probability": 0.03,
+   "options": {
+    "type": "minecraft:ash"
+   }
+  },
+  "ambient_sound": "minecraft:ambient.basalt_deltas.loop",
+  "mood_sound": {
+   "sound": "minecraft:ambient.basalt_deltas.mood",
+   "tick_delay": 6000,
+   "block_search_extent": 8,
+   "offset": 2.0
+  }
+ },
+ "spawners": {
+  "monster": [
+   {
+    "type": "krolasyonbosses:ash_phoenix",
+    "weight": 5,
+    "minCount": 1,
+    "maxCount": 2
+   },
+   {
+    "type": "krolasyonbosses:chain_devil",
+    "weight": 5,
+    "minCount": 1,
+    "maxCount": 2
+   },
+   {
+    "type": "krolasyonbosses:cinder_imp",
+    "weight": 10,
+    "minCount": 2,
+    "maxCount": 4
+   },
+   {
+    "type": "krolasyonbosses:ember_archer",
+    "weight": 8,
+    "minCount": 2,
+    "maxCount": 3
+   },
+   {
+    "type": "krolasyonbosses:gargoyle",
+    "weight": 5,
+    "minCount": 1,
+    "maxCount": 2
+   },
+   {
+    "type": "krolasyonbosses:hell_crow",
+    "weight": 12,
+    "minCount": 3,
+    "maxCount": 5
+   },
+   {
+    "type": "krolasyonbosses:lava_slug",
+    "weight": 9,
+    "minCount": 1,
+    "maxCount": 3
+   },
+   {
+    "type": "krolasyonbosses:magma_brute",
+    "weight": 5,
+    "minCount": 1,
+    "maxCount": 2
+   }
+  ],
+  "creature": [],
+  "ambient": [],
+  "axolotls": [],
+  "underground_water_creature": [],
+  "water_creature": [],
+  "water_ambient": [],
+  "misc": []
+ },
+ "spawn_costs": {},
+ "carvers": {},
+ "features": [
+  [],
+  [],
+  [],
+  [],
+  [],
+  [],
+  [
+   "krolasyonbosses:ore_hellsteel"
+  ],
+  [],
+  [],
+  [
+   "krolasyonbosses:spire_basalt",
+   "krolasyonbosses:spire_obsidian",
+   "krolasyonbosses:ruin_ember",
+   "krolasyonbosses:crystals_ember"
+  ],
+  []
+ ]
+}

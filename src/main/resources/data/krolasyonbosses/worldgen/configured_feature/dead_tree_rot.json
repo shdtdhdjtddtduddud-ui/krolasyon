@@ -1,0 +1,14 @@
+{
+ "type": "krolasyonbosses:dead_tree",
+ "config": {
+  "to_place": {
+   "type": "minecraft:simple_state_provider",
+   "state": {
+    "Name": "minecraft:mangrove_log",
+    "Properties": {
+     "axis": "y"
+    }
+   }
+  }
+ }
+}

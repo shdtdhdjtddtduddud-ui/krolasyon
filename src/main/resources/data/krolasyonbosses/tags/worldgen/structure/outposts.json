@@ -1,0 +1,10 @@
+{
+ "replace": false,
+ "values": [
+  "krolasyonbosses:ember_outpost",
+  "krolasyonbosses:bone_outpost",
+  "krolasyonbosses:blood_outpost",
+  "krolasyonbosses:shadow_outpost",
+  "krolasyonbosses:rot_outpost"
+ ]
+}

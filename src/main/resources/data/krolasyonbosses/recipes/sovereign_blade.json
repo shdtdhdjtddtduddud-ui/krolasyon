@@ -1,0 +1,27 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "equipment",
+ "pattern": [
+  " C ",
+  "ISI",
+  " T "
+ ],
+ "key": {
+  "C": {
+   "item": "krolasyonbosses:ash_crown"
+  },
+  "S": {
+   "item": "krolasyonbosses:sovereign_seal"
+  },
+  "I": {
+   "item": "krolasyonbosses:hellsteel_ingot"
+  },
+  "T": {
+   "item": "minecraft:stick"
+  }
+ },
+ "result": {
+  "item": "krolasyonbosses:sovereign_blade",
+  "count": 1
+ }
+}

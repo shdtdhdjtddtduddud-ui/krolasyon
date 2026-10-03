@@ -1,0 +1,39 @@
+{
+ "type": "minecraft:jigsaw",
+ "biomes": "#krolasyonbosses:ember_lands",
+ "step": "surface_structures",
+ "spawn_overrides": {
+  "monster": {
+   "bounding_box": "full",
+   "spawns": [
+    {
+     "type": "krolasyonbosses:cinder_imp",
+     "weight": 1,
+     "minCount": 1,
+     "maxCount": 2
+    },
+    {
+     "type": "krolasyonbosses:magma_brute",
+     "weight": 1,
+     "minCount": 1,
+     "maxCount": 2
+    },
+    {
+     "type": "krolasyonbosses:ember_archer",
+     "weight": 1,
+     "minCount": 1,
+     "maxCount": 2
+    }
+   ]
+  }
+ },
+ "terrain_adaptation": "beard_thin",
+ "start_pool": "krolasyonbosses:ember_citadel/start",
+ "size": 1,
+ "start_height": {
+  "absolute": -6
+ },
+ "project_start_to_heightmap": "WORLD_SURFACE_WG",
+ "max_distance_from_center": 80,
+ "use_expansion_hack": false
+}

@@ -1,0 +1,175 @@
+{
+ "type": "minecraft:entity",
+ "pools": [
+  {
+   "rolls": 1,
+   "conditions": [
+    {
+     "condition": "minecraft:random_chance_with_looting",
+     "chance": 1.0,
+     "looting_multiplier": 0.08
+    }
+   ],
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "krolasyonbosses:nyx_eye",
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "type": "minecraft:uniform",
+        "min": 1,
+        "max": 1
+       }
+      },
+      {
+       "function": "minecraft:looting_enchant",
+       "count": {
+        "type": "minecraft:uniform",
+        "min": 0,
+        "max": 1
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "rolls": 1,
+   "conditions": [
+    {
+     "condition": "minecraft:random_chance_with_looting",
+     "chance": 1.0,
+     "looting_multiplier": 0.08
+    }
+   ],
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "krolasyonbosses:shadow_sigil",
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "type": "minecraft:uniform",
+        "min": 1,
+        "max": 1
+       }
+      },
+      {
+       "function": "minecraft:looting_enchant",
+       "count": {
+        "type": "minecraft:uniform",
+        "min": 0,
+        "max": 1
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "rolls": 1,
+   "conditions": [
+    {
+     "condition": "minecraft:random_chance_with_looting",
+     "chance": 1.0,
+     "looting_multiplier": 0.08
+    }
+   ],
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "krolasyonbosses:shadow_essence",
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "type": "minecraft:uniform",
+        "min": 6,
+        "max": 12
+       }
+      },
+      {
+       "function": "minecraft:looting_enchant",
+       "count": {
+        "type": "minecraft:uniform",
+        "min": 0,
+        "max": 1
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "rolls": 1,
+   "conditions": [
+    {
+     "condition": "minecraft:random_chance_with_looting",
+     "chance": 1.0,
+     "looting_multiplier": 0.08
+    }
+   ],
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "krolasyonbosses:hellsteel_ingot",
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "type": "minecraft:uniform",
+        "min": 2,
+        "max": 5
+       }
+      },
+      {
+       "function": "minecraft:looting_enchant",
+       "count": {
+        "type": "minecraft:uniform",
+        "min": 0,
+        "max": 1
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "rolls": 1,
+   "conditions": [
+    {
+     "condition": "minecraft:random_chance_with_looting",
+     "chance": 1.0,
+     "looting_multiplier": 0.08
+    }
+   ],
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:experience_bottle",
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "type": "minecraft:uniform",
+        "min": 4,
+        "max": 8
+       }
+      },
+      {
+       "function": "minecraft:looting_enchant",
+       "count": {
+        "type": "minecraft:uniform",
+        "min": 0,
+        "max": 1
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

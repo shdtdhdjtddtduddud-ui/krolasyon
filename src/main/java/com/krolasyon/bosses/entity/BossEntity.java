@@ -15,6 +15,8 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
@@ -58,14 +60,65 @@ public abstract class BossEntity extends Monster {
     public float runBlend, prevRunBlend;
     public int phaseFlash;
 
+    /** false for ordinary (non boss) ability mobs: no boss bar, may despawn, can be pushed */
+    protected final boolean isBoss;
+
     protected BossEntity(EntityType<? extends Monster> type, Level level, BossEvent.BossBarColor color, int abilityCount) {
+        this(type, level, color, abilityCount, true);
+    }
+
+    protected BossEntity(EntityType<? extends Monster> type, Level level, BossEvent.BossBarColor color, int abilityCount, boolean boss) {
         super(type, level);
+        this.isBoss = boss;
         this.bossEvent = new ServerBossEvent(this.getDisplayName(), color, BossEvent.BossBarOverlay.NOTCHED_10);
-        this.bossEvent.setDarkenScreen(true);
+        this.bossEvent.setDarkenScreen(boss);
         this.cooldowns = new int[abilityCount];
-        this.xpReward = 400;
-        this.setPersistenceRequired();
-        this.setMaxUpStep(1.5F);
+        if (boss) {
+            this.xpReward = 400;
+            this.setPersistenceRequired();
+            this.setMaxUpStep(1.5F);
+        }
+    }
+
+    public boolean isBossMob() { return isBoss; }
+
+    /** ordinary mobs have no second phase */
+    protected boolean hasPhases() { return isBoss; }
+
+    protected int deathTicks() { return DEATH_TICKS; }
+
+    /** the house this creature serves (null = serves nobody and attacks everyone) */
+    @Nullable
+    public com.krolasyon.bosses.faction.Faction houseOf() { return null; }
+
+    /** true if right-clicking this creature opens a dialogue (rulers and envoys) */
+    public boolean isSpeaker() { return false; }
+
+    /** true for peaceful envoys (as opposed to rulers) */
+    public boolean isEnvoy() { return false; }
+
+    protected final java.util.Set<java.util.UUID> provoked = new java.util.HashSet<>();
+
+    /** a player challenged this creature to a duel (or hit it): it fights that player from now on */
+    public void provoke(Player p) {
+        provoked.add(p.getUUID());
+        this.setTarget(p);
+    }
+
+    /** players this mob picks as a target on its own */
+    protected boolean wantsToAttackPlayer(Player p) {
+        com.krolasyon.bosses.faction.Faction f = houseOf();
+        if (f == null) return true;
+        return provoked.contains(p.getUUID()) || com.krolasyon.bosses.faction.PlayerData.isHostileTo(p, f);
+    }
+
+    @Override
+    protected InteractionResult mobInteract(Player player, InteractionHand hand) {
+        if (isSpeaker() && hand == InteractionHand.MAIN_HAND && !isHostileTo(player) && this.getTarget() != player) {
+            if (!this.level().isClientSide() && player instanceof ServerPlayer sp) com.krolasyon.bosses.faction.Dialogue.open(sp, this);
+            return InteractionResult.sidedSuccess(this.level().isClientSide());
+        }
+        return super.mobInteract(player, hand);
     }
 
     // ------------------------------------------------------------------ setup
@@ -85,7 +138,7 @@ public abstract class BossEntity extends Monster {
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 16.0F));
         this.goalSelector.addGoal(9, new RandomLookAroundGoal(this));
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false, e -> e instanceof Player p && wantsToAttackPlayer(p)));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 5, false, false, this::isMonsterPrey));
     }
 
@@ -98,7 +151,7 @@ public abstract class BossEntity extends Monster {
     public boolean isHostileTo(Entity e) {
         if (!(e instanceof LivingEntity le) || e == this || !e.isAlive()) return false;
         if (e.getType() == this.getType()) return false;
-        if (e instanceof Player p) return !p.isCreative() && !p.isSpectator();
+        if (e instanceof Player p) return !p.isCreative() && !p.isSpectator() && (houseOf() == null || p == this.getTarget() || wantsToAttackPlayer(p));
         return e instanceof Enemy || e == this.getTarget() || le.getLastHurtMob() == this || (le instanceof Mob m && m.getTarget() == this);
     }
 
@@ -112,7 +165,7 @@ public abstract class BossEntity extends Monster {
     }
 
     @Override
-    public boolean removeWhenFarAway(double dist) { return false; }
+    public boolean removeWhenFarAway(double dist) { return isBoss ? false : super.removeWhenFarAway(dist); }
 
     @Override
     public AABB getBoundingBoxForCulling() { return this.getBoundingBox().inflate(3.0D); }
@@ -127,7 +180,7 @@ public abstract class BossEntity extends Monster {
     public boolean canChangeDimensions() { return false; }
 
     @Override
-    public boolean isPushable() { return false; }
+    public boolean isPushable() { return !isBoss; }
 
     @Override
     protected void doPush(Entity e) {
@@ -162,7 +215,7 @@ public abstract class BossEntity extends Monster {
     @Override
     public void startSeenByPlayer(ServerPlayer player) {
         super.startSeenByPlayer(player);
-        this.bossEvent.addPlayer(player);
+        if (isBoss) this.bossEvent.addPlayer(player);
     }
 
     @Override
@@ -204,6 +257,7 @@ public abstract class BossEntity extends Monster {
 
     /** used by the CI visual self-test to trigger a specific ability */
     public void debugForceAbility(int id, LivingEntity target) {
+        if (id < 0 || id >= cooldowns.length || !isAlive()) return;
         this.setTarget(target);
         if (currentAbility >= 0) endAbility();
         java.util.Arrays.fill(cooldowns, 100000);
@@ -219,9 +273,9 @@ public abstract class BossEntity extends Monster {
     @Override
     protected void customServerAiStep() {
         super.customServerAiStep();
-        this.bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
+        if (isBoss) this.bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
 
-        if (!isPhase2() && this.getHealth() < this.getMaxHealth() * 0.5F) {
+        if (hasPhases() && !isPhase2() && this.getHealth() < this.getMaxHealth() * 0.5F) {
             this.entityData.set(DATA_PHASE2, true);
             this.level().broadcastEntityEvent(this, EVENT_PHASE2);
             onPhase2();
@@ -296,7 +350,7 @@ public abstract class BossEntity extends Monster {
     protected void tickDeath() {
         ++this.deathTime;
         deathFx(this.deathTime);
-        if (this.deathTime >= DEATH_TICKS && !this.level().isClientSide() && !this.isRemoved()) {
+        if (this.deathTime >= deathTicks() && !this.level().isClientSide() && !this.isRemoved()) {
             this.level().broadcastEntityEvent(this, (byte) 60);
             this.remove(Entity.RemovalReason.KILLED);
         }

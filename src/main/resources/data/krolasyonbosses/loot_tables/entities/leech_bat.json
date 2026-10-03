@@ -1,0 +1,73 @@
+{
+ "type": "minecraft:entity",
+ "pools": [
+  {
+   "rolls": 1,
+   "conditions": [
+    {
+     "condition": "minecraft:random_chance_with_looting",
+     "chance": 0.25,
+     "looting_multiplier": 0.08
+    }
+   ],
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "krolasyonbosses:blood_vial",
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "type": "minecraft:uniform",
+        "min": 0,
+        "max": 1
+       }
+      },
+      {
+       "function": "minecraft:looting_enchant",
+       "count": {
+        "type": "minecraft:uniform",
+        "min": 0,
+        "max": 1
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "rolls": 1,
+   "conditions": [
+    {
+     "condition": "minecraft:random_chance_with_looting",
+     "chance": 0.4,
+     "looting_multiplier": 0.08
+    }
+   ],
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:leather",
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "type": "minecraft:uniform",
+        "min": 0,
+        "max": 1
+       }
+      },
+      {
+       "function": "minecraft:looting_enchant",
+       "count": {
+        "type": "minecraft:uniform",
+        "min": 0,
+        "max": 1
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

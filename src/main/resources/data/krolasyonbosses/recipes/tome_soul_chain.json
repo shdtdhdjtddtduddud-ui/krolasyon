@@ -1,0 +1,25 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "category": "misc",
+ "ingredients": [
+  {
+   "item": "minecraft:book"
+  },
+  {
+   "item": "krolasyonbosses:soul_ember"
+  },
+  {
+   "item": "krolasyonbosses:soul_ember"
+  },
+  {
+   "item": "krolasyonbosses:soul_ember"
+  },
+  {
+   "item": "krolasyonbosses:hellsteel_ingot"
+  }
+ ],
+ "result": {
+  "item": "krolasyonbosses:tome_soul_chain",
+  "count": 1
+ }
+}

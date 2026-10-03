@@ -130,6 +130,18 @@ class Model:
             'south': (u + 2 * dz + dx, v + dz, dx, dy),  # back (+z)
         }
 
+    # ---------------- JSON export (runtime loaded by MobModelLoader) ----------------
+    def to_json(self):
+        bones = []
+        for name in self.order:
+            b = self.bones[name]
+            cubes = []
+            for c in b.cubes:
+                o = c.lfrm
+                cubes.append([int(c.uv[0]), int(c.uv[1]), _r(o[0]), _r(o[1]), _r(o[2]), _r(c.size[0]), _r(c.size[1]), _r(c.size[2]), _r(c.inflate)])
+            bones.append([name, b.parent, [_r(v) for v in b.off], [_r(math.radians(a)) for a in b.rot], cubes])
+        return {'tw': self.tw, 'th': self.th, 'bones': bones}
+
     # ---------------- Java export ----------------
     def java_layer(self):
         out = []
@@ -150,6 +162,10 @@ class Model:
             var[name] = v
             out.append(f"        PartDefinition {v} = {pvar}.addOrReplaceChild(\"{name}\", {cl}, {pose});")
         return "\n".join(out)
+
+
+def _r(x, n=5):
+    return round(float(x), n)
 
 
 def f(x):
@@ -190,6 +206,13 @@ class Anim:
                 f"AnimationChannel.Interpolations.{'CATMULLROM' if i == 'C' else 'LINEAR'})" for t, v, i in keys)
             s += f"\n        .addAnimation(\"{bone}\", new AnimationChannel(AnimationChannel.Targets.{kind}, {kf}))"
         return s + "\n        .build();\n    }"
+
+    def to_json(self):
+        ch = []
+        for bone, kind, keys in self.ch:
+            k = {'ROTATION': 'r', 'POSITION': 'p', 'SCALE': 's'}[kind]
+            ch.append([bone, k, [[_r(t, 4), _r(v[0], 4), _r(v[1], 4), _r(v[2], 4), 'c' if i == 'C' else 'l'] for t, v, i in keys]])
+        return {'len': self.length, 'loop': bool(self.loop), 'ch': ch}
 
     def sample(self, t):
         """returns dict bone -> {'ROTATION':vec,'POSITION':vec,'SCALE':vec} (vanilla semantic, pos in posVec units)"""
