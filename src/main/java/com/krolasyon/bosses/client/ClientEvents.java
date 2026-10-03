@@ -6,6 +6,10 @@ import com.krolasyon.bosses.client.model.ModelLayers;
 import com.krolasyon.bosses.client.model.SealWardenModel;
 import com.krolasyon.bosses.client.model.SimpleEffectModel;
 import com.krolasyon.bosses.client.render.*;
+import com.krolasyon.bosses.client.model.MobModel;
+import com.krolasyon.bosses.client.model.MobModelLoader;
+import com.krolasyon.bosses.entity.mob.MobSpec;
+import com.krolasyon.bosses.entity.mob.MobSpecs;
 import com.krolasyon.bosses.registry.ModEntities;
 import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraftforge.api.distmarker.Dist;
@@ -29,6 +33,7 @@ public final class ClientEvents {
         event.registerLayerDefinition(SimpleEffectModel.BLOOD_SPIKE, ModelLayers::createBloodSpike);
         event.registerLayerDefinition(SimpleEffectModel.THORN_SPIKE, ModelLayers::createThornSpike);
         event.registerLayerDefinition(SimpleEffectModel.BLOOD_LANCE, ModelLayers::createBloodLance);
+        for (MobSpec s : MobSpecs.ALL.values()) event.registerLayerDefinition(MobModel.layer(s.id), () -> MobModelLoader.layer(s.id));
     }
 
     @SubscribeEvent
@@ -44,5 +49,7 @@ public final class ClientEvents {
         event.registerEntityRenderer(ModEntities.HEART_DEMON.get(), HeartDemonRenderer::new);
         event.registerEntityRenderer(ModEntities.BLOOD_LANCE.get(), BloodLanceRenderer::new);
         event.registerEntityRenderer(ModEntities.HEART_ORB.get(), NoopRenderer::new);
+        event.registerEntityRenderer(ModEntities.BOLT.get(), NoopRenderer::new);
+        for (MobSpec s : MobSpecs.ALL.values()) event.registerEntityRenderer(ModEntities.MOBS.get(s.id).get(), ctx -> new HellMobRenderer(ctx, s));
     }
 }

@@ -66,5 +66,14 @@
  "entity.krolasyonbosses.blood_lance": "Blood Lance",
  "entity.krolasyonbosses.heart_orb": "Crimson Heart",
  "item.krolasyonbosses.revenge_spawn_egg": "Revenge Spawn Egg",
- "item.krolasyonbosses.heart_demon_spawn_egg": "Heartbreaker Demon Spawn Egg"
+ "item.krolasyonbosses.heart_demon_spawn_egg": "Heartbreaker Demon Spawn Egg",
+ "entity.krolasyonbosses.cinder_imp": "Cinder Imp",
+ "item.krolasyonbosses.cinder_imp_spawn_egg": "Cinder Imp Spawn Egg",
+ "bestiary.krolasyonbosses.cinder_imp": "Kor Hanedanı'nın ateşten doğan haberci şeytancıkları. Sürüler hâlinde gelir, kıvılcım tükürür.",
+ "faction.krolasyonbosses.ember": "Ember Dominion",
+ "faction.krolasyonbosses.bone": "Bone Kingdom",
+ "faction.krolasyonbosses.blood": "Blood Conclave",
+ "faction.krolasyonbosses.shadow": "Shadow Covenant",
+ "faction.krolasyonbosses.rot": "Rot Court",
+ "faction.krolasyonbosses.outcast": "Outcasts"
 }

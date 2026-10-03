@@ -66,5 +66,14 @@
  "entity.krolasyonbosses.blood_lance": "Kan Mızrağı",
  "entity.krolasyonbosses.heart_orb": "Kızıl Kalp",
  "item.krolasyonbosses.revenge_spawn_egg": "İntikam Çağırma Yumurtası",
- "item.krolasyonbosses.heart_demon_spawn_egg": "Kalp Kırıcı İblis Çağırma Yumurtası"
+ "item.krolasyonbosses.heart_demon_spawn_egg": "Kalp Kırıcı İblis Çağırma Yumurtası",
+ "entity.krolasyonbosses.cinder_imp": "Kül İmp",
+ "item.krolasyonbosses.cinder_imp_spawn_egg": "Kül İmp Çağırma Yumurtası",
+ "bestiary.krolasyonbosses.cinder_imp": "Kor Hanedanı'nın ateşten doğan haberci şeytancıkları. Sürüler hâlinde gelir, kıvılcım tükürür.",
+ "faction.krolasyonbosses.ember": "Kor Hanedanı",
+ "faction.krolasyonbosses.bone": "Kemik Krallığı",
+ "faction.krolasyonbosses.blood": "Kan Konseyi",
+ "faction.krolasyonbosses.shadow": "Gölge Tarikatı",
+ "faction.krolasyonbosses.rot": "Çürük Divanı",
+ "faction.krolasyonbosses.outcast": "Yetimler"
 }

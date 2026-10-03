@@ -2,6 +2,10 @@ package com.krolasyon.bosses.registry;
 
 import com.krolasyon.bosses.KrolasyonBosses;
 import com.krolasyon.bosses.entity.*;
+import com.krolasyon.bosses.entity.mob.MobSpec;
+import com.krolasyon.bosses.entity.mob.MobSpecs;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.registries.DeferredRegister;
@@ -57,4 +61,18 @@ public final class ModEntities {
     public static final RegistryObject<EntityType<HeartOrbEntity>> HEART_ORB = ENTITIES.register("heart_orb",
             () -> EntityType.Builder.<HeartOrbEntity>of(HeartOrbEntity::new, MobCategory.MISC)
                     .sized(0.5F, 0.5F).clientTrackingRange(8).updateInterval(1).build("heart_orb"));
+
+    public static final RegistryObject<EntityType<GenericBoltEntity>> BOLT = ENTITIES.register("bolt",
+            () -> EntityType.Builder.<GenericBoltEntity>of(GenericBoltEntity::new, MobCategory.MISC)
+                    .sized(0.4F, 0.4F).clientTrackingRange(8).updateInterval(1).build("bolt"));
+
+    /** every ordinary creature of Azrakor, created from its MobSpec */
+    public static final Map<String, RegistryObject<EntityType<HellMob>>> MOBS = new LinkedHashMap<>();
+
+    static {
+        for (MobSpec s : MobSpecs.ALL.values()) {
+            MOBS.put(s.id, ENTITIES.register(s.id, () -> EntityType.Builder.<HellMob>of(HellMob::new, MobCategory.MONSTER)
+                    .sized(s.width, s.height).fireImmune().clientTrackingRange(10).build(s.id)));
+        }
+    }
 }

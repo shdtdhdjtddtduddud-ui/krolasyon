@@ -1,0 +1,11 @@
+{
+ "cinder_imp": {
+  "weight": 10,
+  "min": 2,
+  "max": 4,
+  "biomes": [
+   "ember_wastes",
+   "ashen_barrens"
+  ]
+ }
+}

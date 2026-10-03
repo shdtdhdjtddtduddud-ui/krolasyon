@@ -16,6 +16,8 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.console.level', 'info'
             property 'krolasyon.autotest', 'true'
+            property 'krolasyon.mode', System.getenv('KR_TEST_MODE') ?: 'bosses'
+            property 'krolasyon.only', System.getenv('KR_TEST_ONLY') ?: ''
             args '--width', '1280', '--height', '720'
             mods {
                 krolasyonbosses {

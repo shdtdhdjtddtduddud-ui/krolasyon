@@ -58,15 +58,35 @@ public abstract class BossEntity extends Monster {
     public float runBlend, prevRunBlend;
     public int phaseFlash;
 
+    /** false for ordinary (non boss) ability mobs: no boss bar, may despawn, can be pushed */
+    protected final boolean isBoss;
+
     protected BossEntity(EntityType<? extends Monster> type, Level level, BossEvent.BossBarColor color, int abilityCount) {
-        super(type, level);
-        this.bossEvent = new ServerBossEvent(this.getDisplayName(), color, BossEvent.BossBarOverlay.NOTCHED_10);
-        this.bossEvent.setDarkenScreen(true);
-        this.cooldowns = new int[abilityCount];
-        this.xpReward = 400;
-        this.setPersistenceRequired();
-        this.setMaxUpStep(1.5F);
+        this(type, level, color, abilityCount, true);
     }
+
+    protected BossEntity(EntityType<? extends Monster> type, Level level, BossEvent.BossBarColor color, int abilityCount, boolean boss) {
+        super(type, level);
+        this.isBoss = boss;
+        this.bossEvent = new ServerBossEvent(this.getDisplayName(), color, BossEvent.BossBarOverlay.NOTCHED_10);
+        this.bossEvent.setDarkenScreen(boss);
+        this.cooldowns = new int[abilityCount];
+        if (boss) {
+            this.xpReward = 400;
+            this.setPersistenceRequired();
+            this.setMaxUpStep(1.5F);
+        }
+    }
+
+    public boolean isBossMob() { return isBoss; }
+
+    /** ordinary mobs have no second phase */
+    protected boolean hasPhases() { return isBoss; }
+
+    protected int deathTicks() { return DEATH_TICKS; }
+
+    /** players this mob picks as a target on its own */
+    protected boolean wantsToAttackPlayer(Player p) { return true; }
 
     // ------------------------------------------------------------------ setup
     @Override
@@ -85,7 +105,7 @@ public abstract class BossEntity extends Monster {
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 16.0F));
         this.goalSelector.addGoal(9, new RandomLookAroundGoal(this));
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false, e -> e instanceof Player p && wantsToAttackPlayer(p)));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 5, false, false, this::isMonsterPrey));
     }
 
@@ -112,7 +132,7 @@ public abstract class BossEntity extends Monster {
     }
 
     @Override
-    public boolean removeWhenFarAway(double dist) { return false; }
+    public boolean removeWhenFarAway(double dist) { return isBoss ? false : super.removeWhenFarAway(dist); }
 
     @Override
     public AABB getBoundingBoxForCulling() { return this.getBoundingBox().inflate(3.0D); }
@@ -127,7 +147,7 @@ public abstract class BossEntity extends Monster {
     public boolean canChangeDimensions() { return false; }
 
     @Override
-    public boolean isPushable() { return false; }
+    public boolean isPushable() { return !isBoss; }
 
     @Override
     protected void doPush(Entity e) {
@@ -162,7 +182,7 @@ public abstract class BossEntity extends Monster {
     @Override
     public void startSeenByPlayer(ServerPlayer player) {
         super.startSeenByPlayer(player);
-        this.bossEvent.addPlayer(player);
+        if (isBoss) this.bossEvent.addPlayer(player);
     }
 
     @Override
@@ -219,9 +239,9 @@ public abstract class BossEntity extends Monster {
     @Override
     protected void customServerAiStep() {
         super.customServerAiStep();
-        this.bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
+        if (isBoss) this.bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
 
-        if (!isPhase2() && this.getHealth() < this.getMaxHealth() * 0.5F) {
+        if (hasPhases() && !isPhase2() && this.getHealth() < this.getMaxHealth() * 0.5F) {
             this.entityData.set(DATA_PHASE2, true);
             this.level().broadcastEntityEvent(this, EVENT_PHASE2);
             onPhase2();
@@ -296,7 +316,7 @@ public abstract class BossEntity extends Monster {
     protected void tickDeath() {
         ++this.deathTime;
         deathFx(this.deathTime);
-        if (this.deathTime >= DEATH_TICKS && !this.level().isClientSide() && !this.isRemoved()) {
+        if (this.deathTime >= deathTicks() && !this.level().isClientSide() && !this.isRemoved()) {
             this.level().broadcastEntityEvent(this, (byte) 60);
             this.remove(Entity.RemovalReason.KILLED);
         }

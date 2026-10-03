@@ -1,6 +1,8 @@
 package com.krolasyon.bosses.registry;
 
 import com.krolasyon.bosses.KrolasyonBosses;
+import com.krolasyon.bosses.entity.mob.MobSpec;
+import com.krolasyon.bosses.entity.mob.MobSpecs;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -28,6 +30,15 @@ public final class ModItems {
     public static final RegistryObject<Item> HEART_DEMON_EGG = ITEMS.register("heart_demon_spawn_egg",
             () -> new ForgeSpawnEggItem(ModEntities.HEART_DEMON, 0xD85060, 0x1A080E, new Item.Properties().rarity(Rarity.EPIC)));
 
+    public static final java.util.Map<String, RegistryObject<Item>> MOB_EGGS = new java.util.LinkedHashMap<>();
+
+    static {
+        for (MobSpec s : MobSpecs.ALL.values()) {
+            MOB_EGGS.put(s.id, ITEMS.register(s.id + "_spawn_egg",
+                    () -> new ForgeSpawnEggItem(ModEntities.MOBS.get(s.id), s.eggA, s.eggB, new Item.Properties())));
+        }
+    }
+
     public static final RegistryObject<CreativeModeTab> TAB = TABS.register("bosses", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.krolasyonbosses"))
             .icon(() -> new ItemStack(SEAL_WARDEN_EGG.get()))
@@ -36,6 +47,7 @@ public final class ModItems {
                 output.accept(CRIMSON_HOUND_EGG.get());
                 output.accept(REVENGE_EGG.get());
                 output.accept(HEART_DEMON_EGG.get());
+                for (RegistryObject<Item> egg : MOB_EGGS.values()) output.accept(egg.get());
             })
             .build());
 }

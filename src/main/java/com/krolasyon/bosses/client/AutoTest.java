@@ -51,6 +51,12 @@ public final class AutoTest {
     private static final String TARGET = "summon minecraft:husk 4 -60 -13 {NoAI:1b,PersistenceRequired:1b,Silent:1b,Health:1000f,Attributes:[{Name:\"generic.max_health\",Base:1000d}]}";
 
     private AutoTest() {
+        String mode = System.getProperty("krolasyon.mode", "bosses");
+        LOG.info("[AUTOTEST] mode {}", mode);
+        if (mode.equals("mobs")) {
+            mobGallery();
+            return;
+        }
         cmd(0, null, "gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false",
                 "time set 6000", "weather clear", "difficulty normal", "gamemode creative @a", "tp @a 1 -60 2 180 -6",
                 "kill @e[type=!player]");
@@ -69,6 +75,33 @@ public final class AutoTest {
         wait(80, "fight_c");
         wait(100, "fight_d");
         wait(20, "END");
+    }
+
+    /** every ordinary creature: idle shot from the front, then one shot per ability at its strike moment */
+    private void mobGallery() {
+        cmd(0, null, "gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false",
+                "time set 6000", "weather clear", "difficulty normal", "gamemode creative @a", "tp @a 1 -60 2 180 -6",
+                "kill @e[type=!player]");
+        String only = System.getProperty("krolasyon.only", "");
+        for (com.krolasyon.bosses.entity.mob.MobSpec sp : com.krolasyon.bosses.entity.mob.MobSpecs.ALL.values()) {
+            if (!only.isEmpty() && !only.contains(sp.id)) continue;
+            double dist = 9 + sp.height * 2.2;
+            cmd(8, null, "kill @e[type=!player]", "tp @a 1 -60 2 180 -4", TARGET.replace("-13", "-" + (int) (dist + 4)),
+                    "summon krolasyonbosses:" + sp.id + " 0 -60 -" + (int) (dist + 8) + " {Rotation:[0f,0f]}");
+            cmd(14, sp.id + "_a_idle", "tp @a 1 -60 -" + (int) Math.max(3, dist - 4) + " 180 -6");
+            cmd(24, sp.id + "_b_side", "tp @a " + (int) (sp.height * 2.5 + 3) + " -60 -" + (int) (dist + 4) + " 90 -8");
+            cmd(2, null, "tp @a 1 -60 -" + (int) Math.max(3, dist - 4) + " 180 -6");
+            for (int i = 0; i < sp.abilities.size(); i++) {
+                final int ab = i;
+                force(com.krolasyon.bosses.entity.HellMob.class, ab);
+                wait(Math.max(8, sp.abilities.get(i).hits[0] + 3), sp.id + "_c_ab" + i + "_" + sp.abilities.get(i).anim);
+                wait(sp.abilities.get(i).dur + 24, null);
+            }
+            server(2, null, s -> each(s, com.krolasyon.bosses.entity.HellMob.class, LivingEntity::kill));
+            wait(10, sp.id + "_d_death");
+            wait(30, null);
+        }
+        wait(5, "END");
     }
 
     private <T extends BossEntity> void bossRun(String id, Class<T> cls, int[][] abilities) {
