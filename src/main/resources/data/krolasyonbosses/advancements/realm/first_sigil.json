@@ -1,0 +1,36 @@
+{
+ "parent": "krolasyonbosses:realm/root",
+ "display": {
+  "icon": {
+   "item": "krolasyonbosses:ash_sigil"
+  },
+  "title": {
+   "translate": "advancements.krolasyonbosses.first_sigil.title"
+  },
+  "description": {
+   "translate": "advancements.krolasyonbosses.first_sigil.description"
+  },
+  "frame": "goal",
+  "show_toast": true,
+  "announce_to_chat": true,
+  "hidden": false
+ },
+ "criteria": {
+  "sigil": {
+   "trigger": "minecraft:inventory_changed",
+   "conditions": {
+    "items": [
+     {
+      "items": [
+       "krolasyonbosses:ash_sigil",
+       "krolasyonbosses:blood_sigil",
+       "krolasyonbosses:shadow_sigil",
+       "krolasyonbosses:legion_sigil",
+       "krolasyonbosses:soul_sigil"
+      ]
+     }
+    ]
+   }
+  }
+ }
+}

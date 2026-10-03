@@ -108,7 +108,8 @@ public final class RealmEntities {
                         (type, level, reason, pos, r) -> level.getBlockState(pos.below()).isSolid(), SpawnPlacementRegisterEvent.Operation.REPLACE);
             } else {
                 e.register(t, s.flying() ? SpawnPlacements.Type.NO_RESTRICTIONS : SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                        (type, level, reason, pos, r) -> Monster.checkAnyLightMonsterSpawnRules((EntityType<? extends Monster>) type, level, reason, pos, r),
+                        (type, level, reason, pos, r) -> level.getDifficulty() != net.minecraft.world.Difficulty.PEACEFUL
+                                && (s.flying() || level.getBlockState(pos.below()).isSolid()) && level.getFluidState(pos).isEmpty(),
                         SpawnPlacementRegisterEvent.Operation.REPLACE);
             }
         }

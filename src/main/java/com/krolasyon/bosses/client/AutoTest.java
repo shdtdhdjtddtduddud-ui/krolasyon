@@ -54,21 +54,95 @@ public final class AutoTest {
         cmd(0, null, "gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false",
                 "time set 6000", "weather clear", "difficulty normal", "gamemode creative @a", "tp @a 1 -60 2 180 -6",
                 "kill @e[type=!player]");
-        bossRun("revenge", com.krolasyon.bosses.entity.RevengeEntity.class, new int[][]{{0, 10}, {1, 18}, {2, 18}, {3, 14}, {4, 26}, {5, 30}, {5, 46}});
-        bossRun("heart_demon", com.krolasyon.bosses.entity.HeartDemonEntity.class, new int[][]{{0, 8}, {1, 11}, {2, 22}, {3, 9}, {4, 16}, {5, 14}});
-        // all four bosses brawling with monsters around
-        cmd(80, null, "kill @e[type=!player]", "tp @a 0 -60 2 180 -10",
-                "summon krolasyonbosses:revenge -7 -60 -22 {Rotation:[0f,0f]}",
-                "summon krolasyonbosses:heart_demon 7 -60 -22 {Rotation:[0f,0f]}",
-                "summon krolasyonbosses:seal_warden -3 -60 -34 {Rotation:[0f,0f]}",
-                "summon krolasyonbosses:crimson_hound 4 -60 -34 {Rotation:[0f,0f]}",
-                "summon minecraft:husk 0 -60 -12", "summon minecraft:skeleton -3 -60 -14 {ArmorItems:[{},{},{},{id:\"minecraft:iron_helmet\",Count:1b}]}",
-                "summon minecraft:spider 3 -60 -13", "summon minecraft:husk -8 -60 -12");
-        wait(60, "fight_a");
-        wait(60, "fight_b");
-        wait(80, "fight_c");
-        wait(100, "fight_d");
+        // every realm creature, five at a time
+        java.util.List<String> ids = new ArrayList<>(com.krolasyon.bosses.realm.entity.RealmEntities.TYPES.keySet());
+        for (int i = 0; i < ids.size(); i += 5) {
+            java.util.List<String> group = ids.subList(i, Math.min(ids.size(), i + 5));
+            boolean big = group.stream().anyMatch(id -> com.krolasyon.bosses.realm.entity.RealmEntities.spec(id).boss());
+            double gap = big ? 6.5 : 4.0, z = big ? -16 : -11;
+            java.util.List<String> c = new ArrayList<>();
+            c.add("kill @e[type=!player]");
+            c.add("tp @a 0.5 -59 " + (big ? 4 : 2) + " 180 " + (big ? -4 : 4));
+            for (int k = 0; k < group.size(); k++) {
+                double x = (k - (group.size() - 1) / 2.0) * gap + 0.5;
+                c.add("summon krolasyonbosses:" + group.get(k) + " " + x + " -60 " + z + " {NoAI:1b,PersistenceRequired:1b,Rotation:[" + (k % 2 == 0 ? 15 : -15) + "f,0f]}");
+            }
+            cmd(60, "mobs_" + i, c.toArray(new String[0]));
+        }
+        // a few lords casting
+        cmd(20, null, "kill @e[type=!player]", "tp @a 1 -60 2 180 -6", TARGET, "summon krolasyonbosses:varkhas 0 -60 -16 {Rotation:[0f,0f]}");
+        server(30, null, s -> forceRealm(s, 3));
+        wait(12, "varkhas_erupt");
+        server(40, null, s -> forceRealm(s, 2));
+        wait(14, "varkhas_meteor");
+        cmd(20, null, "kill @e[type=!player]", TARGET, "summon krolasyonbosses:azgaroth 0 -60 -18 {Rotation:[0f,0f]}");
+        server(30, null, s -> forceRealm(s, 3));
+        wait(16, "azgaroth_breath");
+        server(40, null, s -> forceRealm(s, 6));
+        wait(16, "azgaroth_nova");
+        cmd(20, null, "kill @e[type=!player]", TARGET, "summon krolasyonbosses:nyxar 0 -60 -16 {Rotation:[0f,0f]}");
+        server(30, null, s -> forceRealm(s, 4));
+        wait(20, "nyxar_beam");
+        // portal ruin in the overworld
+        cmd(10, null, "kill @e[type=!player]", "tp @a 8 -58 14 160 8");
+        server(60, "portal_ruin", s -> com.krolasyon.bosses.realm.world.Builders.portalRuin(s.overworld(), new net.minecraft.core.BlockPos(4, -60, 0),
+                s.overworld().random, true));
+        // the six biomes of the realm
+        for (String b : new String[]{"ash_wastes", "blood_marsh", "obsidian_forest", "basalt_warfields", "soul_valley", "throne_wastes"}) {
+            server(220, "biome_" + b, s -> realmBiome(s, b));
+            cmd(80, "biome_" + b + "_b", "tp @a ~ ~ ~ ~120 10");
+        }
+        // the chronicle
+        server(10, null, s -> {
+            for (net.minecraft.server.level.ServerPlayer p : s.getPlayerList().getPlayers()) {
+                com.krolasyon.bosses.realm.data.RealmData d = com.krolasyon.bosses.realm.data.RealmData.get(p);
+                d.rep[0] = 64; d.rep[1] = -55; d.rep[2] = 12; d.rep[3] = 35; d.rep[4] = -10;
+                d.allied[0] = true; d.conquered[3] = true; d.chapter = 3; d.mana = 72;
+                d.save(p);
+                com.krolasyon.bosses.realm.net.RealmNet.sync(p);
+            }
+        });
+        steps.add(new Step(20, null, s -> showGui = 1));
+        wait(20, "journal_story");
+        steps.add(new Step(20, null, s -> showGui = 2));
+        wait(20, "journal_kingdoms");
+        steps.add(new Step(20, null, s -> showGui = 3));
+        wait(20, "journal_blessings");
+        steps.add(new Step(5, null, s -> showGui = 0));
         wait(20, "END");
+    }
+
+    private int showGui;
+
+    private static void forceRealm(MinecraftServer s, int ability) {
+        ServerLevel l = s.overworld();
+        for (com.krolasyon.bosses.realm.entity.RealmBoss b : l.getEntitiesOfClass(com.krolasyon.bosses.realm.entity.RealmBoss.class, new AABB(-80, -80, -80, 80, 40, 80))) {
+            List<net.minecraft.world.entity.monster.Husk> z = l.getEntitiesOfClass(net.minecraft.world.entity.monster.Husk.class, b.getBoundingBox().inflate(40));
+            LivingEntity t = z.isEmpty() ? null : z.get(0);
+            LOG.info("[AUTOTEST] force {} ability {}", b.getName().getString(), ability);
+            if (t != null && ability < b.spec.abilities().length) b.debugForceAbility(ability, t);
+        }
+    }
+
+    private static void realmBiome(MinecraftServer s, String biome) {
+        ServerLevel realm = s.getLevel(com.krolasyon.bosses.realm.Realm.REALM);
+        if (realm == null) {
+            LOG.error("[AUTOTEST] realm dimension missing");
+            return;
+        }
+        var key = net.minecraft.resources.ResourceKey.create(Registries.BIOME, com.krolasyon.bosses.realm.Realm.rl(biome));
+        var found = realm.findClosestBiome3d(h -> h.is(key), new net.minecraft.core.BlockPos(0, 64, 0), 4000, 32, 64);
+        if (found == null) {
+            LOG.error("[AUTOTEST] biome {} not found", biome);
+            return;
+        }
+        var pos = found.getFirst();
+        realm.getChunk(pos.getX() >> 4, pos.getZ() >> 4);
+        int y = realm.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, pos.getX(), pos.getZ());
+        LOG.info("[AUTOTEST] biome {} at {} surface {}", biome, pos, y);
+        for (net.minecraft.server.level.ServerPlayer p : s.getPlayerList().getPlayers()) {
+            p.teleportTo(realm, pos.getX() + 0.5, Math.max(y, 42) + 6, pos.getZ() + 0.5, 30F, 15F);
+        }
     }
 
     private <T extends BossEntity> void bossRun(String id, Class<T> cls, int[][] abilities) {
@@ -141,8 +215,16 @@ public final class AutoTest {
             return;
         }
         if (mc.level == null || mc.player == null || mc.getSingleplayerServer() == null) return;
-        if (mc.screen != null) mc.setScreen(null);
-        mc.options.hideGui = true;
+        if (showGui > 0) {
+            if (!(mc.screen instanceof com.krolasyon.bosses.realm.client.RealmScreens.Journal j) || j.page() != showGui - 1) {
+                com.krolasyon.bosses.realm.client.RealmScreens.openJournal();
+                if (mc.screen instanceof com.krolasyon.bosses.realm.client.RealmScreens.Journal j2) j2.setPage(showGui - 1);
+            }
+            mc.options.hideGui = false;
+        } else {
+            if (mc.screen != null) mc.setScreen(null);
+            mc.options.hideGui = true;
+        }
         if (inWorld < 0) {
             inWorld = tick;
             stepStart = tick + 100;

@@ -1,0 +1,35 @@
+{
+ "parent": "krolasyonbosses:realm/throne_key",
+ "display": {
+  "icon": {
+   "item": "krolasyonbosses:sovereign_crown"
+  },
+  "title": {
+   "translate": "advancements.krolasyonbosses.sovereign.title"
+  },
+  "description": {
+   "translate": "advancements.krolasyonbosses.sovereign.description"
+  },
+  "frame": "challenge",
+  "show_toast": true,
+  "announce_to_chat": true,
+  "hidden": false
+ },
+ "criteria": {
+  "crown": {
+   "trigger": "minecraft:inventory_changed",
+   "conditions": {
+    "items": [
+     {
+      "items": [
+       "krolasyonbosses:sovereign_crown"
+      ]
+     }
+    ]
+   }
+  }
+ },
+ "rewards": {
+  "experience": 1000
+ }
+}

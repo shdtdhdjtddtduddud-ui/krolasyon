@@ -1,0 +1,32 @@
+{
+ "parent": "krolasyonbosses:realm/first_sigil",
+ "display": {
+  "icon": {
+   "item": "krolasyonbosses:throne_key"
+  },
+  "title": {
+   "translate": "advancements.krolasyonbosses.throne_key.title"
+  },
+  "description": {
+   "translate": "advancements.krolasyonbosses.throne_key.description"
+  },
+  "frame": "goal",
+  "show_toast": true,
+  "announce_to_chat": true,
+  "hidden": false
+ },
+ "criteria": {
+  "key": {
+   "trigger": "minecraft:inventory_changed",
+   "conditions": {
+    "items": [
+     {
+      "items": [
+       "krolasyonbosses:throne_key"
+      ]
+     }
+    ]
+   }
+  }
+ }
+}

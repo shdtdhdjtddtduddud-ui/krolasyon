@@ -1,0 +1,26 @@
+{
+ "display": {
+  "icon": {
+   "item": "krolasyonbosses:cursed_obsidian"
+  },
+  "title": {
+   "translate": "advancements.krolasyonbosses.root.title"
+  },
+  "description": {
+   "translate": "advancements.krolasyonbosses.root.description"
+  },
+  "frame": "task",
+  "show_toast": true,
+  "announce_to_chat": true,
+  "hidden": false,
+  "background": "krolasyonbosses:textures/block/infernal_bricks.png"
+ },
+ "criteria": {
+  "enter": {
+   "trigger": "minecraft:changed_dimension",
+   "conditions": {
+    "to": "krolasyonbosses:crimson_realm"
+   }
+  }
+ }
+}

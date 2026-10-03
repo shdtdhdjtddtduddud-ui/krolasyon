@@ -1221,7 +1221,7 @@ def b_azgaroth():
                              digitigrade=True, arm_len=36, jaw=(9, 4, 8), claws=4,
                              mats=dict(skin='skin', armor='armor', head='head', arm='skin', leg='skin', waist='skin', hips='armor', shoulder='armor')))
     kit.horns(M, g, 'ram', 'horn', 1.3)
-    kit.horns(M, g, 'long', 'horn', 1.0)
+    kit.horns(M, g, 'long', 'horn', 1.0, prefix='horn2')
     kit.crown(M, g, 'crown', gem='gem', spikes=5, h=4)
     kit.wings(M, g, 'wbone', 'membrane', span=56)
     kit.cape(M, g, 'cape', width=20)

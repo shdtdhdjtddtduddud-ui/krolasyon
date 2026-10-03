@@ -1,0 +1,99 @@
+{
+ "parent": "krolasyonbosses:realm/root",
+ "display": {
+  "icon": {
+   "item": "krolasyonbosses:ashbringer"
+  },
+  "title": {
+   "translate": "advancements.krolasyonbosses.kill_lord.title"
+  },
+  "description": {
+   "translate": "advancements.krolasyonbosses.kill_lord.description"
+  },
+  "frame": "goal",
+  "show_toast": true,
+  "announce_to_chat": true,
+  "hidden": false
+ },
+ "criteria": {
+  "varkhas": {
+   "trigger": "minecraft:player_killed_entity",
+   "conditions": {
+    "entity": [
+     {
+      "condition": "minecraft:entity_properties",
+      "entity": "this",
+      "predicate": {
+       "type": "krolasyonbosses:varkhas"
+      }
+     }
+    ]
+   }
+  },
+  "serathis": {
+   "trigger": "minecraft:player_killed_entity",
+   "conditions": {
+    "entity": [
+     {
+      "condition": "minecraft:entity_properties",
+      "entity": "this",
+      "predicate": {
+       "type": "krolasyonbosses:serathis"
+      }
+     }
+    ]
+   }
+  },
+  "nyxar": {
+   "trigger": "minecraft:player_killed_entity",
+   "conditions": {
+    "entity": [
+     {
+      "condition": "minecraft:entity_properties",
+      "entity": "this",
+      "predicate": {
+       "type": "krolasyonbosses:nyxar"
+      }
+     }
+    ]
+   }
+  },
+  "grommak": {
+   "trigger": "minecraft:player_killed_entity",
+   "conditions": {
+    "entity": [
+     {
+      "condition": "minecraft:entity_properties",
+      "entity": "this",
+      "predicate": {
+       "type": "krolasyonbosses:grommak"
+      }
+     }
+    ]
+   }
+  },
+  "ilvaine": {
+   "trigger": "minecraft:player_killed_entity",
+   "conditions": {
+    "entity": [
+     {
+      "condition": "minecraft:entity_properties",
+      "entity": "this",
+      "predicate": {
+       "type": "krolasyonbosses:ilvaine"
+      }
+     }
+    ]
+   }
+  }
+ },
+ "requirements": [
+  [
+   "varkhas",
+   "serathis",
+   "nyxar",
+   "grommak",
+   "ilvaine"
+  ]
+ ]
+}

@@ -203,3 +203,35 @@ def files(spawn_eggs):
     F[f'{D}/tags/blocks/realm_soil.json'] = ids(['infernal_stone', 'ash_soil', 'blood_moss', 'shadow_turf', 'scorched_earth', 'crimson_sand', 'coagulated_blood'])
     F['data/minecraft/tags/blocks/infiniburn_nether.json'] = ids(['infernal_stone', 'scorched_earth'])
     return F
+
+
+def advancements():
+    A = {}
+
+    def disp(icon, key, frame='task', bg=None, hidden=False):
+        d = {"icon": {"item": icon if ':' in icon else f"{M}:{icon}"}, "title": {"translate": f"advancements.{M}.{key}.title"},
+             "description": {"translate": f"advancements.{M}.{key}.description"}, "frame": frame, "show_toast": True,
+             "announce_to_chat": True, "hidden": hidden}
+        if bg:
+            d["background"] = bg
+        return d
+
+    def inv(items):
+        return {"trigger": "minecraft:inventory_changed", "conditions": {"items": [{"items": [i if ':' in i else f"{M}:{i}" for i in items]}]}}
+    A['root'] = {"display": disp('cursed_obsidian', 'root', bg=f"{M}:textures/block/infernal_bricks.png"),
+                 "criteria": {"enter": {"trigger": "minecraft:changed_dimension", "conditions": {"to": f"{M}:crimson_realm"}}}}
+    A['first_sigil'] = {"parent": f"{M}:realm/root", "display": disp('ash_sigil', 'first_sigil', 'goal'),
+                        "criteria": {"sigil": inv(['ash_sigil', 'blood_sigil', 'shadow_sigil', 'legion_sigil', 'soul_sigil'])}}
+    A['kill_lord'] = {"parent": f"{M}:realm/root", "display": disp('ashbringer', 'kill_lord', 'goal'),
+                      "criteria": {l: {"trigger": "minecraft:player_killed_entity", "conditions": {"entity": [{"condition": "minecraft:entity_properties",
+                                   "entity": "this", "predicate": {"type": f"{M}:{l}"}}]}} for l in ('varkhas', 'serathis', 'nyxar', 'grommak', 'ilvaine')},
+                      "requirements": [['varkhas', 'serathis', 'nyxar', 'grommak', 'ilvaine']]}
+    A['throne_key'] = {"parent": f"{M}:realm/first_sigil", "display": disp('throne_key', 'throne_key', 'goal'), "criteria": {"key": inv(['throne_key'])}}
+    A['sovereign'] = {"parent": f"{M}:realm/throne_key", "display": disp('sovereign_crown', 'sovereign', 'challenge'),
+                      "criteria": {"crown": inv(['sovereign_crown'])}, "rewards": {"experience": 1000}}
+    A['spell'] = {"parent": f"{M}:realm/root", "display": disp('tome_fireball', 'spell'),
+                  "criteria": {"tome": inv(['tome_fireball', 'tome_meteor', 'tome_blood_lance', 'tome_shadow_step', 'tome_soul_shield',
+                                            'tome_chain_lightning', 'tome_lava_wave', 'tome_summon_imps', 'tome_life_drain', 'tome_fear'])}}
+    A['legendary'] = {"parent": f"{M}:realm/kill_lord", "display": disp('sovereign_blade', 'legendary', 'challenge'),
+                      "criteria": {"w": inv(['ashbringer', 'bloodthirster', 'shadowfang', 'warlord_hammer', 'soul_reaper', 'sovereign_blade'])}}
+    return {f'data/{M}/advancements/realm/{k}.json': v for k, v in A.items()}

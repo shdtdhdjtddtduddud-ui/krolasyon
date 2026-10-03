@@ -1,0 +1,41 @@
+{
+ "parent": "krolasyonbosses:realm/root",
+ "display": {
+  "icon": {
+   "item": "krolasyonbosses:tome_fireball"
+  },
+  "title": {
+   "translate": "advancements.krolasyonbosses.spell.title"
+  },
+  "description": {
+   "translate": "advancements.krolasyonbosses.spell.description"
+  },
+  "frame": "task",
+  "show_toast": true,
+  "announce_to_chat": true,
+  "hidden": false
+ },
+ "criteria": {
+  "tome": {
+   "trigger": "minecraft:inventory_changed",
+   "conditions": {
+    "items": [
+     {
+      "items": [
+       "krolasyonbosses:tome_fireball",
+       "krolasyonbosses:tome_meteor",
+       "krolasyonbosses:tome_blood_lance",
+       "krolasyonbosses:tome_shadow_step",
+       "krolasyonbosses:tome_soul_shield",
+       "krolasyonbosses:tome_chain_lightning",
+       "krolasyonbosses:tome_lava_wave",
+       "krolasyonbosses:tome_summon_imps",
+       "krolasyonbosses:tome_life_drain",
+       "krolasyonbosses:tome_fear"
+      ]
+     }
+    ]
+   }
+  }
+ }
+}

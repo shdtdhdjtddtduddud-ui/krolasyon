@@ -104,11 +104,11 @@ HUMAN_LIMBS = ['base', 'hips', 'waist', 'chest', 'neck', 'head', 'right_arm', 'r
 
 
 # ---------------------------------------------------------------- humanoid accessories
-def horns(M, g, kind, mat, size=1.0):
+def horns(M, g, kind, mat, size=1.0, prefix='horn'):
     top = g['head_top']
     hx = g['hx']
     for sx in (-1, 1):
-        n = f'horn_{"r" if sx < 0 else "l"}'
+        n = f'{prefix}_{"r" if sx < 0 else "l"}'
         if kind == 'ram':
             lb(M, n, 'head', (sx * hx * 0.45, -g['hy'] + 2, -1), (0, 0, 0))
             M.cube_l(n, (-1.5, -2, -1.5), (3, 3.5 * size, 3), mat)

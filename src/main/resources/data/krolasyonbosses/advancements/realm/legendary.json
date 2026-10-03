@@ -1,0 +1,37 @@
+{
+ "parent": "krolasyonbosses:realm/kill_lord",
+ "display": {
+  "icon": {
+   "item": "krolasyonbosses:sovereign_blade"
+  },
+  "title": {
+   "translate": "advancements.krolasyonbosses.legendary.title"
+  },
+  "description": {
+   "translate": "advancements.krolasyonbosses.legendary.description"
+  },
+  "frame": "challenge",
+  "show_toast": true,
+  "announce_to_chat": true,
+  "hidden": false
+ },
+ "criteria": {
+  "w": {
+   "trigger": "minecraft:inventory_changed",
+   "conditions": {
+    "items": [
+     {
+      "items": [
+       "krolasyonbosses:ashbringer",
+       "krolasyonbosses:bloodthirster",
+       "krolasyonbosses:shadowfang",
+       "krolasyonbosses:warlord_hammer",
+       "krolasyonbosses:soul_reaper",
+       "krolasyonbosses:sovereign_blade"
+      ]
+     }
+    ]
+   }
+  }
+ }
+}

@@ -62,8 +62,12 @@ public final class RealmScreens {
     }
 
     // ------------------------------------------------------------------ chronicle
-    static class Journal extends Screen {
+    public static class Journal extends Screen {
         private int page;
+
+        public int page() { return page; }
+
+        public void setPage(int p) { page = p; }
         private int left, top;
 
         Journal() { super(Component.translatable("gui.krolasyonbosses.journal")); }

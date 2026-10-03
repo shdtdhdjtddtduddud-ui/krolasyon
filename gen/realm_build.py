@@ -51,6 +51,8 @@ def main():
     eggs = [s.id for s in mob_specs]
     for rel, obj in assets.files(eggs).items():
         write(rel, obj)
+    for rel, obj in assets.advancements().items():
+        write(rel, obj)
     # worldgen
     D = f'data/{M}'
     write(f'{D}/dimension_type/crimson_realm.json', worldgen.dimension_type())
