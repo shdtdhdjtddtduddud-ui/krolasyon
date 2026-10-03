@@ -1,0 +1,11 @@
+{
+ "replace": false,
+ "values": [
+  "krolasyonbosses:ashstone",
+  "krolasyonbosses:ember_rock",
+  "krolasyonbosses:ashstone_bricks",
+  "minecraft:netherrack",
+  "minecraft:magma_block",
+  "minecraft:bedrock"
+ ]
+}

@@ -224,6 +224,7 @@ public abstract class BossEntity extends Monster {
 
     /** used by the CI visual self-test to trigger a specific ability */
     public void debugForceAbility(int id, LivingEntity target) {
+        if (id < 0 || id >= cooldowns.length || !isAlive()) return;
         this.setTarget(target);
         if (currentAbility >= 0) endAbility();
         java.util.Arrays.fill(cooldowns, 100000);

@@ -64,6 +64,7 @@ public final class ModItems {
                 output.accept(HEART_DEMON_EGG.get());
                 for (RegistryObject<Item> egg : MOB_EGGS.values()) output.accept(egg.get());
                 for (RegistryObject<Item> m : MATERIALS.values()) output.accept(m.get());
+                for (RegistryObject<Item> b : ModBlocks.ITEMS.values()) output.accept(b.get());
             })
             .build());
 }

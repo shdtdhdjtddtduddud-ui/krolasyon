@@ -178,5 +178,20 @@
  "bestiary.krolasyonbosses.venom_wasp": "Çürük Divanı'nın sürüleri. Tek bir iğne büyük bir bedeni yavaş yavaş çürütür.",
  "entity.krolasyonbosses.void_cultist": "Boşluk Tarikatçısı",
  "item.krolasyonbosses.void_cultist_spawn_egg": "Boşluk Tarikatçısı Çağırma Yumurtası",
- "bestiary.krolasyonbosses.void_cultist": "Gölge Tarikatı'nın vaizleri. Başlarındaki halka boşluğun kapısıdır; çağırdıklarının hiçbiri geri dönmek istemez."
+ "bestiary.krolasyonbosses.void_cultist": "Gölge Tarikatı'nın vaizleri. Başlarındaki halka boşluğun kapısıdır; çağırdıklarının hiçbiri geri dönmek istemez.",
+ "block.krolasyonbosses.ashstone": "Kül Taşı",
+ "block.krolasyonbosses.ashstone_bricks": "Kül Taşı Tuğlası",
+ "block.krolasyonbosses.ember_rock": "Kor Kayası",
+ "block.krolasyonbosses.bone_sand": "Kemik Kumu",
+ "block.krolasyonbosses.blood_moss": "Kan Yosunu",
+ "block.krolasyonbosses.shadow_loam": "Gölge Toprağı",
+ "block.krolasyonbosses.rot_mud": "Çürük Çamur",
+ "block.krolasyonbosses.hellsteel_ore": "Cehennem Çeliği Cevheri",
+ "block.krolasyonbosses.hellgate_stone": "Cehennem Kapısı Taşı",
+ "block.krolasyonbosses.ember_lamp": "Kor Feneri",
+ "block.krolasyonbosses.soul_lamp": "Ruh Feneri",
+ "block.krolasyonbosses.blood_lamp": "Kan Feneri",
+ "block.krolasyonbosses.shadow_lamp": "Gölge Feneri",
+ "block.krolasyonbosses.rot_lamp": "Çürük Feneri",
+ "block.krolasyonbosses.hell_portal": "Cehennem Geçidi"
 }

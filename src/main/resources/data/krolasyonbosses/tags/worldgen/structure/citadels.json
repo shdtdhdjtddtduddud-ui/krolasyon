@@ -1,0 +1,10 @@
+{
+ "replace": false,
+ "values": [
+  "krolasyonbosses:ember_citadel",
+  "krolasyonbosses:bone_citadel",
+  "krolasyonbosses:blood_citadel",
+  "krolasyonbosses:shadow_citadel",
+  "krolasyonbosses:rot_citadel"
+ ]
+}

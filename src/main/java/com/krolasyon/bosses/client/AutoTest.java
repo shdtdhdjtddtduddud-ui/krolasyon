@@ -57,6 +57,10 @@ public final class AutoTest {
             mobGallery();
             return;
         }
+        if (mode.equals("dim")) {
+            dimTest();
+            return;
+        }
         cmd(0, null, "gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false",
                 "time set 6000", "weather clear", "difficulty normal", "gamemode creative @a", "tp @a 1 -60 2 180 -6",
                 "kill @e[type=!player]");
@@ -75,6 +79,56 @@ public final class AutoTest {
         wait(80, "fight_c");
         wait(100, "fight_d");
         wait(20, "END");
+    }
+
+    private void azraShot(int wait, String shot, int x, int z, int yUp, float yaw, float pitch) {
+        server(wait, shot, srv -> {
+            ServerLevel l = srv.getLevel(com.krolasyon.bosses.world.HellGates.AZRAKOR);
+            if (l == null) return;
+            l.getChunk(x >> 4, z >> 4);
+            int y = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.WORLD_SURFACE_WG, x, z);
+            for (net.minecraft.server.level.ServerPlayer p : srv.getPlayerList().getPlayers()) p.teleportTo(l, x + 0.5, y + yUp, z + 0.5, yaw, pitch);
+            LOG.info("[AUTOTEST] azrakor shot at {} {} surface {}", x, z, y);
+        });
+    }
+
+    /** portal, dimension, biomes and structures */
+    private void dimTest() {
+        cmd(0, null, "gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false",
+                "time set 6000", "weather clear", "difficulty normal", "gamemode creative @a", "tp @a 21 -60 25 180 -4", "kill @e[type=!player]");
+        server(5, null, s -> com.krolasyon.bosses.world.HellGates.buildGate(s.overworld(), new net.minecraft.core.BlockPos(20, -60, 20), net.minecraft.core.Direction.Axis.X));
+        wait(40, "gate_overworld");
+        cmd(2, null, "execute in minecraft:overworld run place structure krolasyonbosses:hellgate_ruin 60 -60 20");
+        cmd(60, null, "tp @a 61 -58 38 180 -5");
+        wait(30, "gate_ruin_natural");
+        cmd(2, null, "tp @a 21 -60 20.5 180 0");
+        wait(200, "arrived_in_azrakor");
+        azraShot(200, "az_a", 0, 0, 12, 0, 8);
+        azraShot(120, "az_b", 0, 0, 40, 90, 12);
+        azraShot(2, null, 700, 0, 40, 180, 8);
+        wait(160, "az_c");
+        azraShot(2, null, -700, 300, 40, 270, 8);
+        wait(160, "az_d");
+        azraShot(2, null, 300, -700, 40, 0, 8);
+        wait(160, "az_e");
+        azraShot(2, null, -400, -400, 40, 45, 8);
+        wait(160, "az_f");
+        azraShot(2, null, 900, 900, 40, 135, 8);
+        wait(160, "az_g");
+        String[] structs = {"ember_citadel", "bone_citadel", "blood_citadel", "shadow_citadel", "rot_citadel", "ember_outpost", "throne_hall"};
+        int i = 0;
+        for (String sName : structs) {
+            int x = 1500 + i * 220, z = 400;
+            cmd(2, null, "execute in krolasyonbosses:azrakor run place structure krolasyonbosses:" + sName + " " + x + " 100 " + z);
+            wait(60, null);
+            int w = sName.equals("throne_hall") ? 73 : (sName.endsWith("outpost") ? 21 : 49);
+            azraShot(2, null, x + w / 2, z + w + (w > 40 ? 38 : 22), w > 40 ? 22 : 8, 180, 14);
+            wait(160, "struct_" + sName + "_front");
+            azraShot(2, null, x + w / 2, z + w / 2, w > 40 ? 52 : 18, 180, 62);
+            wait(100, "struct_" + sName + "_top");
+            i++;
+        }
+        wait(5, "END");
     }
 
     /** every ordinary creature: idle shot from the front, then one shot per ability at its strike moment */
@@ -139,6 +193,7 @@ public final class AutoTest {
 
     private <T extends BossEntity> void force(Class<T> cls, int ability) {
         steps.add(new Step(1, null, s -> each(s, cls, b -> {
+            if (!b.isAlive()) return;
             LivingEntity target = b.getTarget();
             if (target == null) {
                 List<Zombie> z = b.level().getEntitiesOfClass(Zombie.class, b.getBoundingBox().inflate(40));

@@ -1,0 +1,39 @@
+{
+ "type": "minecraft:jigsaw",
+ "biomes": "#krolasyonbosses:rot_lands",
+ "step": "surface_structures",
+ "spawn_overrides": {
+  "monster": {
+   "bounding_box": "full",
+   "spawns": [
+    {
+     "type": "krolasyonbosses:spore_shambler",
+     "weight": 1,
+     "minCount": 1,
+     "maxCount": 2
+    },
+    {
+     "type": "krolasyonbosses:thorn_strider",
+     "weight": 1,
+     "minCount": 1,
+     "maxCount": 2
+    },
+    {
+     "type": "krolasyonbosses:venom_wasp",
+     "weight": 1,
+     "minCount": 1,
+     "maxCount": 2
+    }
+   ]
+  }
+ },
+ "terrain_adaptation": "beard_thin",
+ "start_pool": "krolasyonbosses:rot_citadel/start",
+ "size": 1,
+ "start_height": {
+  "absolute": -6
+ },
+ "project_start_to_heightmap": "WORLD_SURFACE_WG",
+ "max_distance_from_center": 80,
+ "use_expansion_hack": false
+}

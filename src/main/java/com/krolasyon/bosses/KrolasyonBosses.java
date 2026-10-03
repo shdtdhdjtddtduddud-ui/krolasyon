@@ -6,6 +6,7 @@ import com.krolasyon.bosses.entity.SealWardenEntity;
 import com.krolasyon.bosses.entity.mob.MobSpec;
 import com.krolasyon.bosses.entity.mob.MobSpecs;
 import com.krolasyon.bosses.net.Net;
+import com.krolasyon.bosses.registry.ModBlocks;
 import com.krolasyon.bosses.registry.ModEntities;
 import com.krolasyon.bosses.registry.ModItems;
 import com.krolasyon.bosses.registry.ModSounds;
@@ -26,6 +27,8 @@ public class KrolasyonBosses {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         ModEntities.ENTITIES.register(bus);
         ModItems.ITEMS.register(bus);
+        ModBlocks.BLOCKS.register(bus);
+        com.krolasyon.bosses.registry.ModFeatures.FEATURES.register(bus);
         ModItems.TABS.register(bus);
         ModSounds.SOUNDS.register(bus);
         bus.addListener(this::onAttributes);

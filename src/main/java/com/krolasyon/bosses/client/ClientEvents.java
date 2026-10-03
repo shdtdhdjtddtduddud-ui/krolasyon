@@ -22,6 +22,11 @@ public final class ClientEvents {
     private ClientEvents() {}
 
     @SubscribeEvent
+    public static void registerEffects(net.minecraftforge.client.event.RegisterDimensionSpecialEffectsEvent event) {
+        event.register(new net.minecraft.resources.ResourceLocation(KrolasyonBosses.MODID, "azrakor"), new AzrakorEffects());
+    }
+
+    @SubscribeEvent
     public static void registerLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
         event.registerLayerDefinition(SealWardenModel.LAYER, ModelLayers::createSealWarden);
         event.registerLayerDefinition(CrimsonHoundModel.LAYER, ModelLayers::createCrimsonHound);

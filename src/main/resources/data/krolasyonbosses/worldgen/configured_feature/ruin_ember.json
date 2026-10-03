@@ -1,0 +1,11 @@
+{
+ "type": "krolasyonbosses:ruin",
+ "config": {
+  "to_place": {
+   "type": "minecraft:simple_state_provider",
+   "state": {
+    "Name": "minecraft:polished_blackstone_bricks"
+   }
+  }
+ }
+}

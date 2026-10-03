@@ -1,0 +1,132 @@
+{
+ "type": "krolasyonbosses:azrakor",
+ "generator": {
+  "type": "minecraft:noise",
+  "settings": "krolasyonbosses:azrakor",
+  "biome_source": {
+   "type": "minecraft:multi_noise",
+   "biomes": [
+    {
+     "biome": "krolasyonbosses:ember_wastes",
+     "parameters": {
+      "temperature": 0.45,
+      "humidity": 0.0,
+      "continentalness": 0.0,
+      "erosion": 0.0,
+      "depth": 0.0,
+      "weirdness": 0.0,
+      "offset": 0.0
+     }
+    },
+    {
+     "biome": "krolasyonbosses:ashen_barrens",
+     "parameters": {
+      "temperature": 0.85,
+      "humidity": 0.0,
+      "continentalness": 0.0,
+      "erosion": 0.0,
+      "depth": 0.0,
+      "weirdness": 0.0,
+      "offset": 0.0
+     }
+    },
+    {
+     "biome": "krolasyonbosses:bone_marches",
+     "parameters": {
+      "temperature": 0.139,
+      "humidity": 0.428,
+      "continentalness": 0.0,
+      "erosion": 0.0,
+      "depth": 0.0,
+      "weirdness": 0.0,
+      "offset": 0.0
+     }
+    },
+    {
+     "biome": "krolasyonbosses:ossuary_fields",
+     "parameters": {
+      "temperature": 0.263,
+      "humidity": 0.808,
+      "continentalness": 0.0,
+      "erosion": 0.0,
+      "depth": 0.0,
+      "weirdness": 0.0,
+      "offset": 0.0
+     }
+    },
+    {
+     "biome": "krolasyonbosses:crimson_gardens",
+     "parameters": {
+      "temperature": -0.364,
+      "humidity": 0.265,
+      "continentalness": 0.0,
+      "erosion": 0.0,
+      "depth": 0.0,
+      "weirdness": 0.0,
+      "offset": 0.0
+     }
+    },
+    {
+     "biome": "krolasyonbosses:blood_spires",
+     "parameters": {
+      "temperature": -0.688,
+      "humidity": 0.5,
+      "continentalness": 0.0,
+      "erosion": 0.0,
+      "depth": 0.0,
+      "weirdness": 0.0,
+      "offset": 0.0
+     }
+    },
+    {
+     "biome": "krolasyonbosses:umbral_reach",
+     "parameters": {
+      "temperature": -0.364,
+      "humidity": -0.265,
+      "continentalness": 0.0,
+      "erosion": 0.0,
+      "depth": 0.0,
+      "weirdness": 0.0,
+      "offset": 0.0
+     }
+    },
+    {
+     "biome": "krolasyonbosses:gloam_forest",
+     "parameters": {
+      "temperature": -0.688,
+      "humidity": -0.5,
+      "continentalness": 0.0,
+      "erosion": 0.0,
+      "depth": 0.0,
+      "weirdness": 0.0,
+      "offset": 0.0
+     }
+    },
+    {
+     "biome": "krolasyonbosses:rot_bog",
+     "parameters": {
+      "temperature": 0.139,
+      "humidity": -0.428,
+      "continentalness": 0.0,
+      "erosion": 0.0,
+      "depth": 0.0,
+      "weirdness": 0.0,
+      "offset": 0.0
+     }
+    },
+    {
+     "biome": "krolasyonbosses:weeping_marsh",
+     "parameters": {
+      "temperature": 0.263,
+      "humidity": -0.808,
+      "continentalness": 0.0,
+      "erosion": 0.0,
+      "depth": 0.0,
+      "weirdness": 0.0,
+      "offset": 0.0
+     }
+    }
+   ]
+  }
+ }
+}

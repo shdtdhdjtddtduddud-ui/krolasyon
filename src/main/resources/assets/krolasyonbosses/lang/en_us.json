@@ -178,5 +178,20 @@
  "bestiary.krolasyonbosses.venom_wasp": "Çürük Divanı'nın sürüleri. Tek bir iğne büyük bir bedeni yavaş yavaş çürütür.",
  "entity.krolasyonbosses.void_cultist": "Void Cultist",
  "item.krolasyonbosses.void_cultist_spawn_egg": "Void Cultist Spawn Egg",
- "bestiary.krolasyonbosses.void_cultist": "Gölge Tarikatı'nın vaizleri. Başlarındaki halka boşluğun kapısıdır; çağırdıklarının hiçbiri geri dönmek istemez."
+ "bestiary.krolasyonbosses.void_cultist": "Gölge Tarikatı'nın vaizleri. Başlarındaki halka boşluğun kapısıdır; çağırdıklarının hiçbiri geri dönmek istemez.",
+ "block.krolasyonbosses.ashstone": "Ashstone",
+ "block.krolasyonbosses.ashstone_bricks": "Ashstone Bricks",
+ "block.krolasyonbosses.ember_rock": "Ember Rock",
+ "block.krolasyonbosses.bone_sand": "Bone Sand",
+ "block.krolasyonbosses.blood_moss": "Blood Moss",
+ "block.krolasyonbosses.shadow_loam": "Shadow Loam",
+ "block.krolasyonbosses.rot_mud": "Rot Mud",
+ "block.krolasyonbosses.hellsteel_ore": "Hellsteel Ore",
+ "block.krolasyonbosses.hellgate_stone": "Hellgate Stone",
+ "block.krolasyonbosses.ember_lamp": "Ember Lamp",
+ "block.krolasyonbosses.soul_lamp": "Soul Lamp",
+ "block.krolasyonbosses.blood_lamp": "Blood Lamp",
+ "block.krolasyonbosses.shadow_lamp": "Shadow Lamp",
+ "block.krolasyonbosses.rot_lamp": "Rot Lamp",
+ "block.krolasyonbosses.hell_portal": "Hellgate Portal"
 }
