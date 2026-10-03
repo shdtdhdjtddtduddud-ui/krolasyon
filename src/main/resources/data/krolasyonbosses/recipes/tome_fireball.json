@@ -1,0 +1,22 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "category": "misc",
+ "ingredients": [
+  {
+   "item": "minecraft:book"
+  },
+  {
+   "item": "krolasyonbosses:ember_shard"
+  },
+  {
+   "item": "krolasyonbosses:ember_shard"
+  },
+  {
+   "item": "krolasyonbosses:hellsteel_ingot"
+  }
+ ],
+ "result": {
+  "item": "krolasyonbosses:tome_fireball",
+  "count": 1
+ }
+}

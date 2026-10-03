@@ -1,0 +1,22 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "category": "misc",
+ "ingredients": [
+  {
+   "item": "minecraft:book"
+  },
+  {
+   "item": "krolasyonbosses:shadow_essence"
+  },
+  {
+   "item": "krolasyonbosses:shadow_essence"
+  },
+  {
+   "item": "krolasyonbosses:hellsteel_ingot"
+  }
+ ],
+ "result": {
+  "item": "krolasyonbosses:tome_void_step",
+  "count": 1
+ }
+}

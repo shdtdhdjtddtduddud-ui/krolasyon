@@ -1,0 +1,24 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "equipment",
+ "pattern": [
+  "I",
+  "M",
+  "S"
+ ],
+ "key": {
+  "I": {
+   "item": "krolasyonbosses:hellsteel_ingot"
+  },
+  "M": {
+   "item": "krolasyonbosses:bone_dust"
+  },
+  "S": {
+   "item": "minecraft:stick"
+  }
+ },
+ "result": {
+  "item": "krolasyonbosses:bone_reaper",
+  "count": 1
+ }
+}

@@ -1,0 +1,25 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "category": "misc",
+ "ingredients": [
+  {
+   "item": "minecraft:book"
+  },
+  {
+   "item": "krolasyonbosses:ember_shard"
+  },
+  {
+   "item": "krolasyonbosses:ember_shard"
+  },
+  {
+   "item": "krolasyonbosses:bone_dust"
+  },
+  {
+   "item": "krolasyonbosses:hellsteel_nugget"
+  }
+ ],
+ "result": {
+  "item": "krolasyonbosses:tome_summon_imp",
+  "count": 1
+ }
+}

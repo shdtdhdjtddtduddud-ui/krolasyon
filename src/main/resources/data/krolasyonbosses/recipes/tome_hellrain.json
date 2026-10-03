@@ -1,0 +1,25 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "category": "misc",
+ "ingredients": [
+  {
+   "item": "krolasyonbosses:tome_fireball"
+  },
+  {
+   "item": "krolasyonbosses:ember_shard"
+  },
+  {
+   "item": "krolasyonbosses:ember_shard"
+  },
+  {
+   "item": "krolasyonbosses:ember_shard"
+  },
+  {
+   "item": "krolasyonbosses:soul_ember"
+  }
+ ],
+ "result": {
+  "item": "krolasyonbosses:tome_hellrain",
+  "count": 1
+ }
+}

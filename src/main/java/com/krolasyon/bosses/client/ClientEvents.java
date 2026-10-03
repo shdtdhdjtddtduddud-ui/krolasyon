@@ -22,6 +22,22 @@ public final class ClientEvents {
     private ClientEvents() {}
 
     @SubscribeEvent
+    public static void registerOverlays(net.minecraftforge.client.event.RegisterGuiOverlaysEvent event) {
+        event.registerAbove(net.minecraftforge.client.gui.overlay.VanillaGuiOverlay.EXPERIENCE_BAR.id(), "mana", (gui, g, pt, w, h) -> {
+            var mc = net.minecraft.client.Minecraft.getInstance();
+            if (mc.player == null || mc.options.hideGui) return;
+            float mana = ClientHooks.mana(), max = ClientHooks.maxMana();
+            var held = mc.player.getMainHandItem().getItem();
+            boolean tool = held instanceof com.krolasyon.bosses.item.AbilitySword || held instanceof com.krolasyon.bosses.item.SpellTome;
+            if (!tool && mana >= max - 0.5F) return;
+            int bw = 81, x = w / 2 - 91, y = h - 32 - 7;
+            g.fill(x - 1, y - 1, x + bw + 1, y + 4, 0xC0101018);
+            g.fill(x, y, x + (int) (bw * Math.min(1F, mana / max)), y + 3, 0xFF3AA0FF);
+            g.fill(x, y, x + (int) (bw * Math.min(1F, mana / max)), y + 1, 0xFF9AD8FF);
+        });
+    }
+
+    @SubscribeEvent
     public static void registerEffects(net.minecraftforge.client.event.RegisterDimensionSpecialEffectsEvent event) {
         event.register(new net.minecraft.resources.ResourceLocation(KrolasyonBosses.MODID, "azrakor"), new AzrakorEffects());
     }

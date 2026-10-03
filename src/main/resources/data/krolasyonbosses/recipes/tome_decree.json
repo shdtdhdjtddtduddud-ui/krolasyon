@@ -1,0 +1,19 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "category": "misc",
+ "ingredients": [
+  {
+   "item": "minecraft:book"
+  },
+  {
+   "item": "krolasyonbosses:sovereign_seal"
+  },
+  {
+   "item": "krolasyonbosses:ash_crown"
+  }
+ ],
+ "result": {
+  "item": "krolasyonbosses:tome_decree",
+  "count": 1
+ }
+}

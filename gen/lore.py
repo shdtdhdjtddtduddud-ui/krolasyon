@@ -127,6 +127,36 @@ for i, (et, tt, e, t) in enumerate(LP):
 both('msg.sovereign','%s has become Sovereign of Azrakor!','%s, Azrakor\'un Egemeni oldu!')
 both('item.krolasyonbosses.chronicle', 'Chronicle of Azrakor', 'Azrakor Günlüğü')
 
+# ---- item descriptions
+both('item.krolasyonbosses.mana', 'Mana: %s', 'Mana: %s')
+both('msg.no_mana', 'Not enough mana.', 'Yeterli mana yok.')
+both('msg.not_sovereign', 'Only the Sovereign of Azrakor may wield this power.', 'Bu gücü yalnızca Azrakor Egemeni kullanabilir.')
+both('msg.too_many_minions', 'Your servants already fill the field.', 'Hizmetkârların zaten sahayı doldurdu.')
+DESC = {
+ 'ember_brand': ('Sets foes alight. Right click: a cone of fire.', 'Düşmanları tutuşturur. Sağ tık: ateş konisi.'),
+ 'bone_reaper': ('Withers foes. Right click: bone spikes tear along the ground.', 'Düşmanı solgunlaştırır. Sağ tık: yerden kemik dikenleri.'),
+ 'blood_thirst': ('Heals you on every hit. Right click: trade blood for strength.', 'Her vuruşta can çalar. Sağ tık: kanını güce çevir.'),
+ 'shadow_fang': ('Blinds foes. Right click: step through shadow and strike.', 'Düşmanı kör eder. Sağ tık: gölgeden geç ve vur.'),
+ 'rot_cleaver': ('Poisons foes. Right click: a cloud of rot.', 'Zehirler. Sağ tık: çürüme bulutu.'),
+ 'sealbreaker': ('Weakens foes. Right click: a shockwave that hurts bosses most.', 'Zayıflatır. Sağ tık: boss\'lara en çok zarar veren şok dalgası.'),
+ 'chain_whip': ('Slows foes. Right click: yank a target to you.', 'Yavaşlatır. Sağ tık: hedefi kendine çek.'),
+ 'obsidian_greataxe': ('Crushing blows. Right click: ground slam.', 'Ezici darbeler. Sağ tık: yer vuruşu.'),
+ 'hellfire_scythe': ('Burns foes. Right click: a ring of hellfire.', 'Yakar. Sağ tık: cehennem ateşi halkası.'),
+ 'sovereign_blade': ('Burns and heals. Right click: the Sovereign\'s wrath (Sovereign only).', 'Yakar ve iyileştirir. Sağ tık: Egemenin gazabı (yalnızca Egemen).'),
+ 'tome_fireball': ('Hurls three fireballs.', 'Üç ateş topu fırlatır.'),
+ 'tome_hellrain': ('Fire falls from the sky where you aim.', 'Baktığın yere gökten ateş yağar.'),
+ 'tome_soul_chain': ('Chains a foe and drags it close.', 'Bir düşmanı zincirleyip çeker.'),
+ 'tome_blood_pact': ('Pay blood for strength, speed and regeneration.', 'Kan öde; güç, hız ve yenilenme kazan.'),
+ 'tome_void_step': ('Teleport where you look.', 'Baktığın yere ışınlan.'),
+ 'tome_thorn_burst': ('Thorns erupt around you, poisoning and rooting foes.', 'Etrafında dikenler patlar; zehirler ve yerinden oynatmaz.'),
+ 'tome_bone_prison': ('Cages a foe in bone.', 'Bir düşmanı kemikle hapseder.'),
+ 'tome_summon_imp': ('Summons two imps to fight for you.', 'Senin için savaşan iki ufaklık çağırır.'),
+ 'tome_decree': ('Break the will of everything near; heal your servants (Sovereign only).', 'Yakındaki her şeyin iradesini kır; hizmetkârlarını iyileştir (yalnızca Egemen).'),
+}
+for k, (e, t) in DESC.items():
+    both(f'item.krolasyonbosses.{k}.desc', e, t)
+both('itemGroup.krolasyonbosses', 'Azrakor', 'Azrakor')
+
 json.dump(en, open(f'{A}/en_us.json', 'w'), indent=1, ensure_ascii=False)
 json.dump(tr, open(f'{A}/tr_tr.json', 'w'), indent=1, ensure_ascii=False)
 print('lore keys ok')

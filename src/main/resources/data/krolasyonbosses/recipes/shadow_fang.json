@@ -1,0 +1,24 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "equipment",
+ "pattern": [
+  "I",
+  "M",
+  "S"
+ ],
+ "key": {
+  "I": {
+   "item": "krolasyonbosses:hellsteel_ingot"
+  },
+  "M": {
+   "item": "krolasyonbosses:shadow_essence"
+  },
+  "S": {
+   "item": "minecraft:stick"
+  }
+ },
+ "result": {
+  "item": "krolasyonbosses:shadow_fang",
+  "count": 1
+ }
+}

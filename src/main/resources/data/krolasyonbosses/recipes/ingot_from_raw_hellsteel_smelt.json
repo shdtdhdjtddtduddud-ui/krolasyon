@@ -1,0 +1,10 @@
+{
+ "type": "minecraft:smelting",
+ "category": "misc",
+ "ingredient": {
+  "item": "krolasyonbosses:raw_hellsteel"
+ },
+ "result": "krolasyonbosses:hellsteel_ingot",
+ "experience": 1.0,
+ "cookingtime": 200
+}

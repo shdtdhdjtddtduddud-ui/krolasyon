@@ -20,6 +20,12 @@ public final class ClientHooks {
 
     public static float mana() { return data.contains("mana") ? data.getFloat("mana") : 100f; }
 
+    public static float maxMana() {
+        int sig = 0;
+        for (com.krolasyon.bosses.faction.Faction f : com.krolasyon.bosses.faction.Faction.HOUSES) if (data.getInt("oath_" + f.id) != 0) sig++;
+        return 100 + (data.getBoolean("f_sovereign") ? 100 : 0) + sig * 10;
+    }
+
     public static void openDialogue(Net.DialogueMsg m) {
         Minecraft mc = Minecraft.getInstance();
         // replacing a page must not tell the server the previous one was "closed"
