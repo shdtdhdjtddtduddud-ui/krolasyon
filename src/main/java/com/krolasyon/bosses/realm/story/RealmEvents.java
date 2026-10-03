@@ -74,6 +74,7 @@ public final class RealmEvents {
         ServerPlayer killer = src.getEntity() instanceof ServerPlayer sp ? sp : null;
         if (killer == null && src.getEntity() instanceof com.krolasyon.bosses.realm.entity.RealmMob rm && rm.getOwner() instanceof ServerPlayer sp) killer = sp;
         if (fm.isTyrant()) {
+            if (killer == null && !(victim.getKillCredit() instanceof ServerPlayer)) return;
             List<ServerPlayer> near = victim.level().getEntitiesOfClass(ServerPlayer.class, victim.getBoundingBox().inflate(64));
             for (ServerPlayer p : near) Politics.crown(p);
             if (killer != null && !near.contains(killer)) Politics.crown(killer);

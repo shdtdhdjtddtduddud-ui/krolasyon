@@ -251,6 +251,8 @@ BIOME_LOOK = {  # fog, sky, particle, ambient sound set, music
 
 def biome(b, spawners):
     fog, sky, (part, prob), amb, music = BIOME_LOOK[b]
+    dim = lambda c: (int(((c >> 16) & 255) * 0.42) << 16) | (int(((c >> 8) & 255) * 0.42) << 8) | int((c & 255) * 0.42)
+    fog, sky = dim(fog), dim(sky)
     feats = [[] for _ in range(11)]
     feats[6] = [f'{M}:ore_infernal_steel', f'{M}:ore_arcane_crystal', f'{M}:ore_magma']
     order = list(CONFIGURED)

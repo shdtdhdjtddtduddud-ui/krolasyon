@@ -90,7 +90,7 @@ public final class AutoTest {
         // the six biomes of the realm
         for (String b : new String[]{"ash_wastes", "blood_marsh", "obsidian_forest", "basalt_warfields", "soul_valley", "throne_wastes"}) {
             server(220, "biome_" + b, s -> realmBiome(s, b));
-            cmd(80, "biome_" + b + "_b", "tp @a ~ ~ ~ ~120 10");
+            cmd(80, "biome_" + b + "_b", "execute as @a at @s run tp @s ~ ~ ~ ~150 12");
         }
         // the chronicle
         server(10, null, s -> {
