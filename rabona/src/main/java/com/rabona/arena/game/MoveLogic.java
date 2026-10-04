@@ -53,6 +53,11 @@ public final class MoveLogic {
             return false;
         }
         BallEntity ball = null;
+        Match match = Match.get(actor.getServer());
+        if (match.phase == Match.Phase.SET_PIECE && m.cat != Move.Cat.CELEBRATION && m.cat != Move.Cat.REACTION && m != Move.BLOCK) {
+            boolean kickMove = m.cat == Move.Cat.SHOT || m.cat == Move.Cat.PASS || m == Move.AB_FIRE || m == Move.AB_TORNADO;
+            if (!match.isTaker(actor) || !kickMove) return false;
+        }
         switch (m.req) {
             case BALL -> {
                 ball = footBall(actor);
@@ -202,9 +207,17 @@ public final class MoveLogic {
     // ================================================================ hedefleme
     /** Bakis/hedef yonune gore sut hizi: nisan noktasina ulasacak dikey hiz hesaplanir. */
     static Vec3 aimShot(LivingEntity actor, Athlete a, BallEntity ball, double speed, double minLift, double curveDeg) {
+        return aimShot(actor, a, ball, speed, minLift, curveDeg, 0);
+    }
+
+    /** extraY: nisan noktasinin uzerine eklenen yukseklik (olu yaprak gibi dusen sutlar icin). */
+    static Vec3 aimShot(LivingEntity actor, Athlete a, BallEntity ball, double speed, double minLift, double curveDeg, double extraY) {
         Vec3 from = ball.center();
         Vec3 aim = a.target;
         Vec3 look = actor.getLookAngle();
+        if (aim == null && actor instanceof Player && Match.get(actor.getServer()).isTaker(actor)) {
+            aim = from.add(look.scale(25));
+        }
         if (aim == null) {
             Match match = Match.get(actor.getServer());
             Vec3 goal = match.targetGoal(actor);
@@ -231,7 +244,7 @@ public final class MoveLogic {
                 aim = from.add(look.scale(25)).add(0, 1.0, 0);
             }
         }
-        Vec3 d = aim.subtract(from);
+        Vec3 d = aim.add(0, extraY, 0).subtract(from);
         double hd = Math.sqrt(d.x * d.x + d.z * d.z);
         Vec3 dir = flat(d);
         // hata: yorgunluk + asiri yukleme
@@ -421,8 +434,16 @@ public final class MoveLogic {
                 ball.kick(actor, new Vec3(v.x, Math.max(v.y, 0.45 + 0.12 * p), v.z), topspin(v, -0.25f), 0, 0);
             }
             case SHOT_TRIVELA -> {
-                Vec3 v = aimShot(actor, a, ball, (1.15 + 0.55 * p) * boost, 0.0, 10 * side);
-                ball.kick(actor, v, sidespin(-0.55f * side), BallEntity.FX_CURL, 40);
+                // dis kup: ters yone guclu kavis
+                Vec3 v = aimShot(actor, a, ball, (1.2 + 0.55 * p) * boost, 0.0, 15 * side);
+                ball.kick(actor, v, sidespin(-0.78f * side), BallEntity.FX_TRIVELA, 45);
+            }
+            case SHOT_DEADLEAF -> {
+                // olu yaprak: yuksek kalkar, guclu topspin ile kaleye birden duser
+                double dist = ball.center().distanceTo(a.target != null ? a.target : actor.position().add(face(actor).scale(20)));
+                Vec3 v = aimShot(actor, a, ball, (1.2 + 0.4 * p) * boost, 0.12, 0, Math.min(3.2, 0.9 + dist * 0.09));
+                ball.kick(actor, v, topspin(v, 0.62f), BallEntity.FX_LEAF, 50);
+                a.addEnergy(4);
             }
             case SHOT_KNUCKLE -> {
                 Vec3 v = aimShot(actor, a, ball, (1.35 + 0.45 * p) * boost, 0.05, 0);
@@ -606,6 +627,7 @@ public final class MoveLogic {
                     }
                     react(o, Move.STUMBLE, 10);
                     sound(actor, ModSounds.TACKLE.get(), 1f, 0.9f);
+                    if (actor.getRandom().nextFloat() < 0.12) Match.get(actor.getServer()).foul(actor, o, false, 0.3);
                     break;
                 }
             }
@@ -743,7 +765,7 @@ public final class MoveLogic {
         }
         if (a.magnet > 0) {
             BallEntity b = ballNear(actor, 16);
-            if (b != null && b.getController() != actor && !b.isHeld()) {
+            if (b != null && b.getController() != actor && !b.isHeld() && !b.locked) {
                 LivingEntity c = b.getController();
                 if (c != null && c.distanceTo(actor) < 8 && Athlete.of(c).evade <= 0) b.setController(null, false);
                 if (b.isFree()) {
@@ -782,13 +804,18 @@ public final class MoveLogic {
             } else {
                 react(actor, Move.STUMBLE, 14);
                 Athlete.of(o).addEnergy(4);
+                boolean behind = of.dot(f) > 0.5;
+                if (actor.getRandom().nextDouble() < (behind ? 0.55 : 0.12)) {
+                    react(o, Move.FALL, 20);
+                    Match.get(actor.getServer()).foul(actor, o, behind, behind ? 0.6 : 0.3);
+                }
                 if (o instanceof ServerPlayer sp)
                     sp.displayClientMessage(Component.translatable("msg.rabonaarena.dodged").withStyle(ChatFormatting.AQUA), true);
             }
             return;
         }
         BallEntity free = ballNear(actor, reach);
-        if (free != null && free.isFree() && !free.isImmune(actor)) {
+        if (free != null && free.isFree() && !free.isImmune(actor) && !free.locked) {
             free.setController(actor, false);
         }
     }
@@ -799,6 +826,13 @@ public final class MoveLogic {
         if (b != null && !b.isHeld() && b.getController() != actor && horiz(b.center(), actor.position().add(f.scale(0.5))) < 1.2
                 && b.getY() - actor.getY() < 0.9 && !b.isImmune(actor)) {
             LivingEntity victim = b.getController();
+            if (b.locked) return;
+            if (victim != null && face(victim).dot(f) > 0.45 && actor.getRandom().nextFloat() < 0.6) {
+                // arkadan kayma: faul
+                react(victim, Move.FALL, 26);
+                Match.get(actor.getServer()).foul(actor, victim, true, 0.85);
+                return;
+            }
             if (victim == null || Athlete.of(victim).evade <= 0 || actor.getRandom().nextFloat() < 0.25) {
                 b.kick(actor, f.scale(0.5).add(right(f).scale((actor.getRandom().nextDouble() - 0.5) * 0.4)).add(0, 0.12, 0), new Vector3f(), 0, 0);
                 if (victim != null) {
@@ -810,7 +844,13 @@ public final class MoveLogic {
             }
         }
         for (LivingEntity o : opponents(actor, 1.2, 0.2)) {
-            if (Athlete.of(o).stun <= 0 && Athlete.of(o).evade <= 0) react(o, Move.FALL, 22);
+            if (Athlete.of(o).stun <= 0 && Athlete.of(o).evade <= 0) {
+                react(o, Move.FALL, 22);
+                if (controlled(o) == null && actor.getRandom().nextFloat() < 0.7) {
+                    Match.get(actor.getServer()).foul(actor, o, false, 0.55);
+                    return;
+                }
+            }
         }
     }
 

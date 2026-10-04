@@ -78,10 +78,13 @@ public final class ClientEvents {
         LivingEntity le = e.getEntity();
         float age = le.tickCount + e.getPartialTick();
         float[] r = ClientAnims.root(le, age);
-        if (r == null) return;
+        boolean athlete = le instanceof net.minecraft.world.entity.player.Player && ClientState.teamOf(le).playing();
+        if (r == null && !athlete) return;
         PoseStack ps = e.getPoseStack();
         ps.pushPose();
         PUSHED.add(le);
+        if (athlete) ps.scale(FootballerRenderer.ATHLETE_W, FootballerRenderer.ATHLETE_H, FootballerRenderer.ATHLETE_W);
+        if (r == null) return;
         float yaw = Mth.rotLerp(e.getPartialTick(), le.yBodyRotO, le.yBodyRot);
         ps.mulPose(Axis.YP.rotationDegrees(-yaw));
         ps.translate(-r[3], r[4], r[5]);

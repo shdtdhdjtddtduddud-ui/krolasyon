@@ -38,6 +38,28 @@ public final class ServerEvents {
         }
     }
 
+    /** Mac sirasinda stadyumda blok kirma/koyma yok. */
+    private static boolean protectedArea(net.minecraft.world.level.LevelAccessor level, net.minecraft.core.BlockPos pos) {
+        if (!(level instanceof net.minecraft.server.level.ServerLevel sl) || !Match.isRunning()) return false;
+        Match m = Match.get(sl.getServer());
+        return m.pitch != null && sl == m.level() && m.pitch.inside(net.minecraft.world.phys.Vec3.atCenterOf(pos), 16);
+    }
+
+    @SubscribeEvent
+    public static void breakBlock(net.minecraftforge.event.level.BlockEvent.BreakEvent e) {
+        if (protectedArea(e.getLevel(), e.getPos())) e.setCanceled(true);
+    }
+
+    @SubscribeEvent
+    public static void placeBlock(net.minecraftforge.event.level.BlockEvent.EntityPlaceEvent e) {
+        if (protectedArea(e.getLevel(), e.getPos())) e.setCanceled(true);
+    }
+
+    @SubscribeEvent
+    public static void leftClickBlock(net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickBlock e) {
+        if (protectedArea(e.getLevel(), e.getPos())) e.setCanceled(true);
+    }
+
     @SubscribeEvent
     public static void login(PlayerEvent.PlayerLoggedInEvent e) {
         if (e.getEntity() instanceof ServerPlayer sp) {

@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.resources.ResourceLocation;
 
 public class FootballerRenderer extends HumanoidMobRenderer<FootballerEntity, AnimatedPlayerModel<FootballerEntity>> {
+    public static final float ATHLETE_W = 0.9f, ATHLETE_H = 1.04f;
     private static final ResourceLocation[] SKINS = new ResourceLocation[FootballerEntity.SKINS];
 
     static {
@@ -19,8 +20,8 @@ public class FootballerRenderer extends HumanoidMobRenderer<FootballerEntity, An
     }
 
     public FootballerRenderer(EntityRendererProvider.Context ctx) {
-        super(ctx, new AnimatedPlayerModel<>(ctx.bakeLayer(ModelLayers.PLAYER), false), 0.5f);
-        addLayer(new KitLayer<>(this, new PlayerModel<>(ctx.bakeLayer(ClientSetup.KIT), false)));
+        super(ctx, new AnimatedPlayerModel<>(ctx.bakeLayer(ModelLayers.PLAYER_SLIM), true), 0.45f);
+        addLayer(new KitLayer<>(this, new PlayerModel<>(ctx.bakeLayer(ClientSetup.KIT_SLIM), true)));
         addLayer(new HumanoidArmorLayer<>(this, new HumanoidModel<>(ctx.bakeLayer(ModelLayers.PLAYER_INNER_ARMOR)),
                 new HumanoidModel<>(ctx.bakeLayer(ModelLayers.PLAYER_OUTER_ARMOR)), ctx.getModelManager()));
     }
@@ -32,6 +33,7 @@ public class FootballerRenderer extends HumanoidMobRenderer<FootballerEntity, An
 
     @Override
     protected void scale(FootballerEntity e, PoseStack ps, float partial) {
-        ps.scale(0.9375f, 0.9375f, 0.9375f);
+        // atletik, uzun ve ince govde
+        ps.scale(0.9375f * ATHLETE_W, 0.9375f * ATHLETE_H, 0.9375f * ATHLETE_W);
     }
 }

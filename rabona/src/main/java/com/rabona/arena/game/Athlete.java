@@ -16,7 +16,7 @@ public class Athlete {
     public int moveTick, side;
     public float power;
     public int stun, evade, ghost, thunder, magnet;
-    public int goals, assists, shots, tackles, skills, saves;
+    public int goals, assists, shots, tackles, skills, saves, fouls, yellows;
     public boolean dirty = true;
     public net.minecraft.world.phys.Vec3 target, lastPos, vel = net.minecraft.world.phys.Vec3.ZERO;
     public float lastSentStamina = -1, lastSentEnergy = -1;
@@ -33,7 +33,7 @@ public class Athlete {
 
     public static void resetStats() {
         for (Athlete a : ALL.values()) {
-            a.goals = a.assists = a.shots = a.tackles = a.skills = a.saves = 0;
+            a.goals = a.assists = a.shots = a.tackles = a.skills = a.saves = a.fouls = a.yellows = 0;
             a.stamina = 100;
             a.energy = 30;
         }

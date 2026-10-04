@@ -115,7 +115,7 @@ public final class PadControl {
             c.charging = false;
             float power = c.chargeTicks < 3 ? 0.35f : Math.min(1.35f, c.chargeTicks / 22f);
             int slot = pad.down[Gamepads.RB] ? 1 : pad.lt > 0.5f ? 2 : 0;
-            send(1, ClientState.shotSlots[slot], power, 0, false, c.p2);
+            send(1, ClientState.shots(c.p2)[slot], power, 0, false, c.p2);
         } else if (pad.pressed(Gamepads.B)) {
             send(4, Move.TACKLE, 1, 0, false, c.p2);
         }
@@ -139,10 +139,10 @@ public final class PadControl {
             else send(4, Move.SLIDE, 1, 0, true, c.p2);
         }
         if (pad.pressed(Gamepads.LB)) send(6, Move.CALL_PASS, 1, 0, false, c.p2);
-        if (pad.pressed(Gamepads.UP)) send(0, ClientState.ability, 1, 0, false, c.p2);
-        if (pad.pressed(Gamepads.DOWN)) send(0, ClientState.celebration, 1, 0, false, c.p2);
-        if (pad.pressed(Gamepads.LEFT)) send(0, ClientState.slots[0], 1, -1, false, c.p2);
-        if (pad.pressed(Gamepads.RIGHT)) send(0, ClientState.slots[1], 1, 1, false, c.p2);
+        if (pad.pressed(Gamepads.UP)) send(0, ClientState.ability(c.p2), 1, 0, false, c.p2);
+        if (pad.pressed(Gamepads.DOWN)) send(0, ClientState.celebration(c.p2), 1, 0, false, c.p2);
+        if (pad.pressed(Gamepads.LEFT)) send(0, ClientState.slots(c.p2)[0], 1, -1, false, c.p2);
+        if (pad.pressed(Gamepads.RIGHT)) send(0, ClientState.slots(c.p2)[1], 1, 1, false, c.p2);
         if (!c.p2 && pad.pressed(Gamepads.START)) mc.setScreen(new MatchScreen());
         if (pad.pressed(Gamepads.BACK)) CameraCtl.cycle();
     }
@@ -197,10 +197,10 @@ public final class PadControl {
         if (!show) return;
         Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
         MultiBufferSource.BufferSource buf = mc.renderBuffers().bufferSource();
-        if (CameraCtl.active()) marker(ps, buf, mc.player, partial, cam, "▼ P1", 0xFF5AD2FF);
+        if (CameraCtl.active()) marker(ps, buf, mc.player, partial, cam, "P1", 0xFF5AD2FF);
         if (p2Active()) {
             Entity e = mc.level.getEntity(ClientState.match.p2Bot());
-            if (e != null) marker(ps, buf, e, partial, cam, "▼ P2", 0xFFFFC94A);
+            if (e != null) marker(ps, buf, e, partial, cam, "P2", 0xFFFFC94A);
         }
         buf.endBatch();
     }
@@ -209,14 +209,14 @@ public final class PadControl {
         Minecraft mc = Minecraft.getInstance();
         Vec3 pos = e.getPosition(partial);
         ps.pushPose();
-        ps.translate(pos.x - cam.x, pos.y - cam.y + e.getBbHeight() + 0.85, pos.z - cam.z);
+        ps.translate(pos.x - cam.x, pos.y - cam.y + e.getBbHeight() + 0.95, pos.z - cam.z);
         ps.mulPose(mc.getEntityRenderDispatcher().cameraOrientation());
-        float sc = 0.04f * (float) Math.max(1, pos.distanceTo(cam) / 10);
+        float sc = 0.018f * (float) Mth.clamp(pos.distanceTo(cam) / 14, 1, 1.5);
         ps.scale(-sc, -sc, sc);
         Font f = mc.font;
         Matrix4f m = ps.last().pose();
         float x = -f.width(text) / 2f;
-        f.drawInBatch(text, x, 0, color, true, m, buf, Font.DisplayMode.SEE_THROUGH, 0x50000000, LightTexture.FULL_BRIGHT);
+        f.drawInBatch(text, x, 0, color, true, m, buf, Font.DisplayMode.NORMAL, 0x60000000, LightTexture.FULL_BRIGHT);
         ps.popPose();
     }
 }

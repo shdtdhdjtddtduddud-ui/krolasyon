@@ -152,6 +152,8 @@ public class BallRenderer extends EntityRenderer<BallEntity> {
                 yield new int[]{(rgb >> 16) & 255, (rgb >> 8) & 255, rgb & 255};
             }
             case BallEntity.FX_CURL -> new int[]{120, 200, 255};
+            case BallEntity.FX_TRIVELA -> i % 2 == 0 ? new int[]{255, 120, 60} : new int[]{255, 210, 90};
+            case BallEntity.FX_LEAF -> new int[]{150 + i * 6, 210, 70};
             case BallEntity.FX_KNUCKLE -> new int[]{255, 255, 200};
             default -> new int[]{200, 200, 200};
         };

@@ -24,6 +24,7 @@ public enum Move {
     SHOT_RABONA(Cat.SHOT, Req.BALL, 16, 10, 12, 24),
     SHOT_PANENKA(Cat.SHOT, Req.BALL, 14, 9, 6, 20),
     SHOT_TOEPOKE(Cat.SHOT, Req.BALL, 7, 3, 6, 10),
+    SHOT_DEADLEAF(Cat.SHOT, Req.BALL, 15, 9, 11, 20),
     // ---- HAVA TOPU
     HEADER(Cat.AERIAL, Req.AIR, 10, 4, 6, 10),
     DIVING_HEADER(Cat.AERIAL, Req.AIR, 18, 5, 12, 24),

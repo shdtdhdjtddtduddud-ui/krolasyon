@@ -13,6 +13,7 @@ import java.util.List;
 /** Hareket kutuphanesi: kategoriler, 3B onizleme, tus atama ve deneme. */
 public class MoveScreen extends Screen {
     private static Move.Cat tab = Move.Cat.SKILL;
+    static boolean editP2;
     private Move selected;
     private int replayAt;
     private final List<Move> list = new ArrayList<>();
@@ -32,6 +33,10 @@ public class MoveScreen extends Screen {
             }).bounds(x, y, bw, 18).build());
             x += bw + 2;
         }
+        addRenderableWidget(Button.builder(Component.empty(), b -> {
+            editP2 = !editP2;
+            init(minecraft, width, height);
+        }).bounds(width - 214, 24, 204, 18).build()).setMessage(Component.translatable(editP2 ? "screen.rabonaarena.editing_p2" : "screen.rabonaarena.editing_p1"));
         rebuild();
     }
 
@@ -47,17 +52,17 @@ public class MoveScreen extends Screen {
             for (int i = 0; i < 3; i++) {
                 final int slot = i;
                 act(Component.translatable("screen.rabonaarena.assign", Keys.SHOTS[i].getTranslatedKeyMessage()), px + i * 67, py + 22, 65,
-                        () -> ClientState.shotSlots[slot] = selected);
+                        () -> ClientState.shots(editP2)[slot] = selected);
             }
         } else if (selected.cat == Move.Cat.ABILITY) {
-            act(Component.translatable("screen.rabonaarena.set_ability"), px, py + 22, 200, () -> ClientState.ability = selected);
+            act(Component.translatable("screen.rabonaarena.set_ability"), px, py + 22, 200, () -> { if (editP2) ClientState.p2Ability = selected; else ClientState.ability = selected; });
         } else if (selected.cat == Move.Cat.CELEBRATION) {
-            act(Component.translatable("screen.rabonaarena.set_celebration"), px, py + 22, 200, () -> ClientState.celebration = selected);
+            act(Component.translatable("screen.rabonaarena.set_celebration"), px, py + 22, 200, () -> { if (editP2) ClientState.p2Celebration = selected; else ClientState.celebration = selected; });
         } else {
             for (int i = 0; i < 3; i++) {
                 final int slot = i;
                 act(Component.translatable("screen.rabonaarena.assign", Keys.SKILLS[i].getTranslatedKeyMessage()), px + i * 67, py + 22, 65,
-                        () -> ClientState.slots[slot] = selected);
+                        () -> ClientState.slots(editP2)[slot] = selected);
             }
         }
         actions.add(addRenderableWidget(Button.builder(Component.translatable("screen.rabonaarena.try"), b -> {
@@ -148,11 +153,12 @@ public class MoveScreen extends Screen {
     }
 
     private static String slotTag(Move m) {
+        boolean editP2 = MoveScreen.editP2;
         StringBuilder s = new StringBuilder();
-        for (int i = 0; i < 3; i++) if (ClientState.slots[i] == m) s.append('[').append(Keys.SKILLS[i].getTranslatedKeyMessage().getString()).append(']');
-        for (int i = 0; i < 3; i++) if (ClientState.shotSlots[i] == m) s.append('[').append(Keys.SHOTS[i].getTranslatedKeyMessage().getString()).append(']');
-        if (ClientState.ability == m) s.append("[").append(Keys.ABILITY.getTranslatedKeyMessage().getString()).append("]");
-        if (ClientState.celebration == m) s.append("[").append(Keys.CELEBRATE.getTranslatedKeyMessage().getString()).append("]");
+        for (int i = 0; i < 3; i++) if (ClientState.slots(editP2)[i] == m) s.append('[').append(Keys.SKILLS[i].getTranslatedKeyMessage().getString()).append(']');
+        for (int i = 0; i < 3; i++) if (ClientState.shots(editP2)[i] == m) s.append('[').append(Keys.SHOTS[i].getTranslatedKeyMessage().getString()).append(']');
+        if (ClientState.ability(editP2) == m) s.append("[").append(Keys.ABILITY.getTranslatedKeyMessage().getString()).append("]");
+        if (ClientState.celebration(editP2) == m) s.append("[").append(Keys.CELEBRATE.getTranslatedKeyMessage().getString()).append("]");
         return s.toString();
     }
 

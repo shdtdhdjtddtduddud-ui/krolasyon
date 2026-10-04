@@ -43,6 +43,18 @@ public final class ClientState {
     // kullanici ayarlari
     public static final Move[] slots = {Move.BODY_FEINT, Move.ELASTICO, Move.RAINBOW};
     public static final Move[] shotSlots = {Move.SHOT_POWER, Move.SHOT_FINESSE, Move.SHOT_TRIVELA};
+    /** 2. oyuncunun (kumanda) kendi secimleri. */
+    public static final Move[] p2Slots = {Move.STEPOVER, Move.ROULETTE, Move.NUTMEG};
+    public static final Move[] p2ShotSlots = {Move.SHOT_POWER, Move.SHOT_DEADLEAF, Move.SHOT_TRIVELA};
+    public static Move p2Ability = Move.AB_TORNADO, p2Celebration = Move.CELEB_KNEESLIDE;
+
+    public static Move[] slots(boolean p2) { return p2 ? p2Slots : slots; }
+
+    public static Move[] shots(boolean p2) { return p2 ? p2ShotSlots : shotSlots; }
+
+    public static Move ability(boolean p2) { return p2 ? p2Ability : ability; }
+
+    public static Move celebration(boolean p2) { return p2 ? p2Celebration : celebration; }
     public static int cameraMode;
     public static boolean autoReplay = true;
     public static boolean fifaMode = true;
@@ -51,7 +63,7 @@ public final class ClientState {
     public static Move ability = Move.AB_FIRE;
     public static Move celebration = Move.CELEB_SIU;
     public static final Move[] SHOT_STYLES = {Move.SHOT_POWER, Move.SHOT_FINESSE, Move.SHOT_CHIP, Move.SHOT_TRIVELA,
-            Move.SHOT_KNUCKLE, Move.SHOT_RABONA, Move.SHOT_PANENKA, Move.SHOT_TOEPOKE};
+            Move.SHOT_KNUCKLE, Move.SHOT_RABONA, Move.SHOT_PANENKA, Move.SHOT_TOEPOKE, Move.SHOT_DEADLEAF};
 
     public static void setMatch(S2C.MatchState m) {
         match = m;
@@ -93,6 +105,12 @@ public final class ClientState {
             fifaMode = !"false".equals(p.getProperty("fifa"));
             ability = parse(p.getProperty("ability"), ability);
             celebration = parse(p.getProperty("celebration"), celebration);
+            for (int i = 0; i < 3; i++) {
+                p2Slots[i] = parse(p.getProperty("p2slot" + i), p2Slots[i]);
+                p2ShotSlots[i] = parse(p.getProperty("p2shot" + i), p2ShotSlots[i]);
+            }
+            p2Ability = parse(p.getProperty("p2ability"), p2Ability);
+            p2Celebration = parse(p.getProperty("p2celebration"), p2Celebration);
         } catch (Exception ignored) {
         }
     }
@@ -107,6 +125,12 @@ public final class ClientState {
             p.setProperty("fifa", Boolean.toString(fifaMode));
             p.setProperty("ability", ability.name());
             p.setProperty("celebration", celebration.name());
+            for (int i = 0; i < 3; i++) {
+                p.setProperty("p2slot" + i, p2Slots[i].name());
+                p.setProperty("p2shot" + i, p2ShotSlots[i].name());
+            }
+            p.setProperty("p2ability", p2Ability.name());
+            p.setProperty("p2celebration", p2Celebration.name());
             try (Writer w = Files.newBufferedWriter(file())) { p.store(w, "Rabona Arena istemci ayarlari"); }
         } catch (Exception ignored) {
         }

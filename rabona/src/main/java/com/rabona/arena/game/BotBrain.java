@@ -56,7 +56,7 @@ public class BotBrain {
         }
         BallEntity ball = m.ball();
         switch (m.phase) {
-            case KICKOFF, HALFTIME -> {
+            case KICKOFF, HALFTIME, SET_PIECE -> {
                 stop();
                 if (ball != null) lookAt(ball.center());
                 return;
@@ -348,7 +348,8 @@ public class BotBrain {
         else if (dist < 9 && r < 0.2) shot = Move.SHOT_TOEPOKE;
         else if (r < 0.4) shot = Move.SHOT_POWER;
         else if (r < 0.72) shot = Move.SHOT_FINESSE;
-        else if (r < 0.82) shot = Move.SHOT_TRIVELA;
+        else if (r < 0.8) shot = Move.SHOT_TRIVELA;
+        else if (r < 0.86 && dist > 14) shot = Move.SHOT_DEADLEAF;
         else if (r < 0.9 && dist > 16) shot = Move.SHOT_KNUCKLE;
         else if (r < 0.94) shot = Move.SHOT_RABONA;
         else shot = Move.SHOT_POWER;

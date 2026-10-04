@@ -94,24 +94,25 @@ public final class CameraCtl {
                 case 1 -> { // TV yayini
                     Vec3 focus = ballPos != null && ballPos.distanceTo(me) < 45 ? ballPos.scale(0.7).add(me.scale(0.3)) : me;
                     if (pitch != null && pitch.inside(me, 20)) {
-                        double a = Mth.clamp(pitch.a(focus) * 0.85, -Pitch.HALF_LEN, Pitch.HALF_LEN);
-                        tPos = pitch.world(a, -(Pitch.HALF_WID + 17), pitch.surfaceY() + 19);
+                        double a = Mth.clamp(pitch.a(focus), -Pitch.HALF_LEN, Pitch.HALF_LEN);
+                        double fb = pitch.b(focus);
+                        tPos = pitch.world(a, Math.max(-(Pitch.HALF_WID + 8), fb - 15), pitch.surfaceY() + 10.5);
                     } else {
-                        tPos = focus.add(0, 16, -20);
+                        tPos = focus.add(0, 9, -13);
                     }
                     tLook = focus.add(0, 0.5, 0);
                 }
                 case 2 -> { // ustten takip
                     Vec3 dir = att != null ? att : Vec3.directionFromRotation(0, p.getYRot());
                     dir = new Vec3(dir.x, 0, dir.z).normalize();
-                    tPos = me.subtract(dir.scale(10)).add(0, 8.5, 0);
+                    tPos = me.subtract(dir.scale(6.5)).add(0, 4.8, 0);
                     Vec3 aim = ballPos != null && ballPos.distanceTo(me) < 20 ? ballPos.scale(0.35).add(me.scale(0.65)) : me;
                     tLook = aim.add(dir.scale(5)).add(0, 0.5, 0);
                 }
                 default -> { // kusbakisi
                     Vec3 focus = ballPos != null && ballPos.distanceTo(me) < 25 ? me.scale(0.7).add(ballPos.scale(0.3)) : me;
                     Vec3 dir = att != null ? att : new Vec3(0, 0, 1);
-                    tPos = focus.subtract(dir.scale(7)).add(0, 26, 0);
+                    tPos = focus.subtract(dir.scale(5)).add(0, 16, 0);
                     tLook = focus;
                 }
             }

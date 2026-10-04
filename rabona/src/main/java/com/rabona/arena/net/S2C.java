@@ -56,7 +56,7 @@ public final class S2C {
 
     public record MatchState(int phase, int scoreRed, int scoreBlue, int timeLeft, int totalTime, int half, boolean swapped,
                              int duration, int teamSize, int difficulty, boolean hasPitch, long origin, boolean alongX,
-                             int ballId, int restrictTeam, List<RosterEntry> roster, int p2Bot, int p2Team) {
+                             int ballId, int restrictTeam, List<RosterEntry> roster, int p2Bot, int p2Team, int setPiece, int spTaker) {
         public static MatchState of(Match m) {
             List<RosterEntry> r = new ArrayList<>();
             m.roster.forEach((u, t) -> {
@@ -68,14 +68,14 @@ public final class S2C {
             return new MatchState(m.phase.ordinal(), m.scoreRed, m.scoreBlue, m.timeLeft, m.totalTime, m.half, m.swapped,
                     m.durationMin, m.teamSize, m.difficulty, m.pitch != null, m.pitch == null ? 0 : m.pitch.origin.asLong(),
                     m.pitch != null && m.pitch.alongX, b == null ? -1 : b.getId(), restrict, r,
-                    m.p2Owner == null ? -1 : m.p2Bot, m.p2Team.ordinal());
+                    m.p2Owner == null ? -1 : m.p2Bot, m.p2Team.ordinal(), m.setPiece.ordinal(), m.spTaker);
         }
 
         public MatchState(FriendlyByteBuf b) {
             this(b.readByte(), b.readVarInt(), b.readVarInt(), b.readVarInt(), b.readVarInt(), b.readByte(), b.readBoolean(),
                     b.readByte(), b.readByte(), b.readByte(), b.readBoolean(), b.readLong(), b.readBoolean(), b.readVarInt(),
                     b.readByte(), b.readList(x -> new RosterEntry(x.readUUID(), x.readUtf(40), x.readByte(), x.readByte(), x.readByte())),
-                    b.readVarInt(), b.readByte());
+                    b.readVarInt(), b.readByte(), b.readByte(), b.readVarInt());
         }
 
         public void encode(FriendlyByteBuf b) {
@@ -103,6 +103,8 @@ public final class S2C {
             });
             b.writeVarInt(p2Bot);
             b.writeByte(p2Team);
+            b.writeByte(setPiece);
+            b.writeVarInt(spTaker);
         }
 
         public void handle(Supplier<NetworkEvent.Context> ctx) {

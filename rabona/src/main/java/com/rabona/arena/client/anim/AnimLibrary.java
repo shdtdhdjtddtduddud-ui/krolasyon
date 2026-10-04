@@ -97,6 +97,14 @@ public final class AnimLibrary {
                 .at(13).rl(-10, 0, 0).pos(0, 0, 0.2f)
                 .at(15).rest().pos(0, 0, 0));
         put(Move.SHOT_RABONA, rabona(Move.SHOT_RABONA, -60));
+        // olu yaprak: govde geriye, ayak topun altindan yukari kamci gibi
+        put(Move.SHOT_DEADLEAF, Anim.of(Move.SHOT_DEADLEAF.duration)
+                .at(0).rest()
+                .at(4).ll(-12, 0, -6).body(-6, -12, 0).arms(20, 25, -30, -40)
+                .at(7).rl(70, 0, 6).body(-18, -18, 0).arms(40, 40, -55, -60).head(12, 0, 0)
+                .at(9).rl(-75, 0, 0).body(-20, 14, 0).arms(-40, 55, 30, -70).head(-10, 0, 0).pos(0, 0.08f, 0)
+                .at(11).rl(-125, 0, -4).body(-12, 20, 0).head(-25, 0, 0).pos(0, 0.18f, 0.1f)
+                .at(15).rest().pos(0, 0, 0));
         put(Move.SHOT_PANENKA, Anim.of(Move.SHOT_PANENKA.duration)
                 .at(0).rest()
                 .at(4).rl(45, 0, 0).body(-6, -10, 0).arms(30, 20, -30, -30)

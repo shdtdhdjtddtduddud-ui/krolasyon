@@ -17,6 +17,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -33,7 +34,9 @@ import java.util.*;
 
 /** Mac yoneticisi: takimlar, skor, sure, duran toplar ve botlar. */
 public class Match {
-    public enum Phase { IDLE, KICKOFF, PLAYING, GOAL, HALFTIME, ENDED }
+    public enum Phase { IDLE, KICKOFF, PLAYING, GOAL, HALFTIME, ENDED, SET_PIECE }
+
+    public enum SetPiece { NONE, FREE_KICK, PENALTY }
 
     private static Match INSTANCE;
     private static MinecraftServer SERVER;
@@ -113,6 +116,7 @@ public class Match {
 
     // ================================================================ takimlar
     public void join(ServerPlayer p, Team t) {
+        invalidate();
         Team old = roster.getOrDefault(p.getUUID(), Team.NONE);
         Scoreboard sb = SERVER.getScoreboard();
         if (t == Team.NONE) {
@@ -163,16 +167,36 @@ public class Match {
         return l;
     }
 
-    public List<FootballerEntity> bots() {
+    // tick basina onbellek (botlar her tick bu listeleri defalarca ister)
+    private long cacheTick = -1;
+    private List<FootballerEntity> botCache = List.of();
+    private final Map<Team, List<LivingEntity>> memberCache = new EnumMap<>(Team.class);
+
+    public void invalidate() { cacheTick = -1; }
+
+    private void refreshCache() {
+        long now = level().getGameTime();
+        if (now == cacheTick) return;
+        cacheTick = now;
         List<FootballerEntity> l = new ArrayList<>();
         for (Entity e : level().getAllEntities()) if (e instanceof FootballerEntity f && f.isAlive()) l.add(f);
-        return l;
+        botCache = Collections.unmodifiableList(l);
+        memberCache.clear();
+        for (Team t : Team.values()) {
+            List<LivingEntity> m = new ArrayList<>(playersOf(t));
+            for (FootballerEntity f : l) if (f.getSquad() == t) m.add(f);
+            memberCache.put(t, Collections.unmodifiableList(m));
+        }
+    }
+
+    public List<FootballerEntity> bots() {
+        refreshCache();
+        return botCache;
     }
 
     public List<LivingEntity> members(Team t) {
-        List<LivingEntity> l = new ArrayList<>(playersOf(t));
-        for (FootballerEntity f : bots()) if (f.getSquad() == t) l.add(f);
-        return l;
+        refreshCache();
+        return memberCache.getOrDefault(t, List.of());
     }
 
     // ================================================================ botlar
@@ -182,6 +206,7 @@ public class Match {
         f.setup(t, freeNumber(t), sl.getRandom().nextInt(FootballerEntity.SKINS), BotNames.random(sl.getRandom()), ovr);
         f.moveTo(at.x, at.y, at.z, sl.getRandom().nextFloat() * 360, 0);
         sl.addFreshEntity(f);
+        invalidate();
         assignRoles();
         Cards.applySquad(this, t);
         sync();
@@ -201,6 +226,7 @@ public class Match {
                 level().addFreshEntity(f);
             }
         }
+        invalidate();
         assignRoles();
         for (Team t : new Team[]{Team.RED, Team.BLUE}) Cards.applySquad(this, t);
         sync();
@@ -212,7 +238,228 @@ public class Match {
             Athlete.remove(f.getUUID());
             f.discard();
         }
+        invalidate();
         sync();
+    }
+
+    // ================================================================ faul, kart, serbest vurus, penalti
+    public SetPiece setPiece = SetPiece.NONE;
+    public Team spTeam = Team.NONE;
+    public Vec3 spSpot;
+    public int spTaker = -1, spTimer, spSetup;
+    private final List<Integer> wall = new ArrayList<>();
+
+    /** Faul: kart (sari/kirmizi) ve duran top (ceza sahasinda penalti). */
+    public void foul(LivingEntity offender, LivingEntity victim, boolean fromBehind, double severity) {
+        if (phase != Phase.PLAYING || pitch == null) return;
+        Team vt = teamOf(victim), ot = teamOf(offender);
+        if (!vt.playing() || ot == vt) return;
+        Athlete oa = Athlete.of(offender);
+        oa.fouls++;
+        sound(ModSounds.WHISTLE.get(), 1.8f, 1.05f);
+        String name = offender.getName().getString();
+        double cardChance = severity * (fromBehind ? 0.75 : 0.35);
+        if (level().getRandom().nextDouble() < cardChance) {
+            oa.yellows++;
+            boolean red = oa.yellows >= 2 || severity > 0.95;
+            Net.toAll(new S2C.Banner(3, scoreRed, scoreBlue, name, red ? "red" : "yellow"));
+            broadcast(Component.translatable(red ? "msg.rabonaarena.red_card" : "msg.rabonaarena.yellow_card", offender.getDisplayName())
+                    .withStyle(red ? ChatFormatting.RED : ChatFormatting.YELLOW));
+            if (red) Scheduler.later(30, () -> sendOff(offender));
+        } else {
+            Net.toAll(new S2C.Feed(Component.translatable("msg.rabonaarena.foul", offender.getDisplayName()).withStyle(ChatFormatting.GOLD)));
+        }
+        int s = attackSign(vt);
+        Vec3 spot = victim.position();
+        double a = pitch.a(spot) * s, b = pitch.b(spot);
+        boolean inBox = a > Pitch.HALF_LEN - Pitch.BOX_DEPTH && a < Pitch.HALF_LEN + 0.5 && Math.abs(b) < Pitch.BOX_HALF + 0.5;
+        if (inBox) {
+            startSetPiece(SetPiece.PENALTY, vt, pitch.world(s * (Pitch.HALF_LEN - Pitch.PEN_SPOT + 0.5), 0, pitch.surfaceY()));
+        } else {
+            double ca = Mth.clamp(pitch.a(spot), -Pitch.HALF_LEN + 1, Pitch.HALF_LEN - 1);
+            double cb = Mth.clamp(b, -Pitch.HALF_WID + 1, Pitch.HALF_WID - 1);
+            startSetPiece(SetPiece.FREE_KICK, vt, pitch.world(ca, cb, pitch.surfaceY()));
+        }
+    }
+
+    private void sendOff(LivingEntity e) {
+        if (e instanceof FootballerEntity f) {
+            if (f.getId() == p2Bot) p2Bot = -1;
+            Athlete.remove(f.getUUID());
+            f.discard();
+            invalidate();
+            assignRoles();
+        } else if (e instanceof ServerPlayer p) {
+            join(p, Team.NONE);
+        }
+        sync();
+    }
+
+    private void startSetPiece(SetPiece kind, Team team, Vec3 spot) {
+        BallEntity ball = ensureBall();
+        phase = Phase.SET_PIECE;
+        setPiece = kind;
+        spTeam = team;
+        spSpot = spot;
+        spTimer = 20 * 14;
+        spSetup = 30;
+        ball.setController(null, false);
+        ball.setPos(spot.x, spot.y + 0.02, spot.z);
+        ball.setDeltaMovement(Vec3.ZERO);
+        ball.setSpin(new Vector3f());
+        ball.setEffect(0, 0);
+        ball.locked = true;
+        int s = attackSign(team);
+        Vec3 goal = pitch.goalCenter(s);
+        Vec3 toGoal = MoveLogic.flat(goal.subtract(spot));
+        Vec3 side = MoveLogic.right(toGoal);
+        // kullanan: takimdaki insan (en yakin), yoksa en iyi sutor bot
+        LivingEntity taker = null;
+        double bd = 1e9;
+        for (ServerPlayer h : playersOf(team)) {
+            double d = h.distanceToSqr(spot);
+            if (d < bd) { bd = d; taker = h; }
+        }
+        if (taker == null) {
+            int best = -1;
+            for (FootballerEntity f : bots()) {
+                if (f.getSquad() != team || f.isKeeper()) continue;
+                if (f.shooting > best) { best = f.shooting; taker = f; }
+            }
+        }
+        spTaker = taker == null ? -1 : taker.getId();
+        if (taker != null) place(taker, spot.subtract(toGoal.scale(1.4)), goal);
+        wall.clear();
+        Team def = team.opponent();
+        if (kind == SetPiece.PENALTY) {
+            double edge = Pitch.HALF_LEN - Pitch.BOX_DEPTH - 2;
+            int i = 0;
+            for (LivingEntity e : allMembers()) {
+                if (e == taker) continue;
+                if (e instanceof FootballerEntity f && f.isKeeper() && f.getSquad() == def) {
+                    place(f, pitch.world(s * (pitch.goalLineA() - 0.6), 0, pitch.surfaceY()), spot);
+                    continue;
+                }
+                double lb = (i % 2 == 0 ? 1 : -1) * (2 + (i / 2) * 2.5);
+                place(e, pitch.world(s * edge, Mth.clamp(lb, -Pitch.HALF_WID + 1, Pitch.HALF_WID - 1), pitch.surfaceY()), goal);
+                i++;
+            }
+        } else {
+            double dist = MoveLogic.horiz(spot, goal);
+            List<FootballerEntity> defs = new ArrayList<>();
+            for (FootballerEntity f : bots()) if (f.getSquad() == def && !f.isKeeper()) defs.add(f);
+            defs.sort(Comparator.comparingDouble(f -> f.distanceToSqr(goal)));
+            int wallSize = dist < 24 ? Math.min(4, defs.size()) : dist < 32 ? Math.min(2, defs.size()) : 0;
+            for (int i = 0; i < wallSize; i++) {
+                FootballerEntity f = defs.get(i);
+                Vec3 wp = spot.add(toGoal.scale(9)).add(side.scale((i - (wallSize - 1) / 2.0) * 0.7));
+                place(f, wp, spot);
+                wall.add(f.getId());
+            }
+            // rakipler 9 blok uzaga
+            for (LivingEntity e : members(def)) {
+                if (wall.contains(e.getId()) || (e instanceof FootballerEntity f && f.isKeeper())) continue;
+                if (e.distanceTo(ball) < 9.5) {
+                    Vec3 away = MoveLogic.flat(e.position().subtract(spot));
+                    if (away.lengthSqr() < 1e-4) away = toGoal;
+                    place(e, spot.add(away.scale(10)), spot);
+                }
+            }
+        }
+        sound(ModSounds.WHISTLE.get(), 2f, 1f);
+        Net.toAll(new S2C.Banner(4, scoreRed, scoreBlue, taker == null ? "" : taker.getName().getString(), kind.name().toLowerCase()));
+        sync();
+    }
+
+    private List<LivingEntity> allMembers() {
+        List<LivingEntity> l = new ArrayList<>(members(Team.RED));
+        l.addAll(members(Team.BLUE));
+        return l;
+    }
+
+    private void place(LivingEntity e, Vec3 pos, Vec3 lookAt) {
+        float yaw = yawToward(pos, lookAt);
+        if (e instanceof ServerPlayer p) {
+            p.teleportTo(level(), pos.x, pos.y, pos.z, yaw, 0);
+        } else {
+            e.teleportTo(pos.x, pos.y, pos.z);
+            e.setYRot(yaw);
+            e.setYHeadRot(yaw);
+            e.yBodyRot = yaw;
+            if (e instanceof FootballerEntity f) f.getNavigation().stop();
+        }
+        e.setDeltaMovement(Vec3.ZERO);
+    }
+
+    public boolean isTaker(LivingEntity e) {
+        return phase == Phase.SET_PIECE && e.getId() == spTaker;
+    }
+
+    public boolean isWall(LivingEntity e) { return phase == Phase.SET_PIECE && wall.contains(e.getId()); }
+
+    private void setPieceTick(BallEntity ball) {
+        if (ball == null) return;
+        if (spSetup > 0) spSetup--;
+        if (--spTimer <= 0 || !ball.locked) {
+            endSetPiece(ball);
+            return;
+        }
+        Entity t = level().getEntity(spTaker);
+        if (spSetup == 0 && t instanceof FootballerEntity bot && spTimer % 20 == 0 && spTimer < 20 * 14 - 50) botTakeSetPiece(bot, ball);
+        if (!(t instanceof LivingEntity)) endSetPiece(ball);
+    }
+
+    private void botTakeSetPiece(FootballerEntity bot, BallEntity ball) {
+        int s = attackSign(spTeam);
+        Vec3 goal = pitch.goalCenter(s);
+        RandomSource r = level().getRandom();
+        double dist = MoveLogic.horiz(ball.position(), goal);
+        double b = (r.nextBoolean() ? 1 : -1) * (Pitch.GOAL_HALF_W - 0.8 - r.nextDouble());
+        Vec3 target = pitch.world(s * (pitch.goalLineA() + 0.4), b, pitch.surfaceY() + 0.4 + r.nextDouble() * 1.8);
+        Move m;
+        if (setPiece == SetPiece.PENALTY) {
+            float x = r.nextFloat();
+            m = x < 0.1 ? Move.SHOT_PANENKA : x < 0.55 ? Move.SHOT_FINESSE : Move.SHOT_POWER;
+            if (m == Move.SHOT_PANENKA) target = pitch.world(s * (pitch.goalLineA() + 0.4), 0, pitch.surfaceY() + 1.2);
+        } else if (dist < 30) {
+            float x = r.nextFloat();
+            m = x < 0.4 ? Move.SHOT_FINESSE : x < 0.65 ? Move.SHOT_DEADLEAF : x < 0.85 ? Move.SHOT_KNUCKLE : Move.SHOT_TRIVELA;
+        } else {
+            LivingEntity mate = null;
+            double best = 1e9;
+            for (LivingEntity e : members(spTeam)) {
+                if (e == bot) continue;
+                double d = e.position().distanceTo(goal);
+                if (d < best) { best = d; mate = e; }
+            }
+            m = Move.PASS_CROSS;
+            target = mate == null ? goal : mate.position().add(0, 0.6, 0);
+        }
+        float yaw = yawToward(bot.position(), target);
+        bot.setYRot(yaw);
+        bot.setYHeadRot(yaw);
+        bot.yBodyRot = yaw;
+        MoveLogic.tryPerform(bot, m, 0.85f + r.nextFloat() * 0.15f, b > 0 ? -1 : 1, target);
+    }
+
+    private void endSetPiece(BallEntity ball) {
+        ball.locked = false;
+        phase = Phase.PLAYING;
+        setPiece = SetPiece.NONE;
+        spTaker = -1;
+        wall.clear();
+        sync();
+    }
+
+    public static void onSetPieceKick(BallEntity ball, LivingEntity by) {
+        Match m = INSTANCE;
+        if (m == null || m.phase != Phase.SET_PIECE) return;
+        // baraj ziplar
+        for (int id : m.wall) {
+            Entity e = m.level().getEntity(id);
+            if (e instanceof FootballerEntity f) MoveLogic.tryPerform(f, Move.BLOCK, 1, 0, null);
+        }
+        m.endSetPiece(ball);
     }
 
     // ================================================================ yerel 2. oyuncu (ayni bilgisayar, 2. kumanda)
@@ -658,6 +905,10 @@ public class Match {
             }
             case GOAL -> {
                 if (--phaseTimer <= 0) kickoff(kickoffTeam);
+            }
+            case SET_PIECE -> {
+                timeLeft--;
+                setPieceTick(ball);
             }
             case HALFTIME -> {
                 if (--phaseTimer <= 0) {

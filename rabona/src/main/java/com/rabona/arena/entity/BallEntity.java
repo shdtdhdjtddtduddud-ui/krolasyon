@@ -49,7 +49,7 @@ public class BallEntity extends Entity {
 
     // efektler (iz/partikul)
     public static final int FX_NONE = 0, FX_FIRE = 1, FX_THUNDER = 2, FX_TORNADO = 3, FX_GHOST = 4, FX_ICE = 5,
-            FX_KNUCKLE = 6, FX_POWER = 7, FX_RAINBOW = 8, FX_CURL = 9;
+            FX_KNUCKLE = 6, FX_POWER = 7, FX_RAINBOW = 8, FX_CURL = 9, FX_TRIVELA = 10, FX_LEAF = 11;
 
     private static final EntityDataAccessor<Integer> SKIN = SynchedEntityData.defineId(BallEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> EFFECT = SynchedEntityData.defineId(BallEntity.class, EntityDataSerializers.INT);
@@ -70,6 +70,8 @@ public class BallEntity extends Entity {
     public int lastMove = -1;
     /** Pasin alicisi: top ona dogru yon duzeltir (miknatis). */
     public int passTargetId = -1, passTick;
+    /** Duran top: top yerinde sabit, yalnizca vurusla oynar. */
+    public boolean locked;
     public boolean juggle;
 
     // istemci gorsel durumu
@@ -163,6 +165,8 @@ public class BallEntity extends Entity {
 
     /** Topa vur: kontrol birakilir, hiz/falso atanir. */
     public void kick(LivingEntity by, Vec3 vel, Vector3f spin, int fx, int fxTicks) {
+        boolean wasLocked = locked;
+        locked = false;
         setController(null, false);
         setDeltaMovement(vel);
         setSpin(spin);
@@ -178,6 +182,7 @@ public class BallEntity extends Entity {
         if (level() instanceof ServerLevel sl && sp > 1.2) {
             sl.sendParticles(ParticleTypes.CLOUD, getX(), getY() + RADIUS, getZ(), 6, 0.1, 0.1, 0.1, 0.06);
         }
+            if (wasLocked && !level().isClientSide) Match.onSetPieceKick(this, by);
     }
 
     // ---------------------------------------------------------------- tick
@@ -198,6 +203,12 @@ public class BallEntity extends Entity {
             ctrl = null;
         }
 
+        if (locked) {
+            if (getControllerId() >= 0) setController(null, false);
+            setDeltaMovement(Vec3.ZERO);
+            setSpin(new Vector3f());
+            return;
+        }
         if (ctrl != null && isHeld()) {
             holdTick(ctrl);
             return;
@@ -530,6 +541,11 @@ public class BallEntity extends Entity {
                 level().addParticle(ParticleTypes.ITEM_SNOWBALL, c.x, c.y, c.z, 0, 0, 0);
             }
             case FX_RAINBOW -> level().addParticle(ParticleTypes.END_ROD, c.x, c.y, c.z, 0, 0, 0);
+            case FX_LEAF -> {
+                if (random.nextInt(2) == 0) level().addParticle(ParticleTypes.CHERRY_LEAVES, c.x + rnd(0.2), c.y + rnd(0.2), c.z + rnd(0.2), 0, 0, 0);
+                level().addParticle(ParticleTypes.WAX_ON, c.x, c.y, c.z, 0, 0, 0);
+            }
+            case FX_TRIVELA -> level().addParticle(ParticleTypes.ELECTRIC_SPARK, c.x, c.y, c.z, 0, 0, 0);
             default -> {
                 if (sp > 1.2 && random.nextInt(2) == 0) level().addParticle(ParticleTypes.WHITE_ASH, c.x, c.y, c.z, 0, 0, 0);
             }
