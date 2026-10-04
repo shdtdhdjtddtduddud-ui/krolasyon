@@ -12,6 +12,17 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 minecraft {
     mappings channel: 'official', version: '1.20.1'
     runs {
+        server {
+            workingDirectory project.file('run-server')
+            property 'forge.logging.console.level', 'info'
+            property 'krolasyon.servertest', 'true'
+            args '--nogui'
+            mods {
+                krolasyonbosses {
+                    source sourceSets.main
+                }
+            }
+        }
         client {
             workingDirectory project.file('run')
             property 'forge.logging.console.level', 'info'

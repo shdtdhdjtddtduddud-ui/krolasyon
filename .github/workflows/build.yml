@@ -23,6 +23,20 @@ jobs:
           set +e
           gradle build --no-daemon --stacktrace 2>&1 | tee build.log
           echo "status=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+      - name: Dedicated server self-test
+        id: st
+        if: steps.b.outputs.status == '0' && contains(github.event.head_commit.message, '[stest]')
+        continue-on-error: true
+        shell: bash
+        run: |
+          mkdir -p run-server
+          echo "eula=true" > run-server/eula.txt
+          printf "level-seed=12345\nonline-mode=false\nspawn-protection=0\n" > run-server/server.properties
+          set +e
+          timeout 1500 gradle runServer --no-daemon > server.log 2>&1
+          echo "server exit $?"
+          grep -E "SERVERTEST|Exception|ERROR|Caused by" server.log | head -1500 > server_summary.log
+          tail -c 100000 server.log > server_tail.log
       - name: Visual self-test (headless client)
         id: vt
         if: steps.b.outputs.status == '0' && contains(github.event.head_commit.message, '[vtest]')
@@ -54,6 +68,7 @@ jobs:
           FILES="build.log"
           for f in build/libs/*.jar; do [ -f "$f" ] && FILES="$FILES $f"; done
           [ -f vtest.zip ] && FILES="$FILES vtest.zip"
+          [ -f server_summary.log ] && FILES="$FILES server_summary.log server_tail.log"
           gh release create "$TAG" $FILES --title "Build ${{ github.run_number }} (status ${{ steps.b.outputs.status }})" --notes "commit ${{ github.sha }}" --prerelease --target "${{ github.sha }}"
       - name: Fail on build error
         if: steps.b.outputs.status != '0'

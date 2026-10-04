@@ -96,7 +96,9 @@ public final class RpgEvents {
             RegionId region = WorldMap.regionAt(p.serverLevel(), p.blockPosition());
             Site site = WorldMap.siteAt(w, p.getX(), p.getZ());
             String label = site != null ? site.name : region.title;
-            if (!label.equals(d.lastRegion)) {
+            long lastTitle = p.getPersistentData().getLong("KrolasyonRegionTitle");
+            if (!label.equals(d.lastRegion) && p.level().getGameTime() - lastTitle > 200) {
+                p.getPersistentData().putLong("KrolasyonRegionTitle", p.level().getGameTime());
                 d.lastRegion = label;
                 String sub = site != null ? (site.kingdom >= 0 ? Kingdom.of(site.kingdom).title + " • " : "") + site.type.title
                         : (region.wild() ? "Vahşi Topraklar • Tehlike " + "☠".repeat(region.danger) : Kingdom.of(region.kingdom).title);

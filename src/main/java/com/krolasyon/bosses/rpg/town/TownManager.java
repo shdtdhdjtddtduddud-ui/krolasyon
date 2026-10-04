@@ -39,6 +39,15 @@ public final class TownManager {
 
     public static boolean building(String siteId) { return JOBS.containsKey(siteId); }
 
+    public static int jobCount() { return JOBS.size(); }
+
+    /** starts building a site now, regardless of where the players are */
+    public static void enqueue(ServerLevel level, Site s, RpgWorldData w) {
+        if (s.built || JOBS.containsKey(s.id)) return;
+        JOBS.put(s.id, new Job(s, SettlementGen.plan(level, s, w)));
+        w.setDirty();
+    }
+
     /** checks once a second which sites near players need building */
     public static void scan(ServerLevel level, RpgWorldData w) {
         if (level.dimension() != net.minecraft.world.level.Level.OVERWORLD) return;

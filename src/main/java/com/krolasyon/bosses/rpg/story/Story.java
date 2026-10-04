@@ -617,7 +617,16 @@ public final class Story {
         BlockPos home = w.anchor("family_home");
         if (!d.originDone) {
             if (home == null) {
-                if (p.tickCount % 100 == 0) p.displayClientMessage(Component.literal("§7Dünya şekilleniyor... Solmere inşa ediliyor."), true);
+                // keep the player safe while the capital rises around them
+                p.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.DAMAGE_RESISTANCE, 60, 4, false, false));
+                p.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.SLOW_FALLING, 60, 0, false, false));
+                p.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.BLINDNESS, 60, 0, false, false));
+                p.setAirSupply(p.getMaxAirSupply());
+                if (level.getBlockState(p.blockPosition()).isSuffocating(level, p.blockPosition()) || level.getBlockState(p.blockPosition().above()).isSuffocating(level, p.blockPosition().above())) {
+                    int y = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, p.getBlockX(), p.getBlockZ());
+                    p.teleportTo(p.getX(), y + 1, p.getZ());
+                }
+                p.displayClientMessage(Component.literal("§7Dünya şekilleniyor... Solmere inşa ediliyor."), true);
                 return;
             }
             origin(p, d, home);
