@@ -257,10 +257,21 @@ public class Match {
         return botManagers.computeIfAbsent(t, k -> Cards.Manager.random(level().getRandom(), 60 + difficulty * 8, 74 + difficulty * 8));
     }
 
+    private final Map<Team, Tactic> tacticCache = new EnumMap<>(Team.class);
+    private long tacticTick = -1;
+
+    /** Takimin taktigi (tick basina onbellekli - botlar sik sorar). */
     public Tactic tactic(Team t) {
         if (!t.playing()) return Tactic.BALANCED;
-        Cards.Manager m = manager(t);
-        return m == null ? Tactic.BALANCED : m.tacticEnum();
+        long now = level().getGameTime();
+        if (now != tacticTick) {
+            tacticTick = now;
+            tacticCache.clear();
+        }
+        return tacticCache.computeIfAbsent(t, k -> {
+            Cards.Manager m = manager(k);
+            return m == null ? Tactic.BALANCED : m.tacticEnum();
+        });
     }
 
     public boolean subbedIn(FootballerEntity f) { return subbedIn.contains(f.getUUID()); }
@@ -274,6 +285,7 @@ public class Match {
     /** Kadro / menajer degisti: diziliisi ve kartlari yeniden uygula. */
     public void refreshTeam(Team t) {
         benches.remove(t);
+        tacticTick = -1;
         assignRoles();
         Cards.applySquad(this, t);
         sync();
