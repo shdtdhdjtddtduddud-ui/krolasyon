@@ -20,6 +20,7 @@ MOVES = {
     'shot_knuckle': ("Knuckleball", "Falsosuz, havada titreyerek yön değiştiren füze. Kaleciler için kabus.", "Knuckleball", "Spinless rocket that wobbles unpredictably. A keeper's nightmare."),
     'shot_rabona': ("Rabona Şut", "Bacak arkasından çaprazlayarak çekilen efsane şut.", "Rabona Shot", "The legendary shot with crossed legs."),
     'shot_panenka': ("Panenka", "Kaleci atlarken ortadan yumuşacık aşırtma. Cesaret ister.", "Panenka", "Delicate dink down the middle while the keeper dives. Takes nerve."),
+    'shot_deadleaf': ("Ölü Yaprak", "Topun ortasına sert vurulur; dönmeden yükselir, kalenin önünde aniden düşer. Serbest vuruşların silahı.", "Dead Leaf", "Struck through the middle: rises without spin and suddenly dips in front of goal. A free-kick weapon."),
     'shot_toepoke': ("Burun Vuruşu", "Hazırlıksız, çok hızlı burun vuruşu. Kaleciyi hazırlıksız yakalar.", "Toe Poke", "Instant toe-poke that catches the keeper unprepared."),
     'header': ("Kafa Vuruşu", "Havadaki topu kafayla baktığın yöne gönderir.", "Header", "Head the ball where you are looking."),
     'diving_header': ("Balıklama Kafa", "Kendini topa atarak yapılan güçlü kafa vuruşu.", "Diving Header", "Throw yourself at the ball for a powerful header."),
@@ -332,8 +333,70 @@ SOUNDS = {
 }
 
 
+# (anahtar, tr, en)
+EXTRA = [
+    ("key.rabonaarena.subs", "Oyuncu değişikliği", "Substitutions"),
+    ("msg.rabonaarena.foul", "Faul! %s", "Foul! %s"),
+    ("msg.rabonaarena.yellow_card", "🟨 Sarı kart: %s", "🟨 Yellow card: %s"),
+    ("msg.rabonaarena.red_card", "🟥 Kırmızı kart: %s oyundan atıldı!", "🟥 Red card: %s is sent off!"),
+    ("banner.rabonaarena.yellow_card", "SARI KART", "YELLOW CARD"),
+    ("banner.rabonaarena.red_card", "KIRMIZI KART", "RED CARD"),
+    ("banner.rabonaarena.free_kick", "SERBEST VURUŞ", "FREE KICK"),
+    ("banner.rabonaarena.penalty", "PENALTI!", "PENALTY!"),
+    ("banner.rabonaarena.taker", "Kullanan: %s", "Taker: %s"),
+    ("banner.rabonaarena.sub", "OYUNCU DEĞİŞİKLİĞİ", "SUBSTITUTION"),
+    ("phase.rabonaarena.set_piece", "DURAN TOP", "SET PIECE"),
+    ("phase.rabonaarena.free_kick", "SERBEST VURUŞ — fare ile nişan al, şut tuşunu basılı tut", "FREE KICK — aim with the mouse, hold shoot"),
+    ("phase.rabonaarena.penalty", "PENALTI — fare ile nişan al, şut tuşunu basılı tut", "PENALTY — aim with the mouse, hold shoot"),
+    ("screen.rabonaarena.editing_p1", "Düzenlenen: 1. Oyuncu (P1)", "Editing: Player 1 (P1)"),
+    ("screen.rabonaarena.editing_p2", "Düzenlenen: 2. Oyuncu (P2 kumanda)", "Editing: Player 2 (P2 gamepad)"),
+    ("screen.rabonaarena.lineup", "Kadro", "Lineup"),
+    ("screen.rabonaarena.managers", "Menajer", "Manager"),
+    ("screen.rabonaarena.auto_lineup", "Otomatik kadro", "Auto lineup"),
+    ("screen.rabonaarena.buy_manager", "Menajer paketi ⛁%s", "Manager pack ⛁%s"),
+    ("screen.rabonaarena.lineup_head", "İlk 11 — %s (%s)", "Starting XI — %s (%s)"),
+    ("screen.rabonaarena.bench", "Yedekler", "Bench"),
+    ("screen.rabonaarena.pool", "Kadro dışı kartlar", "Reserves"),
+    ("screen.rabonaarena.pool_empty", "Kadro dışı kart yok. Paket aç!", "No reserve cards. Open packs!"),
+    ("screen.rabonaarena.lineup_tip1", "Bir mevkiye tıkla → başka mevkiye (yer değiştir) ya da sağdaki karta tıkla (kadroya al). Sağ tık: çıkar", "Click a slot → another slot (swap) or a card on the right (bring in). Right click: remove"),
+    ("screen.rabonaarena.lineup_tip2", "Şimdi değiştirilecek mevkiye ya da karta tıkla", "Now click the slot or card to swap with"),
+    ("screen.rabonaarena.manager_line", "Menajer: %s — %s (%s)", "Manager: %s — %s (%s)"),
+    ("screen.rabonaarena.manager_short", "MENAJER", "MANAGER"),
+    ("screen.rabonaarena.no_manager", "Menajerin yok. Menajer paketi al — takımın taktiği menajere göre değişir.", "No manager. Buy a manager pack — your team's tactics follow the manager."),
+    ("screen.rabonaarena.team_boost", "takım gücü", "team boost"),
+    ("screen.rabonaarena.subs", "Oyuncu Değişikliği", "Substitutions"),
+    ("screen.rabonaarena.subs_left", "Kalan hak: %s / %s", "Subs left: %s / %s"),
+    ("screen.rabonaarena.on_pitch", "Sahada (kondisyon)", "On the pitch (stamina)"),
+    ("screen.rabonaarena.sub_tip1", "Çıkacak oyuncuyu seç", "Pick the player to bring off"),
+    ("screen.rabonaarena.sub_tip2", "Girecek yedeği seç", "Pick the substitute to bring on"),
+    ("screen.rabonaarena.sub_pad", "Kumanda: ↑↓ seç, ←→ sütun, A onay, B geri  •  Klavye: P kapat", "Gamepad: ↑↓ select, ←→ column, A confirm, B back  •  Keyboard: P to close"),
+    ("msg.rabonaarena.sub", "🔁 %s: %s oyuna girdi, %s çıktı", "🔁 %s: %s on, %s off"),
+    ("msg.rabonaarena.no_subs", "Oyuncu değiştirme hakkın kalmadı!", "No substitutions left!"),
+    ("msg.rabonaarena.manager_new", "Yeni menajer: %s (%s)", "New manager: %s (%s)"),
+    ("msg.rabonaarena.manager_set", "Menajer: %s — %s, %s", "Manager: %s — %s, %s"),
+    ("msg.rabonaarena.manager_plan", "%s menajeri %s: %s (%s)", "%s manager %s: %s (%s)"),
+    ("tactic.rabonaarena.balanced", "Dengeli", "Balanced"),
+    ("tactic.rabonaarena.balanced.desc", "Ne çok önde ne çok geride; kısa ve uzun pası karıştırır.", "Neither high nor deep; mixes short and long passing."),
+    ("tactic.rabonaarena.tiki_taka", "Tiki-Taka", "Tiki-Taka"),
+    ("tactic.rabonaarena.tiki_taka.desc", "Kısa paslarla topa sahip ol, sabırla boşluk ara, ikili pres.", "Keep the ball with short passes, probe patiently, press in pairs."),
+    ("tactic.rabonaarena.gegenpress", "Gegenpress", "Gegenpress"),
+    ("tactic.rabonaarena.gegenpress.desc", "Top kaybında hemen 3 kişiyle yüklen, savunma hattı çok önde.", "Swarm the ball with three players after losing it; very high line."),
+    ("tactic.rabonaarena.counter", "Kontra Atak", "Counter Attack"),
+    ("tactic.rabonaarena.counter.desc", "Derinde bekle, topu kazanınca hızlı dikine oyna; forvetler önde kalır.", "Sit deep, break fast and direct when you win it; forwards stay high."),
+    ("tactic.rabonaarena.park_bus", "Otobüsü Çek", "Park the Bus"),
+    ("tactic.rabonaarena.park_bus.desc", "5'li savunma, dar ve kompakt; gol yememek öncelik.", "Back five, narrow and compact; keeping a clean sheet comes first."),
+    ("tactic.rabonaarena.wing_play", "Kanat Oyunu", "Wing Play"),
+    ("tactic.rabonaarena.wing_play.desc", "Sahayı genişlet, kanatlar çizgiye kadar inip orta açsın.", "Stretch the pitch; wingers go to the byline and cross."),
+    ("tactic.rabonaarena.long_ball", "Uzun Top", "Long Ball"),
+    ("tactic.rabonaarena.long_ball.desc", "Orta sahayı atla, uzun toplar ve ortalarla forvete oyna; uzaktan şut.", "Skip midfield with long balls and crosses; shoot from distance."),
+]
+
+
 def build():
     tr, en = dict(TR), dict(EN)
+    for k, t, e in EXTRA:
+        tr[k] = t
+        en[k] = e
     for k, (tn, td, en_n, ed) in MOVES.items():
         tr[f"move.{P}.{k}"] = tn
         tr[f"move.{P}.{k}.desc"] = td

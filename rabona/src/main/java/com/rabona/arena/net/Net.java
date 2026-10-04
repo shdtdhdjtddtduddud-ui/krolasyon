@@ -16,7 +16,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public final class Net {
-    private static final String VERSION = "1";
+    private static final String VERSION = "3";
     public static final SimpleChannel CH = NetworkRegistry.newSimpleChannel(RabonaArena.id("main"),
             () -> VERSION, VERSION::equals, VERSION::equals);
     private static int id;
@@ -34,6 +34,8 @@ public final class Net {
         reg(S2C.Banner.class, S2C.Banner::encode, S2C.Banner::new, S2C.Banner::handle, NetworkDirection.PLAY_TO_CLIENT);
         reg(S2C.Feed.class, S2C.Feed::encode, S2C.Feed::new, S2C.Feed::handle, NetworkDirection.PLAY_TO_CLIENT);
         reg(S2C.Profile.class, S2C.Profile::encode, S2C.Profile::new, S2C.Profile::handle, NetworkDirection.PLAY_TO_CLIENT);
+        reg(C2S.Sub.class, C2S.Sub::encode, C2S.Sub::new, C2S.Sub::handle, NetworkDirection.PLAY_TO_SERVER);
+        reg(S2C.Bench.class, S2C.Bench::encode, S2C.Bench::new, S2C.Bench::handle, NetworkDirection.PLAY_TO_CLIENT);
         reg(S2C.OpenMenu.class, S2C.OpenMenu::encode, S2C.OpenMenu::new, S2C.OpenMenu::handle, NetworkDirection.PLAY_TO_CLIENT);
     }
 

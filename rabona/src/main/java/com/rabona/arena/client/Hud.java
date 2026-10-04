@@ -22,7 +22,7 @@ import java.util.List;
 
 /** Oyun ici gostergeler. */
 public final class Hud {
-    private static final String[] PHASES = {"", "phase.rabonaarena.kickoff", "", "phase.rabonaarena.goal", "phase.rabonaarena.halftime", "phase.rabonaarena.ended"};
+    private static final String[] PHASES = {"", "phase.rabonaarena.kickoff", "", "phase.rabonaarena.goal", "phase.rabonaarena.halftime", "phase.rabonaarena.ended", "phase.rabonaarena.set_piece"};
 
     private Hud() {}
 
@@ -105,6 +105,7 @@ public final class Hud {
             g.fill(x, y + 26, x + (int) (cw * prog), y + 27, 0xFFFFC107);
         }
         String key = PHASES[Mth.clamp(m.phase(), 0, PHASES.length - 1)];
+        if (m.phase() == 6) key = m.setPiece() == 2 ? "phase.rabonaarena.penalty" : "phase.rabonaarena.free_kick";
         if (!key.isEmpty()) {
             Component c = Component.translatable(key);
             int pw = f.width(c) + 12;
@@ -280,6 +281,10 @@ public final class Hud {
     // ================================================================ buyuk yazi
     private static void banner(GuiGraphics g, Font f, int w, int h, float partial) {
         S2C.Banner b = ClientState.banner;
+        if (b.type() >= 3) {
+            smallBanner(g, f, w, h, b, partial);
+            return;
+        }
         int total = b.type() == 1 ? 100 : 200;
         float t = total - ClientState.bannerTicks + partial;
         float in = Mth.clamp(t / 8f, 0, 1);
@@ -335,6 +340,50 @@ public final class Hud {
             if (!b.name().isEmpty()) {
                 Component mvp = Component.translatable("banner.rabonaarena.mvp", b.name());
                 g.drawString(f, mvp, w / 2 - f.width(mvp) / 2, cy + 50, a | 0xE1BEE7, true);
+            }
+        }
+    }
+
+    /** Kart (sari/kirmizi) ve duran top afisi: FIFA gibi alt-orta serit. */
+    private static void smallBanner(GuiGraphics g, Font f, int w, int h, S2C.Banner b, float partial) {
+        float t = 70 - ClientState.bannerTicks + partial;
+        float alpha = Math.min(Mth.clamp(t / 6f, 0, 1), Mth.clamp(ClientState.bannerTicks / 8f, 0, 1));
+        if (alpha < 0.03f) return;
+        int a = (int) (alpha * 255) << 24;
+        float slide = (1 - Mth.clamp(t / 8f, 0, 1)) * 60;
+        int bw = 220, bh = 34;
+        int x = (int) (w / 2 - bw / 2 + slide), y = h - 92;
+        g.fill(x, y, x + bw, y + bh, (int) (alpha * 200) << 24 | 0x101820);
+        if (b.type() == 3) {
+            boolean red = "red".equals(b.extra());
+            int col = red ? 0xE53935 : 0xFFD600;
+            g.fill(x, y, x + 4, y + bh, a | col);
+            g.fill(x + 12, y + 5, x + 30, y + 29, a | col);
+            g.fill(x + 12, y + 5, x + 30, y + 7, a | 0xFFFFFF);
+            Component title = Component.translatable(red ? "banner.rabonaarena.red_card" : "banner.rabonaarena.yellow_card");
+            g.drawString(f, title, x + 38, y + 6, a | col, true);
+            g.drawString(f, b.name(), x + 38, y + 19, a | 0xFFFFFF, true);
+        } else if (b.type() == 5) {
+            // oyuncu degisikligi tabelasi (yesil giren / kirmizi cikan)
+            String[] ex = b.extra().split("\\|", -1);
+            g.fill(x, y, x + 4, y + bh, a | 0x00B0FF);
+            Component title = Component.translatable("banner.rabonaarena.sub");
+            g.drawString(f, title, x + 12, y + 4, a | 0x80D8FF, true);
+            g.drawString(f, "▲ " + b.name(), x + 12, y + 15, a | 0x69F0AE, true);
+            String out = "▼ " + (ex.length > 0 ? ex[0] : "");
+            g.drawString(f, out, x + bw - 10 - f.width(out), y + 15, a | 0xFF5252, true);
+        } else {
+            boolean pen = "penalty".equals(b.extra());
+            g.fill(x, y, x + 4, y + bh, a | 0x00E676);
+            Component title = Component.translatable(pen ? "banner.rabonaarena.penalty" : "banner.rabonaarena.free_kick");
+            g.pose().pushPose();
+            g.pose().translate(x + 12, y + 5, 0);
+            g.pose().scale(1.4f, 1.4f, 1);
+            g.drawString(f, title, 0, 0, a | 0x00E676, true);
+            g.pose().popPose();
+            if (!b.name().isEmpty()) {
+                Component who = Component.translatable("banner.rabonaarena.taker", b.name());
+                g.drawString(f, who, x + 12, y + 21, a | 0xFFFFFF, true);
             }
         }
     }

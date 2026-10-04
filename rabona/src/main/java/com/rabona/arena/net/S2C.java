@@ -194,10 +194,23 @@ public final class S2C {
 
     /** Oyuncu profili: jeton, kartlar, kadro, yeni acilan kartlar. */
     public record Profile(int coins, java.util.List<com.rabona.arena.game.Cards.Card> cards, java.util.List<Integer> squad,
-                          java.util.List<com.rabona.arena.game.Cards.Card> opened) {
+                          java.util.List<com.rabona.arena.game.Cards.Card> opened,
+                          java.util.List<com.rabona.arena.game.Cards.Manager> managers, int manager) {
         public Profile(FriendlyByteBuf b) {
             this(b.readVarInt(), b.readList(com.rabona.arena.game.Cards.Card::read), b.readList(FriendlyByteBuf::readVarInt),
-                    b.readList(com.rabona.arena.game.Cards.Card::read));
+                    b.readList(com.rabona.arena.game.Cards.Card::read), b.readList(com.rabona.arena.game.Cards.Manager::read), b.readVarInt());
+        }
+
+        public int at(int slot) { return slot >= 0 && slot < squad.size() ? squad.get(slot) : -1; }
+
+        public int squadCount() {
+            int n = 0;
+            for (int i : squad) if (i >= 0) n++;
+            return n;
+        }
+
+        public com.rabona.arena.game.Cards.Manager activeManager() {
+            return manager >= 0 && manager < managers.size() ? managers.get(manager) : null;
         }
 
         public void encode(FriendlyByteBuf b) {
@@ -205,6 +218,8 @@ public final class S2C {
             b.writeCollection(cards, (x, c) -> c.write(x));
             b.writeCollection(squad, FriendlyByteBuf::writeVarInt);
             b.writeCollection(opened, (x, c) -> c.write(x));
+            b.writeCollection(managers, (x, c) -> c.write(x));
+            b.writeVarInt(manager);
         }
 
         public void handle(Supplier<NetworkEvent.Context> ctx) {
@@ -213,4 +228,50 @@ public final class S2C {
     }
 
     public static Move moveOf(Anim a) { return Move.byId(a.move()); }
+
+    /** Yedek kulubesi ve sahadaki botlar (oyuncu degisikligi ekrani). */
+    public record Bench(int team, boolean p2, List<com.rabona.arena.game.Cards.Card> bench, List<FieldEntry> field, int subsLeft,
+                        String manager, int tactic) {
+        public record FieldEntry(int id, String name, int pos, int ovr, int stamina, boolean subbed) {}
+
+        public static Bench of(Match m, com.rabona.arena.game.Team t, boolean p2) {
+            List<FieldEntry> f = new ArrayList<>();
+            List<com.rabona.arena.entity.FootballerEntity> bots = new ArrayList<>();
+            for (com.rabona.arena.entity.FootballerEntity e : m.bots()) if (e.getSquad() == t) bots.add(e);
+            bots.sort(java.util.Comparator.comparingInt(e -> e.getFieldPos().ordinal()));
+            for (com.rabona.arena.entity.FootballerEntity e : bots)
+                f.add(new FieldEntry(e.getId(), e.getBaseName(), e.getFieldPos().ordinal(), e.getSkill(),
+                        (int) com.rabona.arena.game.Athlete.of(e).stamina, m.subbedIn(e)));
+            com.rabona.arena.game.Cards.Manager mg = m.manager(t);
+            return new Bench(t.ordinal(), p2, new ArrayList<>(m.bench(t)), f, m.subsLeft(t), mg == null ? "" : mg.name(),
+                    m.tactic(t).ordinal());
+        }
+
+        public Bench(FriendlyByteBuf b) {
+            this(b.readByte(), b.readBoolean(), b.readList(com.rabona.arena.game.Cards.Card::read),
+                    b.readList(x -> new FieldEntry(x.readVarInt(), x.readUtf(40), x.readByte(), x.readByte(), x.readByte(), x.readBoolean())),
+                    b.readByte(), b.readUtf(40), b.readByte());
+        }
+
+        public void encode(FriendlyByteBuf b) {
+            b.writeByte(team);
+            b.writeBoolean(p2);
+            b.writeCollection(bench, (x, c) -> c.write(x));
+            b.writeCollection(field, (x, e) -> {
+                x.writeVarInt(e.id());
+                x.writeUtf(e.name(), 40);
+                x.writeByte(e.pos());
+                x.writeByte(e.ovr());
+                x.writeByte(e.stamina());
+                x.writeBoolean(e.subbed());
+            });
+            b.writeByte(subsLeft);
+            b.writeUtf(manager, 40);
+            b.writeByte(tactic);
+        }
+
+        public void handle(Supplier<NetworkEvent.Context> ctx) {
+            client(ctx, () -> com.rabona.arena.client.ClientHooks.bench(this));
+        }
+    }
 }

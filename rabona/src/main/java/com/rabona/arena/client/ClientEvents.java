@@ -62,6 +62,7 @@ public final class ClientEvents {
         CrowdRenderer.render(e.getPoseStack(), e.getPartialTick());
         Replay.render(e.getPoseStack(), e.getPartialTick());
         PadControl.renderMarkers(e.getPoseStack(), e.getPartialTick());
+        ShotPreview.render(e.getPoseStack(), e.getPartialTick());
     }
 
     @SubscribeEvent

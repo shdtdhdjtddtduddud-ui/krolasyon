@@ -83,7 +83,7 @@ public class FootballerEntity extends PathfinderMob {
         setCustomName(Component.literal(getNumber() + " ").withStyle(ChatFormatting.WHITE, ChatFormatting.BOLD)
                 .append(Component.literal(getBaseName()).withStyle(t.chat))
                 .append(Component.literal(" [" + getSkill() + "]").withStyle(ChatFormatting.GOLD)));
-        setCustomNameVisible(true);
+        setCustomNameVisible(false); // isim sadece bakinca (ekran sade kalsin)
     }
 
     public Team getSquad() { return Team.byId(entityData.get(TEAM)); }

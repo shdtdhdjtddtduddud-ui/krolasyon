@@ -35,7 +35,7 @@ public final class ClientHooks {
 
     public static void banner(S2C.Banner b) {
         ClientState.banner = b;
-        ClientState.bannerTicks = b.type() == 1 ? 100 : 200;
+        ClientState.bannerTicks = b.type() == 1 ? 100 : b.type() >= 3 ? 70 : 200;
         if (b.type() == 1) {
             ClientEvents.addShake(0.6f);
             Replay.onGoal();
@@ -51,6 +51,12 @@ public final class ClientHooks {
     }
 
     public static void feed(S2C.Feed f) { ClientState.addFeed(f.text()); }
+
+    public static void bench(S2C.Bench b) {
+        ClientState.bench = b;
+        Minecraft mc = Minecraft.getInstance();
+        if (!(mc.screen instanceof SubScreen)) mc.setScreen(new SubScreen(b.p2()));
+    }
 
     public static void openMenu(S2C.OpenMenu o) {
         Minecraft mc = Minecraft.getInstance();

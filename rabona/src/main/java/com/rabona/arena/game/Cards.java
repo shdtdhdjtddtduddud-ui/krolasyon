@@ -24,7 +24,46 @@ import java.util.*;
 public final class Cards {
     private Cards() {}
 
-    public static final int START_COINS = 400, SQUAD_MAX = 11;
+    /** Kadro: 11 ilk on bes (taktigin dizilis sirasiyla) + 7 yedek. -1 = bos yer. */
+    public static final int START_COINS = 400, SQUAD_MAX = 11, BENCH_MAX = 7, LINEUP = SQUAD_MAX + BENCH_MAX, MANAGER_PRICE = 350;
+
+    /** Menajer karti: taktigi takimin oyun planini, puani takimin gucunu belirler. */
+    public record Manager(String name, int tactic, int ovr, int rarity, int skin) {
+        public CompoundTag save() {
+            CompoundTag t = new CompoundTag();
+            t.putString("n", name);
+            t.putIntArray("v", new int[]{tactic, ovr, rarity, skin});
+            return t;
+        }
+
+        public static Manager load(CompoundTag t) {
+            int[] v = Arrays.copyOf(t.getIntArray("v"), 4);
+            return new Manager(t.getString("n"), v[0], v[1], v[2], v[3]);
+        }
+
+        public void write(FriendlyByteBuf b) {
+            b.writeUtf(name, 40);
+            b.writeByte(tactic);
+            b.writeByte(ovr);
+            b.writeByte(rarity);
+            b.writeByte(skin);
+        }
+
+        public static Manager read(FriendlyByteBuf b) {
+            return new Manager(b.readUtf(40), b.readUnsignedByte(), b.readUnsignedByte(), b.readUnsignedByte(), b.readUnsignedByte());
+        }
+
+        public Tactic tacticEnum() { return Tactic.byId(tactic); }
+
+        /** Takim botlarina eklenen guc (menajer puanina gore). */
+        public int bonus() { return Math.max(-2, (ovr - 72) / 5); }
+
+        public static Manager random(RandomSource r, int min, int max) {
+            int ovr = min + r.nextInt(Math.max(1, max - min + 1));
+            int rarity = ovr >= 86 ? 3 : ovr >= 75 ? 2 : ovr >= 65 ? 1 : 0;
+            return new Manager(BotNames.random(r), r.nextInt(Tactic.values().length), ovr, rarity, r.nextInt(FootballerEntity.SKINS));
+        }
+    }
 
     public record Card(String name, int pos, int ovr, int pac, int sho, int pas, int dri, int def, int phy, int rarity, int skin) {
         public CompoundTag save() {
@@ -76,7 +115,37 @@ public final class Cards {
     public static class Profile {
         public int coins = START_COINS;
         public final List<Card> cards = new ArrayList<>();
+        /** Kadro sirasi: [0..10] ilk 11 (dizilis yuvasi), [11..17] yedekler; -1 bos. */
         public final List<Integer> squad = new ArrayList<>();
+        public final List<Manager> managers = new ArrayList<>();
+        public int manager = -1;
+
+        public Manager activeManager() { return manager >= 0 && manager < managers.size() ? managers.get(manager) : null; }
+
+        public int squadCount() {
+            int n = 0;
+            for (int i : squad) if (i >= 0) n++;
+            return n;
+        }
+
+        public int at(int slot) { return slot >= 0 && slot < squad.size() ? squad.get(slot) : -1; }
+
+        void put(int slot, int card) {
+            while (squad.size() <= slot) squad.add(-1);
+            squad.set(slot, card);
+            while (!squad.isEmpty() && squad.get(squad.size() - 1) < 0) squad.remove(squad.size() - 1);
+        }
+
+        /** Karti ilk bos yere koy (once ilk 11, sonra yedek). */
+        boolean add(int card) {
+            for (int i = 0; i < LINEUP; i++) {
+                if (at(i) < 0) {
+                    put(i, card);
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     // ================================================================ veri
@@ -91,7 +160,9 @@ public final class Cards {
                 Profile p = new Profile();
                 p.coins = pt.getInt("coins");
                 for (Tag c : pt.getList("cards", Tag.TAG_COMPOUND)) p.cards.add(Card.load((CompoundTag) c));
-                for (int i : pt.getIntArray("squad")) if (i >= 0 && i < p.cards.size()) p.squad.add(i);
+                for (int i : pt.getIntArray("squad")) if (p.squad.size() < LINEUP) p.squad.add(i >= 0 && i < p.cards.size() ? i : -1);
+                for (Tag c : pt.getList("mgrs", Tag.TAG_COMPOUND)) p.managers.add(Manager.load((CompoundTag) c));
+                p.manager = pt.contains("mgr") ? pt.getInt("mgr") : -1;
                 try {
                     d.profiles.put(UUID.fromString(k), p);
                 } catch (IllegalArgumentException ignored) {
@@ -110,6 +181,10 @@ public final class Cards {
                 for (Card c : p.cards) l.add(c.save());
                 pt.put("cards", l);
                 pt.putIntArray("squad", p.squad.stream().mapToInt(Integer::intValue).toArray());
+                ListTag ml = new ListTag();
+                for (Manager m : p.managers) ml.add(m.save());
+                pt.put("mgrs", ml);
+                pt.putInt("mgr", p.manager);
                 all.put(u.toString(), pt);
             });
             t.put("p", all);
@@ -156,7 +231,7 @@ public final class Cards {
         got.sort(Comparator.comparingInt(Card::ovr));
         pr.cards.addAll(got);
         // kadro bossa otomatik doldur
-        for (int i = pr.cards.size() - got.size(); i < pr.cards.size() && pr.squad.size() < SQUAD_MAX; i++) pr.squad.add(i);
+        for (int i = pr.cards.size() - got.size(); i < pr.cards.size(); i++) if (!pr.add(i)) break;
         data(p).setDirty();
         p.level().playSound(null, p.blockPosition(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.8f, 1.2f);
         sync(p, got);
@@ -165,12 +240,105 @@ public final class Cards {
     public static void toggleSquad(ServerPlayer p, int idx) {
         Profile pr = profile(p);
         if (idx < 0 || idx >= pr.cards.size()) return;
-        if (pr.squad.contains(idx)) pr.squad.remove((Integer) idx);
-        else if (pr.squad.size() < SQUAD_MAX) pr.squad.add(idx);
+        int at = pr.squad.indexOf(idx);
+        if (at >= 0) pr.put(at, -1);
+        else pr.add(idx);
+        changed(p);
+    }
+
+    /** Kadro duzenleme: iki yuvanin yerini degistir (ilk 11 <-> yedek dahil). */
+    public static void swapSlots(ServerPlayer p, int a, int b) {
+        Profile pr = profile(p);
+        if (a < 0 || b < 0 || a >= LINEUP || b >= LINEUP || a == b) return;
+        int ca = pr.at(a), cb = pr.at(b);
+        pr.put(a, cb);
+        pr.put(b, ca);
+        changed(p);
+    }
+
+    /** Koleksiyondaki karti bir yuvaya koy (yuvadaki kart koleksiyona doner). */
+    public static void placeCard(ServerPlayer p, int slot, int card) {
+        Profile pr = profile(p);
+        if (slot < 0 || slot >= LINEUP || card < 0 || card >= pr.cards.size()) return;
+        int was = pr.squad.indexOf(card);
+        if (was >= 0) {
+            swapSlots(p, was, slot);
+            return;
+        }
+        pr.put(slot, card);
+        changed(p);
+    }
+
+    public static void clearSlot(ServerPlayer p, int slot) {
+        Profile pr = profile(p);
+        if (slot < 0 || slot >= LINEUP) return;
+        pr.put(slot, -1);
+        changed(p);
+    }
+
+    /** En iyi 11'i otomatik kur: taktigin dizilisindeki her yuvaya en uygun kart. */
+    public static void autoLineup(ServerPlayer p) {
+        Profile pr = profile(p);
+        Manager mg = pr.activeManager();
+        Pos[] f = Pos.formation(11, mg == null ? Tactic.BALANCED : mg.tacticEnum());
+        List<Integer> pool = new ArrayList<>();
+        for (int i = 0; i < pr.cards.size(); i++) pool.add(i);
+        pool.sort(Comparator.comparingInt(i -> -pr.cards.get(i).ovr()));
+        pr.squad.clear();
+        for (int s = 0; s < f.length; s++) {
+            int best = -1;
+            double bd = 1e9;
+            for (int i : pool) {
+                Card c = pr.cards.get(i);
+                Pos cp = Pos.byId(c.pos());
+                double d = (cp == f[s] ? 0 : cp.dist(f[s]) + 0.4) * 30 - c.ovr();
+                if ((f[s] == Pos.GK) != (cp == Pos.GK)) d += 200;
+                if (d < bd) { bd = d; best = i; }
+            }
+            pr.put(s, best);
+            if (best >= 0) pool.remove((Integer) best);
+        }
+        for (int s = SQUAD_MAX; s < LINEUP && !pool.isEmpty(); s++) pr.put(s, pool.remove(0));
+        changed(p);
+    }
+
+    // ================================================================ menajer
+    public static void buyManager(ServerPlayer p) {
+        Profile pr = profile(p);
+        if (pr.coins < MANAGER_PRICE) {
+            p.displayClientMessage(Component.translatable("msg.rabonaarena.not_enough_coins", MANAGER_PRICE).withStyle(ChatFormatting.RED), true);
+            return;
+        }
+        if (pr.managers.size() >= 30) {
+            p.displayClientMessage(Component.translatable("msg.rabonaarena.collection_full").withStyle(ChatFormatting.RED), true);
+            return;
+        }
+        pr.coins -= MANAGER_PRICE;
+        RandomSource r = p.getRandom();
+        Manager m = Manager.random(r, 60, r.nextFloat() < 0.15 ? 93 : 84);
+        pr.managers.add(m);
+        if (pr.manager < 0) pr.manager = pr.managers.size() - 1;
+        p.level().playSound(null, p.blockPosition(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.8f, 0.9f);
+        p.displayClientMessage(Component.translatable("msg.rabonaarena.manager_new", m.name(), m.tacticEnum().title()).withStyle(ChatFormatting.AQUA), false);
+        changed(p);
+    }
+
+    public static void setManager(ServerPlayer p, int idx) {
+        Profile pr = profile(p);
+        if (idx < -1 || idx >= pr.managers.size()) return;
+        pr.manager = idx;
+        Manager m = pr.activeManager();
+        if (m != null) p.displayClientMessage(Component.translatable("msg.rabonaarena.manager_set", m.name(), m.tacticEnum().title(), m.tacticEnum().shape)
+                .withStyle(ChatFormatting.AQUA), true);
+        changed(p);
+    }
+
+    private static void changed(ServerPlayer p) {
         data(p).setDirty();
         sync(p, List.of());
         Match m = Match.get(p.server);
-        Cards.applySquad(m, Match.teamOf(p));
+        Team t = Match.teamOf(p);
+        if (t.playing()) m.refreshTeam(t);
     }
 
     public static void sell(ServerPlayer p, int idx) {
@@ -179,7 +347,7 @@ public final class Cards {
         Card c = pr.cards.remove(idx);
         pr.coins += c.sellValue();
         List<Integer> sq = new ArrayList<>();
-        for (int i : pr.squad) if (i != idx) sq.add(i > idx ? i - 1 : i);
+        for (int i : pr.squad) sq.add(i == idx ? -1 : i > idx ? i - 1 : i);
         pr.squad.clear();
         pr.squad.addAll(sq);
         data(p).setDirty();
@@ -189,7 +357,8 @@ public final class Cards {
 
     public static void sync(ServerPlayer p, List<Card> opened) {
         Profile pr = profile(p);
-        Net.toPlayer(p, new S2C.Profile(pr.coins, new ArrayList<>(pr.cards), new ArrayList<>(pr.squad), new ArrayList<>(opened)));
+        Net.toPlayer(p, new S2C.Profile(pr.coins, new ArrayList<>(pr.cards), new ArrayList<>(pr.squad), new ArrayList<>(opened),
+                new ArrayList<>(pr.managers), pr.manager));
     }
 
     // ================================================================ kart uretimi
@@ -210,32 +379,73 @@ public final class Cards {
                 r.nextInt(FootballerEntity.SKINS));
     }
 
-    /** Takim kaptaninin (ilk oyuncu) kadrosundaki kartlari botlara uygula. */
+    /** Takimin kaptani (ilk insan oyuncu) - kadro ve menajer onun profilinden gelir. */
+    public static Profile captain(Match m, Team t) {
+        List<ServerPlayer> humans = m.playersOf(t);
+        return humans.isEmpty() ? null : profile(humans.get(0));
+    }
+
+    /** Ilk 11 yuvasindaki kartlari, ayni yuvadaki (mevkideki) botlara uygula. */
     public static void applySquad(Match m, Team t) {
         if (!t.playing()) return;
-        List<ServerPlayer> humans = m.playersOf(t);
-        if (humans.isEmpty()) return;
-        Profile pr = profile(humans.get(0));
-        if (pr.squad.isEmpty()) return;
-        List<Card> pool = new ArrayList<>();
-        for (int i : pr.squad) if (i >= 0 && i < pr.cards.size()) pool.add(pr.cards.get(i));
+        Profile pr = captain(m, t);
+        if (pr == null) return;
+        Manager mg = pr.activeManager();
+        int bonus = mg == null ? 0 : mg.bonus();
+        Pos[] eleven = Pos.formation(11, m.tactic(t));
+        List<Pos> slotPos = new ArrayList<>();
+        List<Card> slotCard = new ArrayList<>();
+        for (int s = 0; s < SQUAD_MAX; s++) {
+            int ci = pr.at(s);
+            if (ci < 0 || ci >= pr.cards.size()) continue;
+            slotPos.add(eleven[s]);
+            slotCard.add(pr.cards.get(ci));
+        }
+        if (slotCard.isEmpty()) return;
         List<FootballerEntity> bots = new ArrayList<>();
         for (FootballerEntity f : m.bots()) if (f.getSquad() == t) bots.add(f);
         bots.sort(Comparator.comparingInt(f -> f.isKeeper() ? 0 : 1));
         for (FootballerEntity f : bots) {
-            if (pool.isEmpty()) break;
+            if (slotCard.isEmpty()) break;
+            if (m.subbedIn(f)) continue;
             Pos want = f.getFieldPos();
-            Card best = null;
+            int best = -1;
             double bd = 99;
-            for (Card c : pool) {
-                Pos cp = Pos.byId(c.pos());
-                double d = (cp == want ? -2 : cp.dist(want)) - c.ovr() * 0.002;
-                if ((want == Pos.GK) != (cp == Pos.GK)) d += 3;
-                if (d < bd) { bd = d; best = c; }
+            for (int k = 0; k < slotPos.size(); k++) {
+                Pos sp = slotPos.get(k);
+                double d = sp == want ? -2 : sp.dist(want);
+                if ((want == Pos.GK) != (sp == Pos.GK)) d += 3;
+                if (d < bd) { bd = d; best = k; }
             }
-            pool.remove(best);
-            f.setup(t, f.getNumber(), best.skin(), best.name(), best.ovr());
-            f.setStats(best.pac(), best.sho(), best.pas(), best.dri(), best.def());
+            Card c = slotCard.remove(best);
+            slotPos.remove(best);
+            apply(f, t, c, bonus);
         }
+    }
+
+    public static void apply(FootballerEntity f, Team t, Card c, int bonus) {
+        f.setup(t, f.getNumber(), c.skin(), c.name(), Math.min(99, c.ovr() + bonus));
+        f.setStats(c.pac() + bonus, c.sho() + bonus, c.pas() + bonus, c.dri() + bonus, c.def() + bonus);
+    }
+
+    /** Yedek kulubesi: kaptanin yedekleri, yoksa rastgele yedekler. */
+    public static List<Card> bench(Match m, Team t) {
+        List<Card> out = new ArrayList<>();
+        Profile pr = captain(m, t);
+        if (pr != null) {
+            for (int s = SQUAD_MAX; s < LINEUP; s++) {
+                int ci = pr.at(s);
+                if (ci >= 0 && ci < pr.cards.size()) out.add(pr.cards.get(ci));
+            }
+        }
+        RandomSource r = m.level().getRandom();
+        Pack pk = m.difficulty >= 2 ? Pack.GOLD : m.difficulty == 1 ? Pack.SILVER : Pack.BRONZE;
+        while (out.size() < 5) out.add(generate(r, pk));
+        return out;
+    }
+
+    public static Card fromBot(FootballerEntity f) {
+        return new Card(f.getBaseName(), f.getFieldPos().ordinal(), f.getSkill(), f.pace, f.shooting, f.passing, f.dribbling,
+                f.defending, (f.pace + f.defending) / 2, f.getSkill() >= 86 ? 3 : f.getSkill() >= 75 ? 2 : f.getSkill() >= 65 ? 1 : 0, f.getSkinId());
     }
 }

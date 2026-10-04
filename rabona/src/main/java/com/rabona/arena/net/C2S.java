@@ -128,7 +128,8 @@ public final class C2S {
     /** Menu islemleri. */
     public record Menu(int action, int value) {
         public static final int JOIN = 0, FILL_BOTS = 1, CLEAR_BOTS = 2, START = 3, STOP = 4, DURATION = 5, TEAM_SIZE = 6,
-                DIFFICULTY = 7, BUILD = 8, BALL = 9, TP = 10, POS = 11, CARD_OPEN = 12, CARD_SQUAD = 13, CARD_SELL = 14, CARD_SYNC = 15, FIFA = 16, P2 = 17;
+                DIFFICULTY = 7, BUILD = 8, BALL = 9, TP = 10, POS = 11, CARD_OPEN = 12, CARD_SQUAD = 13, CARD_SELL = 14, CARD_SYNC = 15, FIFA = 16, P2 = 17,
+                CARD_SWAP = 18, CARD_PLACE = 19, CARD_CLEAR = 20, CARD_AUTO = 21, MGR_BUY = 22, MGR_SET = 23, BENCH = 24;
 
         public Menu(FriendlyByteBuf b) { this(b.readByte(), b.readVarInt()); }
 
@@ -152,6 +153,17 @@ public final class C2S {
                     case CARD_SQUAD -> { Cards.toggleSquad(p, value); return; }
                     case CARD_SELL -> { Cards.sell(p, value); return; }
                     case CARD_SYNC -> { Cards.sync(p, java.util.List.of()); return; }
+                    case CARD_SWAP -> { Cards.swapSlots(p, value >> 8, value & 0xFF); return; }
+                    case CARD_PLACE -> { Cards.placeCard(p, value >> 16, value & 0xFFFF); return; }
+                    case CARD_CLEAR -> { Cards.clearSlot(p, value); return; }
+                    case CARD_AUTO -> { Cards.autoLineup(p); return; }
+                    case MGR_BUY -> { Cards.buyManager(p); return; }
+                    case MGR_SET -> { Cards.setManager(p, value); return; }
+                    case BENCH -> {
+                        Team t = value == 1 && m.isP2Owner(p) ? m.p2Team : Match.teamOf(p);
+                        if (t.playing()) com.rabona.arena.net.Net.toPlayer(p, S2C.Bench.of(m, t, value == 1));
+                        return;
+                    }
                     case P2 -> {
                         m.setP2(p, Mth.clamp(value, 0, 2));
                         return;
@@ -192,6 +204,29 @@ public final class C2S {
                     }
                     default -> {}
                 }
+            });
+        }
+    }
+
+    /** Oyuncu degisikligi: sahadaki bot -> yedek kulubesindeki kart. */
+    public record Sub(int botId, int benchIdx, boolean p2) {
+        public Sub(FriendlyByteBuf b) { this(b.readVarInt(), b.readByte(), b.readBoolean()); }
+
+        public void encode(FriendlyByteBuf b) {
+            b.writeVarInt(botId);
+            b.writeByte(benchIdx);
+            b.writeBoolean(p2);
+        }
+
+        public void handle(Supplier<NetworkEvent.Context> ctx) {
+            ServerPlayer p = ctx.get().getSender();
+            ctx.get().enqueueWork(() -> {
+                if (p == null) return;
+                Match m = Match.get(p.server);
+                Team t = p2 && m.isP2Owner(p) ? m.p2Team : Match.teamOf(p);
+                if (!t.playing()) return;
+                if (p.level().getEntity(botId) instanceof com.rabona.arena.entity.FootballerEntity f && m.substitute(t, f, benchIdx, p))
+                    com.rabona.arena.net.Net.toPlayer(p, S2C.Bench.of(m, t, p2));
             });
         }
     }

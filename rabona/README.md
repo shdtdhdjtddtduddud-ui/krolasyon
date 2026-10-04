@@ -28,7 +28,8 @@ Mod hem tek oyunculu hem sunucuda çalışır. Sunucuda modun sunucuya ve oyuncu
 | **O** | Kamera modu: Normal / TV Yayını / Üstten Takip / Kuşbakışı (isteğe bağlı) |
 | **L** | Son golü tekrar izle |
 | **Y** | Oyuncu kartları (mağaza, paket açma, kadro) |
-| **K** | Hareketler menüsü (3B önizleme, yuvalara atama) |
+| **K** | Hareketler menüsü (3B önizleme, yuvalara atama; 2. oyuncu kendi hareketlerini ayrı seçer) |
+| **P** | Oyuncu değişikliği (kumandada **R3** — sağ çubuğa bas) |
 | **M** | Maç menüsü (takım, mevki, botlar, süre, zorluk, stadyum) |
 
 Futbol kameralarında hareket kameraya göredir (W = ekranın yukarısı), oyuncun koştuğu yöne döner.
@@ -50,7 +51,7 @@ Her golden sonra son anlar sinematik kamerayla, sonu ağır çekimle tekrar oyna
 
 ## Hareketler (59 + pas isteme)
 - **Pas (7):** Kısa Pas, Ara Pas, Havadan Pas, Orta, Topuk Pası, Bakmadan Pas, Rabona Orta
-- **Şut (8):** Sert Şut, Plase, Aşırtma, Trivela, Knuckleball, Rabona Şut, Panenka, Burun Vuruşu
+- **Şut (9):** Sert Şut, Plase, Aşırtma, Trivela (dış küple, ters falso), Ölü Yaprak (düşen serbest vuruş), Knuckleball, Rabona Şut, Panenka, Burun Vuruşu
 - **Hava (6):** Kafa, Balıklama Kafa, Vole, Rövaşata, Akrep Vuruşu, Göğüsle Kontrol
 - **Çalım (16):** Gökkuşağı, Elastico, Marsilya Dönüşü, Makas, Cruyff Dönüşü, Topu Geri Çekme, La Croqueta,
   Sombrero, Bacak Arası, Ronaldo Kesişi, Topuk Aşırtma, Fok Çalımı, Dünya Turu, Hız Patlaması, Sahte Şut, Vücut Çalımı
@@ -80,7 +81,7 @@ kaleci şutun nereye gideceğini tahmin edip plonjona atlar. Zorluk: Kolay / Ort
 Hakem Düdüğü, Bot Kartları, Altın Krampon (+hız, +şut gücü) ve tüm stadyum blokları (tariflerle üretilebilir).
 
 ## Derleme
-`cd rabona && gradle build` → `build/libs/rabona_arena-1.20.1-forge-1.0.0.jar`.
+`cd rabona && gradle build` → `build/libs/rabona_arena-1.20.1-forge-2.3.0.jar`.
 Dokular `gen/textures.py`, sesler `gen/sounds.py`, modeller `gen/assets.py`, dil dosyaları `gen/lang.py` ile üretilir.
 
 ## Çok oyunculu
@@ -101,7 +102,8 @@ Tek kumanda varsa: klavye/fare = sen, kumanda = 2. oyuncu. Başlarınızın üst
 | B (basılı tut) | Şut — RB ile Plase, LT ile Trivela | Top çalma |
 | X | Havadan pas (RB: orta) | Kayarak müdahale |
 | Y | Ara pas | — |
-| LB | Oyuncu değiştir | Oyuncu değiştir |
+| LB | Kontrol edilen oyuncuyu değiştir | Kontrol edilen oyuncuyu değiştir |
+| R3 (sağ çubuğa bas) | Oyuncu değişikliği (yedek kulübesi) | Oyuncu değişikliği |
 | Sağ çubuk | **Kombo çalımlar** | — |
 | D-pad ↑ / ↓ / ← / → | Yetenek / Sevinç / Hareket 1 / Hareket 2 | |
 | Start / Back | Maç menüsü / Kamera | |
@@ -123,3 +125,37 @@ Kumandada sağ çubuk, klavyede **yön okları** (↑ ileri, ↓ geri, ←/→ y
 Pas attığında top, hedeflenen takım arkadaşına doğru yön düzeltir ve ona ulaşacak hızda gider
 (arkadaşın koşuyorsa önüne). Pası alacak bot topu karşılamaya gelir; FIFA kontrolü açıksa top ona ulaştığı an
 o oyuncuyu sen yönetirsin.
+
+## Faul, kart, serbest vuruş ve penaltı
+Arkadan müdahale, topsuz adama kayarak girme ve sert omuz faul sayılır; hakem sarı ya da kırmızı kart gösterebilir
+(2 sarı = kırmızı, oyuncu oyundan atılır). Faul ceza sahası dışındaysa **serbest vuruş**, içindeyse **penaltı**:
+top kilitlenir, rakipler uzaklaşır, serbest vuruşta baraj kurulur. Atıcı sensen kamera FIFA'daki gibi topun
+arkasına geçer, **fareyle nişan alırsın** ve seçili şut tipinin **yörünge çizgisi** (falso, ölü yaprak düşüşü dahil)
+ekranda görünür. Şut tuşunu basılı tutup güç ayarla. Botlar serbest vuruşta plase, ölü yaprak, knuckleball, trivela
+ya da orta seçer; kaleci penaltıda köşe tahmin eder.
+
+## Kadro, menajer ve taktik
+`Y` → **Kadro** sekmesi: sahada ilk 11'i (menajerin dizilişine göre) ve 7 yedeği görürsün. Bir mevkiye tıkla, sonra başka
+mevkiye (yer değiştir) ya da sağdaki karta (kadroya al) tıkla; sağ tık çıkarır. *Otomatik kadro* en iyi 11'i kurar.
+**Menajer** sekmesinden menajer paketi al (⛁350). Her menajerin bir taktiği ve dizilişi var; botlar buna göre oynar:
+
+| Taktik | Diziliş | Oyun planı |
+|---|---|---|
+| Dengeli | 4-3-3 | Karışık pas, orta hat |
+| Tiki-Taka | 4-3-3 | Kısa paslar, topa sahip olma, ikili pres |
+| Gegenpress | 4-2-3-1 | 3 kişiyle anında pres, çok önde savunma |
+| Kontra Atak | 4-4-1-1 | Derinde bekle, hızlı dikine oyun, forvet önde |
+| Otobüsü Çek | 5-4-1 | Dar, kompakt, derin savunma |
+| Kanat Oyunu | 4-4-2 | Geniş saha, kanatlar çizgiye iner, orta |
+| Uzun Top | 4-4-2 | Uzun toplar, orta, uzaktan şut |
+
+Menajer puanı takım gücüne bonus verir. Botlardan oluşan rakip takımın da rastgele bir menajeri/taktiği olur (maç başında yazılır).
+
+## Oyuncu değişikliği
+`P` (kumandada **R3**) yedek kulübesini açar: solda sahadakiler ve kondisyonları, sağda yedekler. Çıkacak oyuncuyu sonra
+gireni seç (maç başına 5 hak). Yedekler kadrondaki 7 yedekten gelir; yoksa kulüp yedekleri kullanılır. Bot takımları
+devre arasında yorgun oyuncularını değiştirir.
+
+## Akıcılık ve görünüm
+Maç sırasında saha ve tribünlerde blok kırılamaz/koyulamaz. Taraftarlar kamera arkasındaysa ya da çok uzaktaysa çizilmez.
+Futbolcular daha uzun ve ince (atletik) vücutla çizilir; bot isimleri sadece bakınca görünür, P1/P2 işaretleri küçüktür.

@@ -229,7 +229,8 @@ public class BotBrain {
             boolean blocked = laneBlocked(m, me, tgt);
             Move mv;
             Vec3 target = tgt;
-            if (d > 26 || (blocked && d > 10)) {
+            Tactic tc = m.tactic(team);
+            if (d > 26 + tc.shortPass * 8 || (blocked && d > 10)) {
                 mv = Move.PASS_LOB;
             } else if (prog > 0.12 && open > 0.5 && rnd().nextFloat() < 0.6) {
                 mv = Move.PASS_THROUGH;
@@ -245,8 +246,10 @@ public class BotBrain {
                 target = mate.position().add(0, 0.6, 0);
                 blocked = false;
             }
-            double score = prog * 1.3 + open * 0.9 - (blocked && mv != Move.PASS_LOB && mv != Move.PASS_CROSS ? 1.4 : 0);
-            if (mv == Move.PASS_LOB) score -= 0.25;
+            double score = prog * (1.3 + tc.direct) + open * (0.9 + Math.max(0, tc.shortPass) * 0.4) - (blocked && mv != Move.PASS_LOB && mv != Move.PASS_CROSS ? 1.4 : 0);
+            if (mv == Move.PASS_LOB) score -= 0.25 + tc.shortPass * 0.5;
+            if (mv == Move.PASS_SHORT && d < 16) score += tc.shortPass * 0.35;
+            if (mv == Move.PASS_CROSS || mv == Move.PASS_RABONA) score += tc.cross;
             if (d < 7) score -= 0.25;
             if (d > 30) score -= (d - 30) * 0.04;
             if (mate instanceof Player) score += 0.3;
@@ -278,7 +281,8 @@ public class BotBrain {
         Vec3 me = bot.position();
         Vec3 goal = p.goalCenter(s);
         double d = MoveLogic.horiz(me, goal);
-        if (d > 27) return 0;
+        int range = m.tactic(bot.getSquad()).shotRange;
+        if (d > 27 + range) return 0;
         double b = Math.abs(p.b(me));
         double angle = Math.max(0, 1 - b / (Pitch.HALF_WID * 0.75));
         int blockers = 0;
@@ -286,7 +290,7 @@ public class BotBrain {
             if (o instanceof FootballerEntity f && f.isKeeper()) continue;
             if (segDist(me, goal, o.position()) < 1.3 && o.distanceTo(bot) < d) blockers++;
         }
-        double sc = (1 - d / 28) * angle * Math.pow(0.55, blockers) + (bot.shooting - 70) * 0.006;
+        double sc = (1 - d / (28 + range)) * angle * Math.pow(0.55, blockers) + (bot.shooting - 70) * 0.006;
         if (d < 11) sc += 0.3;
         if (bot.getFieldPos().role == Pos.Role.DEF) sc -= 0.25;
         return sc;
@@ -295,7 +299,10 @@ public class BotBrain {
     private double dribbleScore(Match m, int held) {
         LivingEntity front = nearestOpponent(m, 10, 0.35);
         double space = front == null ? 1 : Math.min(10, front.distanceTo(bot)) / 10;
-        double sc = space * 0.9 - held / 90.0 + (bot.dribbling - 70) * 0.01;
+        Tactic tc = m.tactic(bot.getSquad());
+        double sc = space * 0.9 - held / (90.0 * (1 + tc.dribble)) + (bot.dribbling - 70) * 0.01 + tc.dribble;
+        // kanat oyunu: kanatlar cizgiye kadar surer
+        if (tc.cross > 0.3 && bot.getFieldPos().wide() && aTeam(m, bot.position()) < Pitch.HALF_LEN * 0.6) sc += 0.25;
         Pos.Role r = bot.getFieldPos().role;
         if (r == Pos.Role.FWD) sc += 0.2;
         if (r == Pos.Role.DEF && aTeam(m, bot.position()) < 0) sc -= 0.35;
@@ -437,6 +444,17 @@ public class BotBrain {
             if (a.energy >= 70 && d < 6 && rnd().nextFloat() < 0.002 * (diff + 1)) {
                 MoveLogic.tryPerform(bot, rnd().nextBoolean() ? Move.AB_ICE : Move.AB_MAGNET, 1, 0, null);
             }
+            return;
+        }
+        Tactic tc = m.tactic(team);
+        if (rank < tc.pressers && a.stamina > 25) {
+            // gegenpress / ikili pres: pas kanallarini kapatarak topa yuklen
+            double sideSign = (rank % 2 == 0 ? 1 : -1);
+            Vec3 side = MoveLogic.right(MoveLogic.flat(own.subtract(carrier.position()))).scale(1.8 * sideSign);
+            Vec3 trap = carrier.position().add(MoveLogic.flat(own.subtract(carrier.position())).scale(0.8)).add(side);
+            goTo(clamp(m, d < 2.6 ? carrier.position() : trap), 1.2);
+            faceTo(carrier.position());
+            if (d < 2.0 && rnd().nextFloat() < 0.02 + diff * 0.01) MoveLogic.tryPerform(bot, Move.TACKLE, 1, 0, null);
             return;
         }
         if (rank == 1) {

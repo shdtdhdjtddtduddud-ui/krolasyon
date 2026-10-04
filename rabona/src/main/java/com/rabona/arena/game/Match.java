@@ -242,6 +242,110 @@ public class Match {
         sync();
     }
 
+    // ================================================================ menajer, taktik, oyuncu degisikligi
+    public static final int MAX_SUBS = 5;
+    /** Insan kaptani olmayan takimlarin (bot) menajeri. */
+    private final Map<Team, Cards.Manager> botManagers = new EnumMap<>(Team.class);
+    private final Map<Team, List<Cards.Card>> benches = new EnumMap<>(Team.class);
+    private final Map<Team, Integer> subsUsed = new EnumMap<>(Team.class);
+    private final Set<UUID> subbedIn = new HashSet<>();
+
+    public Cards.Manager manager(Team t) {
+        Cards.Profile pr = Cards.captain(this, t);
+        Cards.Manager m = pr == null ? null : pr.activeManager();
+        if (m != null) return m;
+        return botManagers.computeIfAbsent(t, k -> Cards.Manager.random(level().getRandom(), 60 + difficulty * 8, 74 + difficulty * 8));
+    }
+
+    public Tactic tactic(Team t) {
+        if (!t.playing()) return Tactic.BALANCED;
+        Cards.Manager m = manager(t);
+        return m == null ? Tactic.BALANCED : m.tacticEnum();
+    }
+
+    public boolean subbedIn(FootballerEntity f) { return subbedIn.contains(f.getUUID()); }
+
+    public int subsLeft(Team t) { return MAX_SUBS - subsUsed.getOrDefault(t, 0); }
+
+    public List<Cards.Card> bench(Team t) {
+        return benches.computeIfAbsent(t, k -> Cards.bench(this, k));
+    }
+
+    /** Kadro / menajer degisti: diziliisi ve kartlari yeniden uygula. */
+    public void refreshTeam(Team t) {
+        benches.remove(t);
+        assignRoles();
+        Cards.applySquad(this, t);
+        sync();
+    }
+
+    /** Oyuncu degisikligi: sahadaki botun yerine yedekten oyuncu girer (taze kondisyon). */
+    public boolean substitute(Team t, FootballerEntity out, int benchIdx, LivingEntity by) {
+        if (!t.playing() || out == null || out.getSquad() != t || !out.isAlive()) return false;
+        List<Cards.Card> b = bench(t);
+        if (benchIdx < 0 || benchIdx >= b.size()) return false;
+        if (subsLeft(t) <= 0) {
+            if (by instanceof ServerPlayer sp) sp.displayClientMessage(Component.translatable("msg.rabonaarena.no_subs").withStyle(ChatFormatting.RED), true);
+            return false;
+        }
+        Cards.Card in = b.remove(benchIdx);
+        String outName = out.getBaseName();
+        Cards.Manager mg = manager(t);
+        Cards.apply(out, t, in, mg == null ? 0 : mg.bonus());
+        Athlete a = Athlete.of(out);
+        a.stamina = 100;
+        a.energy = Math.max(a.energy, 30);
+        a.yellows = 0;
+        a.fouls = 0;
+        subbedIn.add(out.getUUID());
+        subsUsed.merge(t, 1, Integer::sum);
+        level().sendParticles(ParticleTypes.HAPPY_VILLAGER, out.getX(), out.getY() + 1, out.getZ(), 14, 0.4, 0.6, 0.4, 0.05);
+        sound(ModSounds.WHISTLE.get(), 1.2f, 1.3f);
+        Net.toAll(new S2C.Feed(Component.translatable("msg.rabonaarena.sub", t.displayName(), Component.literal(in.name()).withStyle(ChatFormatting.GREEN),
+                Component.literal(outName).withStyle(ChatFormatting.RED)).withStyle(ChatFormatting.WHITE)));
+        Net.toAll(new S2C.Banner(5, scoreRed, scoreBlue, in.name(), outName + "|" + t.ordinal()));
+        sync();
+        return true;
+    }
+
+    /** Bot takimlari: devre arasinda yorgun oyuncularini degistirir. */
+    private void autoSubs() {
+        for (Team t : new Team[]{Team.RED, Team.BLUE}) {
+            if (!playersOf(t).isEmpty()) continue;
+            List<FootballerEntity> list = new ArrayList<>();
+            for (FootballerEntity f : bots()) if (f.getSquad() == t && !f.isKeeper() && !subbedIn(f)) list.add(f);
+            list.sort(Comparator.comparingDouble(f -> Athlete.of(f).stamina));
+            for (int i = 0; i < Math.min(2, list.size()); i++) {
+                List<Cards.Card> b = bench(t);
+                if (b.isEmpty()) break;
+                int best = 0;
+                double bd = 99;
+                for (int k = 0; k < b.size(); k++) {
+                    double d = Pos.byId(b.get(k).pos()).dist(list.get(i).getFieldPos());
+                    if (d < bd) { bd = d; best = k; }
+                }
+                substitute(t, list.get(i), best, null);
+            }
+        }
+    }
+
+    private void resetSquads() {
+        botManagers.clear();
+        benches.clear();
+        subsUsed.clear();
+        subbedIn.clear();
+    }
+
+    private void announceManagers() {
+        for (Team t : new Team[]{Team.RED, Team.BLUE}) {
+            Cards.Manager m = manager(t);
+            if (m == null) continue;
+            Tactic tc = m.tacticEnum();
+            broadcast(Component.translatable("msg.rabonaarena.manager_plan", t.displayName(), m.name(), tc.title(), tc.shape)
+                    .withStyle(ChatFormatting.AQUA));
+        }
+    }
+
     // ================================================================ faul, kart, serbest vurus, penalti
     public SetPiece setPiece = SetPiece.NONE;
     public Team spTeam = Team.NONE;
@@ -406,7 +510,16 @@ public class Match {
         }
         Entity t = level().getEntity(spTaker);
         if (spSetup == 0 && t instanceof FootballerEntity bot && spTimer % 20 == 0 && spTimer < 20 * 14 - 50) botTakeSetPiece(bot, ball);
-        if (!(t instanceof LivingEntity)) endSetPiece(ball);
+        if (!(t instanceof LivingEntity)) {
+            endSetPiece(ball);
+            return;
+        }
+        // insan atici topun basinda kalir (fare ile nisan alir)
+        if (t instanceof net.minecraft.server.level.ServerPlayer sp && MoveLogic.horiz(sp.position(), ball.position()) > 2.0) {
+            Vec3 back = sp.position().subtract(ball.position());
+            back = new Vec3(back.x, 0, back.z).normalize().scale(1.2);
+            sp.teleportTo(ball.getX() + back.x, ball.getY(), ball.getZ() + back.z);
+        }
     }
 
     private void botTakeSetPiece(FootballerEntity bot, BallEntity ball) {
@@ -464,6 +577,8 @@ public class Match {
 
     // ================================================================ yerel 2. oyuncu (ayni bilgisayar, 2. kumanda)
     public UUID p2Owner;
+
+    public boolean isP2Owner(ServerPlayer p) { return p2Owner != null && p2Owner.equals(p.getUUID()) && p2Team.playing(); }
     public int p2Bot = -1;
     public Team p2Team = Team.NONE;
     public float p2X, p2Z;
@@ -700,7 +815,7 @@ public class Match {
             for (FootballerEntity f : bots()) if (f.getSquad() == t) list.add(f);
             int n = humans.size() + list.size();
             if (n == 0) continue;
-            List<Pos> free = new ArrayList<>(List.of(Pos.formation(n)));
+            List<Pos> free = new ArrayList<>(List.of(Pos.formation(n, tactic(t))));
             for (ServerPlayer h : humans) {
                 Pos want = posOf(h);
                 Pos best = null;
@@ -717,8 +832,19 @@ public class Match {
                 if (free.remove(f.getFieldPos())) continue;
                 unplaced.add(f);
             }
+            unplaced.sort(Comparator.comparingInt(f -> f.isKeeper() ? 0 : 1));
             for (FootballerEntity f : unplaced) {
-                Pos p = free.isEmpty() ? Pos.CM : free.remove(0);
+                Pos p = Pos.CM;
+                if (!free.isEmpty()) {
+                    Pos cur = f.getFieldPos();
+                    p = free.get(0);
+                    for (Pos fp : free) {
+                        boolean gkOk = (fp == Pos.GK) == (cur == Pos.GK);
+                        boolean bestOk = (p == Pos.GK) == (cur == Pos.GK);
+                        if ((gkOk && !bestOk) || (gkOk == bestOk && fp.dist(cur) < p.dist(cur))) p = fp;
+                    }
+                    free.remove(p);
+                }
                 f.setFieldPos(p);
                 f.randomStats(f.getSkill());
             }
@@ -744,16 +870,17 @@ public class Match {
             a = -0.95;
             b = Mth.clamp(bb * 0.1, -0.08, 0.08);
         } else {
+            Tactic tc = tactic(t);
             double shift = switch (p.role) {
                 case DEF -> possession ? 0.22 : -0.04;
                 case MID -> possession ? 0.26 : -0.12;
-                default -> possession ? 0.2 : -0.16;
+                default -> possession ? 0.2 : -0.16 + tc.counter;
             };
-            a = p.a + shift + ba * 0.38;
+            a = p.a + shift + ba * 0.38 + (p.role == Pos.Role.FWD ? tc.line * 0.4 : tc.line);
             if (p.role == Pos.Role.DEF) a = Math.min(a, possession && p.wide() ? 0.5 : 0.25);
             if (p.role == Pos.Role.FWD) a = Math.max(a, -0.25);
             a = Mth.clamp(a, -0.88, 0.84);
-            b = p.b * (possession ? 1.12 : 0.78) + bb * (possession ? 0.14 : 0.32);
+            b = p.b * (possession ? 1.12 * tc.width : 0.78 * Math.min(1, tc.width + 0.1)) + bb * (possession ? 0.14 : 0.32);
             b = Mth.clamp(b, -0.93, 0.93);
         }
         return pitch.world(a * Pitch.HALF_LEN * s, b * Pitch.HALF_WID * s, pitch.surfaceY());
@@ -781,9 +908,11 @@ public class Match {
         totalTime = durationMin * 60 * 20;
         timeLeft = totalTime;
         Athlete.resetStats();
+        resetSquads();
         assignRoles();
         for (Team t : new Team[]{Team.RED, Team.BLUE}) Cards.applySquad(this, t);
         broadcast(Component.translatable("msg.rabonaarena.match_start", durationMin).withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
+        announceManagers();
         kickoff(Team.RED);
         return true;
     }
@@ -934,6 +1063,7 @@ public class Match {
         phaseTimer = 100;
         sound(ModSounds.WHISTLE_END.get(), 2f, 1f);
         broadcast(Component.translatable("msg.rabonaarena.halftime", scoreRed, scoreBlue).withStyle(ChatFormatting.YELLOW));
+        Scheduler.later(40, this::autoSubs);
         sync();
     }
 

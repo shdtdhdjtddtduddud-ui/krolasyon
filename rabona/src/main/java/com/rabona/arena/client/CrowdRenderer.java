@@ -91,10 +91,15 @@ public final class CrowdRenderer {
         MultiBufferSource.BufferSource buf = mc.renderBuffers().bufferSource();
         float wave = (time * 0.9f) % 260f - 60f; // meksika dalgasi konumu
         int drawn = 0;
+        // akicilik: kamera arkasindakileri ve uzaktakileri cizme, sayiyi sinirla
+        Vec3 look = new Vec3(mc.gameRenderer.getMainCamera().getLookVector());
+        double maxD = matchOn ? 92 : 110;
         for (Fan f : FANS) {
             double dx = f.pos.getX() + 0.5 - cam.x, dy = f.pos.getY() + 0.5 - cam.y, dz = f.pos.getZ() + 0.5 - cam.z;
-            if (dx * dx + dy * dy + dz * dz > 120 * 120) continue;
-            if (++drawn > 700) break;
+            double d2 = dx * dx + dy * dy + dz * dz;
+            if (d2 > maxD * maxD) continue;
+            if (d2 > 36 && (dx * look.x + dy * look.y + dz * look.z) < -0.25 * Math.sqrt(d2)) continue;
+            if (++drawn > 480) break;
             boolean cheer = goalTeam == f.team;
             float ph = time * 0.25f + f.seed * 40;
             float jump = 0;

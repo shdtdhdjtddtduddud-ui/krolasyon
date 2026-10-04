@@ -27,6 +27,7 @@ public final class ClientInput {
         while (Keys.MOVES.consumeClick()) mc.setScreen(new MoveScreen());
         while (Keys.MATCH.consumeClick()) mc.setScreen(new MatchScreen());
         while (Keys.CARDS.consumeClick()) mc.setScreen(new CardScreen());
+        while (Keys.SUBS.consumeClick()) Net.toServer(new C2S.Menu(C2S.Menu.BENCH, 0));
         while (Keys.CAMERA.consumeClick()) CameraCtl.cycle();
         while (Keys.REPLAY.consumeClick()) Replay.toggle();
         if (Replay.playing()) {

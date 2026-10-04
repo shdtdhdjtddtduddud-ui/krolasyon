@@ -21,6 +21,7 @@ import java.util.UUID;
 
 /** Istemci tarafi durum: mac bilgisi, istatistikler, banner, akis ve kullanici ayarlari. */
 public final class ClientState {
+    public static com.rabona.arena.net.S2C.Bench bench;
     private ClientState() {}
 
     public static S2C.MatchState match;

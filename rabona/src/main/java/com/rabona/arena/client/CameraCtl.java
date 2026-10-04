@@ -52,7 +52,7 @@ public final class CameraCtl {
 
     /** Futbol kamerasi su an etkin mi? */
     public static boolean active() {
-        return Replay.playing() || mode() > 0;
+        return Replay.playing() || mode() > 0 || ShotPreview.active();
     }
 
     private static void ensureDetached(boolean want) {
@@ -79,7 +79,15 @@ public final class CameraCtl {
         float partial = (float) e.getPartialTick();
         Vec3 me = p.getPosition(partial);
         Vec3 tPos, tLook;
-        if (Replay.playing()) {
+        if (ShotPreview.active() && !Replay.playing()) {
+            // serbest vurus / penalti: FIFA gibi topun arkasindan, fare ile nisan
+            Vec3 view = p.getViewVector(partial);
+            Vec3 flat = new Vec3(view.x, 0, view.z).normalize();
+            tPos = me.subtract(flat.scale(3.4)).add(0, 2.0, 0);
+            tLook = me.add(0, 1.3, 0).add(view.scale(14));
+            camPos = tPos;
+            lookPos = lookPos == null ? tLook : lookPos.lerp(tLook, 0.6);
+        } else if (Replay.playing()) {
             Vec3 f = Replay.focus();
             if (f == null) f = me;
             float ang = Replay.cursor() * 0.025f + 0.6f;
@@ -176,7 +184,7 @@ public final class CameraCtl {
 
     /** Kameraya gore hareket: W ekranin yukarisi. Oyuncu kosu yonune doner. */
     public static void onInput(LocalPlayer p, Input in) {
-        if (mode() == 0 || Replay.playing() || camPos == null) return;
+        if (mode() == 0 || Replay.playing() || camPos == null || ShotPreview.active()) return;
         float fwd = (in.up ? 1 : 0) - (in.down ? 1 : 0);
         float str = (in.left ? 1 : 0) - (in.right ? 1 : 0);
         if (fwd == 0 && str == 0) return;

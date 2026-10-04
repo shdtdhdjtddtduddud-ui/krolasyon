@@ -52,5 +52,10 @@ public enum Pos {
         };
     }
 
+    /** Menajer taktigine gore dizilis (11 kiside taktigin dizilisi). */
+    public static Pos[] formation(int n, Tactic t) {
+        return n >= 11 && t != null ? t.eleven.clone() : formation(n);
+    }
+
     public double dist(Pos o) { return Math.hypot(a - o.a, (b - o.b) * 0.8); }
 }

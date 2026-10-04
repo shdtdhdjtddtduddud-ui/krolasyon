@@ -3,6 +3,7 @@ package com.rabona.arena.client;
 import com.rabona.arena.RabonaArena;
 import com.rabona.arena.game.Cards;
 import com.rabona.arena.game.Pos;
+import com.rabona.arena.game.Tactic;
 import com.rabona.arena.net.C2S;
 import com.rabona.arena.net.Net;
 import com.rabona.arena.net.S2C;
@@ -29,8 +30,14 @@ public class CardScreen extends Screen {
     @Override
     protected void init() {
         Net.toServer(new C2S.Menu(C2S.Menu.CARD_SYNC, 0));
-        addRenderableWidget(Button.builder(Component.translatable("screen.rabonaarena.shop"), b -> tab = 0).bounds(10, 26, 90, 18).build());
-        addRenderableWidget(Button.builder(Component.translatable("screen.rabonaarena.collection"), b -> tab = 1).bounds(104, 26, 90, 18).build());
+        addRenderableWidget(Button.builder(Component.translatable("screen.rabonaarena.shop"), b -> tab = 0).bounds(10, 26, 74, 18).build());
+        addRenderableWidget(Button.builder(Component.translatable("screen.rabonaarena.collection"), b -> tab = 1).bounds(88, 26, 74, 18).build());
+        addRenderableWidget(Button.builder(Component.translatable("screen.rabonaarena.lineup"), b -> { tab = 2; selSlot = -1; }).bounds(166, 26, 74, 18).build());
+        addRenderableWidget(Button.builder(Component.translatable("screen.rabonaarena.managers"), b -> tab = 3).bounds(244, 26, 74, 18).build());
+        autoBtn = addRenderableWidget(Button.builder(Component.translatable("screen.rabonaarena.auto_lineup"),
+                b -> Net.toServer(new C2S.Menu(C2S.Menu.CARD_AUTO, 0))).bounds(width - 124, 26, 114, 18).build());
+        buyMgrBtn = addRenderableWidget(Button.builder(Component.translatable("screen.rabonaarena.buy_manager", Cards.MANAGER_PRICE),
+                b -> Net.toServer(new C2S.Menu(C2S.Menu.MGR_BUY, 0))).bounds(width - 140, 26, 130, 18).build());
         int pw = 96, gap = 12;
         int total = 4 * pw + 3 * gap;
         int x0 = width / 2 - total / 2;
@@ -44,10 +51,18 @@ public class CardScreen extends Screen {
     }
 
     private final List<Button> shopButtons = new ArrayList<>();
+    private Button autoBtn, buyMgrBtn;
+    private int selSlot = -1;
+    private final List<int[]> slotHits = new ArrayList<>(); // x, y, w, h, yuva
+    private final List<int[]> poolHits = new ArrayList<>(); // x, y, w, h, kart
+    private final List<int[]> mgrHits = new ArrayList<>();
+    private int poolScroll;
 
     @Override
     public void tick() {
         for (Button b : shopButtons) b.visible = tab == 0 && !revealing();
+        autoBtn.visible = tab == 2 && !revealing();
+        buyMgrBtn.visible = tab == 3 && !revealing();
     }
 
     private boolean revealing() {
@@ -67,7 +82,13 @@ public class CardScreen extends Screen {
             reveal(g, partial);
             return;
         }
-        if (tab == 0) shop(g, mx, my); else collection(g, mx, my, pr);
+        slotHits.clear();
+        poolHits.clear();
+        mgrHits.clear();
+        if (tab == 0) shop(g, mx, my);
+        else if (tab == 1) collection(g, mx, my, pr);
+        else if (tab == 2) lineup(g, mx, my, pr);
+        else managers(g, mx, my, pr);
         super.render(g, mx, my, partial);
     }
 
@@ -119,7 +140,7 @@ public class CardScreen extends Screen {
             g.drawCenteredString(font, Component.translatable("screen.rabonaarena.no_cards"), width / 2, height / 2, 0xFFB0BEC5);
             return;
         }
-        g.drawString(font, Component.translatable("screen.rabonaarena.squad_tip", pr.squad().size(), Cards.SQUAD_MAX), 10, 48, 0xFF90A4AE, false);
+        g.drawString(font, Component.translatable("screen.rabonaarena.squad_tip", pr.squadCount(), Cards.LINEUP), 10, 48, 0xFF90A4AE, false);
         List<Integer> order = new ArrayList<>();
         for (int i = 0; i < pr.cards().size(); i++) order.add(i);
         order.sort(Comparator.comparingInt((Integer i) -> pr.squad().contains(i) ? 0 : 1).thenComparingInt(i -> -pr.cards().get(i).ovr()));
@@ -142,6 +163,38 @@ public class CardScreen extends Screen {
             ClientState.packReveal = List.of();
             return true;
         }
+        if (tab == 2) {
+            for (int[] h : slotHits) {
+                if (hit(h, mx, my)) {
+                    if (button == 1) {
+                        Net.toServer(new C2S.Menu(C2S.Menu.CARD_CLEAR, h[4]));
+                        selSlot = -1;
+                    } else if (selSlot < 0) {
+                        selSlot = h[4];
+                    } else {
+                        if (selSlot != h[4]) Net.toServer(new C2S.Menu(C2S.Menu.CARD_SWAP, selSlot << 8 | h[4]));
+                        selSlot = -1;
+                    }
+                    return true;
+                }
+            }
+            for (int[] h : poolHits) {
+                if (hit(h, mx, my)) {
+                    if (selSlot >= 0) Net.toServer(new C2S.Menu(C2S.Menu.CARD_PLACE, selSlot << 16 | h[4]));
+                    else Net.toServer(new C2S.Menu(C2S.Menu.CARD_SQUAD, h[4]));
+                    selSlot = -1;
+                    return true;
+                }
+            }
+        }
+        if (tab == 3) {
+            for (int[] h : mgrHits) {
+                if (hit(h, mx, my)) {
+                    Net.toServer(new C2S.Menu(C2S.Menu.MGR_SET, h[4]));
+                    return true;
+                }
+            }
+        }
         if (tab == 1) {
             for (int[] h : hits) {
                 if (mx >= h[0] && mx < h[0] + h[2] && my >= h[1] && my < h[1] + h[3]) {
@@ -156,8 +209,162 @@ public class CardScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mx, double my, double delta) {
-        scroll = Math.max(0, scroll - (int) (delta * 24));
+        if (tab == 2) poolScroll = Math.max(0, poolScroll - (int) (delta * 20));
+        else scroll = Math.max(0, scroll - (int) (delta * 24));
         return true;
+    }
+
+    private static boolean hit(int[] h, double mx, double my) {
+        return mx >= h[0] && mx < h[0] + h[2] && my >= h[1] && my < h[1] + h[3];
+    }
+
+    // ================================================================ kadro duzenleme
+    private void lineup(GuiGraphics g, int mx, int my, S2C.Profile pr) {
+        if (pr == null) return;
+        Cards.Manager mg = pr.activeManager();
+        Tactic tc = mg == null ? Tactic.BALANCED : mg.tacticEnum();
+        Pos[] f = Pos.formation(11, tc);
+        int pw = Math.min(300, (int) (width * 0.52)), ph = Math.min(176, height - 130);
+        int px = 10, py = 62;
+        g.drawString(font, Component.translatable("screen.rabonaarena.lineup_head", tc.title(), tc.shape), px, 50, 0xFFFFD54F, false);
+        // saha
+        for (int i = 0; i < 8; i++) {
+            int y1 = py + ph * i / 8, y2 = py + ph * (i + 1) / 8;
+            g.fill(px, y1, px + pw, y2, i % 2 == 0 ? 0xFF2E7D32 : 0xFF388E3C);
+        }
+        g.renderOutline(px + 3, py + 3, pw - 6, ph - 6, 0xB0FFFFFF);
+        g.fill(px + 3, py + ph / 2, px + pw - 3, py + ph / 2 + 1, 0xB0FFFFFF);
+        g.renderOutline(px + pw / 2 - 40, py + ph - 30, 80, 27, 0xB0FFFFFF);
+        g.renderOutline(px + pw / 2 - 40, py + 3, 80, 27, 0xB0FFFFFF);
+        int cw = 58, chh = 24;
+        for (int s = 0; s < f.length; s++) {
+            double a = f[s].a, b = f[s].b;
+            int cx = px + pw / 2 + (int) (b * (pw / 2 - cw / 2 - 4));
+            int cy = py + ph - 16 - (int) ((a + 1) / 2 * (ph - 30));
+            chip(g, pr, s, f[s], cx - cw / 2, cy - chh / 2, cw, chh, mx, my);
+        }
+        // yedekler
+        int by = py + ph + 14;
+        g.drawString(font, Component.translatable("screen.rabonaarena.bench"), px, by - 10, 0xFFB0BEC5, false);
+        int bw = Math.min(cw, (pw - 6 * 3) / 7);
+        for (int s = Cards.SQUAD_MAX; s < Cards.LINEUP; s++) {
+            int k = s - Cards.SQUAD_MAX;
+            chip(g, pr, s, null, px + k * (bw + 3), by, bw, chh, mx, my);
+        }
+        // koleksiyon (kadroda olmayanlar)
+        int lx = px + pw + 12, lw = width - lx - 10, ly = 50;
+        g.drawString(font, Component.translatable("screen.rabonaarena.pool"), lx, ly, 0xFFB0BEC5, false);
+        List<Integer> pool = new ArrayList<>();
+        for (int i = 0; i < pr.cards().size(); i++) if (!pr.squad().contains(i)) pool.add(i);
+        pool.sort(Comparator.comparingInt(i -> -pr.cards().get(i).ovr()));
+        int y = ly + 12 - poolScroll;
+        for (int i : pool) {
+            if (y > height - 30) break;
+            if (y >= ly + 10) {
+                Cards.Card c = pr.cards().get(i);
+                boolean hov = mx >= lx && mx < lx + lw && my >= y && my < y + 15;
+                g.fill(lx, y, lx + lw, y + 14, hov ? 0x80FFFFFF : 0x50000000);
+                g.drawString(font, Integer.toString(c.ovr()), lx + 3, y + 3, rarityColor(c.rarity()), false);
+                g.drawString(font, Pos.byId(c.pos()).shortName(), lx + 22, y + 3, 0xFFFFD54F, false);
+                g.drawString(font, c.name(), lx + 48, y + 3, 0xFFFFFFFF, false);
+                poolHits.add(new int[]{lx, y, lw, 14, i});
+            }
+            y += 16;
+        }
+        if (pool.isEmpty()) g.drawString(font, Component.translatable("screen.rabonaarena.pool_empty"), lx, ly + 14, 0xFF78909C, false);
+        g.drawCenteredString(font, Component.translatable(selSlot >= 0 ? "screen.rabonaarena.lineup_tip2" : "screen.rabonaarena.lineup_tip1"),
+                width / 2, height - 14, 0xFF90A4AE);
+    }
+
+    private void chip(GuiGraphics g, S2C.Profile pr, int slot, Pos pos, int x, int y, int w, int h, int mx, int my) {
+        int ci = pr.at(slot);
+        Cards.Card c = ci >= 0 && ci < pr.cards().size() ? pr.cards().get(ci) : null;
+        boolean hov = mx >= x && mx < x + w && my >= y && my < y + h;
+        int border = selSlot == slot ? 0xFF00E676 : hov ? 0xFFFFFFFF : 0xFF000000;
+        g.fill(x - 1, y - 1, x + w + 1, y + h + 1, border);
+        g.fill(x, y, x + w, y + h, c == null ? 0xC0263238 : 0xE0101820);
+        if (c != null) g.fill(x, y, x + w, y + 2, rarityColor(c.rarity()));
+        String ps = pos != null ? pos.shortName().getString() : c != null ? Pos.byId(c.pos()).shortName().getString() : "";
+        g.drawString(font, ps, x + 2, y + 4, 0xFFFFD54F, false);
+        if (c != null) {
+            String o = Integer.toString(c.ovr());
+            g.drawString(font, o, x + w - font.width(o) - 2, y + 4, 0xFFFFFFFF, false);
+            boolean wrong = pos != null && Pos.byId(c.pos()) != pos;
+            String n = c.name();
+            float sc = Math.min(0.8f, (w - 4f) / Math.max(1, font.width(n)));
+            g.pose().pushPose();
+            g.pose().translate(x + 2, y + 14, 0);
+            g.pose().scale(sc, sc, 1);
+            g.drawString(font, n, 0, 0, wrong ? 0xFFFFAB91 : 0xFFE0E0E0, false);
+            g.pose().popPose();
+        } else {
+            g.drawString(font, "+", x + w / 2 - 2, y + 12, 0xFF78909C, false);
+        }
+        slotHits.add(new int[]{x, y, w, h, slot});
+    }
+
+    private static int rarityColor(int r) {
+        return switch (r) {
+            case 1 -> 0xFFE3E8EC;
+            case 2 -> 0xFFFFE27A;
+            case 3 -> 0xFFE040FB;
+            default -> 0xFFC98B4B;
+        };
+    }
+
+    // ================================================================ menajerler
+    private void managers(GuiGraphics g, int mx, int my, S2C.Profile pr) {
+        if (pr == null) return;
+        Cards.Manager act = pr.activeManager();
+        if (act != null) {
+            Tactic tc = act.tacticEnum();
+            g.drawString(font, Component.translatable("screen.rabonaarena.manager_line", act.name(), tc.title(), tc.shape), 10, 50, 0xFF80D8FF, false);
+            g.drawString(font, tc.desc(), 10, 62, 0xFFB0BEC5, false);
+        } else {
+            g.drawString(font, Component.translatable("screen.rabonaarena.no_manager"), 10, 50, 0xFFB0BEC5, false);
+        }
+        int cw = 96, ch = 120, gap = 8;
+        int cols = Math.max(1, (width - 20) / (cw + gap));
+        for (int i = 0; i < pr.managers().size(); i++) {
+            int x = 10 + (i % cols) * (cw + gap), y = 78 + (i / cols) * (ch + gap) - scroll;
+            if (y > height || y + ch < 74) continue;
+            drawManager(g, font, pr.managers().get(i), x, y, cw, ch, i == pr.manager());
+            mgrHits.add(new int[]{x, y, cw, ch, i});
+        }
+    }
+
+    public static void drawManager(GuiGraphics g, Font f, Cards.Manager m, int x, int y, int w, int h, boolean active) {
+        g.fill(x - 2, y - 2, x + w + 2, y + h + 2, active ? 0xFF00E676 : 0xFF000000);
+        g.fillGradient(x, y, x + w, y + h, 0xFF263238, 0xFF0D1B2A);
+        g.fill(x, y, x + w, y + 3, rarityColor(m.rarity()));
+        g.pose().pushPose();
+        g.pose().translate(x + 6, y + 8, 0);
+        g.pose().scale(1.8f, 1.8f, 1);
+        g.drawString(f, Integer.toString(m.ovr()), 0, 0, rarityColor(m.rarity()), false);
+        g.pose().popPose();
+        g.drawString(f, Component.translatable("screen.rabonaarena.manager_short"), x + 6, y + 26, 0xFF90A4AE, false);
+        ResourceLocation skin = RabonaArena.id("textures/entity/footballer/skin_" + Math.floorMod(m.skin(), 8) + ".png");
+        g.blit(skin, x + w - 42, y + 8, 34, 34, 8, 8, 8, 8, 64, 64);
+        // takim elbisesi yakasi
+        g.fill(x + w - 42, y + 42, x + w - 8, y + 50, 0xFF37474F);
+        g.fill(x + w - 27, y + 42, x + w - 23, y + 50, 0xFFFFFFFF);
+        String n = m.name();
+        float ns = Math.min(1f, (w - 8f) / Math.max(1, f.width(n)));
+        g.pose().pushPose();
+        g.pose().translate(x + w / 2f, y + 58, 0);
+        g.pose().scale(ns, ns, 1);
+        g.drawString(f, n, -f.width(n) / 2, 0, 0xFFFFFFFF, false);
+        g.pose().popPose();
+        Tactic tc = m.tacticEnum();
+        Component tt = tc.title();
+        float ts = Math.min(1f, (w - 8f) / Math.max(1, f.width(tt)));
+        g.pose().pushPose();
+        g.pose().translate(x + w / 2f, y + 76, 0);
+        g.pose().scale(ts, ts, 1);
+        g.drawString(f, tt, -f.width(tt) / 2, 0, 0xFF80D8FF, false);
+        g.pose().popPose();
+        g.drawCenteredString(f, tc.shape, x + w / 2, y + 90, 0xFFFFD54F);
+        g.drawCenteredString(f, "+" + Math.max(0, m.bonus()) + " " + Component.translatable("screen.rabonaarena.team_boost").getString(), x + w / 2, y + 104, 0xFFA5D6A7);
     }
 
     // ================================================================ paket acilisi

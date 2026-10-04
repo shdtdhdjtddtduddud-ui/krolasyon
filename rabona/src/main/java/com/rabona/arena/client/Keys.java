@@ -28,12 +28,13 @@ public final class Keys {
     public static final KeyMapping REPLAY = k("replay", GLFW.GLFW_KEY_L);
     public static final KeyMapping CARDS = k("cards", GLFW.GLFW_KEY_Y);
     public static final KeyMapping MOVES = k("moves", GLFW.GLFW_KEY_K);
+    public static final KeyMapping SUBS = k("subs", GLFW.GLFW_KEY_P);
     public static final KeyMapping MATCH = k("match", GLFW.GLFW_KEY_M);
     public static final KeyMapping SHOOT = SHOOT1;
     public static final KeyMapping[] SHOTS = {SHOOT1, SHOOT2, SHOOT3};
     public static final KeyMapping[] SKILLS = {SKILL1, SKILL2, SKILL3};
     public static final KeyMapping[] ALL = {SHOOT1, SHOOT2, SHOOT3, PASS, LOB, TACKLE, SKILL1, SKILL2, SKILL3, CALL, SWITCH, ABILITY,
-            CELEBRATE, CAMERA, REPLAY, CARDS, MOVES, MATCH, COMBO_UP, COMBO_DOWN, COMBO_LEFT, COMBO_RIGHT};
+            CELEBRATE, CAMERA, REPLAY, CARDS, MOVES, SUBS, MATCH, COMBO_UP, COMBO_DOWN, COMBO_LEFT, COMBO_RIGHT};
 
     private Keys() {}
 

@@ -67,6 +67,12 @@ public final class PadControl {
         LocalPlayer p = mc.player;
         if (p == null) return;
         if (mc.screen != null) {
+            if (mc.screen instanceof SubScreen ss) {
+                Gamepads.Pad own = ClientState.bench != null && ClientState.bench.p2() ? p2Pad : p1Pad;
+                if (own != null) ss.pad(own);
+                else if (p1Pad != null) ss.pad(p1Pad);
+                return;
+            }
             if (p1Pad != null && p1Pad.pressed(Gamepads.START)) mc.setScreen(null);
             return;
         }
@@ -145,6 +151,8 @@ public final class PadControl {
         if (pad.pressed(Gamepads.RIGHT)) send(0, ClientState.slots(c.p2)[1], 1, 1, false, c.p2);
         if (!c.p2 && pad.pressed(Gamepads.START)) mc.setScreen(new MatchScreen());
         if (pad.pressed(Gamepads.BACK)) CameraCtl.cycle();
+        // R3 (sag cubuga bas): oyuncu degisikligi
+        if (pad.pressed(Gamepads.R3)) Net.toServer(new C2S.Menu(C2S.Menu.BENCH, c.p2 ? 1 : 0));
     }
 
     private static void fireCombo(Combo.Result r, boolean p2) {

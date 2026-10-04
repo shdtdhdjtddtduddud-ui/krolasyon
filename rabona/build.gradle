@@ -3,7 +3,7 @@ plugins {
     id 'net.minecraftforge.gradle' version '[6.0.16,6.2)'
 }
 
-version = '1.0.0'
+version = '2.3.0'
 group = 'com.rabona.arena'
 base { archivesName = 'rabona_arena-1.20.1-forge' }
 

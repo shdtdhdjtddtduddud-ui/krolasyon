@@ -1,5 +1,17 @@
 package com.rabona.arena.client;
 
+import com.rabona.arena.game.Move;
+
+import net.minecraft.world.entity.LivingEntity;
+
+import com.rabona.arena.game.MoveLogic;
+
+import com.rabona.arena.game.Pitch;
+
+import com.rabona.arena.net.Net;
+
+import com.rabona.arena.net.C2S;
+
 import com.mojang.logging.LogUtils;
 import com.rabona.arena.entity.BallEntity;
 import com.rabona.arena.entity.FootballerEntity;
@@ -84,6 +96,79 @@ public final class AutoTest {
             ServerPlayer p = player(s);
             LOG.info("[RTEST] player pos={} ballCtrl={} me={} myPos={}", p.position(), b == null ? -2 : b.getControllerId(), p.getId(), m.posOf(p));
         });
+        // faul -> serbest vurus (insan atici) -> olu yaprak
+        server(5, null, false, s -> {
+            Match m = Match.get(s);
+            ServerPlayer p = player(s);
+            LOG.info("[RTEST] tactics red={} ({}) blue={} ({})", m.tactic(Team.RED), m.manager(Team.RED).name(), m.tactic(Team.BLUE), m.manager(Team.BLUE).name());
+            if (m.phase != Match.Phase.PLAYING) m.phase = Match.Phase.PLAYING;
+            int sg = m.attackSign(Team.RED);
+            Vec3 at = m.pitch.world(sg * (Pitch.HALF_LEN - 22), 4, m.pitch.surfaceY());
+            p.teleportTo(at.x, at.y, at.z);
+            LivingEntity off = null;
+            for (LivingEntity e : m.members(Team.BLUE)) if (!(e instanceof FootballerEntity f && f.isKeeper())) off = e;
+            m.foul(off, p, true, 0.9);
+            LOG.info("[RTEST] foul -> phase={} setPiece={} taker={} me={}", m.phase, m.setPiece, m.spTaker, p.getId());
+        });
+        wait(25, "free_kick_banner", true);
+        server(5, null, false, s -> {
+            Match m = Match.get(s);
+            ServerPlayer p = player(s);
+            Vec3 goal = m.pitch.goalCenter(m.attackSign(Team.RED)).add(0, 1.5, 0);
+            float yaw = Match.yawToward(p.position(), goal);
+            p.connection.teleport(p.getX(), p.getY(), p.getZ(), yaw, -6);
+        });
+        wait(30, "free_kick_aim", true);
+        server(5, null, false, s -> {
+            ServerPlayer p = player(s);
+            boolean ok = MoveLogic.tryPerform(p, Move.SHOT_DEADLEAF, 0.95f, 1, null);
+            LOG.info("[RTEST] free kick deadleaf -> {} phase={}", ok, Match.get(s).phase);
+        });
+        wait(18, "free_kick_flight", true);
+        wait(40, null, false);
+        // penalti
+        server(5, null, false, s -> {
+            Match m = Match.get(s);
+            ServerPlayer p = player(s);
+            m.phase = Match.Phase.PLAYING;
+            m.setPiece = Match.SetPiece.NONE;
+            BallEntity b = m.ball();
+            if (b != null) b.locked = false;
+            int sg = m.attackSign(Team.RED);
+            Vec3 at = m.pitch.world(sg * (Pitch.HALF_LEN - 6), 1, m.pitch.surfaceY());
+            p.teleportTo(at.x, at.y, at.z);
+            LivingEntity off = null;
+            for (LivingEntity e : m.members(Team.BLUE)) if (!(e instanceof FootballerEntity f && f.isKeeper())) off = e;
+            m.foul(off, p, false, 0.5);
+            LOG.info("[RTEST] penalty -> phase={} setPiece={} taker={}", m.phase, m.setPiece, m.spTaker);
+        });
+        wait(30, "penalty", true);
+        server(5, null, false, s -> {
+            ServerPlayer p = player(s);
+            Match m = Match.get(s);
+            Vec3 goal = m.pitch.goalCenter(m.attackSign(Team.RED)).add(0, 1.0, 0);
+            p.connection.teleport(p.getX(), p.getY(), p.getZ(), Match.yawToward(p.position(), goal) + 8, 2);
+        });
+        wait(15, "penalty_aim", true);
+        server(5, null, false, s -> LOG.info("[RTEST] penalty shot -> {}", MoveLogic.tryPerform(player(s), Move.SHOT_FINESSE, 0.8f, 1, null)));
+        wait(30, "penalty_shot", true);
+        wait(30, null, false);
+        // oyuncu degisikligi
+        server(5, null, false, s -> {
+            Match m = Match.get(s);
+            if (m.phase == Match.Phase.SET_PIECE) {
+                m.phase = Match.Phase.PLAYING;
+                m.setPiece = Match.SetPiece.NONE;
+            }
+            FootballerEntity out = null;
+            for (FootballerEntity f : m.bots()) if (f.getSquad() == Team.RED && !f.isKeeper()) out = f;
+            String before = out == null ? "-" : out.getBaseName();
+            boolean ok = m.substitute(Team.RED, out, 0, player(s));
+            LOG.info("[RTEST] substitution {} -> {} ok={} left={}", before, out == null ? "-" : out.getBaseName(), ok, m.subsLeft(Team.RED));
+        });
+        wait(15, "sub_banner", true);
+        client(25, "sub_screen", true, () -> Net.toServer(new C2S.Menu(C2S.Menu.BENCH, 0)));
+        client(5, null, false, () -> Minecraft.getInstance().setScreen(null));
         client(30, "cam_tv", true, () -> ClientState.cameraMode = 1);
         client(30, "cam_behind", true, () -> ClientState.cameraMode = 2);
         client(30, "cam_top", true, () -> ClientState.cameraMode = 3);
@@ -134,6 +219,13 @@ public final class AutoTest {
             ClientState.packReveal = java.util.List.of();
             CardScreen.tab = 1;
         });
+        server(10, null, false, s -> {
+            Cards.buyManager(player(s));
+            Cards.buyManager(player(s));
+            Cards.autoLineup(player(s));
+        });
+        client(25, "cards_lineup", true, () -> CardScreen.tab = 2);
+        client(25, "cards_managers", true, () -> CardScreen.tab = 3);
         client(20, "match_menu", true, () -> Minecraft.getInstance().setScreen(new MatchScreen()));
         client(20, "moves_menu", true, () -> Minecraft.getInstance().setScreen(new MoveScreen()));
         client(5, null, false, () -> Minecraft.getInstance().setScreen(null));
