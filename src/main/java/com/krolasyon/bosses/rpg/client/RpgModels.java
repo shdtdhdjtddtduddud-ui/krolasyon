@@ -247,7 +247,7 @@ public final class RpgModels {
             br.xRot = swing(limb, sp, Mth.PI) * 1.3F * amt;
             body.y += Mth.sin(limb * sp * 2) * 0.5F * amt;
             body.xRot = Mth.sin(age * 0.06F) * 0.015F;
-            if (jaw != null) jaw.xRot = 0.05F + Mth.max(0, Mth.sin(age * 0.07F)) * 0.08F;
+            if (jaw != null) jaw.xRot = 0.05F + Math.max(0F, Mth.sin(age * 0.07F)) * 0.08F;
             if (this.attackTime > 0) {
                 float s = Mth.sin(this.attackTime * Mth.PI);
                 head.xRot += 0.4F * s;
@@ -591,7 +591,7 @@ public final class RpgModels {
             head.x += Mth.sin(t + 0.9F) * amp * 0.2F;
             look(head, yaw * 0.6F, pitch * 0.5F);
             head.y += Mth.sin(age * 0.08F) * 0.6F;
-            if (jaw != null) jaw.xRot = 0.08F + Mth.max(0, Mth.sin(age * 0.06F)) * 0.1F;
+            if (jaw != null) jaw.xRot = 0.08F + Math.max(0F, Mth.sin(age * 0.06F)) * 0.1F;
             if (this.attackTime > 0) {
                 float s = Mth.sin(this.attackTime * Mth.PI);
                 head.z -= 4 * s; head.y += 2 * s;
