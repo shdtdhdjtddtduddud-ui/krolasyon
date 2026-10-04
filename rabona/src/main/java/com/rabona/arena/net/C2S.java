@@ -18,8 +18,10 @@ public final class C2S {
     private C2S() {}
 
     /** Hareket istegi. kind: 0 dogrudan, 1 sut (baglama gore), 2 pas, 3 uzun pas, 4 mudahale. */
-    public record Act(int kind, int move, float power, int side, boolean modifier) {
-        public Act(FriendlyByteBuf b) { this(b.readByte(), b.readVarInt(), b.readFloat(), b.readByte(), b.readBoolean()); }
+    public record Act(int kind, int move, float power, int side, boolean modifier, boolean p2) {
+        public Act(int kind, int move, float power, int side, boolean modifier) { this(kind, move, power, side, modifier, false); }
+
+        public Act(FriendlyByteBuf b) { this(b.readByte(), b.readVarInt(), b.readFloat(), b.readByte(), b.readBoolean(), b.readBoolean()); }
 
         public void encode(FriendlyByteBuf b) {
             b.writeByte(kind);
@@ -27,6 +29,7 @@ public final class C2S {
             b.writeFloat(power);
             b.writeByte(side);
             b.writeBoolean(modifier);
+            b.writeBoolean(p2);
         }
 
         public void handle(Supplier<NetworkEvent.Context> ctx) {
@@ -35,6 +38,19 @@ public final class C2S {
                 if (p == null || p.isSpectator()) return;
                 float pw = Mth.clamp(power, 0, 1.4f);
                 int sd = Mth.clamp(side, -1, 1);
+                if (p2) {
+                    Match m2 = Match.get(p.server);
+                    if (!p.getUUID().equals(m2.p2Owner)) return;
+                    if (kind == 6) {
+                        m2.p2Switch(true);
+                        return;
+                    }
+                    var bot = m2.p2Entity();
+                    if (bot == null || kind == 5) return;
+                    Move mv = resolve(bot, this, false);
+                    if (mv != null) MoveLogic.tryPerform(bot, mv, pw, sd, null);
+                    return;
+                }
                 if (kind == 5) {
                     Match.get(p.server).requestPass(p);
                     return;
@@ -43,13 +59,13 @@ public final class C2S {
                     Match.get(p.server).manualSwitch(p);
                     return;
                 }
-                Move m = resolve(p, this);
+                Move m = resolve(p, this, p.isSprinting());
                 if (m != null) MoveLogic.tryPerform(p, m, pw, sd, null);
             });
         }
     }
 
-    static Move resolve(ServerPlayer p, Act a) {
+    static Move resolve(net.minecraft.world.entity.LivingEntity p, Act a, boolean sprinting) {
         Move chosen = Move.byId(a.move());
         if (a.kind() == 0) {
             if (!chosen.selectable()) return null;
@@ -69,7 +85,7 @@ public final class C2S {
                 double rel = air.center().y - p.getY();
                 Vec3 to = air.center().subtract(p.position());
                 boolean behind = MoveLogic.face(p).dot(new Vec3(to.x, 0, to.z).normalize()) < -0.15;
-                if (rel > 1.3) return p.isSprinting() && rel < 1.9 ? Move.DIVING_HEADER : Move.HEADER;
+                if (rel > 1.3) return sprinting && rel < 1.9 ? Move.DIVING_HEADER : Move.HEADER;
                 if (behind) return Move.SCORPION;
                 if (p.getXRot() < -22) return Move.BICYCLE;
                 return Move.VOLLEY;
@@ -83,7 +99,7 @@ public final class C2S {
                 return a.modifier() ? Move.PASS_CROSS : Move.PASS_LOB;
             }
             case 4 -> {
-                return p.isSprinting() || a.modifier() ? Move.SLIDE : Move.TACKLE;
+                return sprinting || a.modifier() ? Move.SLIDE : Move.TACKLE;
             }
             default -> {
                 return null;
@@ -91,10 +107,28 @@ public final class C2S {
         }
     }
 
+    /** 2. oyuncu kumandasi: dunya yonunde hareket vektoru + depar. */
+    public record Pad(float x, float z, boolean sprint) {
+        public Pad(FriendlyByteBuf b) { this(b.readFloat(), b.readFloat(), b.readBoolean()); }
+
+        public void encode(FriendlyByteBuf b) {
+            b.writeFloat(x);
+            b.writeFloat(z);
+            b.writeBoolean(sprint);
+        }
+
+        public void handle(Supplier<NetworkEvent.Context> ctx) {
+            ServerPlayer p = ctx.get().getSender();
+            ctx.get().enqueueWork(() -> {
+                if (p != null) Match.get(p.server).p2Input(p, Mth.clamp(x, -1, 1), Mth.clamp(z, -1, 1), sprint);
+            });
+        }
+    }
+
     /** Menu islemleri. */
     public record Menu(int action, int value) {
         public static final int JOIN = 0, FILL_BOTS = 1, CLEAR_BOTS = 2, START = 3, STOP = 4, DURATION = 5, TEAM_SIZE = 6,
-                DIFFICULTY = 7, BUILD = 8, BALL = 9, TP = 10, POS = 11, CARD_OPEN = 12, CARD_SQUAD = 13, CARD_SELL = 14, CARD_SYNC = 15, FIFA = 16;
+                DIFFICULTY = 7, BUILD = 8, BALL = 9, TP = 10, POS = 11, CARD_OPEN = 12, CARD_SQUAD = 13, CARD_SELL = 14, CARD_SYNC = 15, FIFA = 16, P2 = 17;
 
         public Menu(FriendlyByteBuf b) { this(b.readByte(), b.readVarInt()); }
 
@@ -118,6 +152,10 @@ public final class C2S {
                     case CARD_SQUAD -> { Cards.toggleSquad(p, value); return; }
                     case CARD_SELL -> { Cards.sell(p, value); return; }
                     case CARD_SYNC -> { Cards.sync(p, java.util.List.of()); return; }
+                    case P2 -> {
+                        m.setP2(p, Mth.clamp(value, 0, 2));
+                        return;
+                    }
                     case FIFA -> {
                         if (value == 0) m.fifaOff.add(p.getUUID()); else m.fifaOff.remove(p.getUUID());
                         m.sync();

@@ -86,3 +86,40 @@ Dokular `gen/textures.py`, sesler `gen/sounds.py`, modeller `gen/assets.py`, dil
 ## Çok oyunculu
 Arkadaşınla oynamak için: tek oyunculu dünyada *LAN'a Aç* ya da bir Forge 1.20.1 sunucusuna modu kur.
 Her oyuncu `M` menüsünden takımını ve mevkisini seçer; boş yerleri botlar doldurur.
+
+## Tek bilgisayarda 2 kişilik (kumanda)
+Bilgisayara 1 ya da 2 oyun kumandası (Xbox / PlayStation / genel) tak. `M` menüsünde **2. Oyuncu (kumanda)**
+düğmesiyle *Rakip takım* (birbirinize karşı) ya da *Benim takımım* (birlikte) seç. Kamera otomatik olarak TV
+yayınına geçer ki ikiniz de ekranda olun. İki kumanda varsa: 1. kumanda = sen, 2. kumanda = 2. oyuncu.
+Tek kumanda varsa: klavye/fare = sen, kumanda = 2. oyuncu. Başlarınızın üstünde **P1 / P2** işareti çıkar.
+
+| Kumanda | Top sendeyken | Top sende değilken |
+|---|---|---|
+| Sol çubuk | Koş (ekrana göre) | Koş |
+| RT | Depar | Depar |
+| A | Kısa pas | Pas iste |
+| B (basılı tut) | Şut — RB ile Plase, LT ile Trivela | Top çalma |
+| X | Havadan pas (RB: orta) | Kayarak müdahale |
+| Y | Ara pas | — |
+| LB | Oyuncu değiştir | Oyuncu değiştir |
+| Sağ çubuk | **Kombo çalımlar** | — |
+| D-pad ↑ / ↓ / ← / → | Yetenek / Sevinç / Hareket 1 / Hareket 2 | |
+| Start / Back | Maç menüsü / Kamera | |
+
+## Kombo çalımlar (FIFA tarzı)
+Kumandada sağ çubuk, klavyede **yön okları** (↑ ileri, ↓ geri, ←/→ yanlar; ekrana göre):
+
+| Kombo | Hareket | Kombo | Hareket |
+|---|---|---|---|
+| ← veya → | Vücut Çalımı | ↓ | Topu Geri Çekme |
+| ↑ | Hız Patlaması | ↓ ↑ ↑ | Gökkuşağı |
+| ↑ ↑ | Sombrero | ↓ ↓ | Cruyff Dönüşü |
+| ← ← / → → | La Croqueta | ← → / → ← | Makas |
+| ↑ ↓ | Bacak Arası | ↓ ↑ | Topuk Aşırtma |
+| → ↓ / ← ↓ | Ronaldo Kesişi | ↑ ← / ↑ → | Sahte Şut |
+| → ↓ ← / ← ↓ → | Elastico | ↑ → ↓ ← (tam tur) | Marsilya Dönüşü |
+
+## Pas
+Pas attığında top, hedeflenen takım arkadaşına doğru yön düzeltir ve ona ulaşacak hızda gider
+(arkadaşın koşuyorsa önüne). Pası alacak bot topu karşılamaya gelir; FIFA kontrolü açıksa top ona ulaştığı an
+o oyuncuyu sen yönetirsin.

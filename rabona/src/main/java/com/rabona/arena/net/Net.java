@@ -25,6 +25,7 @@ public final class Net {
 
     public static void init() {
         reg(C2S.Act.class, C2S.Act::encode, C2S.Act::new, C2S.Act::handle, NetworkDirection.PLAY_TO_SERVER);
+        reg(C2S.Pad.class, C2S.Pad::encode, C2S.Pad::new, C2S.Pad::handle, NetworkDirection.PLAY_TO_SERVER);
         reg(C2S.Menu.class, C2S.Menu::encode, C2S.Menu::new, C2S.Menu::handle, NetworkDirection.PLAY_TO_SERVER);
         reg(S2C.Anim.class, S2C.Anim::encode, S2C.Anim::new, S2C.Anim::handle, NetworkDirection.PLAY_TO_CLIENT);
         reg(S2C.Shake.class, S2C.Shake::encode, S2C.Shake::new, S2C.Shake::handle, NetworkDirection.PLAY_TO_CLIENT);

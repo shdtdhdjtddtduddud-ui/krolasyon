@@ -46,6 +46,8 @@ public final class ClientState {
     public static int cameraMode;
     public static boolean autoReplay = true;
     public static boolean fifaMode = true;
+    /** Yerel 2. oyuncu: 0 kapali, 1 rakip takim, 2 benim takimim. */
+    public static int p2Mode;
     public static Move ability = Move.AB_FIRE;
     public static Move celebration = Move.CELEB_SIU;
     public static final Move[] SHOT_STYLES = {Move.SHOT_POWER, Move.SHOT_FINESSE, Move.SHOT_CHIP, Move.SHOT_TRIVELA,

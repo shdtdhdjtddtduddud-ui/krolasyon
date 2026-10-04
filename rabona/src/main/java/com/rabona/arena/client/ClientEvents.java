@@ -33,6 +33,7 @@ public final class ClientEvents {
         if (ClientState.bannerTicks > 0) ClientState.bannerTicks--;
         shake *= 0.86f;
         ClientInput.tick();
+        PadControl.tick();
         Replay.tick();
         AutoTest.tick();
         ClientAnims.CONTROLLERS.clear();
@@ -60,11 +61,15 @@ public final class ClientEvents {
         if (e.getStage() != net.minecraftforge.client.event.RenderLevelStageEvent.Stage.AFTER_ENTITIES) return;
         CrowdRenderer.render(e.getPoseStack(), e.getPartialTick());
         Replay.render(e.getPoseStack(), e.getPartialTick());
+        PadControl.renderMarkers(e.getPoseStack(), e.getPartialTick());
     }
 
     @SubscribeEvent
     public static void input(net.minecraftforge.client.event.MovementInputUpdateEvent e) {
-        if (e.getEntity() instanceof net.minecraft.client.player.LocalPlayer lp) CameraCtl.onInput(lp, e.getInput());
+        if (e.getEntity() instanceof net.minecraft.client.player.LocalPlayer lp) {
+            CameraCtl.onInput(lp, e.getInput());
+            PadControl.applyP1(lp, e.getInput());
+        }
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

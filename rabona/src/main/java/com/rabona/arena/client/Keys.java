@@ -18,6 +18,10 @@ public final class Keys {
     public static final KeyMapping SKILL3 = k("skill3", GLFW.GLFW_KEY_J);
     public static final KeyMapping CALL = k("call", GLFW.GLFW_KEY_N);
     public static final KeyMapping SWITCH = k("switch", GLFW.GLFW_KEY_LEFT_ALT);
+    public static final KeyMapping COMBO_UP = k("combo_up", GLFW.GLFW_KEY_UP);
+    public static final KeyMapping COMBO_DOWN = k("combo_down", GLFW.GLFW_KEY_DOWN);
+    public static final KeyMapping COMBO_LEFT = k("combo_left", GLFW.GLFW_KEY_LEFT);
+    public static final KeyMapping COMBO_RIGHT = k("combo_right", GLFW.GLFW_KEY_RIGHT);
     public static final KeyMapping ABILITY = k("ability", GLFW.GLFW_KEY_U);
     public static final KeyMapping CELEBRATE = k("celebrate", GLFW.GLFW_KEY_I);
     public static final KeyMapping CAMERA = k("camera", GLFW.GLFW_KEY_O);
@@ -29,7 +33,7 @@ public final class Keys {
     public static final KeyMapping[] SHOTS = {SHOOT1, SHOOT2, SHOOT3};
     public static final KeyMapping[] SKILLS = {SKILL1, SKILL2, SKILL3};
     public static final KeyMapping[] ALL = {SHOOT1, SHOOT2, SHOOT3, PASS, LOB, TACKLE, SKILL1, SKILL2, SKILL3, CALL, SWITCH, ABILITY,
-            CELEBRATE, CAMERA, REPLAY, CARDS, MOVES, MATCH};
+            CELEBRATE, CAMERA, REPLAY, CARDS, MOVES, MATCH, COMBO_UP, COMBO_DOWN, COMBO_LEFT, COMBO_RIGHT};
 
     private Keys() {}
 

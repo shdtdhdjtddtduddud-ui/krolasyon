@@ -49,6 +49,17 @@ public final class Hud {
         if (active && ClientState.stats != null) bars(g, font, w, h);
         if (active) slots(g, font, w, h);
         if (ClientInput.charging) power(g, font, w, h);
+        Component combo = PadControl.lastCombo();
+        if (combo != null) {
+            Component c = Component.translatable("hud.rabonaarena.combo", combo);
+            g.drawString(font, c, w / 2 - font.width(c) / 2, h / 2 + 40, 0xFFE040FB, true);
+        }
+        if (PadControl.p2Charge > 0) {
+            int bw = 80, x = w / 2 - bw / 2, y = h / 2 + 54;
+            g.fill(x - 1, y - 1, x + bw + 1, y + 6, 0xFF000000);
+            g.fill(x, y, x + (int) (bw * Math.min(1, PadControl.p2Charge / 1.35f)), y + 5, PadControl.p2Charge > 1 ? 0xFFFF1744 : 0xFFFFC94A);
+            g.drawString(font, "P2", x - 16, y - 1, 0xFFFFC94A, true);
+        }
         if (myBall != null) hint(g, font, w, h, myBall.isHeld());
         feed(g, font, w, matchOn);
         if (ClientState.bannerTicks > 0 && ClientState.banner != null) banner(g, font, w, h, partial);

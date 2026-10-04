@@ -30,7 +30,16 @@ public final class CameraCtl {
 
     private CameraCtl() {}
 
-    public static int mode() { return ClientState.cameraMode; }
+    public static int mode() {
+        // 2 kisilik oyunda iki oyuncuyu da gormek icin TV kamerasi
+        if (ClientState.cameraMode == 0 && PadControl.p2Active()) return 1;
+        return ClientState.cameraMode;
+    }
+
+    /** Hareket yonu icin kamera acisi (futbol kamerasi yoksa oyuncunun bakisi). */
+    public static float yawFor(LocalPlayer p) {
+        return mode() > 0 && camPos != null ? camYaw : p.getYRot();
+    }
 
     public static void cycle() {
         ClientState.cameraMode = (ClientState.cameraMode + 1) % 4;

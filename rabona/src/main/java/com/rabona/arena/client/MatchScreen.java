@@ -17,7 +17,7 @@ import java.util.List;
 
 /** Mac menusu: takim secimi, botlar, ayarlar ve stadyum. */
 public class MatchScreen extends Screen {
-    private Button diffBtn, posBtn, replayBtn, fifaBtn;
+    private Button diffBtn, posBtn, replayBtn, fifaBtn, p2Btn;
     private int rosterBottom;
 
     private Pos myPos() {
@@ -48,6 +48,10 @@ public class MatchScreen extends Screen {
             send(C2S.Menu.POS, next.ordinal());
         }).bounds(lx + 138, y + 24, 130, 18).build());
         send(C2S.Menu.FIFA, ClientState.fifaMode ? 1 : 0);
+        p2Btn = addRenderableWidget(Button.builder(Component.empty(), b -> {
+            ClientState.p2Mode = (ClientState.p2Mode + 1) % 3;
+            send(C2S.Menu.P2, ClientState.p2Mode);
+        }).bounds(lx, height - 78, 268, 20).build());
         fifaBtn = addRenderableWidget(Button.builder(Component.empty(), b -> {
             ClientState.fifaMode = !ClientState.fifaMode;
             ClientState.save();
@@ -97,6 +101,7 @@ public class MatchScreen extends Screen {
     public void tick() {
         int d = val(S2C.MatchState::difficulty, 1);
         posBtn.setMessage(Component.translatable("screen.rabonaarena.my_pos", myPos().title()));
+        p2Btn.setMessage(Component.translatable("screen.rabonaarena.p2_" + ClientState.p2Mode, Gamepads.pads().size()));
         fifaBtn.setMessage(Component.translatable(ClientState.fifaMode ? "screen.rabonaarena.fifa_on" : "screen.rabonaarena.fifa_off", Keys.SWITCH.getTranslatedKeyMessage()));
         replayBtn.setMessage(Component.translatable(ClientState.autoReplay ? "screen.rabonaarena.auto_replay_on" : "screen.rabonaarena.auto_replay_off"));
         diffBtn.setMessage(Component.translatable("screen.rabonaarena.difficulty", Component.translatable("difficulty.rabonaarena." + d)));
@@ -122,7 +127,7 @@ public class MatchScreen extends Screen {
         boolean pitch = ClientState.pitch != null;
         g.drawString(font, Component.translatable(pitch ? "screen.rabonaarena.pitch_ok" : "screen.rabonaarena.pitch_missing"), rx, ry + 190, pitch ? 0xFF81C784 : 0xFFFF8A65, false);
         // kontroller
-        int hy = height - 116;
+        int hy = height - 140;
         if (rosterBottom > hy - 6) {
             super.render(g, mx, my, partial);
             return;

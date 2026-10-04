@@ -215,6 +215,93 @@ public class Match {
         sync();
     }
 
+    // ================================================================ yerel 2. oyuncu (ayni bilgisayar, 2. kumanda)
+    public UUID p2Owner;
+    public int p2Bot = -1;
+    public Team p2Team = Team.NONE;
+    public float p2X, p2Z;
+    public boolean p2Sprint;
+    public long p2Last, p2SwitchCd;
+
+    /** mode: 0 kapali, 1 rakip takim, 2 benim takimim. */
+    public void setP2(ServerPlayer owner, int mode) {
+        if (mode == 0) {
+            p2Owner = null;
+            p2Bot = -1;
+            p2Team = Team.NONE;
+            sync();
+            return;
+        }
+        Team own = teamOf(owner);
+        if (!own.playing()) {
+            join(owner, Team.RED);
+            own = Team.RED;
+        }
+        p2Owner = owner.getUUID();
+        p2Team = mode == 1 ? own.opponent() : own;
+        boolean any = false;
+        for (FootballerEntity f : bots()) if (f.getSquad() == p2Team && !f.isKeeper()) any = true;
+        if (!any) fillBots();
+        BallEntity b = ball();
+        FootballerEntity f = closestBot(p2Team, b != null ? b.position() : pitch != null ? pitch.center() : owner.position());
+        p2Bot = f == null ? -1 : f.getId();
+        broadcast(Component.translatable("msg.rabonaarena.p2_on", p2Team.displayName()).withStyle(ChatFormatting.AQUA));
+        sync();
+    }
+
+    public FootballerEntity p2Entity() {
+        if (p2Owner == null || p2Bot < 0) return null;
+        Entity e = level().getEntity(p2Bot);
+        return e instanceof FootballerEntity f && f.isAlive() && f.getSquad() == p2Team ? f : null;
+    }
+
+    public boolean isDriven(FootballerEntity f) {
+        return p2Owner != null && f.getId() == p2Bot && SERVER.getPlayerList().getPlayer(p2Owner) != null;
+    }
+
+    public void p2Input(ServerPlayer from, float x, float z, boolean sprint) {
+        if (!from.getUUID().equals(p2Owner)) return;
+        p2X = x;
+        p2Z = z;
+        p2Sprint = sprint;
+        p2Last = level().getGameTime();
+    }
+
+    public void p2Switch(boolean manual) {
+        if (p2Owner == null) return;
+        BallEntity b = ball();
+        if (b == null) return;
+        LivingEntity c = b.getController();
+        FootballerEntity target = c instanceof FootballerEntity fb && fb.getSquad() == p2Team && !fb.isKeeper() ? fb : closestBot(p2Team, b.position());
+        if (target != null && target.getId() != p2Bot) {
+            p2Bot = target.getId();
+            p2SwitchCd = level().getGameTime() + 20;
+            level().sendParticles(new net.minecraft.core.particles.DustParticleOptions(new org.joml.Vector3f(0.2f, 1f, 1f), 1.4f),
+                    target.getX(), target.getY() + 0.1, target.getZ(), 14, 0.4, 0.02, 0.4, 0);
+            sync();
+        }
+    }
+
+    private void autoSwitchP2(BallEntity ball) {
+        FootballerEntity me = p2Entity();
+        if (p2Owner == null) return;
+        LivingEntity c = ball.getController();
+        if (c instanceof FootballerEntity bot && bot.getSquad() == p2Team && !bot.isKeeper() && bot.getId() != p2Bot && ball.controlTicks <= 2) {
+            p2Bot = bot.getId();
+            sync();
+            return;
+        }
+        if (me == null) {
+            p2Switch(false);
+            return;
+        }
+        if (level().getGameTime() % 10 != 0 || level().getGameTime() < p2SwitchCd) return;
+        if (c != null && teamOf(c) == p2Team) return;
+        double my = me.distanceTo(ball);
+        FootballerEntity best = closestBot(p2Team, ball.position());
+        if (my > 16 && best != null && best != me && best.distanceTo(ball) < my - 8) p2Switch(false);
+    }
+
     // ================================================================ FIFA tarzi oyuncu degistirme
     /** FIFA kontrolunu kapatan oyuncular. */
     public final Set<UUID> fifaOff = new HashSet<>();
@@ -231,7 +318,7 @@ public class Match {
     /** Top takimdaki bir bota gecerse oyuncu o bota gecer; savunmada uzak kalinca topa yakin oyuncuya gecer. */
     private void autoSwitch(BallEntity ball) {
         LivingEntity c = ball.getController();
-        if (c instanceof FootballerEntity bot && !bot.isKeeper() && !ball.isHeld() && ball.controlTicks <= 2) {
+        if (c instanceof FootballerEntity bot && !bot.isKeeper() && !ball.isHeld() && ball.controlTicks <= 2 && bot.getId() != p2Bot) {
             ServerPlayer h = nearestHuman(bot.getSquad(), bot.position(), true);
             if (h != null) {
                 swap(h, bot);
@@ -257,7 +344,7 @@ public class Match {
         BallEntity b = ball();
         if (!t.playing() || b == null || posOf(p) == Pos.GK) return;
         LivingEntity c = b.getController();
-        FootballerEntity target = c instanceof FootballerEntity fb && fb.getSquad() == t && !fb.isKeeper() ? fb : closestBot(t, b.position());
+        FootballerEntity target = c instanceof FootballerEntity fb && fb.getSquad() == t && !fb.isKeeper() && fb.getId() != p2Bot ? fb : closestBot(t, b.position());
         if (target != null) swap(p, target);
     }
 
@@ -266,6 +353,7 @@ public class Match {
         double bd = 1e9;
         for (FootballerEntity f : bots()) {
             if (f.getSquad() != t || f.isKeeper()) continue;
+            if (f.getId() == p2Bot && p2Owner != null) continue; // 2. oyuncunun futbolcusu
             double d = f.position().distanceToSqr(to);
             if (d < bd) { bd = d; best = f; }
         }
@@ -565,6 +653,7 @@ public class Match {
                 if (ball != null) {
                     checkBall(ball);
                     autoSwitch(ball);
+                    autoSwitchP2(ball);
                 }
             }
             case GOAL -> {

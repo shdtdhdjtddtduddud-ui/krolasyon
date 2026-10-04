@@ -88,6 +88,21 @@ public final class AutoTest {
         client(30, "cam_behind", true, () -> ClientState.cameraMode = 2);
         client(30, "cam_top", true, () -> ClientState.cameraMode = 3);
         client(5, null, false, () -> ClientState.cameraMode = 0);
+        // yerel 2. oyuncu: kumanda girdisi sunucuya gonderilmis gibi
+        client(5, null, false, () -> ClientState.p2Mode = 1);
+        server(5, null, false, s -> Match.get(s).setP2(player(s), 1));
+        for (int k = 0; k < 6; k++) server(10, k == 4 ? "p2_markers" : null, true, s -> {
+            Match m = Match.get(s);
+            FootballerEntity f = m.p2Entity();
+            BallEntity b = m.ball();
+            if (f == null || b == null) return;
+            Vec3 d = b.position().subtract(f.position());
+            Vec3 n = new Vec3(d.x, 0, d.z).normalize();
+            m.p2Input(player(s), (float) n.x, (float) n.z, true);
+            LOG.info("[RTEST] p2 bot {} pos={} dist={}", f.getNumber(), f.position(), f.distanceTo(b));
+        });
+        server(5, null, false, s -> Match.get(s).setP2(player(s), 0));
+        client(5, null, false, () -> ClientState.p2Mode = 0);
         server(5, null, false, s -> Match.get(s).join(player(s), Team.NONE));
         // taraftarlar
         server(30, "crowd", false, s -> tp(s, new Vec3(-10, -56, -18), new Vec3(-4, -56, -32), 0));

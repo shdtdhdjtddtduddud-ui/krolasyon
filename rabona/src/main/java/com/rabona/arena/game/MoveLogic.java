@@ -260,16 +260,17 @@ public final class MoveLogic {
             if (dist < 2.5) continue;
             double cos = flat(to).dot(dir);
             if (cos < maxAngleCos) continue;
-            double score = cos * 30 - dist * 0.35;
+            double score = cos * 40 - dist * 0.3;
             if (score > bestScore) { bestScore = score; best = e; }
         }
         return best;
     }
 
+    /** Yer pasi: top hedefe ~0.3 blok/tick hizla varacak sekilde (yuvarlanma surtunmesi 0.952). */
     static Vec3 groundPass(Vec3 from, Vec3 to) {
         Vec3 d = to.subtract(from);
         double dist = Math.sqrt(d.x * d.x + d.z * d.z);
-        double v = Mth.clamp(dist / 19.0 + 0.16, 0.35, 1.55);
+        double v = Mth.clamp(0.3 + dist * 0.05, 0.4, 1.6);
         return flat(d).scale(v).add(0, 0.02, 0);
     }
 
@@ -282,20 +283,42 @@ public final class MoveLogic {
         return flat(d).scale(vh).add(0, vy, 0);
     }
 
+    /** Son pasin alicisi (topun "miknatis" yonlendirmesi icin). */
+    static LivingEntity passMate;
+
     static Vec3 passTarget(LivingEntity actor, Athlete a, boolean lead, double fallback) {
-        if (a.target != null) return a.target;
+        passMate = null;
+        if (a.target != null) {
+            passMate = nearestMate(actor, a.target, 8);
+            return a.target;
+        }
         Vec3 dir = flat(actor.getLookAngle());
-        LivingEntity mate = findMate(actor, dir, 0.72);
+        LivingEntity mate = findMate(actor, dir, 0.7);
+        if (mate == null) mate = findMate(actor, dir, 0.15);
         if (mate == null) return actor.position().add(dir.scale(fallback));
+        passMate = mate;
         Athlete ma = Athlete.of(mate);
         Vec3 p = mate.position();
         if (lead) {
             Vec3 att = Match.get(actor.getServer()).attackDir(actor);
-            p = p.add(ma.vel.scale(14)).add(att == null ? dir.scale(4) : att.scale(4));
+            p = p.add(ma.vel.scale(12)).add(att == null ? dir.scale(3) : att.scale(3));
         } else {
             p = p.add(ma.vel.scale(6));
         }
         return p;
+    }
+
+    static LivingEntity nearestMate(LivingEntity actor, Vec3 at, double r) {
+        Team t = Match.teamOf(actor);
+        LivingEntity best = null;
+        double bd = r * r;
+        for (LivingEntity e : actor.level().getEntitiesOfClass(LivingEntity.class, new AABB(at, at).inflate(r),
+                o -> o != actor && o.isAlive() && (o instanceof Player || o instanceof FootballerEntity))) {
+            if (t.playing() && Match.teamOf(e) != t) continue;
+            double d = e.position().distanceToSqr(at);
+            if (d < bd) { bd = d; best = e; }
+        }
+        return best;
     }
 
     // ================================================================ baslangic etkileri
@@ -338,6 +361,7 @@ public final class MoveLogic {
 
     // ================================================================ etki ani
     private static void impact(LivingEntity actor, Athlete a, Move m) {
+        passMate = null;
         ServerLevel sl = (ServerLevel) actor.level();
         Vec3 f = face(actor);
         Vec3 r = right(f);
@@ -366,12 +390,14 @@ public final class MoveLogic {
                 Vec3 to = a.target != null ? a.target : actor.position().subtract(f.scale(10));
                 LivingEntity mate = a.target == null ? findMate(actor, f.scale(-1), 0.6) : null;
                 if (mate != null) to = mate.position();
+                passMate = mate != null ? mate : nearestMate(actor, to, 8);
                 ball.kick(actor, groundPass(ball.center(), to), new Vector3f(), 0, 0);
             }
             case PASS_NOLOOK -> {
                 Vec3 sideDir = r.scale(side);
                 LivingEntity mate = findMate(actor, sideDir, 0.3);
                 Vec3 to = a.target != null ? a.target : mate != null ? mate.position() : actor.position().add(sideDir.scale(12));
+                passMate = mate != null ? mate : nearestMate(actor, to, 8);
                 ball.kick(actor, groundPass(ball.center(), to), new Vector3f(), 0, 0);
                 affectOpponents(actor, 4, 0.2, 0.5, 14);
             }
@@ -643,7 +669,13 @@ public final class MoveLogic {
             }
             default -> {}
         }
-        if (ball != null) ball.lastMove = m.ordinal();
+        if (ball != null) {
+            ball.lastMove = m.ordinal();
+            boolean pass = m.cat == Move.Cat.PASS || m == Move.GK_THROW;
+            ball.passTargetId = pass && passMate != null && ball.isFree() ? passMate.getId() : -1;
+            ball.passTick = ball.tickCount;
+        }
+        passMate = null;
     }
 
     // ================================================================ hareket suresince

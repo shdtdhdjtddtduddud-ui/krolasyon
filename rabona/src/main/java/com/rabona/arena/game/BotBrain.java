@@ -46,6 +46,10 @@ public class BotBrain {
             stop();
             return;
         }
+        if (m.isDriven(bot)) {
+            drive(m);
+            return;
+        }
         if (m.pitch == null || !Match.isRunning() || bot.level() != m.level()) {
             idle();
             return;
@@ -70,6 +74,23 @@ public class BotBrain {
         play(m, a, ball);
     }
 
+    // ================================================================ 2. oyuncu (kumanda) surusu
+    private void drive(Match m) {
+        boolean fresh = bot.level().getGameTime() - m.p2Last < 10;
+        double x = fresh ? m.p2X : 0, z = fresh ? m.p2Z : 0;
+        double len = Math.sqrt(x * x + z * z);
+        BallEntity ball = m.ball();
+        if (ball != null) lookAt(ball.center());
+        if (len < 0.15) {
+            stop();
+            return;
+        }
+        Vec3 dir = new Vec3(x / len, 0, z / len);
+        Vec3 target = bot.position().add(dir.scale(3));
+        faceTo(target);
+        goTo(target, m.p2Sprint ? 1.3 : Math.max(0.35, Math.min(1.0, len)));
+    }
+
     // ================================================================ ana karar
     private void play(Match m, Athlete a, BallEntity ball) {
         Team team = bot.getSquad();
@@ -91,6 +112,15 @@ public class BotBrain {
             Vec3 spot = m.formationSpot(team, bot.getFieldPos(), ball.position(), false, false);
             if (spot.distanceTo(ball.position()) < 6) spot = ball.position().add(MoveLogic.flat(spot.subtract(ball.position())).scale(6.5));
             goTo(clamp(m, spot), 1.0);
+            return;
+        }
+        // pas bana geliyor: topu karsila
+        if (ball.isFree() && ball.passTargetId == bot.getId()) {
+            Vec3 v = ball.getDeltaMovement();
+            double d = bot.position().distanceTo(ball.position());
+            Vec3 meet = ball.position().add(v.scale(Math.min(10, d / 0.35)));
+            lookAt(ball.center());
+            goTo(clamp(m, meet), d > 4 ? 1.2 : 0.8);
             return;
         }
         if (bot.isKeeper()) {

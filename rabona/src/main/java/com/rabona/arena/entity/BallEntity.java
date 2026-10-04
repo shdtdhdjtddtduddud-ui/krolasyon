@@ -68,6 +68,8 @@ public class BallEntity extends Entity {
     private Vec3 ctrlVel = Vec3.ZERO;
     public int airDribbleTicks; // fok calimi: top kafada
     public int lastMove = -1;
+    /** Pasin alicisi: top ona dogru yon duzeltir (miknatis). */
+    public int passTargetId = -1, passTick;
     public boolean juggle;
 
     // istemci gorsel durumu
@@ -131,10 +133,15 @@ public class BallEntity extends Entity {
         ctrlVel = Vec3.ZERO;
         airDribbleTicks = 0;
         juggle = false;
-        if (e != null) touched(e);
+        if (e != null) {
+            if (e.getId() == passTargetId) com.rabona.arena.game.MoveLogic.COUNTS.merge("PASS_OK", 1, Integer::sum);
+            touched(e);
+            passTargetId = -1;
+        }
     }
 
     public void touched(LivingEntity e) {
+        if (e.getId() != passTargetId && tickCount - passTick > 2) passTargetId = -1;
         if (e.getId() != lastToucherId) {
             prevToucherId = lastToucherId;
             lastToucherId = e.getId();
@@ -198,6 +205,7 @@ public class BallEntity extends Entity {
         if (ctrl != null) {
             dribble(ctrl);
         } else {
+            homing();
             tryControl();
         }
         physics(true);
@@ -291,7 +299,8 @@ public class BallEntity extends Entity {
                 continue;
             }
             // hizli top: govdeden seker (ilk kontrol sansli)
-            boolean controllable = sp < 0.62 + skillBonus(e) && rel < 0.85 && rel > -0.3;
+            double limit = e.getId() == passTargetId ? 1.6 : 0.62 + skillBonus(e);
+            boolean controllable = sp < limit && rel < 0.85 && rel > -0.3;
             if (h < 0.9 && controllable) {
                 if (h < bestD) { bestD = h; best = e; }
             } else if (h < 0.55 + RADIUS && rel < e.getBbHeight() + 0.1 && rel > -0.3) {
@@ -304,6 +313,37 @@ public class BallEntity extends Entity {
             setDeltaMovement(getDeltaMovement().scale(0.3));
             level().playSound(null, getX(), getY(), getZ(), ModSounds.TOUCH.get(), SoundSource.PLAYERS, 0.6f, 1.0f);
         }
+    }
+
+    /** Pas miknatisi: top, alicinin gidecegi noktaya dogru yumusakca doner ve ona yetecek hizi korur. */
+    private void homing() {
+        if (passTargetId < 0) return;
+        Entity t = level().getEntity(passTargetId);
+        if (!(t instanceof LivingEntity target) || !target.isAlive() || tickCount - passTick > 70) {
+            passTargetId = -1;
+            return;
+        }
+        Vec3 v = getDeltaMovement();
+        double h = Math.sqrt(v.x * v.x + v.z * v.z);
+        if (h < 0.05) return;
+        Vec3 c = center();
+        Vec3 tv = target.getDeltaMovement();
+        double dist = Math.sqrt(Math.pow(target.getX() - c.x, 2) + Math.pow(target.getZ() - c.z, 2));
+        double eta = Math.min(25, dist / Math.max(0.2, h));
+        Vec3 aim = target.position().add(tv.x * eta * 0.6, 0, tv.z * eta * 0.6);
+        Vec3 want = new Vec3(aim.x - c.x, 0, aim.z - c.z);
+        if (want.lengthSqr() < 1e-4) return;
+        want = want.normalize();
+        Vec3 cur = new Vec3(v.x / h, 0, v.z / h);
+        double maxTurn = Math.toRadians(onGround() ? 5 : 2.5);
+        double ang = Math.acos(Mth.clamp(cur.dot(want), -1, 1));
+        if (ang > Math.toRadians(70)) return; // ters yondeyse dokunma
+        double k = ang < 1e-4 ? 1 : Math.min(1, maxTurn / ang);
+        Vec3 dir = cur.scale(1 - k).add(want.scale(k)).normalize();
+        double sp = h;
+        // yerdeyse aliciya yetecek minimum hiz
+        if (onGround()) sp = Math.max(h, Math.min(1.4, 0.18 + dist * 0.048));
+        setDeltaMovement(dir.x * sp, v.y, dir.z * sp);
     }
 
     private double skillBonus(LivingEntity e) {
