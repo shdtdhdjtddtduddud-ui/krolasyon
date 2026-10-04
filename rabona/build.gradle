@@ -1,0 +1,51 @@
+plugins {
+    id 'eclipse'
+    id 'net.minecraftforge.gradle' version '[6.0.16,6.2)'
+}
+
+version = '1.0.0'
+group = 'com.rabona.arena'
+base { archivesName = 'rabona_arena-1.20.1-forge' }
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+minecraft {
+    mappings channel: 'official', version: '1.20.1'
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.console.level', 'info'
+            property 'rabona.autotest', 'true'
+            args '--width', '1280', '--height', '720'
+            mods {
+                rabonaarena {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+repositories {}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.1-47.2.0'
+}
+
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+
+tasks.named('jar', Jar).configure {
+    manifest {
+        attributes(["Specification-Title": "rabonaarena", "Specification-Vendor": "rabona",
+                    "Specification-Version": "1", "Implementation-Title": project.name,
+                    "Implementation-Version": project.jar.archiveVersion])
+    }
+    finalizedBy 'reobfJar'
+}
+
+// Packs the compile classpath (mapped Forge + libraries) so code can be type-checked offline.
+tasks.register('dumpClasspath', Zip) {
+    from configurations.compileClasspath
+    archiveFileName = 'classpath.zip'
+    destinationDirectory = file('build/cp')
+}

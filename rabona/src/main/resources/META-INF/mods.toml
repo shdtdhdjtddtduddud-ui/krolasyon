@@ -1,0 +1,28 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="rabonaarena"
+version="1.0.0"
+displayName="Rabona Arena"
+authors="Krolasyon"
+description='''
+Rabona Arena - Minecraft icin tam bir futbol deneyimi.
+Gercekci top fizigi, 36 farkli hareket (rabona, gokkusagi, elastico, roulette, makas vurusu...),
+takim secimi, akilli botlar, otomatik stadyum ve skor tabelasi.
+'''
+
+[[dependencies.rabonaarena]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.rabonaarena]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"
