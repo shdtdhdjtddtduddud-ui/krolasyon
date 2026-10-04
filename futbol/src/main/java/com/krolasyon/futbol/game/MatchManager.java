@@ -359,6 +359,7 @@ public final class MatchManager {
                     state = State.IDLE;
                     FootballEntity b = ball();
                     if (b != null) b.frozen = false;
+                    removeBots();
                     dirty = true;
                 }
             }
