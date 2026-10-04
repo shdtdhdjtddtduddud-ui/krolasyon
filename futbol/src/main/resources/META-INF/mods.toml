@@ -1,0 +1,27 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="krolasyonfutbol"
+version="1.0.0"
+displayName="Krolasyon Futbol"
+authors="krolasyon"
+description='''
+Tam futbol modu: fizikli top, 49 farkli hareket (pas, sut, rabona, gokkusagi, rovesata, top calma, kayarak mudahale, super yetenekler...),
+ozel animasyonlar, stadyumlu saha, takim secimi (cok oyunculu) ve yapay zekali bot oyuncular.
+'''
+
+[[dependencies.krolasyonfutbol]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.krolasyonfutbol]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"
