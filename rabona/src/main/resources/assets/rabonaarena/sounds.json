@@ -1,0 +1,189 @@
+{
+ "kick_soft": {
+  "subtitle": "subtitles.rabonaarena.kick_soft",
+  "sounds": [
+   {
+    "name": "rabonaarena:kick_soft"
+   }
+  ]
+ },
+ "kick_hard": {
+  "subtitle": "subtitles.rabonaarena.kick_hard",
+  "sounds": [
+   {
+    "name": "rabonaarena:kick_hard"
+   }
+  ]
+ },
+ "kick_power": {
+  "subtitle": "subtitles.rabonaarena.kick_power",
+  "sounds": [
+   {
+    "name": "rabonaarena:kick_power"
+   }
+  ]
+ },
+ "touch": {
+  "subtitle": "subtitles.rabonaarena.touch",
+  "sounds": [
+   {
+    "name": "rabonaarena:touch"
+   }
+  ]
+ },
+ "post": {
+  "subtitle": "subtitles.rabonaarena.post",
+  "sounds": [
+   {
+    "name": "rabonaarena:post"
+   }
+  ]
+ },
+ "net": {
+  "subtitle": "subtitles.rabonaarena.net",
+  "sounds": [
+   {
+    "name": "rabonaarena:net"
+   }
+  ]
+ },
+ "bounce": {
+  "subtitle": "subtitles.rabonaarena.bounce",
+  "sounds": [
+   {
+    "name": "rabonaarena:bounce"
+   }
+  ]
+ },
+ "whistle": {
+  "subtitle": "subtitles.rabonaarena.whistle",
+  "sounds": [
+   {
+    "name": "rabonaarena:whistle"
+   }
+  ]
+ },
+ "whistle_end": {
+  "subtitle": "subtitles.rabonaarena.whistle_end",
+  "sounds": [
+   {
+    "name": "rabonaarena:whistle_end"
+   }
+  ]
+ },
+ "crowd_goal": {
+  "subtitle": "subtitles.rabonaarena.crowd_goal",
+  "sounds": [
+   {
+    "name": "rabonaarena:crowd_goal",
+    "stream": true
+   }
+  ]
+ },
+ "crowd_ooh": {
+  "subtitle": "subtitles.rabonaarena.crowd_ooh",
+  "sounds": [
+   {
+    "name": "rabonaarena:crowd_ooh"
+   }
+  ]
+ },
+ "crowd_ambient": {
+  "subtitle": "subtitles.rabonaarena.crowd_ambient",
+  "sounds": [
+   {
+    "name": "rabonaarena:crowd_ambient",
+    "stream": true
+   }
+  ]
+ },
+ "goal_horn": {
+  "subtitle": "subtitles.rabonaarena.goal_horn",
+  "sounds": [
+   {
+    "name": "rabonaarena:goal_horn",
+    "stream": true
+   }
+  ]
+ },
+ "slide": {
+  "subtitle": "subtitles.rabonaarena.slide",
+  "sounds": [
+   {
+    "name": "rabonaarena:slide"
+   }
+  ]
+ },
+ "tackle": {
+  "subtitle": "subtitles.rabonaarena.tackle",
+  "sounds": [
+   {
+    "name": "rabonaarena:tackle"
+   }
+  ]
+ },
+ "skill": {
+  "subtitle": "subtitles.rabonaarena.skill",
+  "sounds": [
+   {
+    "name": "rabonaarena:skill"
+   }
+  ]
+ },
+ "catch": {
+  "subtitle": "subtitles.rabonaarena.catch",
+  "sounds": [
+   {
+    "name": "rabonaarena:catch"
+   }
+  ]
+ },
+ "ability_fire": {
+  "subtitle": "subtitles.rabonaarena.ability_fire",
+  "sounds": [
+   {
+    "name": "rabonaarena:ability_fire"
+   }
+  ]
+ },
+ "ability_thunder": {
+  "subtitle": "subtitles.rabonaarena.ability_thunder",
+  "sounds": [
+   {
+    "name": "rabonaarena:ability_thunder"
+   }
+  ]
+ },
+ "ability_wind": {
+  "subtitle": "subtitles.rabonaarena.ability_wind",
+  "sounds": [
+   {
+    "name": "rabonaarena:ability_wind"
+   }
+  ]
+ },
+ "ability_ghost": {
+  "subtitle": "subtitles.rabonaarena.ability_ghost",
+  "sounds": [
+   {
+    "name": "rabonaarena:ability_ghost"
+   }
+  ]
+ },
+ "ability_magnet": {
+  "subtitle": "subtitles.rabonaarena.ability_magnet",
+  "sounds": [
+   {
+    "name": "rabonaarena:ability_magnet"
+   }
+  ]
+ },
+ "ability_ice": {
+  "subtitle": "subtitles.rabonaarena.ability_ice",
+  "sounds": [
+   {
+    "name": "rabonaarena:ability_ice"
+   }
+  ]
+ }
+}

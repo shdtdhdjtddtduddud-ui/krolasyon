@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "rabonaarena:block/led_board"
+    },
+    "facing=east": {
+      "model": "rabonaarena:block/led_board",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "rabonaarena:block/led_board",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "rabonaarena:block/led_board",
+      "y": 270
+    }
+  }
+}

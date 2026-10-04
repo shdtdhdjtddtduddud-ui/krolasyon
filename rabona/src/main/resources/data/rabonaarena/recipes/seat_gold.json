@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "D  ",
+    "III",
+    "I I"
+  ],
+  "key": {
+    "D": {
+      "item": "minecraft:yellow_dye"
+    },
+    "I": {
+      "item": "minecraft:iron_nugget"
+    }
+  },
+  "result": {
+    "item": "rabonaarena:seat_gold",
+    "count": 4
+  }
+}

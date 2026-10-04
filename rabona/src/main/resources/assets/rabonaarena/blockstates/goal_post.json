@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "rabonaarena:block/goal_post"
+    },
+    "axis=z": {
+      "model": "rabonaarena:block/goal_post",
+      "x": 90
+    },
+    "axis=x": {
+      "model": "rabonaarena:block/goal_post",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

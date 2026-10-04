@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "rabonaarena:block/seat_blue"
+    },
+    "facing=east": {
+      "model": "rabonaarena:block/seat_blue",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "rabonaarena:block/seat_blue",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "rabonaarena:block/seat_blue",
+      "y": 270
+    }
+  }
+}
