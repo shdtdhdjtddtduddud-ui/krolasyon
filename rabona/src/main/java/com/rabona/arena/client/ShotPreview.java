@@ -99,17 +99,22 @@ public final class ShotPreview {
         Vec3 c = cam.getPosition();
         Vector3f left = cam.getLeftVector(), up = cam.getUpVector();
         MultiBufferSource.BufferSource buf = mc.renderBuffers().bufferSource();
-        VertexConsumer vc = buf.getBuffer(RenderType.lightning());
+        VertexConsumer vc = buf.getBuffer(RenderType.debugQuads());
         Matrix4f mat = ps.last().pose();
         for (int i = 1; i < pts.size(); i += 2) {
             Vec3 q = pts.get(i).subtract(c);
-            float s = 0.07f;
-            int a = (int) (230 * (1 - (float) i / pts.size())) + 25;
+            float sz = 0.11f;
+            int a = (int) (200 * (1 - (float) i / pts.size())) + 55;
             float x = (float) q.x, y = (float) q.y, z = (float) q.z;
-            vtx(vc, mat, x + (left.x() + up.x()) * s, y + (left.y() + up.y()) * s, z + (left.z() + up.z()) * s, a);
-            vtx(vc, mat, x + (left.x() - up.x()) * s, y + (left.y() - up.y()) * s, z + (left.z() - up.z()) * s, a);
-            vtx(vc, mat, x + (-left.x() - up.x()) * s, y + (-left.y() - up.y()) * s, z + (-left.z() - up.z()) * s, a);
-            vtx(vc, mat, x + (-left.x() + up.x()) * s, y + (-left.y() + up.y()) * s, z + (-left.z() + up.z()) * s, a);
+            float[][] k = {{1, 1}, {1, -1}, {-1, -1}, {-1, 1}};
+            // iki yuzlu cizim (kamera yonunden bagimsiz gorunsun)
+            for (int r = 0; r < 2; r++) {
+                for (int j = 0; j < 4; j++) {
+                    float[] o = k[r == 0 ? j : 3 - j];
+                    vtx(vc, mat, x + (left.x() * o[0] + up.x() * o[1]) * sz, y + (left.y() * o[0] + up.y() * o[1]) * sz,
+                            z + (left.z() * o[0] + up.z() * o[1]) * sz, a);
+                }
+            }
         }
         buf.endBatch();
     }

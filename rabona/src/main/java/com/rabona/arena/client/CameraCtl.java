@@ -83,7 +83,8 @@ public final class CameraCtl {
             // serbest vurus / penalti: FIFA gibi topun arkasindan, fare ile nisan
             Vec3 view = p.getViewVector(partial);
             Vec3 flat = new Vec3(view.x, 0, view.z).normalize();
-            tPos = me.subtract(flat.scale(3.4)).add(0, 2.0, 0);
+            Vec3 right = new Vec3(-flat.z, 0, flat.x);
+            tPos = me.subtract(flat.scale(3.6)).add(right.scale(-1.1)).add(0, 2.4, 0);
             tLook = me.add(0, 1.3, 0).add(view.scale(14));
             camPos = tPos;
             lookPos = lookPos == null ? tLook : lookPos.lerp(tLook, 0.6);

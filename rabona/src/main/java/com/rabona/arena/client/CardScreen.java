@@ -35,9 +35,9 @@ public class CardScreen extends Screen {
         addRenderableWidget(Button.builder(Component.translatable("screen.rabonaarena.lineup"), b -> { tab = 2; selSlot = -1; }).bounds(166, 26, 74, 18).build());
         addRenderableWidget(Button.builder(Component.translatable("screen.rabonaarena.managers"), b -> tab = 3).bounds(244, 26, 74, 18).build());
         autoBtn = addRenderableWidget(Button.builder(Component.translatable("screen.rabonaarena.auto_lineup"),
-                b -> Net.toServer(new C2S.Menu(C2S.Menu.CARD_AUTO, 0))).bounds(width - 124, 26, 114, 18).build());
+                b -> Net.toServer(new C2S.Menu(C2S.Menu.CARD_AUTO, 0))).bounds(width - 124, height - 36, 114, 18).build());
         buyMgrBtn = addRenderableWidget(Button.builder(Component.translatable("screen.rabonaarena.buy_manager", Cards.MANAGER_PRICE),
-                b -> Net.toServer(new C2S.Menu(C2S.Menu.MGR_BUY, 0))).bounds(width - 140, 26, 130, 18).build());
+                b -> Net.toServer(new C2S.Menu(C2S.Menu.MGR_BUY, 0))).bounds(width - 140, height - 36, 130, 18).build());
         int pw = 96, gap = 12;
         int total = 4 * pw + 3 * gap;
         int x0 = width / 2 - total / 2;
@@ -224,8 +224,8 @@ public class CardScreen extends Screen {
         Cards.Manager mg = pr.activeManager();
         Tactic tc = mg == null ? Tactic.BALANCED : mg.tacticEnum();
         Pos[] f = Pos.formation(11, tc);
-        int pw = Math.min(300, (int) (width * 0.52)), ph = Math.min(176, height - 130);
-        int px = 10, py = 62;
+        int pw = Math.min(300, (int) (width * 0.52)), ph = Math.max(110, Math.min(200, height - 108));
+        int px = 10, py = 60;
         g.drawString(font, Component.translatable("screen.rabonaarena.lineup_head", tc.title(), tc.shape), px, 50, 0xFFFFD54F, false);
         // saha
         for (int i = 0; i < 8; i++) {
@@ -236,15 +236,21 @@ public class CardScreen extends Screen {
         g.fill(px + 3, py + ph / 2, px + pw - 3, py + ph / 2 + 1, 0xB0FFFFFF);
         g.renderOutline(px + pw / 2 - 40, py + ph - 30, 80, 27, 0xB0FFFFFF);
         g.renderOutline(px + pw / 2 - 40, py + 3, 80, 27, 0xB0FFFFFF);
-        int cw = 58, chh = 24;
+        int cw = 44, chh = 20;
         for (int s = 0; s < f.length; s++) {
-            double a = f[s].a, b = f[s].b;
-            int cx = px + pw / 2 + (int) (b * (pw / 2 - cw / 2 - 4));
-            int cy = py + ph - 16 - (int) ((a + 1) / 2 * (ph - 30));
+            double b = f[s].b;
+            int row = switch (f[s].role) {
+                case GK -> 0;
+                case DEF -> 1;
+                case FWD -> 5;
+                default -> f[s] == Pos.DM ? 2 : f[s] == Pos.AM ? 4 : 3;
+            };
+            int cx = px + pw / 2 + (int) (b / 0.72 * (pw / 2 - cw / 2 - 4));
+            int cy = py + ph - 14 - row * (ph - 28) / 5;
             chip(g, pr, s, f[s], cx - cw / 2, cy - chh / 2, cw, chh, mx, my);
         }
         // yedekler
-        int by = py + ph + 14;
+        int by = py + ph + 12;
         g.drawString(font, Component.translatable("screen.rabonaarena.bench"), px, by - 10, 0xFFB0BEC5, false);
         int bw = Math.min(cw, (pw - 6 * 3) / 7);
         for (int s = Cards.SQUAD_MAX; s < Cards.LINEUP; s++) {
@@ -259,7 +265,7 @@ public class CardScreen extends Screen {
         pool.sort(Comparator.comparingInt(i -> -pr.cards().get(i).ovr()));
         int y = ly + 12 - poolScroll;
         for (int i : pool) {
-            if (y > height - 30) break;
+            if (y > height - 54) break;
             if (y >= ly + 10) {
                 Cards.Card c = pr.cards().get(i);
                 boolean hov = mx >= lx && mx < lx + lw && my >= y && my < y + 15;
@@ -272,8 +278,13 @@ public class CardScreen extends Screen {
             y += 16;
         }
         if (pool.isEmpty()) g.drawString(font, Component.translatable("screen.rabonaarena.pool_empty"), lx, ly + 14, 0xFF78909C, false);
-        g.drawCenteredString(font, Component.translatable(selSlot >= 0 ? "screen.rabonaarena.lineup_tip2" : "screen.rabonaarena.lineup_tip1"),
-                width / 2, height - 14, 0xFF90A4AE);
+        Component tip = Component.translatable(selSlot >= 0 ? "screen.rabonaarena.lineup_tip2" : "screen.rabonaarena.lineup_tip1");
+        float ts = Math.min(1f, (width - 140f) / Math.max(1, font.width(tip)));
+        g.pose().pushPose();
+        g.pose().translate(8, height - 14, 0);
+        g.pose().scale(ts, ts, 1);
+        g.drawString(font, tip, 0, 0, 0xFF90A4AE, false);
+        g.pose().popPose();
     }
 
     private void chip(GuiGraphics g, S2C.Profile pr, int slot, Pos pos, int x, int y, int w, int h, int mx, int my) {
@@ -285,7 +296,7 @@ public class CardScreen extends Screen {
         g.fill(x, y, x + w, y + h, c == null ? 0xC0263238 : 0xE0101820);
         if (c != null) g.fill(x, y, x + w, y + 2, rarityColor(c.rarity()));
         String ps = pos != null ? pos.shortName().getString() : c != null ? Pos.byId(c.pos()).shortName().getString() : "";
-        g.drawString(font, ps, x + 2, y + 4, 0xFFFFD54F, false);
+        g.drawString(font, ps, x + 2, y + 2, 0xFFFFD54F, false);
         if (c != null) {
             String o = Integer.toString(c.ovr());
             g.drawString(font, o, x + w - font.width(o) - 2, y + 4, 0xFFFFFFFF, false);
@@ -293,12 +304,12 @@ public class CardScreen extends Screen {
             String n = c.name();
             float sc = Math.min(0.8f, (w - 4f) / Math.max(1, font.width(n)));
             g.pose().pushPose();
-            g.pose().translate(x + 2, y + 14, 0);
+            g.pose().translate(x + 2, y + 12, 0);
             g.pose().scale(sc, sc, 1);
             g.drawString(font, n, 0, 0, wrong ? 0xFFFFAB91 : 0xFFE0E0E0, false);
             g.pose().popPose();
         } else {
-            g.drawString(font, "+", x + w / 2 - 2, y + 12, 0xFF78909C, false);
+            g.drawString(font, "+", x + w / 2 - 2, y + 10, 0xFF78909C, false);
         }
         slotHits.add(new int[]{x, y, w, h, slot});
     }

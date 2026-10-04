@@ -421,7 +421,7 @@ public final class AutoTest {
             return;
         }
         if (mc.level == null || mc.player == null || mc.getSingleplayerServer() == null) return;
-        if (mc.screen != null && !(mc.screen instanceof CardScreen || mc.screen instanceof MatchScreen || mc.screen instanceof MoveScreen)) mc.setScreen(null);
+        if (mc.screen != null && !(mc.screen instanceof CardScreen || mc.screen instanceof MatchScreen || mc.screen instanceof MoveScreen || mc.screen instanceof SubScreen)) mc.setScreen(null);
         if (inWorld < 0) {
             inWorld = tick;
             stepStart = tick + 100;
