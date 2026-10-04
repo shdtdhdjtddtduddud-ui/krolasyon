@@ -51,6 +51,36 @@ public final class RpgClient {
         e.registerLayerDefinition(LAYERS.get(Archetype.FLOATER), RpgModels.Floater::layer);
         e.registerLayerDefinition(LAYERS.get(Archetype.TREANT), RpgModels.Treant::layer);
         e.registerLayerDefinition(LAYERS.get(Archetype.CRUSTACEAN), RpgModels.Crustacean::layer);
+        e.registerLayerDefinition(NpcRenderer.FEATURES, NpcRenderer::featuresLayer);
+    }
+
+    @SubscribeEvent
+    public static void keys(net.minecraftforge.client.event.RegisterKeyMappingsEvent e) {
+        e.register(RpgKeys.CAST);
+        e.register(RpgKeys.NEXT);
+        e.register(RpgKeys.PREV);
+        e.register(RpgKeys.CHARACTER);
+        e.register(RpgKeys.JOURNAL);
+        e.register(RpgKeys.MAP);
+    }
+
+    @SubscribeEvent
+    public static void overlays(net.minecraftforge.client.event.RegisterGuiOverlaysEvent e) {
+        e.registerAboveAll("rpg_hud", RpgHud::render);
+    }
+
+    @SubscribeEvent
+    public static void itemColors(net.minecraftforge.client.event.RegisterColorHandlersEvent.Item e) {
+        e.register((stack, tint) -> {
+            if (tint != 1) return -1;
+            com.krolasyon.bosses.rpg.def.SpellDef s = com.krolasyon.bosses.rpg.item.SpellTomeItem.spell(stack);
+            return s == null ? 0xFFFFFF : s.color();
+        }, com.krolasyon.bosses.rpg.item.RpgItems.SPELL_TOME.get());
+        e.register((stack, tint) -> {
+            if (tint != 1 || !stack.hasTag()) return -1;
+            com.krolasyon.bosses.rpg.def.MonsterDef d = RpgDefs.BY_ID.get(stack.getTag().getString("Boss"));
+            return d == null ? 0xFFFFFF : d.eyeColor();
+        }, com.krolasyon.bosses.rpg.item.RpgItems.SEAL.get());
     }
 
     public static <T extends LivingEntity & RpgAnimatable> RpgMobModel<T> model(Archetype a, ModelPart p) {
@@ -94,6 +124,7 @@ public final class RpgClient {
         }
         e.registerEntityRenderer(RpgEntities.SUMMON.get(), (EntityRendererProvider.Context ctx) -> new SummonRenderer(ctx));
         e.registerEntityRenderer(RpgEntities.MAGIC_BOLT.get(), MagicBoltRenderer::new);
+        e.registerEntityRenderer(RpgEntities.NPC.get(), NpcRenderer::new);
     }
 
     /** summons can be any archetype, so the renderer swaps models per kind */
