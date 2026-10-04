@@ -36,13 +36,13 @@ jobs:
           mkdir -p run
           printf "onboardAccessibility:false\nrenderDistance:5\nsimulationDistance:5\npauseOnLostFocus:false\ntutorialStep:none\njoinedFirstServer:true\nskipMultiplayerWarning:true\nmaxFps:60\nfov:-0.45\n" > run/options.txt
           set +e
-          timeout 1500 xvfb-run -a -s "-screen 0 1280x720x24" gradle runClient --no-daemon > client.log 2>&1
+          timeout 2700 xvfb-run -a -s "-screen 0 1280x720x24" gradle runClient --no-daemon > client.log 2>&1
           echo "client exit $?"
           mkdir -p vtest
           cp run/screenshots/ktest_*.png vtest/ 2>/dev/null
           cp run/logs/latest.log vtest/latest.log 2>/dev/null
           tail -c 200000 client.log > vtest/client_tail.log
-          grep -E "AUTOTEST|Exception|ERROR" client.log | head -300 > vtest/summary.log
+          grep -E "AUTOTEST|Exception|ERROR" client.log | head -2000 > vtest/summary.log
           cd vtest && zip -q ../vtest.zip * ; ls -la
       - name: Publish release
         if: always()

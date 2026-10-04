@@ -17,7 +17,7 @@ public final class RpgEffects {
     public static final DeferredRegister<MobEffect> EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, KrolasyonBosses.MODID);
 
     /** Kanama: damage every second, ignores armour */
-    public static final RegistryObject<MobEffect> BLEED = EFFECTS.register("bleed", () -> new RpgEffect(MobEffectCategory.HARMFUL, 0xA0101A) {
+    public static final RegistryObject<MobEffect> BLEED = EFFECTS.register("bleed", () -> new RpgEffect(MobEffectCategory.HARMFUL, 0xA0101A, "Kanama") {
         @Override
         public void applyEffectTick(LivingEntity e, int amp) {
             e.hurt(e.damageSources().magic(), 1.0F + amp);
@@ -30,23 +30,31 @@ public final class RpgEffects {
     });
 
     /** Sersemleme: cannot move */
-    public static final RegistryObject<MobEffect> STUN = EFFECTS.register("stun", () -> new RpgEffect(MobEffectCategory.HARMFUL, 0xF0E060)
+    public static final RegistryObject<MobEffect> STUN = EFFECTS.register("stun", () -> new RpgEffect(MobEffectCategory.HARMFUL, 0xF0E060, "Sersemleme")
             .addAttributeModifier(Attributes.MOVEMENT_SPEED, "6f0a9a7c-3e57-4c51-9a2e-6b1c0d6a5e01", -1.0D, AttributeModifier.Operation.MULTIPLY_TOTAL)
             .addAttributeModifier(Attributes.ATTACK_SPEED, "6f0a9a7c-3e57-4c51-9a2e-6b1c0d6a5e02", -0.8D, AttributeModifier.Operation.MULTIPLY_TOTAL));
 
     /** Mana Akışı: faster mana regeneration (handled by the player data tick) */
-    public static final RegistryObject<MobEffect> MANA_FLOW = EFFECTS.register("mana_flow", () -> new RpgEffect(MobEffectCategory.BENEFICIAL, 0x40A0FF));
+    public static final RegistryObject<MobEffect> MANA_FLOW = EFFECTS.register("mana_flow", () -> new RpgEffect(MobEffectCategory.BENEFICIAL, 0x40A0FF, "Mana Akışı"));
 
     /** İlahi Kalkan: absorbs hits, handled in the damage event */
-    public static final RegistryObject<MobEffect> DIVINE_SHIELD = EFFECTS.register("divine_shield", () -> new RpgEffect(MobEffectCategory.BENEFICIAL, 0xFFF0A0));
+    public static final RegistryObject<MobEffect> DIVINE_SHIELD = EFFECTS.register("divine_shield", () -> new RpgEffect(MobEffectCategory.BENEFICIAL, 0xFFF0A0, "İlahi Kalkan"));
 
     /** Kan Antlaşması: life steal on every hit */
-    public static final RegistryObject<MobEffect> BLOOD_PACT = EFFECTS.register("blood_pact", () -> new RpgEffect(MobEffectCategory.BENEFICIAL, 0xC01020));
+    public static final RegistryObject<MobEffect> BLOOD_PACT = EFFECTS.register("blood_pact", () -> new RpgEffect(MobEffectCategory.BENEFICIAL, 0xC01020, "Kan Antlaşması"));
 
     /** Statik Alan / Diken: damages attackers */
-    public static final RegistryObject<MobEffect> THORN_AURA = EFFECTS.register("thorn_aura", () -> new RpgEffect(MobEffectCategory.BENEFICIAL, 0x60C040));
+    public static final RegistryObject<MobEffect> THORN_AURA = EFFECTS.register("thorn_aura", () -> new RpgEffect(MobEffectCategory.BENEFICIAL, 0x60C040, "Diken Aurası"));
 
     public static class RpgEffect extends MobEffect {
-        public RpgEffect(MobEffectCategory cat, int color) { super(cat, color); }
+        private final String title;
+
+        public RpgEffect(MobEffectCategory cat, int color, String title) {
+            super(cat, color);
+            this.title = title;
+        }
+
+        @Override
+        public net.minecraft.network.chat.Component getDisplayName() { return net.minecraft.network.chat.Component.literal(title); }
     }
 }

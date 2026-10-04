@@ -24,7 +24,7 @@ public class KrolasyonBosses {
         com.krolasyon.bosses.rpg.RpgMod.init(bus);
         if (Boolean.getBoolean("krolasyon.autotest")) {
             net.minecraftforge.fml.DistExecutor.unsafeRunWhenOn(net.minecraftforge.api.distmarker.Dist.CLIENT,
-                    () -> com.krolasyon.bosses.client.AutoTest::init);
+                    () -> com.krolasyon.bosses.rpg.client.RpgAutoTest::init);
         }
     }
 

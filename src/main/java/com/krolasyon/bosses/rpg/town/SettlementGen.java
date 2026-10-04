@@ -38,6 +38,7 @@ public final class SettlementGen {
 
     static final class Plan {
         final List<Canvas.Op> ops = new ArrayList<>();
+        final List<Canvas.Op> late = new ArrayList<>();
         final List<Resident> people = new ArrayList<>();
         final List<int[]> lots = new ArrayList<>();
         final Site site;
@@ -177,7 +178,13 @@ public final class SettlementGen {
         // people last, once the buildings stand
         List<Resident> people = pl.people;
         pl.ops.add(new Canvas.ActOp(l -> populate(l, s, people)));
+        pl.ops.addAll(pl.late);
         return pl.ops;
+    }
+
+    /** story anchors are set only once everything placed before them stands */
+    private static void anchor(Plan pl, RpgWorldData w, String key, BlockPos pos) {
+        pl.late.add(new Canvas.ActOp(l -> w.setAnchor(key, pos)));
     }
 
     private static void plaza(Plan pl, int rad) {
@@ -214,19 +221,19 @@ public final class SettlementGen {
         pl.people(px, pz, NpcRole.RULER, 1);
         pl.people(px, pz + 4, NpcRole.KNIGHT, 3);
         pl.people(px, pz - 2, NpcRole.NOBLE, 2);
-        if (aldoria) w.setAnchor("palace", new BlockPos(px, pl.y + 1, pz));
+        if (aldoria) anchor(pl, w, "palace", new BlockPos(px, pl.y + 1, pz));
         // temple, guild, mage tower in the east
         int tx = s.x + 30, tz = s.z - 26;
         Buildings.temple(pl.at(tx, tz, faceToward(tx, tz, s.x, s.z), 13, 19), pl.p, pl.r, 13, 19);
         pl.free(tx, tz, 11);
         pl.people(tx, tz, NpcRole.PRIEST, 1);
-        if (aldoria) w.setAnchor("temple", new BlockPos(tx, pl.y + 1, tz));
+        if (aldoria) anchor(pl, w, "temple", new BlockPos(tx, pl.y + 1, tz));
         int gx = s.x - 26, gz = s.z + 22;
         Buildings.guildHall(pl.at(gx, gz, faceToward(gx, gz, s.x, s.z), 13, 11), pl.p, pl.r, 13, 11);
         pl.free(gx, gz, 8);
         pl.people(gx, gz, NpcRole.GUILD_MASTER, 1);
         pl.people(gx, gz, NpcRole.ADVENTURER, 2);
-        if (aldoria) w.setAnchor("guild", new BlockPos(gx, pl.y + 1, gz));
+        if (aldoria) anchor(pl, w, "guild", new BlockPos(gx, pl.y + 1, gz));
         int mx = s.x + 44, mz = s.z + 10;
         Buildings.mageTower(pl.at(mx, mz, faceToward(mx, mz, s.x, s.z), 9, 9), pl.p, pl.r);
         pl.free(mx, mz, 6);
@@ -259,12 +266,12 @@ public final class SettlementGen {
             pl.people(vx, vz + 2, NpcRole.SLAVE, 3);
         }
         if (aldoria) {
-            w.setAnchor("square", new BlockPos(s.x + 6, pl.y + 1, s.z + 6));
+            anchor(pl, w, "square", new BlockPos(s.x + 6, pl.y + 1, s.z + 6));
             // the slums of the south west: the Mud Quarter
             int hx = s.x - 40, hz = s.z + 46;
             Buildings.familyHome(pl.at(hx, hz, faceToward(hx, hz, s.x, s.z + 46), 7, 7), pl.r);
             pl.free(hx, hz, 5);
-            w.setAnchor("family_home", new BlockPos(hx, pl.y + 1, hz));
+            anchor(pl, w, "family_home", new BlockPos(hx, pl.y + 1, hz));
             for (int i = 0; i < 14; i++) {
                 int x = s.x - 62 + pl.r.nextInt(40), z = s.z + 30 + pl.r.nextInt(40);
                 if ((x - s.x) * (x - s.x) + (z - s.z) * (z - s.z) > (R - 10) * (R - 10)) continue;
