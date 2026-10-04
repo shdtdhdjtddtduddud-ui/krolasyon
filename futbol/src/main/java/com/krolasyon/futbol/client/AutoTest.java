@@ -2,6 +2,7 @@ package com.krolasyon.futbol.client;
 
 import com.krolasyon.futbol.entity.FootballEntity;
 import com.krolasyon.futbol.entity.FootballerEntity;
+import com.krolasyon.futbol.game.CardData;
 import com.krolasyon.futbol.game.MatchManager;
 import com.krolasyon.futbol.game.Move;
 import com.krolasyon.futbol.game.MoveExecutor;
@@ -57,30 +58,12 @@ public final class AutoTest {
         cmd(0, null, "gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false",
                 "time set 6000", "weather clear", "gamemode creative @a", "tp @a 0 -60 0 0 0");
         cmd(20, null, "execute as @p at @p run futbol saha");
-        wait(60, null);
-        cmd(30, "stadium_side", "tp @a 0 -44 -40 0 28");
-        cmd(30, "stadium_corner", "tp @a -46 -36 -36 -45 28");
-        cmd(30, "goal", "tp @a 24 -58 3 -90 4");
-        cmd(20, "goal_side", "tp @a 30 -58 -8 -30 8");
-        // ball close-up
-        server(20, null, s -> {
-            ServerLevel l = s.overworld();
-            FootballEntity b = ModEntities.BALL.get().create(l);
-            b.moveTo(0.5, -60, -3.5);
-            l.addFreshEntity(b);
-        });
-        cmd(20, "ball_close", "tp @a 0.5 -59.2 -5 0 30");
-        cmd(5, null, "kill @e[type=krolasyonfutbol:football]");
-        // bot close-ups (front/back/number)
-        server(5, null, s -> spawnRow(s, new Move[]{null, null}, 0, 180F));
-        cmd(30, "bots_front", "tp @a -3.5 -58.4 -4 0 12");
-        cmd(20, "bots_back", "tp @a -3.5 -58.4 4.5 180 12");
+        wait(80, null);
+        cmd(40, "stadium_side", "tp @a 0 -44 -40 0 28");
+        cmd(30, "crowd_close", "tp @a -10 -55 -14 200 8");
         // animation showcase with posed bots
-        showcase(new Move[]{Move.SHOT, Move.RAINBOW, Move.BICYCLE, Move.RABONA_SHOT}, "a");
-        showcase(new Move[]{Move.ROULETTE, Move.SLIDE, Move.DIVE, Move.HEADER}, "b");
-        showcase(new Move[]{Move.FIRE_SHOT, Move.LIGHTNING_SHOT, Move.EAGLE_SHOT, Move.TORNADO_SHOT}, "c");
-        showcase(new Move[]{Move.SIUU, Move.KNEE_SLIDE, Move.SCORPION, Move.ELASTICO}, "d");
-        showcase(new Move[]{Move.STEPOVER, Move.SEAL, Move.JUGGLE, Move.AIRPLANE}, "e");
+        showcase(new Move[]{Move.BODY_FEINT, Move.SHIRT_OFF, Move.TRIVELA, Move.SLIDE}, "a");
+        showcase(new Move[]{Move.SHOT, Move.RAINBOW, Move.BICYCLE, Move.DIVE}, "b");
         // the local player wearing a kit and animating (third person front)
         cmd(5, null, "kill @e[type=krolasyonfutbol:footballer]", "kill @e[type=krolasyonfutbol:football]", "execute as @p run futbol takim kirmizi",
                 "gamemode survival @a", "tp @a 0 -60 -6 180 0");
@@ -88,30 +71,61 @@ public final class AutoTest {
             fly = false;
             camera = CameraType.THIRD_PERSON_FRONT;
         });
-        cmd(25, "player_kit", "execute as @p run futbol hareket siuu");
-        cmd(1, null, "execute as @p run futbol top");
-        cmd(8, "player_shot", "execute as @p run futbol hareket power_shot");
-        wait(30, "player_shot_b");
-        // full match with HUD
+        cmd(30, "player_shirt_off", "execute as @p run futbol hareket shirt_off");
+        wait(30, null);
+        // club: coins, pack reveal
+        server(2, null, s -> {
+            var sp = s.getPlayerList().getPlayers().get(0);
+            CardData.addCoins(sp, 2000, "test");
+            CardData.openPack(sp, 2);
+        });
+        client(5, null, () -> mc().setScreen(new ClubScreen()));
+        wait(25, "club_reveal");
+        server(2, null, s -> {
+            var sp = s.getPlayerList().getPlayers().get(0);
+            for (int i = 0; i < 4; i++) CardData.openPack(sp, i % 3);
+        });
+        client(5, null, () -> ClientState.revealed = -1);
+        wait(25, "club_cards");
+        client(1, null, () -> mc().setScreen(null));
+        // full match (player as midfielder) with HUD and football cameras
         client(1, null, () -> {
-            camera = CameraType.FIRST_PERSON;
+            camera = CameraType.THIRD_PERSON_BACK;
             gui = true;
             fly = true;
+            ClientState.cameraMode = 1;
         });
         cmd(5, null, "gamemode creative @a", "kill @e[type=krolasyonfutbol:football]", "futbol baslat 5 5");
-        wait(30, "kickoff_hud");
+        server(1, null, s -> MatchManager.setRole(s.getPlayerList().getPlayers().get(0), com.krolasyon.futbol.game.Role.MID));
+        wait(40, "tv_kickoff");
+        wait(80, "tv_a");
+        wait(100, "tv_b");
+        client(1, null, () -> ClientState.cameraMode = 2);
+        wait(60, "topdown_a");
+        wait(80, "topdown_b");
+        client(1, null, () -> ClientState.cameraMode = 0);
         cmd(2, null, "tp @a 0 -46 -34 0 30");
-        wait(50, "match_a");
-        wait(80, "match_b");
-        wait(100, "match_c");
-        cmd(2, null, "tp @a -20 -50 -28 20 28");
-        wait(100, "match_d");
-        wait(120, "match_e");
-        cmd(2, null, "tp @a 20 -50 -28 -20 28");
-        wait(140, "match_f");
-        wait(160, "match_g");
+        wait(80, "match_a");
+        wait(120, "match_b");
         server(2, null, s -> LOG.info("[AUTOTEST] score {}-{} state {}", MatchManager.scoreRed, MatchManager.scoreBlue, MatchManager.state));
-        wait(200, "match_h");
+        // force a goal to test the replay
+        server(1, null, s -> {
+            FootballEntity b = MatchManager.ball();
+            var p = MatchManager.pitch();
+            if (b != null && p != null) {
+                Vec3 g = p.goalCenter(1);
+                b.placeAt(new Vec3(g.x - 9, g.y + 0.2, g.z + 1));
+                b.kick(null, new Vec3(1.3, 0.12, 0), Vec3.ZERO, FootballEntity.TR_FIRE, 0);
+            }
+        });
+        wait(15, "goal_banner");
+        wait(40, "replay_a");
+        wait(40, "replay_b");
+        wait(40, "replay_c");
+        wait(80, null);
+        cmd(2, null, "tp @a -20 -50 -28 20 28");
+        wait(120, "match_c");
+        wait(160, "match_d");
         server(2, null, s -> LOG.info("[AUTOTEST] score {}-{} state {}", MatchManager.scoreRed, MatchManager.scoreBlue, MatchManager.state));
         client(1, null, () -> mc().setScreen(new MatchScreen()));
         wait(10, "menu_match");
@@ -198,7 +212,7 @@ public final class AutoTest {
             return;
         }
         if (mc.level == null || mc.player == null || mc.getSingleplayerServer() == null) return;
-        if (mc.screen != null && !(mc.screen instanceof MatchScreen) && !(mc.screen instanceof MoveScreen)) mc.setScreen(null);
+        if (mc.screen != null && !(mc.screen instanceof MatchScreen) && !(mc.screen instanceof MoveScreen) && !(mc.screen instanceof ClubScreen)) mc.setScreen(null);
         mc.options.hideGui = !gui;
         mc.options.setCameraType(camera);
         if (fly && mc.player.getAbilities().mayfly) {

@@ -29,6 +29,26 @@ jobs:
           set +e
           gradle build --no-daemon --stacktrace 2>&1 | tee build.log
           echo "status=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+      - name: Dedicated server smoke test
+        id: st
+        if: steps.b.outputs.status == '0' && contains(github.event.head_commit.message, '[vtest]')
+        continue-on-error: true
+        shell: bash
+        run: |
+          mkdir -p run-server
+          echo "eula=true" > run-server/eula.txt
+          printf "online-mode=false\nlevel-type=minecraft\\:flat\nspawn-protection=0\n" > run-server/server.properties
+          set +e
+          (timeout 600 gradle runServer --no-daemon > server.log 2>&1) &
+          for i in $(seq 1 120); do
+            sleep 5
+            if grep -q "Done (" server.log; then echo "SERVER STARTED OK"; break; fi
+            if grep -qE "Exception in server tick loop|Encountered an unexpected exception|crash-reports" server.log; then echo "SERVER CRASHED"; break; fi
+          done
+          sleep 5
+          pkill -f java; sleep 5
+          grep -E "Done \(|ERROR|Exception|krolasyonfutbol" server.log | head -60 > server_summary.log
+          cat server_summary.log
       - name: Visual self-test (headless client)
         id: vt
         if: steps.b.outputs.status == '0' && contains(github.event.head_commit.message, '[vtest]')
@@ -60,6 +80,7 @@ jobs:
           FILES="build.log"
           for f in build/libs/*.jar; do [ -f "$f" ] && FILES="$FILES $f"; done
           [ -f vtest.zip ] && FILES="$FILES vtest.zip"
+          [ -f server.log ] && tail -c 300000 server.log > server_tail.log && FILES="$FILES server_tail.log"
           gh release create "$TAG" $FILES --title "Futbol Build ${{ github.run_number }} (status ${{ steps.b.outputs.status }})" --notes "commit ${{ github.sha }}" --prerelease --target "${{ github.sha }}"
       - name: Fail on build error
         if: steps.b.outputs.status != '0'
