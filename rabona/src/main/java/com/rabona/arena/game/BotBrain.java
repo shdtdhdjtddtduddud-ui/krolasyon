@@ -91,7 +91,10 @@ public class BotBrain {
         }
         if (aerial(m, a, ball)) return;
 
-        if (carrier != null && Match.teamOf(carrier) == team) {
+        if (carrier != null && ball.isHeld() && Match.teamOf(carrier) != team) {
+            // rakip kaleci topu tutuyor: dizilise don
+            goTo(clampToPitch(m, m.formationSpot(team, bot.getSlot(), ball.position(), false)), 0.9);
+        } else if (carrier != null && Match.teamOf(carrier) == team) {
             support(m, ball, carrier);
         } else if (carrier != null) {
             defend(m, a, ball, carrier);

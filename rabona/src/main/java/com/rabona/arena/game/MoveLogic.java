@@ -563,7 +563,7 @@ public final class MoveLogic {
                     Vec3 away = flat(o.position().subtract(actor.position()));
                     push(o, away.scale(0.55).add(0, 0.15, 0));
                     BallEntity b = controlled(o);
-                    if (b != null && actor.getRandom().nextFloat() < 0.55 && Athlete.of(o).evade <= 0) {
+                    if (b != null && !b.isHeld() && actor.getRandom().nextFloat() < 0.55 && Athlete.of(o).evade <= 0) {
                         b.setController(actor, false);
                         a.tackles++;
                         a.addEnergy(6);
@@ -724,7 +724,7 @@ public final class MoveLogic {
         Vec3 f = face(actor);
         for (LivingEntity o : opponents(actor, reach, 0.1)) {
             BallEntity b = controlled(o);
-            if (b == null) continue;
+            if (b == null || b.isHeld()) continue;
             Athlete oa = Athlete.of(o);
             double chance = base + defend(actor) * 0.003 - dribble(o) * 0.0025;
             if (oa.evade > 0) chance -= 0.45;
