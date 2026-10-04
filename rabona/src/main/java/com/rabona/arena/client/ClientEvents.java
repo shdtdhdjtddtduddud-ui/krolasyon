@@ -34,6 +34,7 @@ public final class ClientEvents {
         shake *= 0.86f;
         ClientInput.tick();
         PadControl.tick();
+        ShotPreview.tick();
         Replay.tick();
         AutoTest.tick();
         ClientAnims.CONTROLLERS.clear();

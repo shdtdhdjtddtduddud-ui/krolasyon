@@ -84,6 +84,29 @@ public final class ShotPreview {
         return pts;
     }
 
+    /** Yorunge noktalari: parlak toz parcaciklari (her 2 tickte yenilenir). */
+    public static void tick() {
+        if (!active()) return;
+        Minecraft mc = Minecraft.getInstance();
+        LocalPlayer p = mc.player;
+        if (mc.level == null || p.tickCount % 2 != 0) return;
+        BallEntity ball = null;
+        for (BallEntity b : mc.level.getEntitiesOfClass(BallEntity.class, p.getBoundingBox().inflate(4))) ball = b;
+        if (ball == null) return;
+        int slot = ClientInput.charging ? ClientInput.chargingSlot : 0;
+        float power = ClientInput.charging ? ClientInput.charge : 0.75f;
+        Move m = ClientState.shotSlots[slot];
+        List<Vec3> pts = simulate(m, power, ClientInput.side(p), ball.position().add(0, BallEntity.RADIUS, 0), p.getViewVector(1));
+        net.minecraft.core.particles.DustParticleOptions dust =
+                new net.minecraft.core.particles.DustParticleOptions(new Vector3f(1f, 0.92f, 0.3f), 0.9f);
+        if (Boolean.getBoolean("rabona.autotest") && p.tickCount % 20 == 0)
+            com.rabona.arena.RabonaArena.LOG.info("[RTEST] shot preview move={} points={}", m, pts.size());
+        for (int i = 2; i < pts.size(); i += 2) {
+            Vec3 q = pts.get(i);
+            mc.level.addParticle(dust, q.x, q.y, q.z, 0, 0, 0);
+        }
+    }
+
     public static void render(PoseStack ps, float partial) {
         if (!active()) return;
         Minecraft mc = Minecraft.getInstance();
