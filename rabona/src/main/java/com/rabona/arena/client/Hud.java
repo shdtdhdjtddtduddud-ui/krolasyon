@@ -107,7 +107,8 @@ public final class Hud {
     private static void radar(GuiGraphics g, Minecraft mc, LocalPlayer p, int w, int h, boolean matchOn) {
         Pitch pitch = ClientState.pitch;
         if (pitch == null || !pitch.inside(p.position(), 25)) return;
-        int rw = 112, rh = 72, x = 6, y = 6;
+        int rw = 112, rh = 72, x = 6;
+        int y = (matchOn && w / 2 - 120 < x + rw + 6) ? 48 : 6;
         float sx = rw / (2f * (Pitch.HALF_LEN + 1)), sy = rh / (2f * (Pitch.HALF_WID + 1));
         g.fill(x - 2, y - 2, x + rw + 2, y + rh + 2, 0xB0000000);
         g.fill(x, y, x + rw, y + rh, 0xD02E7D32);
@@ -148,7 +149,7 @@ public final class Hud {
     // ================================================================ dayaniklilik / enerji
     private static void bars(GuiGraphics g, Font f, int w, int h) {
         S2C.Stats s = ClientState.stats;
-        int x = 8, y = h - 46, bw = 100;
+        int bw = 100, x = w - 130, y = h - 168;
         g.fill(x - 3, y - 4, x + bw + 3, y + 33, 0x90000000);
         g.drawString(f, Component.translatable("hud.rabonaarena.stamina"), x, y - 1, 0xFFB2FF59, true);
         bar(g, x, y + 8, bw, 5, s.stamina() / 100f, s.stamina() > 50 ? 0xFF76FF03 : s.stamina() > 20 ? 0xFFFFC400 : 0xFFFF3D00);
@@ -172,7 +173,7 @@ public final class Hud {
 
     // ================================================================ calim yuvalari
     private static void slots(GuiGraphics g, Font f, int w, int h) {
-        int x = w - 132, y = h - 92;
+        int x = w - 132, y = h - 124;
         g.fill(x - 4, y - 4, w - 4, y + 86, 0x90000000);
         for (int i = 0; i < 4; i++) slotRow(g, f, x, y + i * 13, Keys.SKILLS[i].getTranslatedKeyMessage(), ClientState.slots[i]);
         slotRow(g, f, x, y + 54, Keys.ABILITY.getTranslatedKeyMessage(), ClientState.ability);
