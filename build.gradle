@@ -42,3 +42,9 @@ tasks.named('jar', Jar).configure {
     }
     finalizedBy 'reobfJar'
 }
+
+tasks.register('exportClasspath') {
+    doLast {
+        copy { from configurations.compileClasspath; into "$buildDir/cp" }
+    }
+}
