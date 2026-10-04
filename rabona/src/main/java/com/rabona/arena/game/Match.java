@@ -215,6 +215,106 @@ public class Match {
         sync();
     }
 
+    // ================================================================ FIFA tarzi oyuncu degistirme
+    /** FIFA kontrolunu kapatan oyuncular. */
+    public final Set<UUID> fifaOff = new HashSet<>();
+    private final Map<UUID, Long> switchCd = new HashMap<>();
+
+    public boolean fifaOn(ServerPlayer p) {
+        return !fifaOff.contains(p.getUUID()) && posOf(p) != Pos.GK;
+    }
+
+    private boolean canSwitch(ServerPlayer p) {
+        return switchCd.getOrDefault(p.getUUID(), 0L) <= level().getGameTime();
+    }
+
+    /** Top takimdaki bir bota gecerse oyuncu o bota gecer; savunmada uzak kalinca topa yakin oyuncuya gecer. */
+    private void autoSwitch(BallEntity ball) {
+        LivingEntity c = ball.getController();
+        if (c instanceof FootballerEntity bot && !bot.isKeeper() && !ball.isHeld() && ball.controlTicks <= 2) {
+            ServerPlayer h = nearestHuman(bot.getSquad(), bot.position(), true);
+            if (h != null) {
+                swap(h, bot);
+                return;
+            }
+        }
+        if (level().getGameTime() % 10 != 0) return;
+        for (Team t : new Team[]{Team.RED, Team.BLUE}) {
+            if (c != null && teamOf(c) == t) continue; // top bizde: oyuncu kendisi oynar
+            for (ServerPlayer h : playersOf(t)) {
+                if (!fifaOn(h) || !canSwitch(h)) continue;
+                double my = h.distanceTo(ball);
+                if (my < 16) continue;
+                FootballerEntity best = closestBot(t, ball.position());
+                if (best != null && best.distanceTo(ball) < my - 8) swap(h, best);
+            }
+        }
+    }
+
+    /** Elle degistirme (Sol Alt): topa en yakin takim arkadasina gec. */
+    public void manualSwitch(ServerPlayer p) {
+        Team t = teamOf(p);
+        BallEntity b = ball();
+        if (!t.playing() || b == null || posOf(p) == Pos.GK) return;
+        LivingEntity c = b.getController();
+        FootballerEntity target = c instanceof FootballerEntity fb && fb.getSquad() == t && !fb.isKeeper() ? fb : closestBot(t, b.position());
+        if (target != null) swap(p, target);
+    }
+
+    private FootballerEntity closestBot(Team t, Vec3 to) {
+        FootballerEntity best = null;
+        double bd = 1e9;
+        for (FootballerEntity f : bots()) {
+            if (f.getSquad() != t || f.isKeeper()) continue;
+            double d = f.position().distanceToSqr(to);
+            if (d < bd) { bd = d; best = f; }
+        }
+        return best;
+    }
+
+    private ServerPlayer nearestHuman(Team t, Vec3 to, boolean needSwitch) {
+        ServerPlayer best = null;
+        double bd = 1e9;
+        for (ServerPlayer h : playersOf(t)) {
+            if (!fifaOn(h) || (needSwitch && !canSwitch(h))) continue;
+            double d = h.position().distanceToSqr(to);
+            if (d < bd) { bd = d; best = h; }
+        }
+        return best;
+    }
+
+    /** Oyuncu ile botun yerini, mevkisini ve hareketini degistir; top bottaysa oyuncuya gecer. */
+    public void swap(ServerPlayer p, FootballerEntity bot) {
+        BallEntity b = ball();
+        boolean hadBall = b != null && b.getController() == bot;
+        Vec3 pp = p.position(), bp = bot.position();
+        float py = p.getYRot(), by = bot.getYRot();
+        Vec3 pv = Athlete.of(p).vel, bv = bot.getDeltaMovement();
+        Pos ppos = posOf(p), bpos = bot.getFieldPos();
+        p.teleportTo(level(), bp.x, bp.y, bp.z, by, p.getXRot());
+        p.setDeltaMovement(bv.x, 0, bv.z);
+        p.hurtMarked = true;
+        bot.teleportTo(pp.x, pp.y, pp.z);
+        bot.setYRot(py);
+        bot.setYHeadRot(py);
+        bot.yBodyRot = py;
+        bot.setDeltaMovement(pv.x, 0, pv.z);
+        playerPos.put(p.getUUID(), bpos);
+        bot.setFieldPos(ppos);
+        Athlete.of(p).lastPos = null;
+        if (hadBall) {
+            b.setController(p, false);
+            b.makeImmune(bot, 10);
+        }
+        switchCd.put(p.getUUID(), level().getGameTime() + 25);
+        com.rabona.arena.RabonaArena.LOG.info("[RTEST] swap {} -> bot {} ({}) ball={}", p.getName().getString(), bot.getNumber(), bpos, hadBall);
+        level().sendParticles(new net.minecraft.core.particles.DustParticleOptions(
+                new org.joml.Vector3f(teamOf(p) == Team.RED ? 1f : 0.2f, 0.3f, teamOf(p) == Team.RED ? 0.2f : 1f), 1.4f),
+                bp.x, bp.y + 0.1, bp.z, 14, 0.4, 0.02, 0.4, 0);
+        p.displayClientMessage(Component.translatable("msg.rabonaarena.switched", bot.getNumber(), bpos.title()).withStyle(teamOf(p).chat), true);
+        sync();
+    }
+
     // ================================================================ pas isteme
     private final Map<UUID, Long> passRequests = new HashMap<>();
 
@@ -462,7 +562,10 @@ public class Match {
                     end();
                     return;
                 }
-                if (ball != null) checkBall(ball);
+                if (ball != null) {
+                    checkBall(ball);
+                    autoSwitch(ball);
+                }
             }
             case GOAL -> {
                 if (--phaseTimer <= 0) kickoff(kickoffTeam);

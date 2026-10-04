@@ -638,7 +638,6 @@ public class BotBrain {
      * Botlar oyuncudan hizli olamaz; hiz karti (pace) +-%7 etkiler.
      */
     private void goTo(Vec3 p, double speed) {
-        double pace = 0.93 + bot.pace * 0.0011;
         Athlete a = Athlete.of(bot);
         if (a.stamina < 15) speed = Math.min(speed, 1.0);
         if (bot.distanceToSqr(p) < 0.6) {
@@ -647,8 +646,13 @@ public class BotBrain {
         }
         speed = Math.min(1.3, speed);
         boolean sprint = speed > 1.1;
-        // setSprinting zaten +%30 hiz ekler; ikinci kez eklememek icin bol
-        bot.getMoveControl().setWantedPosition(p.x, p.y, p.z, (sprint ? speed / 1.3 : speed) * pace);
+        // Oyuncu adimi: yurume 0.098, sprint 0.127 blok/tick (0.1 / 0.13 * 0.98).
+        // Mob adimi = (taban * carpan * sprintBonusu)^2  ->  carpani buna gore coz.
+        double pace = 0.93 + bot.pace * 0.0011;
+        double step = 0.098 * speed * pace;
+        double s = Math.sqrt(step);
+        double mod = s / (FootballerEntity.BASE_SPEED * (sprint ? 1.3 : 1.0));
+        bot.getMoveControl().setWantedPosition(p.x, p.y, p.z, mod);
         bot.setSprinting(sprint);
     }
 

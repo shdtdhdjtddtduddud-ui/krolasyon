@@ -232,7 +232,10 @@ EN = {
 
 TR.update({
     "key.rabonaarena.shoot1": "Şut yuvası 1 (basılı tut)", "key.rabonaarena.shoot2": "Şut yuvası 2 (basılı tut)", "key.rabonaarena.shoot3": "Şut yuvası 3 (basılı tut)",
-    "key.rabonaarena.call": "Pas iste", "key.rabonaarena.camera": "Kamera modu", "key.rabonaarena.replay": "Gol tekrarı", "key.rabonaarena.cards": "Oyuncu kartları",
+    "key.rabonaarena.call": "Pas iste", "key.rabonaarena.switch": "Oyuncu değiştir",
+    "msg.rabonaarena.switched": "▶ %s numara (%s)",
+    "screen.rabonaarena.fifa_on": "FIFA kontrolü: Açık (top kimdeyse onu oynarsın, %s: değiştir)",
+    "screen.rabonaarena.fifa_off": "FIFA kontrolü: Kapalı (tek oyuncu)", "key.rabonaarena.camera": "Kamera modu", "key.rabonaarena.replay": "Gol tekrarı", "key.rabonaarena.cards": "Oyuncu kartları",
     "key.rabonaarena.skill1": "Hareket yuvası 1", "key.rabonaarena.skill2": "Hareket yuvası 2", "key.rabonaarena.skill3": "Hareket yuvası 3",
     "msg.rabonaarena.pass_request": "%s pas istiyor! [V]", "msg.rabonaarena.pos_set": "%s mevkisi: %s",
     "msg.rabonaarena.coins": "+%s Jeton (%s)", "msg.rabonaarena.not_enough_coins": "Yetersiz jeton (%s gerekli)",
@@ -260,7 +263,10 @@ TR.update({
 })
 EN.update({
     "key.rabonaarena.shoot1": "Shot slot 1 (hold)", "key.rabonaarena.shoot2": "Shot slot 2 (hold)", "key.rabonaarena.shoot3": "Shot slot 3 (hold)",
-    "key.rabonaarena.call": "Call for pass", "key.rabonaarena.camera": "Camera mode", "key.rabonaarena.replay": "Goal replay", "key.rabonaarena.cards": "Player cards",
+    "key.rabonaarena.call": "Call for pass", "key.rabonaarena.switch": "Switch player",
+    "msg.rabonaarena.switched": "▶ No. %s (%s)",
+    "screen.rabonaarena.fifa_on": "FIFA control: On (you play whoever has the ball, %s: switch)",
+    "screen.rabonaarena.fifa_off": "FIFA control: Off (single player)", "key.rabonaarena.camera": "Camera mode", "key.rabonaarena.replay": "Goal replay", "key.rabonaarena.cards": "Player cards",
     "key.rabonaarena.skill1": "Move slot 1", "key.rabonaarena.skill2": "Move slot 2", "key.rabonaarena.skill3": "Move slot 3",
     "msg.rabonaarena.pass_request": "%s wants the ball! [V]", "msg.rabonaarena.pos_set": "%s position: %s",
     "msg.rabonaarena.coins": "+%s Coins (%s)", "msg.rabonaarena.not_enough_coins": "Not enough coins (%s needed)",

@@ -28,6 +28,8 @@ import net.minecraft.world.phys.Vec3;
 /** Bot futbolcu. Takim formasi, numarasi, yetenek puani ve yapay zekasi vardir. */
 public class FootballerEntity extends PathfinderMob {
     public static final int SKINS = 8;
+    /** Mob hareketi hiz^2 ile olcekler (Mob.setSpeed zza'yi da ayarlar); bu taban hiz BotBrain.goTo ile birlikte oyuncu hizini verir. */
+    public static final double BASE_SPEED = 0.3;
 
     private static final EntityDataAccessor<Integer> TEAM = SynchedEntityData.defineId(FootballerEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> NUMBER = SynchedEntityData.defineId(FootballerEntity.class, EntityDataSerializers.INT);
@@ -47,7 +49,7 @@ public class FootballerEntity extends PathfinderMob {
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 20)
-                .add(Attributes.MOVEMENT_SPEED, 0.1)
+                .add(Attributes.MOVEMENT_SPEED, BASE_SPEED)
                 .add(Attributes.FOLLOW_RANGE, 64);
     }
 

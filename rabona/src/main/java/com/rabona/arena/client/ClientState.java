@@ -45,6 +45,7 @@ public final class ClientState {
     public static final Move[] shotSlots = {Move.SHOT_POWER, Move.SHOT_FINESSE, Move.SHOT_TRIVELA};
     public static int cameraMode;
     public static boolean autoReplay = true;
+    public static boolean fifaMode = true;
     public static Move ability = Move.AB_FIRE;
     public static Move celebration = Move.CELEB_SIU;
     public static final Move[] SHOT_STYLES = {Move.SHOT_POWER, Move.SHOT_FINESSE, Move.SHOT_CHIP, Move.SHOT_TRIVELA,
@@ -87,6 +88,7 @@ public final class ClientState {
             for (int i = 0; i < shotSlots.length; i++) shotSlots[i] = parse(p.getProperty("shot" + i), shotSlots[i]);
             cameraMode = Integer.parseInt(p.getProperty("camera", "0"));
             autoReplay = !"false".equals(p.getProperty("autoReplay"));
+            fifaMode = !"false".equals(p.getProperty("fifa"));
             ability = parse(p.getProperty("ability"), ability);
             celebration = parse(p.getProperty("celebration"), celebration);
         } catch (Exception ignored) {
@@ -100,6 +102,7 @@ public final class ClientState {
             for (int i = 0; i < shotSlots.length; i++) p.setProperty("shot" + i, shotSlots[i].name());
             p.setProperty("camera", Integer.toString(cameraMode));
             p.setProperty("autoReplay", Boolean.toString(autoReplay));
+            p.setProperty("fifa", Boolean.toString(fifaMode));
             p.setProperty("ability", ability.name());
             p.setProperty("celebration", celebration.name());
             try (Writer w = Files.newBufferedWriter(file())) { p.store(w, "Rabona Arena istemci ayarlari"); }

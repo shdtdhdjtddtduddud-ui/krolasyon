@@ -44,6 +44,7 @@ public final class AutoTest {
     private int tick, stepIndex, stepStart, inWorld = -1;
     private boolean worldRequested;
     private static final Vec3 SHOW = new Vec3(0.5, -60, -62.5);
+    private static final java.util.Map<Integer, Vec3> LAST = new java.util.HashMap<>();
 
     public static void tick() {
         if (!ON) return;
@@ -75,6 +76,14 @@ public final class AutoTest {
         for (int k = 2; k <= 7; k++) server(60, "play_" + k, k == 5, s -> follow(s));
         server(5, null, false, s -> Match.get(s).join(player(s), Team.RED));
         wait(40, "player_in_team_hud", true);
+        server(5, null, false, s -> Match.get(s).manualSwitch(player(s)));
+        wait(20, "fifa_switch", true);
+        for (int k = 0; k < 4; k++) server(40, null, false, s -> {
+            Match m = Match.get(s);
+            BallEntity b = m.ball();
+            ServerPlayer p = player(s);
+            LOG.info("[RTEST] player pos={} ballCtrl={} me={} myPos={}", p.position(), b == null ? -2 : b.getControllerId(), p.getId(), m.posOf(p));
+        });
         client(30, "cam_tv", true, () -> ClientState.cameraMode = 1);
         client(30, "cam_behind", true, () -> ClientState.cameraMode = 2);
         client(30, "cam_top", true, () -> ClientState.cameraMode = 3);
@@ -257,7 +266,14 @@ public final class AutoTest {
             LOG.info("[RTEST] bot {} team={} slot={} pos={} move={} stamina={}", f.getBaseName(), f.getSquad(), f.getFieldPos(),
                     f.position(), a.current, (int) a.stamina);
         }
-        LOG.info("[RTEST] ball pos={} ctrl={} phase={} score={}-{}", b.position(), b.getControllerId(), m.phase, m.scoreRed, m.scoreBlue);
+        LOG.info("[RTEST] ball pos={} ctrl={} phase={} score={}-{} moves={}", b.position(), b.getControllerId(), m.phase, m.scoreRed, m.scoreBlue, MoveLogic.COUNTS);
+        double tot = 0;
+        int n = 0;
+        for (FootballerEntity f : l.getEntitiesOfClass(FootballerEntity.class, new AABB(c, c).inflate(80))) {
+            Vec3 prev = LAST.put(f.getId(), f.position());
+            if (prev != null) { tot += prev.distanceTo(f.position()); n++; }
+        }
+        if (n > 0) LOG.info("[RTEST] avg bot distance per 60 ticks = {}", tot / n);
     }
 
     private static FootballerEntity showBot(MinecraftServer s) {

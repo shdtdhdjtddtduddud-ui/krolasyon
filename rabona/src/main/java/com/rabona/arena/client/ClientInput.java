@@ -57,6 +57,7 @@ public final class ClientInput {
         while (Keys.LOB.consumeClick()) send(3, Move.PASS_LOB, 1, side, mod);
         while (Keys.TACKLE.consumeClick()) send(4, Move.TACKLE, 1, side, mod || p.isSprinting());
         while (Keys.CALL.consumeClick()) send(5, Move.CALL_PASS, 1, 0, false);
+        while (Keys.SWITCH.consumeClick()) send(6, Move.CALL_PASS, 1, 0, false);
         for (int i = 0; i < Keys.SKILLS.length; i++) {
             while (Keys.SKILLS[i].consumeClick()) send(0, ClientState.slots[i], 1, side, mod);
         }

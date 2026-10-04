@@ -31,6 +31,9 @@ import java.util.List;
 public final class MoveLogic {
     private MoveLogic() {}
 
+    /** Hareket istatistigi (test gunlugu icin). */
+    public static final java.util.Map<String, Integer> COUNTS = new java.util.TreeMap<>();
+
     // ================================================================ baslatma
     public static boolean tryPerform(LivingEntity actor, Move m, float power, int side, Vec3 target) {
         if (!(actor.level() instanceof ServerLevel)) return false;
@@ -75,6 +78,7 @@ public final class MoveLogic {
         a.dirty = true;
         a.cooldowns[m.ordinal()] = m.cooldown;
         Net.toTrackingAndSelf(actor, new S2C.Anim(actor.getId(), m.ordinal(), side));
+        COUNTS.merge(m.cat.name(), 1, Integer::sum);
         start(actor, a, m, ball);
         if (m.impact == 0) impact(actor, a, m);
         return true;
