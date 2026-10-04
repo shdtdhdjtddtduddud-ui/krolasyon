@@ -73,9 +73,9 @@ public class FootballerEntity extends PathfinderMob {
         if (a != null) a.setBaseValue(0.25 + statSpeed * 0.05);
     }
 
-    public Team getTeam() { return Team.byId(this.entityData.get(DATA_TEAM)); }
+    public Team getFootTeam() { return Team.byId(this.entityData.get(DATA_TEAM)); }
 
-    public void setTeam(Team t) {
+    public void setFootTeam(Team t) {
         this.entityData.set(DATA_TEAM, (byte) t.ordinal());
         refreshName();
     }
@@ -98,7 +98,7 @@ public class FootballerEntity extends PathfinderMob {
     }
 
     public void refreshName() {
-        Team t = getTeam();
+        Team t = getFootTeam();
         String role = isKeeper() ? " (K)" : "";
         setCustomName(Component.literal(getNumber() + " " + baseName + role).withStyle(t.chat));
         setCustomNameVisible(false);
@@ -132,7 +132,7 @@ public class FootballerEntity extends PathfinderMob {
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        tag.putByte("FTeam", (byte) getTeam().ordinal());
+        tag.putByte("FTeam", (byte) getFootTeam().ordinal());
         tag.putInt("FNumber", getNumber());
         tag.putInt("FSkin", getSkin());
         tag.putBoolean("FKeeper", isKeeper());

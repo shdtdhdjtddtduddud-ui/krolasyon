@@ -32,7 +32,7 @@ public final class BotBrain {
         FootballEntity ball = MatchManager.ballFor(bot);
         if (ball != null) bot.getLookControl().setLookAt(ball, 40F, 40F);
         if (now < fd.busyUntil || now < fd.stunnedUntil) return;
-        boolean inMatch = MatchManager.isActive() && bot.getTeam().playing() && MatchManager.pitch() != null
+        boolean inMatch = MatchManager.isActive() && bot.getFootTeam().playing() && MatchManager.pitch() != null
                 && MatchManager.pitch().near(bot.position(), 30);
         if (!inMatch) {
             casual(ball);
@@ -41,9 +41,9 @@ public final class BotBrain {
         switch (MatchManager.state) {
             case KICKOFF -> goTo(MatchManager.kickoffPos(bot), 1.1);
             case GOAL -> {
-                if (MatchManager.lastGoalTeam == bot.getTeam()) {
+                if (MatchManager.lastGoalTeam == bot.getFootTeam()) {
                     Pitch p = MatchManager.pitch();
-                    Vec3 corner = new Vec3(p.lineX(bot.getTeam().attackDir()) - bot.getTeam().attackDir() * 2, p.floor(), bot.getZ() < p.midZ() ? p.zMin() + 2 : p.zMax() - 2);
+                    Vec3 corner = new Vec3(p.lineX(bot.getFootTeam().attackDir()) - bot.getFootTeam().attackDir() * 2, p.floor(), bot.getZ() < p.midZ() ? p.zMin() + 2 : p.zMax() - 2);
                     goTo(corner, 1.25);
                     if (rnd().nextInt(70) == 0 && actCooldown == 0) {
                         Move[] c = {Move.SIUU, Move.KNEE_SLIDE, Move.AIRPLANE, Move.BACKFLIP, Move.DANCE};
@@ -55,7 +55,7 @@ public final class BotBrain {
                 }
             }
             case ENDED -> {
-                if (MatchManager.winner() == bot.getTeam() && rnd().nextInt(90) == 0 && actCooldown == 0) {
+                if (MatchManager.winner() == bot.getFootTeam() && rnd().nextInt(90) == 0 && actCooldown == 0) {
                     Move[] c = {Move.SIUU, Move.DANCE, Move.BACKFLIP, Move.AIRPLANE};
                     MoveExecutor.perform(bot, c[rnd().nextInt(c.length)], 0);
                     actCooldown = 50;
@@ -91,7 +91,7 @@ public final class BotBrain {
 
     private void play(FootballEntity ball, long now) {
         Pitch p = MatchManager.pitch();
-        Team my = bot.getTeam();
+        Team my = bot.getFootTeam();
         Team opp = my.opponent();
         LivingEntity ctrl = ball.getController();
         LivingEntity holder = ball.getHolder();
@@ -177,7 +177,7 @@ public final class BotBrain {
     }
 
     private void support(FootballEntity ball, Pitch p) {
-        Team my = bot.getTeam();
+        Team my = bot.getFootTeam();
         Vec3 home = MatchManager.dynamicPos(bot);
         double u = p.teamU(my, home.x) + 0.1;
         double v = p.teamV(my, home.z);
@@ -187,7 +187,7 @@ public final class BotBrain {
     }
 
     private void attack(FootballEntity ball, Pitch p, long now) {
-        Team my = bot.getTeam();
+        Team my = bot.getFootTeam();
         holdTicks++;
         Vec3 goal = p.attackGoal(my);
         double dGoal = horiz(bot.position(), goal);
@@ -245,7 +245,7 @@ public final class BotBrain {
     }
 
     private void shoot(Pitch p, double dGoal, long now, FootData fd) {
-        Team my = bot.getTeam();
+        Team my = bot.getFootTeam();
         Vec3 aim = goalAim(p, my, 1.0);
         float r = rnd().nextFloat();
         Move mv;
@@ -291,7 +291,7 @@ public final class BotBrain {
     }
 
     private boolean tryPass(Pitch p, boolean pressured) {
-        Team my = bot.getTeam();
+        Team my = bot.getFootTeam();
         LivingEntity best = null;
         double bs = -1e9;
         double myU = p.teamU(my, bot.getX());
@@ -341,7 +341,7 @@ public final class BotBrain {
     // ------------------------------------------------------------------ keeper
 
     private void keeper(FootballEntity ball, Pitch p, LivingEntity ctrl, LivingEntity holder, long now) {
-        Team my = bot.getTeam();
+        Team my = bot.getFootTeam();
         Vec3 own = p.ownGoal(my);
         int s = -my.attackDir();
         if (holder == bot) {
@@ -424,7 +424,7 @@ public final class BotBrain {
 
     private boolean closerThanOpponents(FootballEntity ball) {
         double my = bot.distanceTo(ball);
-        for (LivingEntity e : MatchManager.members(bot.getTeam().opponent())) if (e.distanceTo(ball) < my) return false;
+        for (LivingEntity e : MatchManager.members(bot.getFootTeam().opponent())) if (e.distanceTo(ball) < my) return false;
         return true;
     }
 
@@ -432,12 +432,12 @@ public final class BotBrain {
     public static boolean tryCatch(FootballerEntity bot, FootballEntity ball) {
         if (!bot.isKeeper() || ball.getHolder() != null) return false;
         Pitch p = MatchManager.pitch();
-        if (p == null || !MatchManager.isActive() || !p.inPenaltyArea(bot.getTeam(), bot.position())) return false;
-        if (ball.restrictTeam != Team.NONE && ball.restrictTeam != bot.getTeam() && bot.level().getGameTime() < ball.restrictUntil) return false;
+        if (p == null || !MatchManager.isActive() || !p.inPenaltyArea(bot.getFootTeam(), bot.position())) return false;
+        if (ball.restrictTeam != Team.NONE && ball.restrictTeam != bot.getFootTeam() && bot.level().getGameTime() < ball.restrictUntil) return false;
         double speed = ball.getDeltaMovement().length();
         float chance = bot.statKeeper * (speed > 2.0 ? 0.55F : speed > 1.4F ? 0.8F : 1.0F);
         if (ball.special != FootballEntity.SP_NONE) chance *= 0.45F;
-        if (ball.lastTouchTeam == bot.getTeam() && speed < 1.0) chance = 0; // no back-pass catches
+        if (ball.lastTouchTeam == bot.getFootTeam() && speed < 1.0) chance = 0; // no back-pass catches
         if (bot.getRandom().nextFloat() < chance) {
             ball.setHolder(bot);
             ball.playBallSound(ModSounds.CATCH.get(), 1.0F, 1.0F);
@@ -501,7 +501,7 @@ public final class BotBrain {
 
     @Nullable
     private LivingEntity nearestOpponentTo(LivingEntity from, double r) {
-        Team opp = bot.getTeam().opponent();
+        Team opp = bot.getFootTeam().opponent();
         LivingEntity best = null;
         double bd = r * r;
         List<LivingEntity> list = MatchManager.members(opp);

@@ -151,7 +151,7 @@ public final class AutoTest {
             FootballerEntity b = ModEntities.FOOTBALLER.get().create(l);
             if (b == null) continue;
             b.slot = i;
-            b.setTeam(i % 2 == 0 ? Team.RED : Team.BLUE);
+            b.setFootTeam(i % 2 == 0 ? Team.RED : Team.BLUE);
             b.setKeeper(moves[i] == Move.DIVE);
             b.setNumber(new int[]{10, 7, 9, 11}[i % 4]);
             double x = -6 + i * 4;

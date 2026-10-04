@@ -107,7 +107,7 @@ public final class MatchManager {
     // ------------------------------------------------------------------ teams
 
     public static Team teamOf(LivingEntity e) {
-        if (e instanceof FootballerEntity b) return b.getTeam();
+        if (e instanceof FootballerEntity b) return b.getFootTeam();
         if (e instanceof Player p) return TEAMS.getOrDefault(p.getUUID(), Team.NONE);
         return Team.NONE;
     }
@@ -376,8 +376,8 @@ public final class MatchManager {
         List<LivingEntity> red = new ArrayList<>(), blue = new ArrayList<>();
         AABB box = new AABB(p.xMin() - 30, p.floor() - 20, p.zMin() - 30, p.xMax() + 30, p.floor() + 40, p.zMax() + 30);
         for (FootballerEntity b : l.getEntitiesOfClass(FootballerEntity.class, box, Entity::isAlive)) {
-            if (b.getTeam() == Team.RED) red.add(b);
-            else if (b.getTeam() == Team.BLUE) blue.add(b);
+            if (b.getFootTeam() == Team.RED) red.add(b);
+            else if (b.getFootTeam() == Team.BLUE) blue.add(b);
         }
         for (ServerPlayer sp : l.players()) {
             Team t = TEAMS.get(sp.getUUID());
@@ -561,7 +561,7 @@ public final class MatchManager {
         FootballerEntity b = ModEntities.FOOTBALLER.get().create(l);
         if (b == null) return;
         b.slot = slot;
-        b.setTeam(t);
+        b.setFootTeam(t);
         b.setKeeper(n >= 2 && slot == 0);
         int num = b.isKeeper() ? 1 : freeNumber(t, UUID.randomUUID());
         b.setNumber(num);
@@ -623,7 +623,7 @@ public final class MatchManager {
 
     public static Vec3 kickoffPos(FootballerEntity b) {
         Pitch p = pitch();
-        Team t = b.getTeam();
+        Team t = b.getFootTeam();
         int n = Mth.clamp(playersPerTeam, 1, 11);
         Vec3 pos = slotPos(p, t, b.slot, n, 0.5, 0, true);
         if (t == kickoffTeam && b.slot == (n >= 3 ? n - 1 : n - 1) && !b.isKeeper()) pos = p.point(t, 0.485, 0.02);
@@ -632,7 +632,7 @@ public final class MatchManager {
 
     public static Vec3 dynamicPos(FootballerEntity b) {
         Pitch p = pitch();
-        Team t = b.getTeam();
+        Team t = b.getFootTeam();
         FootballEntity ball = ball();
         double bu = 0.5, bv = 0;
         if (ball != null) {

@@ -463,7 +463,8 @@ public final class MoveExecutor {
             }
             case BACKHEEL_PASS -> {
                 Vec3 back = f.scale(-1);
-                Vec3 t = aim != null ? aim : passTarget(a, back, Math.cos(Math.toRadians(70)), 1.01) instanceof LivingEntity e ? e.position() : a.position().add(back.scale(10));
+                LivingEntity mate = passTarget(a, back, Math.cos(Math.toRadians(70)), 1.01);
+                Vec3 t = aim != null ? aim : mate != null ? mate.position() : a.position().add(back.scale(10));
                 groundPass(a, b, t, 1.0, FootballEntity.TR_NONE, 0);
                 b.playBallSound(ModSounds.SKILL.get(), 0.6F, 1.2F);
             }

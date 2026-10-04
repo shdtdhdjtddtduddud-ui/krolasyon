@@ -80,7 +80,7 @@ public final class ClientState {
     }
 
     public static Team teamOf(Entity e) {
-        if (e instanceof FootballerEntity b) return b.getTeam();
+        if (e instanceof FootballerEntity b) return b.getFootTeam();
         if (e instanceof Player p) return Team.byId(TEAMS.getOrDefault(p.getUUID(), 0));
         return Team.NONE;
     }

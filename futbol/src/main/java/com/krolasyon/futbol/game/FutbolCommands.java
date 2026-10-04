@@ -107,7 +107,7 @@ public final class FutbolCommands {
         for (int i = 0; i < n; i++) {
             FootballerEntity b = ModEntities.FOOTBALLER.get().create(l);
             if (b == null) continue;
-            b.setTeam(t);
+            b.setFootTeam(t);
             b.setNumber(2 + l.random.nextInt(20));
             b.slot = 1 + i;
             b.moveTo(p.getX() + (l.random.nextDouble() - 0.5) * 6, p.getY(), p.getZ() + (l.random.nextDouble() - 0.5) * 6, l.random.nextFloat() * 360F, 0);

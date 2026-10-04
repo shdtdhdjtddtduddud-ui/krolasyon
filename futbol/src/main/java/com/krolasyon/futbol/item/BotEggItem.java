@@ -32,7 +32,7 @@ public class BotEggItem extends Item {
             FootballerEntity b = ModEntities.FOOTBALLER.get().create(sl);
             if (b != null) {
                 Vec3 at = ctx.getClickLocation();
-                b.setTeam(team);
+                b.setFootTeam(team);
                 b.setNumber(2 + sl.random.nextInt(22));
                 b.slot = 1 + sl.random.nextInt(4);
                 float yaw = ctx.getPlayer() != null ? ctx.getPlayer().getYRot() + 180F : 0F;
