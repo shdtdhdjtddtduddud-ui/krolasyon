@@ -16,25 +16,36 @@ Hazır jar dosyası GitHub Releases sayfasında `futbol-build-N` etiketiyle yay�
 |---|---|
 | Topun yanına koş | Top ayağına yapışır (dribbling). **Shift**: topu ayağının altına al |
 | Sol tık (topa) | Hızlı vuruş |
-| **Z** (basılı tut) | Şut — ne kadar tutarsan o kadar sert. Shift+Z: Plase, koşarken: Sert Şut. Top havadaysa otomatik Vole / Kafa |
+| **Z** (basılı tut) | Şut stili 1 · **Shift+Z** stil 2 · **koşarken Z** stil 3 (3 stil de seçilebilir) |
 | **R** | Kısa pas · Shift+R: Havadan pas · koşarken: Ara pas |
-| **G** | Top çalma · Shift/koşarken: Kayarak müdahale |
-| **V** | Favori çalımın (varsayılan: Gökkuşağı) |
-| **B** | Süper yetenek (varsayılan: Ateş Şutu) |
-| **H** | Gol sevinci |
-| **Y** | Tüm hareketler menüsü (sol tık: yap, sağ tık: V/B/H tuşuna ata) |
-| **J** | Maç / takım menüsü |
+| **X** | Pas iste (bot takım arkadaşı sana pas atar) |
+| **G** | Top çalma · Shift/koşarken: Kayarak müdahale (5 sn bekleme süresi) |
+| **V / N / M** | Seçtiğin 3 çalım hareketi |
+| **B** | Süper yetenek · **H** gol sevinci |
+| **K** | Kamera: Normal / TV Yayını / Üstten (FIFA). Futbol kameralarında WASD ekrana göre hareket eder |
+| **O** | Son golün tekrarını izle (gol sonrası otomatik oynar, O ile geçilir) |
+| **Y** | Tüm hareketler + tuş/şut stili atama (üstte slotu seç, karta sağ tıkla) |
+| **J** | Maç menüsü: takım, **mevki** (KL/DEF/OS/KNT/FV), oyuncu sayısı, süre |
+| **U** | Kulüp: jeton, kart paketleri, kadro |
 
-Animasyonları görmek için **F5** ile 3. şahıs kameraya geç.
+## Mevkiler ve yapay zeka
+Botlar mevkisine göre oynar: defans hattı korur ve rakibi markajlar, orta saha pas açısı yaratır, kanatlar çizgiye açılıp orta yapar, forvetler son defansın arkasına koşu yapar. Topu alan oyuncu şut, pas (ilerleme + boşluk + pas yolu açık mı) ve top sürme arasında karar verir; takımlar oyun kurar. Top rakipteyken bir oyuncu pres yapar, biri arkasını kollar, diğerleri derli toplu kalır.
+Sen de mevkini seçebilirsin; **kaleci** seçersen kendi ceza sahanda topu elle tutarsın (R: at, Z: uzun vur).
 
-## Hareketler (49)
+## Jeton ve oyuncu kartları
+Gol: +30 jeton (takımına +10), galibiyet +150, beraberlik +70, mağlubiyet +40. Kulüp ekranında Bronz (100), Altın (300) ve Efsane (800) paket açılır. Kartın mevkisi, genel gücü ve 6 özelliği (HIZ, ŞUT, PAS, DRİ, DEF, KAL) vardır. Kadroya aldığın en fazla 10 kart, takımındaki botların yerine kendi isim ve özellikleriyle oynar. İstemediğin kartı Shift+tık ile satabilirsin.
+
+## Çok oyunculu
+Mod hem istemcide hem sunucuda olmalı (aynı jar). Tek oyunculu dünyada "LAN'a Aç" diyerek ya da Forge 1.20.1 sunucusuna jar'ı `mods` klasörüne koyarak arkadaşlarınla oynayabilirsin. Giren herkes kendi takımını ve mevkisini seçer, eksik yerleri botlar doldurur.
+
+## Hareketler (51)
 - **Paslar:** Kısa Pas, Ara Pas, Havadan Pas, Topuk Pası, Rabona Pas, Bakmadan Pas, Orta
 - **Şutlar:** Şut, Plase, Sert Şut, Rabona Şut, Aşırtma, Röveşata, Vole, Kafa Vuruşu, Dipten Vuruş (knuckleball), Akrep Vuruşu, Panenka, Trivela
-- **Çalımlar:** Gökkuşağı, Makas, Elastico, Maradona Dönüşü, Cruyff Dönüşü, Bacak Arası, Taban Çekme, Fok Dribblingi, Top Sektirme, Şapka Çıkarma, Hız Patlaması, İlk Dokunuş
+- **Çalımlar:** Gökkuşağı, Makas, Elastico, Maradona Dönüşü, Cruyff Dönüşü, Bacak Arası, Taban Çekme, Fok Dribblingi, Top Sektirme, Şapka Çıkarma, Hız Patlaması, İlk Dokunuş, Vücut Çalımı
 - **Savunma:** Top Çalma, Kayarak Müdahale, Omuz Omuza, Şut Bloğu
 - **Kaleci:** Plonjon, Yumruklama, Kaleci Atışı
 - **Süper yetenekler:** Ateş Şutu, Yıldırım Şutu, Kasırga Şutu, Kartal Pikesi, Hayalet Dribbling, Buz Pası
-- **Gol sevinçleri:** Siuuu!, Diz Kayması, Uçak, Ters Takla, Zafer Dansı
+- **Gol sevinçleri:** Siuuu!, Diz Kayması, Uçak, Ters Takla, Zafer Dansı, Formayı Çıkar
 
 Çalım hareketleri kısa bir süre "sıyrılma" penceresi açar: bu sırada yapılan müdahalelerin başarı şansı çok düşer.
 
