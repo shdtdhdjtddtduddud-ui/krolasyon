@@ -72,7 +72,7 @@ public final class ServerSelfTest {
                 }
                 case 2 -> {
                     Site c = WorldMap.capital(w, Kingdom.ALDORIA.ordinal());
-                    BlockPos base = new BlockPos(c.x + 200, 0, c.z + 200);
+                    BlockPos base = new BlockPos(c.x - 40, 0, c.z + 110);
                     int y = com.krolasyon.bosses.rpg.util.Heights.ground(l, base.getX(), base.getZ());
                     int i = 0;
                     for (MonsterDef d : RpgDefs.BY_ID.values()) {
@@ -93,7 +93,7 @@ public final class ServerSelfTest {
                     if (tick - phaseStart == 40) {
                         // every spell, cast by a mage
                         Site c = WorldMap.capital(w, Kingdom.ALDORIA.ordinal());
-                        BlockPos p = new BlockPos(c.x + 200, 0, c.z + 260);
+                        BlockPos p = new BlockPos(c.x + 60, 0, c.z + 130);
                         RpgNpc mage = NpcFactory.spawn(l, new BlockPos(p.getX(), com.krolasyon.bosses.rpg.util.Heights.ground(l, p.getX(), p.getZ()), p.getZ()), Race.ELF, true, NpcRole.MAGE, 1, null, null);
                         if (mage != null) for (SpellDef sp : RpgDefs.SPELLS) {
                             try { SpellCaster.cast(mage, sp, 1.0F); } catch (Exception ex) { errors++; LOG.error("[SERVERTEST] spell " + sp.id(), ex); }

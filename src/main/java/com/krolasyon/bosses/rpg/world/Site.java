@@ -6,7 +6,7 @@ import net.minecraft.nbt.CompoundTag;
 /** A place in the world that gets built when a player first comes near: capitals, towns, villages, camps, boss lairs. */
 public class Site {
     public enum Type {
-        CAPITAL("Başkent", 92), CITY("Şehir", 60), VILLAGE("Köy", 38), CAMP("Haydut Kampı", 20), LAIR("İn", 22), RUIN("Harabe", 18);
+        CAPITAL("Başkent", 92), CITY("Şehir", 60), VILLAGE("Köy", 38), CAMP("Haydut Kampı", 20), LAIR("İn", 22), RUIN("Harabe", 18), LANDMARK("Simge Yapı", 16);
 
         public final String title;
         public final int radius;
@@ -26,6 +26,8 @@ public class Site {
     public String boss = "";
     public long bossRespawn;
     public boolean bossAlive;
+    /** a road to the capital has been laid */
+    public boolean road;
 
     public BlockPos center() { return new BlockPos(x, y == Integer.MIN_VALUE ? 64 : y, z); }
 
@@ -45,6 +47,7 @@ public class Site {
         t.putString("Boss", boss);
         t.putLong("BossRespawn", bossRespawn);
         t.putBoolean("BossAlive", bossAlive);
+        t.putBoolean("Road", road);
         return t;
     }
 
@@ -62,6 +65,7 @@ public class Site {
         s.boss = t.getString("Boss");
         s.bossRespawn = t.getLong("BossRespawn");
         s.bossAlive = t.getBoolean("BossAlive");
+        s.road = t.getBoolean("Road");
         return s;
     }
 }

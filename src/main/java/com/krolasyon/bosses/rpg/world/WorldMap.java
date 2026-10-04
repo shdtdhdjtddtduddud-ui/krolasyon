@@ -107,7 +107,7 @@ public final class WorldMap {
     @Nullable
     public static Site siteAt(RpgWorldData d, double x, double z) {
         for (Site s : d.sites) {
-            if (s.type == Site.Type.LAIR || s.type == Site.Type.RUIN) continue;
+            if (s.type == Site.Type.LAIR || s.type == Site.Type.RUIN || s.type == Site.Type.LANDMARK) continue;
             double r = s.type.radius + 4;
             if (s.distSq(x, z) < r * r) return s;
         }
@@ -179,6 +179,26 @@ public final class WorldMap {
             s.name = s.type == Site.Type.RUIN ? "Unutulmuş " + TOWN_ROOT[r.nextInt(TOWN_ROOT.length)] + " Harabesi" : TOWN_PREFIX[r.nextInt(TOWN_PREFIX.length)] + " Haydut Kampı";
             s.id = (s.type == Site.Type.RUIN ? "ruin_" : "camp_") + i;
             d.sites.add(s);
+        }
+        // landmarks: statues, watchtowers, forgotten temples, dragon bones, crystal spires, standing stones
+        String[] landmarkNames = {"Kadim Kral Heykeli", "Gözcü Kulesi", "Terk Edilmiş Tapınak", "Ejder İskeleti", "Kristal Sütunlar", "Dikili Taşlar"};
+        int placed = 0;
+        for (int i = 0; i < 80 && placed < 30; i++) {
+            double a = r.nextDouble() * Math.PI * 2, dist = 300 + r.nextDouble() * 3600;
+            int x = (int) (spawn.getX() + Math.cos(a) * dist), z = (int) (spawn.getZ() + Math.sin(a) * dist);
+            if (nearestSite(d, x, z, 160, null) != null) continue;
+            Site s = new Site();
+            s.type = Site.Type.LANDMARK;
+            s.seed = r.nextLong();
+            int variant = (int) Math.floorMod(s.seed, landmarkNames.length);
+            s.kingdom = kingdomAt(d, x, z);
+            s.x = x;
+            s.z = z;
+            s.name = landmarkNames[variant];
+            s.boss = String.valueOf(variant);
+            s.id = "landmark_" + placed;
+            d.sites.add(s);
+            placed++;
         }
         // one lair per boss, in a place of its home region
         int li = 0;

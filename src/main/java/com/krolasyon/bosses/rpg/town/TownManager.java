@@ -26,12 +26,34 @@ public final class TownManager {
     private static final class Job {
         final Site site;
         final List<Canvas.Op> ops;
+        final boolean road;
         int index;
 
-        Job(Site site, List<Canvas.Op> ops) { this.site = site; this.ops = ops; }
+        Job(Site site, List<Canvas.Op> ops) { this(site, ops, false); }
+
+        Job(Site site, List<Canvas.Op> ops, boolean road) { this.site = site; this.ops = ops; this.road = road; }
+    }
+
+    /** lays roads between a freshly built settlement and its capital */
+    private static void roads(RpgWorldData w, Site built) {
+        if (built.kingdom < 0) return;
+        if (built.type == Site.Type.CITY || built.type == Site.Type.VILLAGE) {
+            Site cap = com.krolasyon.bosses.rpg.world.WorldMap.capital(w, built.kingdom);
+            if (cap.built && !built.road) {
+                built.road = true;
+                PENDING.put("road_" + built.id, new Job(built, SettlementGen.road(cap, built), true));
+            }
+        } else if (built.type == Site.Type.CAPITAL) {
+            for (Site s : w.sites) {
+                if (s.kingdom != built.kingdom || s.road || !s.built || s.type != Site.Type.CITY && s.type != Site.Type.VILLAGE) continue;
+                s.road = true;
+                PENDING.put("road_" + s.id, new Job(s, SettlementGen.road(built, s), true));
+            }
+        }
     }
 
     private static final Map<String, Job> JOBS = new LinkedHashMap<>();
+    private static final Map<String, Job> PENDING = new LinkedHashMap<>();
 
     private static int trigger(Site.Type t) {
         return switch (t) { case CAPITAL -> 200; case CITY -> 150; case VILLAGE -> 110; default -> 80; };
@@ -39,7 +61,7 @@ public final class TownManager {
 
     public static boolean building(String siteId) { return JOBS.containsKey(siteId); }
 
-    public static int jobCount() { return JOBS.size(); }
+    public static int jobCount() { return JOBS.size() + PENDING.size(); }
 
     /** starts building a site now, regardless of where the players are */
     public static void enqueue(ServerLevel level, Site s, RpgWorldData w) {
@@ -68,6 +90,7 @@ public final class TownManager {
 
     /** runs build operations within a time budget */
     public static void tick(ServerLevel level, RpgWorldData w) {
+        if (!PENDING.isEmpty()) { JOBS.putAll(PENDING); PENDING.clear(); }
         if (JOBS.isEmpty()) return;
         long until = System.nanoTime() + 18_000_000L;
         Iterator<Map.Entry<String, Job>> it = JOBS.entrySet().iterator();
@@ -86,9 +109,11 @@ public final class TownManager {
                 }
             }
             if (j.index >= j.ops.size()) {
-                j.site.built = true;
-                w.setDirty();
                 it.remove();
+                w.setDirty();
+                if (j.road) continue;
+                j.site.built = true;
+                roads(w, j.site);
                 for (ServerPlayer p : level.players()) {
                     if (j.site.distSq(p.getX(), p.getZ()) < 200 * 200 && (j.site.type == Site.Type.CAPITAL || j.site.type == Site.Type.CITY))
                         p.displayClientMessage(Component.literal("§6" + j.site.name + " §7— " + j.site.type.title), true);
@@ -134,5 +159,5 @@ public final class TownManager {
         }
     }
 
-    public static void clear() { JOBS.clear(); }
+    public static void clear() { JOBS.clear(); PENDING.clear(); }
 }

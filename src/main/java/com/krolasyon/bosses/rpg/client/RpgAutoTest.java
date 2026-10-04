@@ -454,7 +454,8 @@ public final class RpgAutoTest {
         if (tick < stepStart || stepIndex >= steps.size()) return;
         Step st = steps.get(stepIndex);
         MinecraftServer s = mc.getSingleplayerServer();
-        if (st.screen() == null && !(mc.screen instanceof com.krolasyon.bosses.rpg.client.gui.DialogScreen && st.gui())) {
+        boolean keep = st.gui() && (mc.screen instanceof com.krolasyon.bosses.rpg.client.gui.DialogScreen || mc.screen instanceof net.minecraft.client.gui.screens.inventory.MerchantScreen);
+        if (st.screen() == null && !keep) {
             if (mc.screen != null) mc.setScreen(null);
         }
         mc.options.hideGui = !st.gui();

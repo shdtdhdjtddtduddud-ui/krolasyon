@@ -82,7 +82,7 @@ public final class Story {
             case 2 -> switch (d.step) {
                 case 0 -> "Annenle konuş, babanın durumu kötüleşti.";
                 case 1 -> "Tapınaktaki Rahip Anselm ile konuş.";
-                case 2 -> "3 Şifa Otu bul (orman canavarları düşürebilir, rahipler satar) — " + counter(d, "herbs_have") + "/3";
+                case 2 -> "3 Şifa Otu bul (canavarlar düşürür, ormanlarda daha sık; rahipler de satar) — " + counter(d, "herbs_have") + "/3";
                 default -> "Şifa otlarını annene götür.";
             };
             case 3 -> switch (d.step) {
@@ -531,8 +531,8 @@ public final class Story {
             if (n >= 6) advance(p, d, 1, 2);
             else p.displayClientMessage(Component.literal("§7Fareler: " + n + "/6"), true);
         }
-        if (d.chapter == 2 && d.step == 2 && region != null && (region == RegionId.WOLF_FOREST || region == RegionId.SYLVARIEN || region == RegionId.FELARIS)
-                && (def.arch() == RpgDefs.Archetype.TREANT || def.arch() == RpgDefs.Archetype.QUADRUPED || p.getRandom().nextInt(3) == 0)) {
+        boolean forest = region == RegionId.WOLF_FOREST || region == RegionId.SYLVARIEN || region == RegionId.FELARIS;
+        if (d.chapter == 2 && d.step == 2 && (def.arch() == RpgDefs.Archetype.TREANT || forest && p.getRandom().nextInt(2) == 0 || p.getRandom().nextInt(4) == 0)) {
             NpcQuests.give(p, new ItemStack(RpgItems.HERB.get()));
             p.displayClientMessage(Component.literal("§aBir Şifa Otu buldun!"), true);
         }

@@ -48,7 +48,7 @@ jobs:
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq xvfb libgl1-mesa-dri libglx-mesa0 mesa-utils > /dev/null
           mkdir -p run
-          printf "onboardAccessibility:false\nrenderDistance:5\nsimulationDistance:5\npauseOnLostFocus:false\ntutorialStep:none\njoinedFirstServer:true\nskipMultiplayerWarning:true\nmaxFps:60\nfov:-0.45\n" > run/options.txt
+          printf "onboardAccessibility:false\nrenderDistance:12\nsimulationDistance:8\npauseOnLostFocus:false\ntutorialStep:none\njoinedFirstServer:true\nskipMultiplayerWarning:true\nmaxFps:60\nfov:-0.45\n" > run/options.txt
           set +e
           timeout 2700 xvfb-run -a -s "-screen 0 1280x720x24" gradle runClient --no-daemon > client.log 2>&1
           echo "client exit $?"

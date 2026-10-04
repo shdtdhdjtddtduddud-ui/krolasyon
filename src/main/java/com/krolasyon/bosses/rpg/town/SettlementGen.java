@@ -183,6 +183,7 @@ public final class SettlementGen {
             case CAMP -> camp(pl);
             case LAIR -> lair(pl);
             case RUIN -> ruinSite(pl);
+            case LANDMARK -> landmark(pl);
         }
         // people last, once the buildings stand
         List<Resident> people = pl.people;
@@ -452,6 +453,162 @@ public final class SettlementGen {
                 if (l.getBlockState(bp).is(Blocks.CHEST)) loot(l, bp.immutable(), 3);
             }
         }));
+    }
+
+    private static void landmark(Plan pl) {
+        Site s = pl.site;
+        int variant = 0;
+        try { variant = Integer.parseInt(s.boss); } catch (NumberFormatException ignored) {}
+        Canvas c = pl.flat();
+        RandomSource r = pl.r;
+        switch (variant) {
+            case 0 -> { // colossal statue of an ancient king holding a sword
+                terrain(pl, 9, Blocks.STONE_BRICKS);
+                c.fill(-4, 0, -4, 4, 2, 4, Blocks.CHISELED_STONE_BRICKS);
+                c.fill(-3, 3, -2, 3, 3, 2, Blocks.STONE_BRICKS);
+                c.fill(-2, 4, -1, -1, 11, 1, Blocks.POLISHED_ANDESITE);
+                c.fill(1, 4, -1, 2, 11, 1, Blocks.POLISHED_ANDESITE);
+                c.fill(-3, 12, -2, 3, 19, 2, Blocks.POLISHED_ANDESITE);
+                c.fill(-6, 18, -1, -4, 19, 1, Blocks.POLISHED_ANDESITE);
+                c.fill(4, 18, -1, 6, 19, 1, Blocks.POLISHED_ANDESITE);
+                c.fill(-6, 11, -1, -5, 17, 1, Blocks.POLISHED_ANDESITE);
+                c.fill(5, 12, -2, 6, 17, 0, Blocks.POLISHED_ANDESITE);
+                c.fill(-2, 20, -2, 2, 24, 2, Blocks.POLISHED_DIORITE);
+                c.fill(-2, 25, -2, 2, 25, 2, Blocks.GOLD_BLOCK);
+                for (int i = -2; i <= 2; i += 2) c.set(i, 26, 0, Blocks.GOLD_BLOCK);
+                c.set(-1, 22, -3, Blocks.BLACK_CONCRETE);
+                c.set(1, 22, -3, Blocks.BLACK_CONCRETE);
+                c.fill(6, 4, -3, 6, 21, -3, Blocks.IRON_BLOCK);
+                c.fill(5, 11, -3, 7, 11, -3, Blocks.GOLD_BLOCK);
+                for (int i = 0; i < 25; i++) c.set(-4 + r.nextInt(9), r.nextInt(20), -3 + r.nextInt(6), Blocks.MOSSY_STONE_BRICKS);
+                c.set(0, 3, -3, Blocks.LECTERN);
+            }
+            case 1 -> { // watchtower
+                terrain(pl, 7, Blocks.COBBLESTONE);
+                Palette p = pl.p;
+                c.walls(-3, 0, -3, 3, 20, 3, p.cityWall());
+                c.air(-2, 1, -2, 2, 20, 2);
+                for (int y = 1; y <= 20; y++) c.set(0, y, 2, Blocks.LADDER.defaultBlockState().setValue(net.minecraft.world.level.block.LadderBlock.FACING, net.minecraft.core.Direction.NORTH));
+                c.fill(-4, 21, -4, 4, 21, 4, p.floor());
+                c.set(0, 21, 2, Blocks.AIR);
+                for (int i = -4; i <= 4; i += 2) { c.set(i, 22, -4, p.wallTop()); c.set(i, 22, 4, p.wallTop()); c.set(-4, 22, i, p.wallTop()); c.set(4, 22, i, p.wallTop()); }
+                c.set(0, 22, 0, Blocks.CAMPFIRE);
+                c.air(0, 1, -3, 0, 2, -3);
+                for (int y = 4; y < 20; y += 5) { c.set(-3, y, 0, p.window() == Blocks.AIR ? Blocks.AIR : p.window()); c.set(3, y, 0, p.window() == Blocks.AIR ? Blocks.AIR : p.window()); }
+                pl.people.add(new Resident(s.x, pl.y + 22, s.z + 1, s.kingdom >= 0 ? NpcRole.GUARD : NpcRole.BANDIT, 1));
+                pl.people(s.x + 2, s.z - 5, s.kingdom >= 0 ? NpcRole.SOLDIER : NpcRole.BANDIT, 1);
+            }
+            case 2 -> { // forgotten temple
+                terrain(pl, 12, Blocks.MOSSY_STONE_BRICKS);
+                for (int x = -8; x <= 8; x += 4) for (int z = -10; z <= 10; z += 5) {
+                    if (Math.abs(x) < 8 && Math.abs(z) < 10) continue;
+                    int h = 3 + r.nextInt(6);
+                    c.fill(x, 1, z, x, h, z, r.nextBoolean() ? Blocks.QUARTZ_PILLAR : Blocks.CHISELED_STONE_BRICKS);
+                }
+                c.fill(-3, 1, -3, 3, 1, 3, Blocks.SMOOTH_QUARTZ);
+                c.fill(-1, 2, -1, 1, 2, 1, Blocks.GOLD_BLOCK);
+                c.set(0, 3, 0, Blocks.ENCHANTING_TABLE);
+                c.facing(2, 2, 0, Blocks.CHEST, net.minecraft.core.Direction.WEST);
+                for (int i = 0; i < 30; i++) c.set(-9 + r.nextInt(19), 1, -11 + r.nextInt(23), r.nextBoolean() ? Blocks.MOSSY_COBBLESTONE : Blocks.CRACKED_STONE_BRICKS);
+                BlockPos chest = c.world(2, 2, 0);
+                pl.ops.add(new Canvas.ActOp(l -> loot(l, chest, 4)));
+            }
+            case 3 -> { // dragon bones
+                terrain(pl, 14, Blocks.COARSE_DIRT);
+                for (int z = -10; z <= 10; z += 3) {
+                    int rib = 6 - Math.abs(z) / 3;
+                    for (int a = 0; a <= 12; a++) {
+                        double t = a / 12.0 * Math.PI;
+                        int x = (int) Math.round(Math.cos(t) * rib), y = (int) Math.round(Math.sin(t) * (rib + 2));
+                        c.set(x, y + 1, z, Blocks.BONE_BLOCK);
+                    }
+                }
+                for (int z = -13; z <= 13; z++) c.set(0, 1 + (int) (Math.sin(z * 0.3) * 1.5 + 1.5), z, Blocks.BONE_BLOCK);
+                c.fill(-2, 1, 13, 2, 4, 17, Blocks.BONE_BLOCK);
+                c.air(-1, 2, 14, 1, 3, 17);
+                c.set(-1, 3, 17, Blocks.MAGMA_BLOCK);
+                c.set(1, 3, 17, Blocks.MAGMA_BLOCK);
+                c.fill(-3, 4, 14, -3, 7, 13, Blocks.BONE_BLOCK);
+                c.fill(3, 4, 14, 3, 7, 13, Blocks.BONE_BLOCK);
+            }
+            case 4 -> { // crystal spires
+                terrain(pl, 10, Blocks.CALCITE);
+                for (int i = 0; i < 9; i++) {
+                    double a = i * Math.PI * 2 / 9;
+                    int x = (int) Math.round(Math.cos(a) * 6), z = (int) Math.round(Math.sin(a) * 6);
+                    int h = 5 + r.nextInt(10);
+                    for (int y = 1; y <= h; y++) {
+                        c.set(x, y, z, y % 4 == 0 ? Blocks.SEA_LANTERN : Blocks.AMETHYST_BLOCK);
+                        if (y < h / 2) { c.set(x + 1, y, z, Blocks.AMETHYST_BLOCK); c.set(x, y, z + 1, Blocks.AMETHYST_BLOCK); }
+                    }
+                    c.set(x, h + 1, z, Blocks.AMETHYST_CLUSTER);
+                }
+                c.fill(-1, 1, -1, 1, 1, 1, Blocks.BUDDING_AMETHYST);
+                c.set(0, 2, 0, Blocks.BEACON);
+            }
+            default -> { // standing stones
+                terrain(pl, 11, Blocks.GRASS_BLOCK);
+                for (int i = 0; i < 12; i++) {
+                    double a = i * Math.PI * 2 / 12;
+                    int x = (int) Math.round(Math.cos(a) * 8), z = (int) Math.round(Math.sin(a) * 8);
+                    int h = 3 + r.nextInt(3);
+                    c.fill(x, 1, z, x, h, z, i % 3 == 0 ? Blocks.MOSSY_STONE_BRICKS : Blocks.STONE);
+                    if (i % 2 == 0 && i < 11) c.set(x, h + 1, z, Blocks.STONE_SLAB);
+                }
+                c.fill(-1, 1, -1, 1, 1, 1, Blocks.MOSSY_COBBLESTONE);
+                c.set(0, 2, 0, Blocks.CAMPFIRE.defaultBlockState().setValue(net.minecraft.world.level.block.CampfireBlock.LIT, false));
+            }
+        }
+    }
+
+    /** a road from one settlement to another, following the ground, with bridges over water and lamp posts */
+    public static List<Canvas.Op> road(Site a, Site b) {
+        List<Canvas.Op> ops = new ArrayList<>();
+        Palette p = Palette.of(a.kingdom);
+        net.minecraft.world.level.block.state.BlockState path = (p.path() == Blocks.SNOW_BLOCK ? Blocks.GRAVEL : p.path() == Blocks.MOSS_BLOCK ? Blocks.DIRT_PATH : p.path()).defaultBlockState();
+        net.minecraft.world.level.block.state.BlockState bridge = Blocks.SPRUCE_PLANKS.defaultBlockState();
+        int steps = (int) Math.sqrt(a.distSq(b.x, b.z));
+        double dx = (b.x - a.x) / (double) Math.max(1, steps), dz = (b.z - a.z) / (double) Math.max(1, steps);
+        double nx = -dz, nz = dx;
+        for (int i = 0; i <= steps; i++) {
+            double x = a.x + dx * i, z = a.z + dz * i;
+            if (a.distSq(x, z) < (a.type.radius + 2) * (a.type.radius + 2) || b.distSq(x, z) < (b.type.radius + 2) * (b.type.radius + 2)) continue;
+            final double fx = x + Math.sin(i * 0.02) * 6 * nx, fz = z + Math.sin(i * 0.02) * 6 * nz;
+            final boolean lamp = i % 28 == 0;
+            ops.add(new Canvas.ActOp(level -> {
+                for (int w = -1; w <= 1; w++) {
+                    int px = (int) Math.floor(fx + nx * w), pz = (int) Math.floor(fz + nz * w);
+                    int floor = com.krolasyon.bosses.rpg.util.Heights.get(level, Heightmap.Types.OCEAN_FLOOR, px, pz);
+                    int top = com.krolasyon.bosses.rpg.util.Heights.get(level, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, px, pz);
+                    if (top > floor + 1) {
+                        level.setBlock(new BlockPos(px, top, pz), bridge, 2);
+                        if (lamp && w == 1) {
+                            level.setBlock(new BlockPos(px, top + 1, pz), Blocks.SPRUCE_FENCE.defaultBlockState(), 2);
+                            level.setBlock(new BlockPos(px, top + 2, pz), Blocks.LANTERN.defaultBlockState(), 2);
+                        }
+                        continue;
+                    }
+                    BlockPos g = new BlockPos(px, floor - 1, pz);
+                    net.minecraft.world.level.block.state.BlockState cur = level.getBlockState(g);
+                    if (cur.isAir() || !cur.getFluidState().isEmpty()) continue;
+                    level.setBlock(g, path, 2);
+                    for (int up = 0; up < 3; up++) {
+                        BlockPos q = g.above(1 + up);
+                        net.minecraft.world.level.block.state.BlockState st = level.getBlockState(q);
+                        if (!st.isAir() && (st.canBeReplaced() || st.is(net.minecraft.tags.BlockTags.LEAVES) || st.is(net.minecraft.tags.BlockTags.FLOWERS))) level.setBlock(q, Blocks.AIR.defaultBlockState(), 2);
+                    }
+                    if (lamp && w == 1) {
+                        BlockPos post = g.offset((int) Math.signum(nx), 1, (int) Math.signum(nz));
+                        if (level.getBlockState(post).isAir()) {
+                            level.setBlock(post, Blocks.SPRUCE_FENCE.defaultBlockState(), 2);
+                            level.setBlock(post.above(), Blocks.SPRUCE_FENCE.defaultBlockState(), 2);
+                            level.setBlock(post.above(2), Blocks.LANTERN.defaultBlockState(), 2);
+                        }
+                    }
+                }
+            }));
+        }
+        return ops;
     }
 
     // ------------------------------------------------------------------ contents
