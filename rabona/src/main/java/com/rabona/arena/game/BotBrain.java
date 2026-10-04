@@ -149,23 +149,23 @@ public class BotBrain {
         PassOption pass = bestPass(m, held, close != null);
         double dribble = dribbleScore(m, held);
 
-        if (shoot > 0.5 && rnd().nextFloat() < 0.45 + shoot * 0.5) {
+        // 1e1: onunde rakip varsa calim (pastan once dene)
+        if (front != null && front.distanceTo(bot) < 3.8 && skillCd <= 0 && rnd().nextFloat() < 0.25 + bot.dribbling / 220f + m.difficulty * 0.08) {
+            Move sk = SKILLS[rnd().nextInt(SKILLS.length)];
+            int side = MoveLogic.right(MoveLogic.face(bot)).dot(front.position().subtract(me)) > 0 ? -1 : 1;
+            faceTo(goal);
+            if (MoveLogic.tryPerform(bot, sk, 1, side, null)) {
+                skillCd = 35 + rnd().nextInt(40);
+                return;
+            }
+        }
+        if (shoot > 0.36 && rnd().nextFloat() < 0.5 + shoot * 0.5) {
             shoot(m, a, ball, MoveLogic.horiz(me, goal));
             return;
         }
         if (pass != null && pass.score > dribble) {
             doPass(m, pass);
             return;
-        }
-        // 1e1: calim
-        if (front != null && front.distanceTo(bot) < 2.8 && skillCd <= 0 && rnd().nextFloat() < bot.dribbling / 160f + m.difficulty * 0.05) {
-            Move sk = SKILLS[rnd().nextInt(SKILLS.length)];
-            int side = MoveLogic.right(MoveLogic.face(bot)).dot(front.position().subtract(me)) > 0 ? -1 : 1;
-            faceTo(goal);
-            if (MoveLogic.tryPerform(bot, sk, 1, side, null)) {
-                skillCd = 50 + rnd().nextInt(50);
-                return;
-            }
         }
         // ozel yetenek (zor seviyede daha sik)
         if (a.energy >= 60 && rnd().nextFloat() < 0.015 * (m.difficulty + 1)) {
