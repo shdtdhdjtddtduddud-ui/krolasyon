@@ -211,7 +211,8 @@ public final class PadControl {
         ps.pushPose();
         ps.translate(pos.x - cam.x, pos.y - cam.y + e.getBbHeight() + 0.85, pos.z - cam.z);
         ps.mulPose(mc.getEntityRenderDispatcher().cameraOrientation());
-        ps.scale(-0.04f, -0.04f, 0.04f);
+        float sc = 0.04f * (float) Math.max(1, pos.distanceTo(cam) / 10);
+        ps.scale(-sc, -sc, sc);
         Font f = mc.font;
         Matrix4f m = ps.last().pose();
         float x = -f.width(text) / 2f;
