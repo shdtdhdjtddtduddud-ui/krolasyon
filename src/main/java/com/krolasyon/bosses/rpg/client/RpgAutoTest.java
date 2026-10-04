@@ -97,7 +97,7 @@ public final class RpgAutoTest {
         for (Entity e : l.getEntitiesOfClass(Entity.class, p.getBoundingBox().inflate(70), e -> !(e instanceof ServerPlayer))) e.discard();
     }
 
-    private static int ground(ServerLevel l, int x, int z) { return l.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z); }
+    private static int ground(ServerLevel l, int x, int z) { return com.krolasyon.bosses.rpg.util.Heights.ground(l, x, z); }
 
     private static Site cap(MinecraftServer s, Kingdom k) { return WorldMap.capital(RpgWorldData.get(s), k.ordinal()); }
 

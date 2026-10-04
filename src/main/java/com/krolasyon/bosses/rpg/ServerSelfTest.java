@@ -65,7 +65,7 @@ public final class ServerSelfTest {
                     if (TownManager.jobCount() > 0 && tick - phaseStart < 12000) return;
                     for (Site x : w.sites) if (x.built) {
                         int n = l.getEntitiesOfClass(RpgNpc.class, new AABB(x.x - 110, -64, x.z - 110, x.x + 110, 320, x.z + 110)).size();
-                        LOG.info("[SERVERTEST] built {} '{}' {} y={} ground={} npcs={}", x.id, x.name, x.type, x.y, l.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x.x, x.z), n);
+                        LOG.info("[SERVERTEST] built {} '{}' {} y={} ground={} npcs={}", x.id, x.name, x.type, x.y, com.krolasyon.bosses.rpg.util.Heights.ground(l, x.x, x.z), n);
                     }
                     LOG.info("[SERVERTEST] anchors {}", w.anchors);
                     next();
@@ -73,18 +73,18 @@ public final class ServerSelfTest {
                 case 2 -> {
                     Site c = WorldMap.capital(w, Kingdom.ALDORIA.ordinal());
                     BlockPos base = new BlockPos(c.x + 200, 0, c.z + 200);
-                    int y = l.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, base.getX(), base.getZ());
+                    int y = com.krolasyon.bosses.rpg.util.Heights.ground(l, base.getX(), base.getZ());
                     int i = 0;
                     for (MonsterDef d : RpgDefs.BY_ID.values()) {
                         EntityType<RpgMonster> t = RpgEntities.typeOf(d.id());
                         if (t == null) { errors++; LOG.error("[SERVERTEST] missing type {}", d.id()); continue; }
                         BlockPos p = base.offset((i % 16) * 6, 0, (i / 16) * 6);
-                        t.spawn(l, new BlockPos(p.getX(), l.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, p.getX(), p.getZ()), p.getZ()), MobSpawnType.COMMAND);
+                        t.spawn(l, new BlockPos(p.getX(), com.krolasyon.bosses.rpg.util.Heights.ground(l, p.getX(), p.getZ()), p.getZ()), MobSpawnType.COMMAND);
                         i++;
                     }
                     for (NpcRole r : NpcRole.values()) for (Race race : Race.values()) {
                         BlockPos p = base.offset(-20 - race.ordinal() * 3, 0, r.ordinal() * 3);
-                        NpcFactory.spawn(l, new BlockPos(p.getX(), l.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, p.getX(), p.getZ()), p.getZ()), race, r.ordinal() % 2 == 0, r, race.ordinal(), null, null);
+                        NpcFactory.spawn(l, new BlockPos(p.getX(), com.krolasyon.bosses.rpg.util.Heights.ground(l, p.getX(), p.getZ()), p.getZ()), race, r.ordinal() % 2 == 0, r, race.ordinal(), null, null);
                     }
                     LOG.info("[SERVERTEST] spawned {} monsters and {} npcs near {} {}", i, NpcRole.values().length * Race.values().length, base, y);
                     next();
@@ -94,7 +94,7 @@ public final class ServerSelfTest {
                         // every spell, cast by a mage
                         Site c = WorldMap.capital(w, Kingdom.ALDORIA.ordinal());
                         BlockPos p = new BlockPos(c.x + 200, 0, c.z + 260);
-                        RpgNpc mage = NpcFactory.spawn(l, new BlockPos(p.getX(), l.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, p.getX(), p.getZ()), p.getZ()), Race.ELF, true, NpcRole.MAGE, 1, null, null);
+                        RpgNpc mage = NpcFactory.spawn(l, new BlockPos(p.getX(), com.krolasyon.bosses.rpg.util.Heights.ground(l, p.getX(), p.getZ()), p.getZ()), Race.ELF, true, NpcRole.MAGE, 1, null, null);
                         if (mage != null) for (SpellDef sp : RpgDefs.SPELLS) {
                             try { SpellCaster.cast(mage, sp, 1.0F); } catch (Exception ex) { errors++; LOG.error("[SERVERTEST] spell " + sp.id(), ex); }
                         }

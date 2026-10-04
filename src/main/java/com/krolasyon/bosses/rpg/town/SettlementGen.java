@@ -73,8 +73,8 @@ public final class SettlementGen {
         int rad = Math.min(30, s.type.radius / 2);
         int step = Math.max(4, rad / 4);
         for (int dx = -rad; dx <= rad; dx += step) for (int dz = -rad; dz <= rad; dz += step) {
-            int floor = level.getHeight(Heightmap.Types.OCEAN_FLOOR, s.x + dx, s.z + dz);
-            int top = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, s.x + dx, s.z + dz);
+            int floor = com.krolasyon.bosses.rpg.util.Heights.get(level, Heightmap.Types.OCEAN_FLOOR, s.x + dx, s.z + dz);
+            int top = com.krolasyon.bosses.rpg.util.Heights.get(level, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, s.x + dx, s.z + dz);
             total++;
             if (top > floor + 1) { water++; continue; }
             sum += floor;
@@ -103,11 +103,12 @@ public final class SettlementGen {
     }
 
     private static void column(ServerLevel level, int x, int z, int base, double t, BlockState top) {
-        int ground = level.getHeight(Heightmap.Types.OCEAN_FLOOR, x, z) - 1;
-        int surface = level.getHeight(Heightmap.Types.WORLD_SURFACE, x, z);
+        int ground = com.krolasyon.bosses.rpg.util.Heights.get(level, Heightmap.Types.OCEAN_FLOOR, x, z) - 1;
+        int surface = com.krolasyon.bosses.rpg.util.Heights.get(level, Heightmap.Types.WORLD_SURFACE, x, z);
         int target = (int) Math.round(base * t + ground * (1 - t));
         BlockPos.MutableBlockPos m = new BlockPos.MutableBlockPos();
-        for (int yy = Math.min(ground, target - 6); yy < target; yy++) {
+        if (ground <= level.getMinBuildHeight() + 1) return;
+        for (int yy = Math.max(Math.min(ground, target - 6), target - 14); yy < target; yy++) {
             m.set(x, yy, z);
             BlockState cur = level.getBlockState(m);
             if (yy > ground || cur.isAir() || !cur.getFluidState().isEmpty() || cur.canBeReplaced())
@@ -115,7 +116,7 @@ public final class SettlementGen {
         }
         m.set(x, target, z);
         level.setBlock(m, t >= 1.0 ? top : Blocks.GRASS_BLOCK.defaultBlockState(), 2);
-        for (int yy = target + 1; yy <= Math.max(surface, target + 1) + 1; yy++) {
+        for (int yy = target + 1; yy <= Math.min(Math.max(surface, target + 1) + 1, target + 48); yy++) {
             m.set(x, yy, z);
             if (!level.getBlockState(m).isAir()) level.setBlock(m, Blocks.AIR.defaultBlockState(), 2);
         }
@@ -485,7 +486,7 @@ public final class SettlementGen {
                 }
                 if (res.role == NpcRole.CHILD) n.setAge(RpgNpc.CHILD_TICKS * 4);
                 int x = res.x + r.nextInt(3) - 1, z = res.z + r.nextInt(3) - 1;
-                int y = Math.max(res.y, l.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z));
+                int y = Math.max(res.y, com.krolasyon.bosses.rpg.util.Heights.ground(l, x, z));
                 if (y > res.y + 6) y = res.y;
                 n.moveTo(x + 0.5, y, z + 0.5, r.nextFloat() * 360, 0);
                 n.home = new BlockPos(res.x, res.y, res.z);

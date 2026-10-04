@@ -237,7 +237,7 @@ public final class RpgEvents {
                             ServerPlayer p = c.getSource().getPlayerOrException();
                             Site s = RpgWorldData.get(p.server).site(StringArgumentType.getString(c, "site"));
                             if (s == null) return 0;
-                            int y = p.serverLevel().getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, s.x + 4, s.z + 4);
+                            int y = com.krolasyon.bosses.rpg.util.Heights.ground(p.serverLevel(), s.x + 4, s.z + 4);
                             p.teleportTo(p.serverLevel(), s.x + 4.5, Math.max(y, s.y == Integer.MIN_VALUE ? y : s.y + 1), s.z + 4.5, p.getYRot(), p.getXRot());
                             return 1;
                         })))

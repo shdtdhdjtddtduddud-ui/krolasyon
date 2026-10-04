@@ -89,7 +89,7 @@ public final class WarLogic {
             RpgNpc npc = RpgEntities.NPC.get().create(level);
             if (npc == null) continue;
             int x = (int) (cx + r.nextInt(7) - 3), z = (int) (cz + r.nextInt(7) - 3);
-            int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+            int y = com.krolasyon.bosses.rpg.util.Heights.ground(level, x, z);
             npc.setup(ek.citizens()[r.nextInt(ek.citizens().length)], r.nextInt(4) == 0, i == 0 ? NpcRole.KNIGHT : NpcRole.SOLDIER, enemy, r);
             npc.moveTo(x + 0.5, y, z + 0.5, r.nextFloat() * 360, 0);
             npc.home = new BlockPos(s != null ? s.x : (int) p.getX(), y, s != null ? s.z : (int) p.getZ());

@@ -144,7 +144,7 @@ public final class Story {
     private static BlockPos ground(ServerLevel l, BlockPos near, int spread) {
         for (int i = 0; i < 12; i++) {
             int x = near.getX() + l.random.nextInt(spread * 2 + 1) - spread, z = near.getZ() + l.random.nextInt(spread * 2 + 1) - spread;
-            int y = l.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+            int y = com.krolasyon.bosses.rpg.util.Heights.ground(l, x, z);
             BlockPos p = new BlockPos(x, y, z);
             if (l.getBlockState(p.below()).isSolid() && l.getBlockState(p).isAir() && l.getBlockState(p.above()).isAir()) return p;
         }
@@ -623,7 +623,7 @@ public final class Story {
                 p.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.BLINDNESS, 60, 0, false, false));
                 p.setAirSupply(p.getMaxAirSupply());
                 if (level.getBlockState(p.blockPosition()).isSuffocating(level, p.blockPosition()) || level.getBlockState(p.blockPosition().above()).isSuffocating(level, p.blockPosition().above())) {
-                    int y = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, p.getBlockX(), p.getBlockZ());
+                    int y = com.krolasyon.bosses.rpg.util.Heights.get(level, net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, p.getBlockX(), p.getBlockZ());
                     p.teleportTo(p.getX(), y + 1, p.getZ());
                 }
                 p.displayClientMessage(Component.literal("§7Dünya şekilleniyor... Solmere inşa ediliyor."), true);

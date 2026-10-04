@@ -43,7 +43,8 @@ public final class Fate {
     @Nullable
     private static BlockPos ground(ServerLevel l, double x, double z) {
         int ix = (int) Math.floor(x), iz = (int) Math.floor(z);
-        int y = l.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, ix, iz);
+        int y = com.krolasyon.bosses.rpg.util.Heights.loadedGround(l, ix, iz);
+        if (y == Integer.MIN_VALUE) return null;
         BlockPos p = new BlockPos(ix, y, iz);
         if (!l.getBlockState(p.below()).isSolid() || !l.getFluidState(p.below()).isEmpty()) return null;
         return p;

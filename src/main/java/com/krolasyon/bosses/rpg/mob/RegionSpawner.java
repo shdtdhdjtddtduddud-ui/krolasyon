@@ -75,7 +75,8 @@ public final class RegionSpawner {
                 }
                 if (pos == null) continue;
             } else {
-                int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+                int y = com.krolasyon.bosses.rpg.util.Heights.loadedGround(level, x, z);
+                if (y == Integer.MIN_VALUE) continue;
                 pos = new BlockPos(x, y, z);
                 boolean water = !level.getFluidState(pos.below()).isEmpty();
                 if (water && !d.has(RpgDefs.T_AQUATIC) && !d.flying()) continue;
