@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "krolasyonbosses:item/spell_tome",
+    "layer1": "krolasyonbosses:item/spell_tome_overlay"
+  }
+}

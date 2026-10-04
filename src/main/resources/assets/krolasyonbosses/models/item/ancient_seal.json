@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "krolasyonbosses:item/ancient_seal",
+    "layer1": "krolasyonbosses:item/ancient_seal_overlay"
+  }
+}

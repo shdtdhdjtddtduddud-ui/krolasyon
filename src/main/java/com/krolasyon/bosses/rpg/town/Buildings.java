@@ -4,6 +4,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CropBlock;
 
 /** Parametric buildings drawn on a {@link Canvas}. Local origin = front-left corner at floor level, door on z = 0. */
 public final class Buildings {
