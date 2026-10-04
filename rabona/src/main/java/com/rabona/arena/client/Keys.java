@@ -7,21 +7,28 @@ import org.lwjgl.glfw.GLFW;
 
 public final class Keys {
     public static final String CAT = "key.categories.rabonaarena";
-    public static final KeyMapping SHOOT = k("shoot", GLFW.GLFW_KEY_R);
+    public static final KeyMapping SHOOT1 = k("shoot1", GLFW.GLFW_KEY_R);
+    public static final KeyMapping SHOOT2 = k("shoot2", GLFW.GLFW_KEY_C);
+    public static final KeyMapping SHOOT3 = k("shoot3", GLFW.GLFW_KEY_X);
     public static final KeyMapping PASS = k("pass", GLFW.GLFW_KEY_V);
     public static final KeyMapping LOB = k("lob", GLFW.GLFW_KEY_B);
     public static final KeyMapping TACKLE = k("tackle", GLFW.GLFW_KEY_Z);
     public static final KeyMapping SKILL1 = k("skill1", GLFW.GLFW_KEY_G);
     public static final KeyMapping SKILL2 = k("skill2", GLFW.GLFW_KEY_H);
     public static final KeyMapping SKILL3 = k("skill3", GLFW.GLFW_KEY_J);
-    public static final KeyMapping SKILL4 = k("skill4", GLFW.GLFW_KEY_N);
+    public static final KeyMapping CALL = k("call", GLFW.GLFW_KEY_N);
     public static final KeyMapping ABILITY = k("ability", GLFW.GLFW_KEY_U);
-    public static final KeyMapping STYLE = k("style", GLFW.GLFW_KEY_Y);
     public static final KeyMapping CELEBRATE = k("celebrate", GLFW.GLFW_KEY_I);
+    public static final KeyMapping CAMERA = k("camera", GLFW.GLFW_KEY_O);
+    public static final KeyMapping REPLAY = k("replay", GLFW.GLFW_KEY_L);
+    public static final KeyMapping CARDS = k("cards", GLFW.GLFW_KEY_Y);
     public static final KeyMapping MOVES = k("moves", GLFW.GLFW_KEY_K);
     public static final KeyMapping MATCH = k("match", GLFW.GLFW_KEY_M);
-    public static final KeyMapping[] SKILLS = {SKILL1, SKILL2, SKILL3, SKILL4};
-    public static final KeyMapping[] ALL = {SHOOT, PASS, LOB, TACKLE, SKILL1, SKILL2, SKILL3, SKILL4, ABILITY, STYLE, CELEBRATE, MOVES, MATCH};
+    public static final KeyMapping SHOOT = SHOOT1;
+    public static final KeyMapping[] SHOTS = {SHOOT1, SHOOT2, SHOOT3};
+    public static final KeyMapping[] SKILLS = {SKILL1, SKILL2, SKILL3};
+    public static final KeyMapping[] ALL = {SHOOT1, SHOOT2, SHOOT3, PASS, LOB, TACKLE, SKILL1, SKILL2, SKILL3, CALL, ABILITY,
+            CELEBRATE, CAMERA, REPLAY, CARDS, MOVES, MATCH};
 
     private Keys() {}
 

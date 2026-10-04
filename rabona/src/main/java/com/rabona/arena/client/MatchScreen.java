@@ -1,6 +1,7 @@
 package com.rabona.arena.client;
 
 import com.rabona.arena.entity.FootballerEntity;
+import com.rabona.arena.game.Pos;
 import com.rabona.arena.game.Team;
 import com.rabona.arena.net.C2S;
 import com.rabona.arena.net.Net;
@@ -16,7 +17,13 @@ import java.util.List;
 
 /** Mac menusu: takim secimi, botlar, ayarlar ve stadyum. */
 public class MatchScreen extends Screen {
-    private Button diffBtn;
+    private Button diffBtn, posBtn, replayBtn;
+
+    private Pos myPos() {
+        if (m() != null && minecraft.player != null)
+            for (S2C.RosterEntry e : m().roster()) if (e.id().equals(minecraft.player.getUUID())) return Pos.byId(e.pos());
+        return Pos.ST;
+    }
 
     public MatchScreen() { super(Component.translatable("screen.rabonaarena.match")); }
 
@@ -33,7 +40,16 @@ public class MatchScreen extends Screen {
         addRenderableWidget(Button.builder(Component.translatable("screen.rabonaarena.join_blue"), b -> send(C2S.Menu.JOIN, Team.BLUE.ordinal()))
                 .bounds(lx + 138, y, 130, 20).build());
         addRenderableWidget(Button.builder(Component.translatable("screen.rabonaarena.spectate"), b -> send(C2S.Menu.JOIN, Team.NONE.ordinal()))
-                .bounds(lx, y + 24, 268, 18).build());
+                .bounds(lx, y + 24, 130, 18).build());
+        posBtn = addRenderableWidget(Button.builder(Component.empty(), b -> {
+            Pos[] all = Pos.values();
+            Pos next = all[(myPos().ordinal() + (hasShiftDown() ? all.length - 1 : 1)) % all.length];
+            send(C2S.Menu.POS, next.ordinal());
+        }).bounds(lx + 138, y + 24, 130, 18).build());
+        replayBtn = addRenderableWidget(Button.builder(Component.empty(), b -> {
+            ClientState.autoReplay = !ClientState.autoReplay;
+            ClientState.save();
+        }).bounds(lx + 138, height - 30, 130, 20).build());
 
         int rx = cx + 70, ry = 40;
         addRenderableWidget(Button.builder(Component.literal("-"), b -> send(C2S.Menu.DURATION, val(S2C.MatchState::duration, 6) - 1)).bounds(rx, ry, 20, 18).build());
@@ -73,6 +89,8 @@ public class MatchScreen extends Screen {
     @Override
     public void tick() {
         int d = val(S2C.MatchState::difficulty, 1);
+        posBtn.setMessage(Component.translatable("screen.rabonaarena.my_pos", myPos().title()));
+        replayBtn.setMessage(Component.translatable(ClientState.autoReplay ? "screen.rabonaarena.auto_replay_on" : "screen.rabonaarena.auto_replay_off"));
         diffBtn.setMessage(Component.translatable("screen.rabonaarena.difficulty", Component.translatable("difficulty.rabonaarena." + d)));
     }
 
@@ -100,7 +118,7 @@ public class MatchScreen extends Screen {
         g.drawString(font, Component.translatable("screen.rabonaarena.controls"), lx, hy, 0xFFFFD54F, true);
         g.drawString(font, Component.translatable("screen.rabonaarena.controls1", Keys.SHOOT.getTranslatedKeyMessage(), Keys.PASS.getTranslatedKeyMessage(), Keys.LOB.getTranslatedKeyMessage()), lx, hy + 12, 0xFFE0E0E0, false);
         g.drawString(font, Component.translatable("screen.rabonaarena.controls2", Keys.TACKLE.getTranslatedKeyMessage(), Keys.SKILL1.getTranslatedKeyMessage(), Keys.ABILITY.getTranslatedKeyMessage()), lx, hy + 23, 0xFFE0E0E0, false);
-        g.drawString(font, Component.translatable("screen.rabonaarena.controls3", Keys.STYLE.getTranslatedKeyMessage(), Keys.CELEBRATE.getTranslatedKeyMessage(), Keys.MOVES.getTranslatedKeyMessage()), lx, hy + 34, 0xFFE0E0E0, false);
+        g.drawString(font, Component.translatable("screen.rabonaarena.controls3", Keys.CALL.getTranslatedKeyMessage(), Keys.CAMERA.getTranslatedKeyMessage(), Keys.REPLAY.getTranslatedKeyMessage(), Keys.CARDS.getTranslatedKeyMessage()), lx, hy + 34, 0xFFE0E0E0, false);
         super.render(g, mx, my, partial);
     }
 
@@ -109,13 +127,13 @@ public class MatchScreen extends Screen {
         g.fill(x, y, x + 130, y + 14, col & 0xC0FFFFFF);
         g.drawString(font, t.displayName(), x + 4, y + 3, 0xFFFFFFFF, true);
         List<String> names = new ArrayList<>();
-        if (m() != null) for (S2C.RosterEntry e : m().roster()) if (e.team() == t.ordinal()) names.add(e.number() + "  " + e.name());
+        if (m() != null) for (S2C.RosterEntry e : m().roster()) if (e.team() == t.ordinal()) names.add(e.number() + "  " + e.name() + " §e" + Pos.byId(e.pos()).shortName().getString());
         int bots = 0;
         if (minecraft.level != null) {
             for (Entity e : minecraft.level.entitiesForRendering()) {
                 if (e instanceof FootballerEntity f && f.getSquad() == t) {
                     bots++;
-                    if (names.size() < 11) names.add(f.getNumber() + "  " + f.getBaseName() + " §8(" + Component.translatable("role.rabonaarena." + f.roleKey()).getString() + ")");
+                    if (names.size() < 11) names.add(f.getNumber() + "  " + f.getBaseName() + " §8" + f.getFieldPos().shortName().getString());
                 }
             }
         }

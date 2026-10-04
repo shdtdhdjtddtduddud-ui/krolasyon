@@ -36,7 +36,9 @@ public final class AutoTest {
     private static final boolean ON = Boolean.getBoolean("rabona.autotest");
     private static AutoTest INSTANCE;
 
-    record Step(int delay, String shot, boolean hud, Consumer<MinecraftServer> action) {}
+    record Step(int delay, String shot, boolean hud, Consumer<MinecraftServer> action, Runnable clientAction) {
+        Step(int delay, String shot, boolean hud, Consumer<MinecraftServer> action) { this(delay, shot, hud, action, null); }
+    }
 
     private final List<Step> steps = new ArrayList<>();
     private int tick, stepIndex, stepStart, inWorld = -1;
@@ -60,38 +62,67 @@ public final class AutoTest {
         server(20, "stadium_overview", false, s -> tp(s, new Vec3(-30, -38, -40), new Vec3(0, -60, 0), 0));
         server(20, "stadium_goal", false, s -> tp(s, new Vec3(26, -55, -8), new Vec3(36, -59, 0), 0));
         server(20, "stands_corner", false, s -> tp(s, new Vec3(-20, -50, 8), new Vec3(-48, -54, 30), 0));
-        // botlu mac
+        // botlu mac (mevkiler, paslasma)
         server(10, null, false, s -> {
             Match m = Match.get(s);
-            m.teamSize = 4;
-            m.durationMin = 4;
+            m.teamSize = 6;
+            m.durationMin = 5;
             m.fillBots();
             m.start();
         });
         server(60, "kickoff", false, s -> tp(s, new Vec3(0, -52, -24), new Vec3(0, -60, 0), 0));
         wait(80, "play_1", false);
-        server(60, "play_2", false, s -> follow(s));
-        server(60, "play_3", false, s -> follow(s));
-        server(60, "play_4", false, s -> follow(s));
-        server(60, "play_5", false, s -> follow(s));
-        server(60, "play_6", false, s -> follow(s));
-        server(60, "play_7", false, s -> follow(s));
-        server(40, "play_8_hud", true, s -> follow(s));
-        server(60, "play_9", false, s -> follow(s));
-        server(5, null, false, s -> {
-            ServerPlayer p = player(s);
-            Match.get(s).join(p, Team.RED);
-        });
+        for (int k = 2; k <= 7; k++) server(60, "play_" + k, k == 5, s -> follow(s));
+        server(5, null, false, s -> Match.get(s).join(player(s), Team.RED));
         wait(40, "player_in_team_hud", true);
+        client(30, "cam_tv", true, () -> ClientState.cameraMode = 1);
+        client(30, "cam_behind", true, () -> ClientState.cameraMode = 2);
+        client(30, "cam_top", true, () -> ClientState.cameraMode = 3);
+        client(5, null, false, () -> ClientState.cameraMode = 0);
+        server(5, null, false, s -> Match.get(s).join(player(s), Team.NONE));
+        // taraftarlar
+        server(30, "crowd", false, s -> tp(s, new Vec3(-10, -56, -18), new Vec3(-4, -56, -32), 0));
+        // zorla gol -> tekrar
         server(5, null, false, s -> {
             Match m = Match.get(s);
-            m.join(player(s), Team.NONE);
+            BallEntity b = m.ball();
+            if (b == null || m.pitch == null) return;
+            b.setController(null, false);
+            Vec3 p = m.pitch.world(m.attackSign(Team.RED) * 28, 1, m.pitch.surfaceY() + 0.4);
+            b.setPos(p.x, p.y, p.z);
+            b.setDeltaMovement(m.pitch.axisA().scale(m.attackSign(Team.RED) * 1.3).add(0, 0.12, 0));
+            tp(s, m.pitch.world(m.attackSign(Team.RED) * 20, -12, m.pitch.surfaceY() + 6), p, 0);
+        });
+        wait(40, "goal_banner", true);
+        wait(40, "replay_1", true);
+        wait(45, "replay_2", true);
+        wait(40, "replay_3", true);
+        wait(60, null, false);
+        // kartlar
+        server(5, null, false, s -> {
+            Cards.reward(player(s), 5000, "win");
+            Cards.openPack(player(s), Cards.Pack.LEGEND);
+        });
+        client(130, "cards_reveal", true, () -> Minecraft.getInstance().setScreen(new CardScreen()));
+        client(20, "cards_shop", true, () -> ClientState.packReveal = java.util.List.of());
+        server(10, null, false, s -> Cards.openPack(player(s), Cards.Pack.GOLD));
+        client(20, "cards_collection", true, () -> {
+            ClientState.packReveal = java.util.List.of();
+            CardScreen.tab = 1;
+        });
+        client(20, "match_menu", true, () -> Minecraft.getInstance().setScreen(new MatchScreen()));
+        client(20, "moves_menu", true, () -> Minecraft.getInstance().setScreen(new MoveScreen()));
+        client(5, null, false, () -> Minecraft.getInstance().setScreen(null));
+        server(5, null, false, s -> {
+            Match m = Match.get(s);
             m.stop();
             m.clearBots();
             s.getCommands().performPrefixedCommand(s.createCommandSourceStack().withSuppressedOutput(), "kill @e[type=rabonaarena:ball]");
         });
         // hareket vitrini
         server(10, null, false, s -> spawnShowBot(s));
+        show(Move.BODY_FEINT, 4, true);
+        show(Move.CELEB_SHIRT_OFF, 30, false);
         show(Move.SHOT_POWER, 8, true);
         show(Move.SHOT_RABONA, 10, true);
         show(Move.RAINBOW, 6, true);
@@ -192,6 +223,10 @@ public final class AutoTest {
         }));
     }
 
+    private void client(int wait, String shot, boolean hud, Runnable r) {
+        steps.add(new Step(wait, shot, hud, null, r));
+    }
+
     private void wait(int ticks, String shot, boolean hud) { steps.add(new Step(ticks, shot, hud, null)); }
 
     private void server(int wait, String shot, boolean hud, Consumer<MinecraftServer> action) { steps.add(new Step(wait, shot, hud, action)); }
@@ -219,7 +254,7 @@ public final class AutoTest {
         ServerLevel l = s.overworld();
         for (FootballerEntity f : l.getEntitiesOfClass(FootballerEntity.class, new AABB(c, c).inflate(60))) {
             Athlete a = Athlete.of(f);
-            LOG.info("[RTEST] bot {} team={} slot={} pos={} move={} stamina={}", f.getBaseName(), f.getSquad(), f.getSlot(),
+            LOG.info("[RTEST] bot {} team={} slot={} pos={} move={} stamina={}", f.getBaseName(), f.getSquad(), f.getFieldPos(),
                     f.position(), a.current, (int) a.stamina);
         }
         LOG.info("[RTEST] ball pos={} ctrl={} phase={} score={}-{}", b.position(), b.getControllerId(), m.phase, m.scoreRed, m.scoreBlue);
@@ -233,7 +268,7 @@ public final class AutoTest {
     private static void spawnShowBot(MinecraftServer s) {
         FootballerEntity f = new FootballerEntity(ModEntities.FOOTBALLER.get(), s.overworld());
         f.setup(Team.BLUE, 10, 2, "Vitrin", 90);
-        f.setSlot(3);
+        f.setFieldPos(Pos.CM);
         f.moveTo(SHOW.x, SHOW.y, SHOW.z, 0, 0);
         s.overworld().addFreshEntity(f);
     }
@@ -263,7 +298,7 @@ public final class AutoTest {
             return;
         }
         if (mc.level == null || mc.player == null || mc.getSingleplayerServer() == null) return;
-        if (mc.screen != null) mc.setScreen(null);
+        if (mc.screen != null && !(mc.screen instanceof CardScreen || mc.screen instanceof MatchScreen || mc.screen instanceof MoveScreen)) mc.setScreen(null);
         if (inWorld < 0) {
             inWorld = tick;
             stepStart = tick + 100;
@@ -272,6 +307,7 @@ public final class AutoTest {
         if (tick < stepStart || stepIndex >= steps.size()) return;
         Step st = steps.get(stepIndex);
         mc.options.hideGui = !st.hud();
+        if (tick == stepStart && st.clientAction() != null) st.clientAction().run();
         if (tick == stepStart && st.action() != null) {
             MinecraftServer s = mc.getSingleplayerServer();
             s.execute(() -> {

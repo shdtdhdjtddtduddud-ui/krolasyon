@@ -44,16 +44,21 @@ public class MoveScreen extends Screen {
         int px = width - 210, py = height - 74;
         if (selected == null) return;
         if (selected.cat == Move.Cat.SHOT) {
-            act(Component.translatable("screen.rabonaarena.set_shot"), px, py, 200, () -> ClientState.shotStyle = selected);
+            for (int i = 0; i < 3; i++) {
+                final int slot = i;
+                act(Component.translatable("screen.rabonaarena.assign", Keys.SHOTS[i].getTranslatedKeyMessage()), px + i * 67, py + 22, 65,
+                        () -> ClientState.shotSlots[slot] = selected);
+            }
         } else if (selected.cat == Move.Cat.ABILITY) {
-            act(Component.translatable("screen.rabonaarena.set_ability"), px, py, 200, () -> ClientState.ability = selected);
+            act(Component.translatable("screen.rabonaarena.set_ability"), px, py + 22, 200, () -> ClientState.ability = selected);
         } else if (selected.cat == Move.Cat.CELEBRATION) {
-            act(Component.translatable("screen.rabonaarena.set_celebration"), px, py, 200, () -> ClientState.celebration = selected);
-        }
-        for (int i = 0; i < 4; i++) {
-            final int slot = i;
-            act(Component.translatable("screen.rabonaarena.assign", Keys.SKILLS[i].getTranslatedKeyMessage()), px + i * 50, py + 22, 48,
-                    () -> ClientState.slots[slot] = selected);
+            act(Component.translatable("screen.rabonaarena.set_celebration"), px, py + 22, 200, () -> ClientState.celebration = selected);
+        } else {
+            for (int i = 0; i < 3; i++) {
+                final int slot = i;
+                act(Component.translatable("screen.rabonaarena.assign", Keys.SKILLS[i].getTranslatedKeyMessage()), px + i * 67, py + 22, 65,
+                        () -> ClientState.slots[slot] = selected);
+            }
         }
         actions.add(addRenderableWidget(Button.builder(Component.translatable("screen.rabonaarena.try"), b -> {
             Move m = selected;
@@ -144,8 +149,8 @@ public class MoveScreen extends Screen {
 
     private static String slotTag(Move m) {
         StringBuilder s = new StringBuilder();
-        for (int i = 0; i < 4; i++) if (ClientState.slots[i] == m) s.append('[').append(Keys.SKILLS[i].getTranslatedKeyMessage().getString()).append(']');
-        if (ClientState.shotStyle == m) s.append("[").append(Keys.SHOOT.getTranslatedKeyMessage().getString()).append("]");
+        for (int i = 0; i < 3; i++) if (ClientState.slots[i] == m) s.append('[').append(Keys.SKILLS[i].getTranslatedKeyMessage().getString()).append(']');
+        for (int i = 0; i < 3; i++) if (ClientState.shotSlots[i] == m) s.append('[').append(Keys.SHOTS[i].getTranslatedKeyMessage().getString()).append(']');
         if (ClientState.ability == m) s.append("[").append(Keys.ABILITY.getTranslatedKeyMessage().getString()).append("]");
         if (ClientState.celebration == m) s.append("[").append(Keys.CELEBRATE.getTranslatedKeyMessage().getString()).append("]");
         return s.toString();

@@ -33,6 +33,19 @@ jobs:
           set +e
           gradle build --no-daemon --stacktrace 2>&1 | tee build.log
           echo "status=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+      - name: Dedicated server smoke test
+        if: steps.b.outputs.status == '0'
+        continue-on-error: true
+        shell: bash
+        run: |
+          mkdir -p run-server
+          echo "eula=true" > run-server/eula.txt
+          printf "online-mode=false\nlevel-type=minecraft\\:flat\nspawn-protection=0\n" > run-server/server.properties
+          set +e
+          (sleep 200; echo "rabona stadyum"; sleep 5; echo "rabona bot doldur 5"; sleep 5; echo "rabona basla 2"; sleep 60; echo stop) | timeout 420 gradle runServer --no-daemon > server.log 2>&1
+          echo "server exit $?"
+          grep -E "Done \(|Exception|ERROR|Rabona|rabona|Stopping" server.log | head -80 > server_summary.log
+          cat server_summary.log
       - name: Visual self-test (headless client)
         if: steps.b.outputs.status == '0' && contains(github.event.head_commit.message, '[vtest]')
         continue-on-error: true
@@ -63,6 +76,7 @@ jobs:
           FILES="build.log"
           for f in build/libs/*.jar; do [ -f "$f" ] && FILES="$FILES $f"; done
           [ -f vtest.zip ] && FILES="$FILES vtest.zip"
+          [ -f server_summary.log ] && FILES="$FILES server_summary.log"
           [ -f build/cp/classpath.zip ] && FILES="$FILES build/cp/classpath.zip"
           gh release create "$TAG" $FILES --title "Rabona Arena ${{ github.run_number }} (status ${{ steps.b.outputs.status }})" --notes "commit ${{ github.sha }}" --prerelease --target "${{ github.sha }}"
       - name: Fail on build error

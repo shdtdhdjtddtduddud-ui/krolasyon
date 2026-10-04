@@ -47,9 +47,10 @@ public enum Move {
     AROUND_WORLD(Cat.SKILL, Req.BALL, 34, 4, 8, 60),
     SPEED_BURST(Cat.SKILL, Req.BALL, 9, 3, 14, 40),
     FAKE_SHOT(Cat.SKILL, Req.BALL, 12, 7, 6, 20),
+    BODY_FEINT(Cat.SKILL, Req.BALL, 12, 5, 5, 22),
     // ---- SAVUNMA
     TACKLE(Cat.DEFENSE, Req.NONE, 10, 4, 6, 14),
-    SLIDE(Cat.DEFENSE, Req.NONE, 20, 2, 14, 40),
+    SLIDE(Cat.DEFENSE, Req.NONE, 20, 2, 20, 120),
     SHOULDER(Cat.DEFENSE, Req.NONE, 9, 4, 6, 20),
     BLOCK(Cat.DEFENSE, Req.NONE, 16, 1, 6, 24),
     PRESS(Cat.DEFENSE, Req.NONE, 12, 1, 10, 50),
@@ -65,6 +66,7 @@ public enum Move {
     CELEB_PLANE(Cat.CELEBRATION, Req.NONE, 50, 0, 0, 50),
     CELEB_DANCE(Cat.CELEBRATION, Req.NONE, 48, 0, 0, 50),
     CELEB_SHUSH(Cat.CELEBRATION, Req.NONE, 36, 0, 0, 40),
+    CELEB_SHIRT_OFF(Cat.CELEBRATION, Req.NONE, 60, 0, 0, 60),
     // ---- OZEL YETENEKLER (enerji harcar)
     AB_FIRE(Cat.ABILITY, Req.BALL, 22, 13, 0, 60),
     AB_THUNDER(Cat.ABILITY, Req.NONE, 16, 6, 0, 60),
@@ -74,6 +76,7 @@ public enum Move {
     AB_ICE(Cat.ABILITY, Req.NONE, 18, 8, 0, 60),
     // ---- tepkiler (oyuncu secemez)
     STUMBLE(Cat.REACTION, Req.NONE, 16, 0, 0, 0),
+    CALL_PASS(Cat.REACTION, Req.NONE, 14, 0, 0, 0),
     FALL(Cat.REACTION, Req.NONE, 30, 0, 0, 0),
     CATCH(Cat.REACTION, Req.NONE, 10, 0, 0, 0);
 

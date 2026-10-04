@@ -40,10 +40,10 @@ public final class ClientAnims {
     public static void clear() { ACTIVE.clear(); }
 
     /** Model kemiklerine animasyon uygula (setupAnim sonrasinda). */
-    public static void apply(HumanoidModel<?> m, LivingEntity e, float age) {
+    public static void apply(HumanoidModel<?> m, LivingEntity e, float age, float swing, float amount) {
         Active act = get(e, age);
         if (act == null) {
-            ambient(m, e, age);
+            ambient(m, e, age, swing, amount);
             return;
         }
         Anim a = act.anim();
@@ -73,18 +73,73 @@ public final class ClientAnims {
         p.zRot = Mth.lerp(w, p.zRot, z);
     }
 
-    /** Topla kosarken denge icin acik kollar, depar egilmesi. */
-    private static void ambient(HumanoidModel<?> m, LivingEntity e, float age) {
-        if (e.isSprinting() && !e.isPassenger() && !e.isFallFlying() && !e.isSwimming()) {
-            m.body.xRot += 0.12f;
-            m.head.xRot -= 0.1f;
-            m.rightArm.xRot *= 1.25f;
-            m.leftArm.xRot *= 1.25f;
-            m.rightArm.zRot += 0.08f;
-            m.leftArm.zRot -= 0.08f;
-            sync(m);
+    /** Topu kontrol eden varliklar (her istemci tick'inde guncellenir). */
+    public static final java.util.Set<Integer> CONTROLLERS = new java.util.HashSet<>();
+
+    /**
+     * Prosedurel atletik animasyon: kosuda govde donmesi ve one egilme, depar kol savurmasi,
+     * top surerken asagi bakan bas ve dengede acik kollar, macta bekleme durusu, nefes.
+     */
+    private static void ambient(HumanoidModel<?> m, LivingEntity e, float age, float swing, float amount) {
+        if (e.isPassenger() || e.isFallFlying() || e.isSwimming() || e.isSleeping()) return;
+        boolean ball = CONTROLLERS.contains(e.getId());
+        boolean athlete = e instanceof com.rabona.arena.entity.FootballerEntity || ClientState.teamOf(e).playing() || ball;
+        if (!athlete) return;
+        float sp = Mth.clamp(amount, 0, 1);
+        float ph = swing * 0.6662f;
+        boolean sprint = e.isSprinting();
+        if (sp > 0.08f) {
+            float lean = (sprint ? 0.24f : 0.1f) * sp;
+            m.body.xRot += lean;
+            m.body.yRot += Mth.sin(ph) * 0.2f * sp;
+            m.head.xRot -= lean * 0.7f;
+            m.head.yRot -= Mth.sin(ph) * 0.12f * sp;
+            float armAmp = sprint ? 1.35f : 1.1f;
+            m.rightArm.xRot = m.rightArm.xRot * armAmp - lean * 0.6f;
+            m.leftArm.xRot = m.leftArm.xRot * armAmp - lean * 0.6f;
+            m.rightArm.zRot += 0.12f * sp;
+            m.leftArm.zRot -= 0.12f * sp;
+            float legAmp = sprint ? 1.12f : 1f;
+            m.rightLeg.xRot *= legAmp;
+            m.leftLeg.xRot *= legAmp;
+            m.rightLeg.xRot -= lean * 0.5f;
+            m.leftLeg.xRot -= lean * 0.5f;
+        } else {
+            // hazir durus: ayaklar acik, govde hafif onde, kollar dengede, nefes
+            float breathe = Mth.sin(age * 0.09f) * 0.025f;
+            m.body.xRot += 0.1f + breathe;
+            m.head.xRot -= 0.06f;
+            m.rightLeg.zRot += 0.07f;
+            m.leftLeg.zRot -= 0.07f;
+            m.rightLeg.xRot -= 0.06f;
+            m.leftLeg.xRot -= 0.06f;
+            m.rightArm.zRot += 0.16f + breathe;
+            m.leftArm.zRot -= 0.16f + breathe;
+            m.rightArm.xRot -= 0.12f;
+            m.leftArm.xRot -= 0.12f;
+            m.head.yRot += Mth.sin(age * 0.03f) * 0.15f;
         }
+        if (ball) {
+            m.head.xRot += 0.38f;
+            m.rightArm.zRot += 0.3f;
+            m.leftArm.zRot -= 0.3f;
+            m.body.xRot += 0.06f;
+            m.rightLeg.xRot *= 0.85f;
+            m.leftLeg.xRot *= 0.85f;
+        }
+        sync(m);
     }
+
+    /** Tekrar icin: verilen baslangicla animasyon. */
+    public static void playAt(LivingEntity e, Move m, float start, boolean mirror) {
+        Anim a = AnimLibrary.get(m);
+        if (a == null) return;
+        Active cur = ACTIVE.get(e.getId());
+        if (cur != null && cur.move() == m && Math.abs(cur.start() - start) < 0.01f) return;
+        ACTIVE.put(e.getId(), new Active(m, a, start, mirror));
+    }
+
+    public static void clearFor(LivingEntity e) { ACTIVE.remove(e.getId()); }
 
     public static void sync(HumanoidModel<?> m) {
         m.hat.copyFrom(m.head);
@@ -100,7 +155,15 @@ public final class ClientAnims {
     /** Kok donusu/konumu: {rx, ry, rz, px, py, pz} ya da null. */
     public static float[] root(LivingEntity e, float age) {
         Active act = get(e, age);
-        if (act == null) return null;
+        if (act == null) {
+            // kosu zipla-yuru salinimi
+            float partial = age - e.tickCount;
+            float sp = e.walkAnimation.speed(partial);
+            if (sp < 0.15f || !(e instanceof com.rabona.arena.entity.FootballerEntity || ClientState.teamOf(e).playing())) return null;
+            float ph = e.walkAnimation.position(partial) * 0.6662f;
+            float bob = Math.abs(Mth.sin(ph)) * 0.07f * Math.min(1, sp);
+            return new float[]{0, 0, Mth.sin(ph) * 1.5f * sp, 0, bob, 0, 0.9f};
+        }
         Anim a = act.anim();
         if (!a.has(Anim.ROOT) && !a.has(Anim.POS)) return null;
         float t = Math.max(0, age - act.start());

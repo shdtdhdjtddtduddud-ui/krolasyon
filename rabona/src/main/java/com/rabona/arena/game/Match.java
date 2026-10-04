@@ -40,6 +40,7 @@ public class Match {
 
     public final Map<UUID, Team> roster = new LinkedHashMap<>();
     public final Map<UUID, Integer> numbers = new HashMap<>();
+    public final Map<UUID, Pos> playerPos = new HashMap<>();
     public Pitch pitch;
     public Phase phase = Phase.IDLE;
     public int scoreRed, scoreBlue, timeLeft, totalTime, half = 1, phaseTimer;
@@ -177,17 +178,14 @@ public class Match {
     // ================================================================ botlar
     public FootballerEntity spawnBot(ServerLevel sl, Team t, Vec3 at) {
         FootballerEntity f = new FootballerEntity(ModEntities.FOOTBALLER.get(), sl);
-        RandomSource rnd = new RandomSource(sl.getRandom().nextLong());
-        f.setup(t, freeNumber(t), rnd.skin(), BotNames.random(sl.getRandom()), 62 + difficulty * 10 + sl.getRandom().nextInt(12));
+        int ovr = 58 + difficulty * 9 + sl.getRandom().nextInt(10);
+        f.setup(t, freeNumber(t), sl.getRandom().nextInt(FootballerEntity.SKINS), BotNames.random(sl.getRandom()), ovr);
         f.moveTo(at.x, at.y, at.z, sl.getRandom().nextFloat() * 360, 0);
         sl.addFreshEntity(f);
         assignRoles();
+        Cards.applySquad(this, t);
         sync();
         return f;
-    }
-
-    private record RandomSource(long seed) {
-        int skin() { return (int) Math.floorMod(seed, FootballerEntity.SKINS); }
     }
 
     public void fillBots() {
@@ -196,10 +194,16 @@ public class Match {
             int have = members(t).size();
             for (int i = have; i < teamSize; i++) {
                 Vec3 p = pitch.world(-attackSign(t) * (6 + i * 3), (i % 2 == 0 ? 1 : -1) * (2 + i), pitch.surfaceY());
-                spawnBot(level(), t, p);
+                FootballerEntity f = new FootballerEntity(ModEntities.FOOTBALLER.get(), level());
+                int ovr = 58 + difficulty * 9 + level().getRandom().nextInt(10);
+                f.setup(t, freeNumber(t), level().getRandom().nextInt(FootballerEntity.SKINS), BotNames.random(level().getRandom()), ovr);
+                f.moveTo(p.x, p.y, p.z, 0, 0);
+                level().addFreshEntity(f);
             }
         }
         assignRoles();
+        for (Team t : new Team[]{Team.RED, Team.BLUE}) Cards.applySquad(this, t);
+        sync();
         broadcast(Component.translatable("msg.rabonaarena.bots_filled", teamSize).withStyle(ChatFormatting.GREEN));
     }
 
@@ -211,44 +215,123 @@ public class Match {
         sync();
     }
 
-    public void assignRoles() {
-        for (Team t : new Team[]{Team.RED, Team.BLUE}) {
-            List<FootballerEntity> list = new ArrayList<>();
-            for (FootballerEntity f : bots()) if (f.getSquad() == t) list.add(f);
-            list.sort(Comparator.comparingInt(FootballerEntity::getNumber));
-            // kaleci: 1 numara tercih
-            list.sort(Comparator.comparingInt(f -> f.getNumber() == 1 ? 0 : 1));
-            for (int i = 0; i < list.size(); i++) list.get(i).setSlot(i);
-            if (!list.isEmpty() && list.get(0).getNumber() != 1) {
-                boolean taken = false;
-                for (FootballerEntity f : list) if (f.getNumber() == 1) taken = true;
-                if (!taken) list.get(0).setNumber(1);
-            }
+    // ================================================================ pas isteme
+    private final Map<UUID, Long> passRequests = new HashMap<>();
+
+    public void requestPass(ServerPlayer p) {
+        Team t = teamOf(p);
+        passRequests.put(p.getUUID(), level().getGameTime() + 50);
+        level().sendParticles(net.minecraft.core.particles.ParticleTypes.HAPPY_VILLAGER, p.getX(), p.getY() + 2.3, p.getZ(), 6, 0.2, 0.15, 0.2, 0);
+        level().playSound(null, p.getX(), p.getY(), p.getZ(), net.minecraft.sounds.SoundEvents.NOTE_BLOCK_PLING.get(), net.minecraft.sounds.SoundSource.PLAYERS, 0.8f, 1.6f);
+        Net.toTrackingAndSelf(p, new S2C.Anim(p.getId(), Move.CALL_PASS.ordinal(), 0));
+        BallEntity b = ball();
+        LivingEntity c = b == null ? null : b.getController();
+        if (c instanceof ServerPlayer cp && cp != p && teamOf(cp) == t) {
+            cp.displayClientMessage(Component.translatable("msg.rabonaarena.pass_request", p.getDisplayName()).withStyle(ChatFormatting.GREEN), true);
         }
     }
 
-    /** dizilis: slot -> (a, b) normalize; a: -1 kendi kale .. +1 rakip kale. */
-    public static final double[][] FORMATION = {
-            {-0.95, 0}, {-0.58, 0}, {0.38, 0}, {-0.05, -0.55}, {-0.05, 0.55}, {-0.52, -0.62},
-            {-0.52, 0.62}, {-0.18, 0}, {0.32, -0.6}, {0.32, 0.6}, {-0.66, 0.28}};
+    public ServerPlayer passRequester(Team t) {
+        long now = level().getGameTime();
+        passRequests.values().removeIf(v -> v < now);
+        for (UUID u : passRequests.keySet()) {
+            ServerPlayer p = SERVER.getPlayerList().getPlayer(u);
+            if (p != null && teamOf(p) == t) return p;
+        }
+        return null;
+    }
 
-    public Vec3 formationSpot(Team t, int slot, Vec3 ballPos, boolean kickoff) {
-        double[] f = FORMATION[Math.min(slot, FORMATION.length - 1)];
+    public void clearPassRequest(ServerPlayer p) { passRequests.remove(p.getUUID()); }
+
+    public Pos posOf(LivingEntity e) {
+        if (e instanceof FootballerEntity f) return f.getFieldPos();
+        Pos p = playerPos.get(e.getUUID());
+        return p == null ? Pos.ST : p;
+    }
+
+    public void setPlayerPos(ServerPlayer p, Pos pos) {
+        playerPos.put(p.getUUID(), pos);
+        assignRoles();
+        Cards.applySquad(this, teamOf(p));
+        broadcast(Component.translatable("msg.rabonaarena.pos_set", p.getDisplayName(), pos.title()));
+        sync();
+    }
+
+    /** Insanlar sectikleri mevkiyi alir, botlar dizilisteki kalan mevkileri doldurur. */
+    public void assignRoles() {
+        for (Team t : new Team[]{Team.RED, Team.BLUE}) {
+            List<ServerPlayer> humans = playersOf(t);
+            List<FootballerEntity> list = new ArrayList<>();
+            for (FootballerEntity f : bots()) if (f.getSquad() == t) list.add(f);
+            int n = humans.size() + list.size();
+            if (n == 0) continue;
+            List<Pos> free = new ArrayList<>(List.of(Pos.formation(n)));
+            for (ServerPlayer h : humans) {
+                Pos want = posOf(h);
+                Pos best = null;
+                double bd = 9;
+                for (Pos fp : free) {
+                    double d = fp.dist(want) + (fp == want ? -1 : 0);
+                    if (d < bd) { bd = d; best = fp; }
+                }
+                if (best != null) free.remove(best);
+            }
+            list.sort(Comparator.comparingInt(FootballerEntity::getNumber));
+            List<FootballerEntity> unplaced = new ArrayList<>();
+            for (FootballerEntity f : list) {
+                if (free.remove(f.getFieldPos())) continue;
+                unplaced.add(f);
+            }
+            for (FootballerEntity f : unplaced) {
+                Pos p = free.isEmpty() ? Pos.CM : free.remove(0);
+                f.setFieldPos(p);
+                f.randomStats(f.getSkill());
+            }
+            boolean one = false;
+            for (FootballerEntity f : list) if (f.getNumber() == 1) one = true;
+            for (FootballerEntity f : list) if (f.isKeeper() && !one) { f.setNumber(1); one = true; }
+        }
+    }
+
+    /**
+     * Mevkiye gore hedef konum. Topa sahip takim one ve kanatlara acilir, savunan takim kompaktlasir.
+     * b ekseni takim yonune gore (sol bek her zaman hucum yonune gore solda).
+     */
+    public Vec3 formationSpot(Team t, Pos p, Vec3 ballPos, boolean possession, boolean kickoff) {
         int s = attackSign(t);
         double ba = ballPos == null ? 0 : pitch.a(ballPos) * s / Pitch.HALF_LEN;
-        double bb = ballPos == null ? 0 : pitch.b(ballPos) / Pitch.HALF_WID;
+        double bb = ballPos == null ? 0 : pitch.b(ballPos) * s / Pitch.HALF_WID;
         double a, b;
         if (kickoff) {
-            a = Math.min(f[0], -0.06) * 0.9;
-            b = f[1];
-        } else if (slot == 0) {
+            a = Math.min(p.a, -0.06) * 0.92;
+            b = p.b;
+        } else if (p == Pos.GK) {
             a = -0.95;
-            b = Mth.clamp(bb * 0.12, -0.08, 0.08);
+            b = Mth.clamp(bb * 0.1, -0.08, 0.08);
         } else {
-            a = Mth.clamp(f[0] * 0.65 + ba * 0.55 + 0.05, -0.85, 0.85);
-            b = Mth.clamp(f[1] * 0.85 + bb * 0.3, -0.92, 0.92);
+            double shift = switch (p.role) {
+                case DEF -> possession ? 0.22 : -0.04;
+                case MID -> possession ? 0.26 : -0.12;
+                default -> possession ? 0.2 : -0.16;
+            };
+            a = p.a + shift + ba * 0.38;
+            if (p.role == Pos.Role.DEF) a = Math.min(a, possession && p.wide() ? 0.5 : 0.25);
+            if (p.role == Pos.Role.FWD) a = Math.max(a, -0.25);
+            a = Mth.clamp(a, -0.88, 0.84);
+            b = p.b * (possession ? 1.12 : 0.78) + bb * (possession ? 0.14 : 0.32);
+            b = Mth.clamp(b, -0.93, 0.93);
         }
-        return pitch.world(a * Pitch.HALF_LEN * s, b * Pitch.HALF_WID, pitch.surfaceY());
+        return pitch.world(a * Pitch.HALF_LEN * s, b * Pitch.HALF_WID * s, pitch.surfaceY());
+    }
+
+    /** Takim topa sahip mi? */
+    public boolean hasPossession(Team t) {
+        BallEntity b = ball();
+        if (b == null) return false;
+        LivingEntity c = b.getController();
+        if (c != null) return teamOf(c) == t;
+        Entity last = level().getEntity(b.lastToucherId);
+        return last != null && teamOf(last) == t;
     }
 
     // ================================================================ mac akisi
@@ -264,6 +347,7 @@ public class Match {
         timeLeft = totalTime;
         Athlete.resetStats();
         assignRoles();
+        for (Team t : new Team[]{Team.RED, Team.BLUE}) Cards.applySquad(this, t);
         broadcast(Component.translatable("msg.rabonaarena.match_start", durationMin).withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
         kickoff(Team.RED);
         return true;
@@ -288,36 +372,30 @@ public class Match {
         ball.setSpin(new Vector3f());
         ball.setEffect(0, 0);
         ball.restrict(t.ordinal(), 200);
-        for (Team tt : new Team[]{Team.RED, Team.BLUE}) {
-            int i = 0;
-            for (ServerPlayer p : playersOf(tt)) {
-                Vec3 pos = tt == t && i == 0
-                        ? pitch.world(-attackSign(tt) * 1.2, 0, pitch.surfaceY())
-                        : pitch.world(-attackSign(tt) * (6 + i * 2), (i % 2 == 0 ? -1 : 1) * (5 + i * 2), pitch.surfaceY());
-                p.teleportTo(level(), pos.x, pos.y, pos.z, yawToward(pos, pitch.goalCenter(attackSign(tt))), 0);
-                p.setDeltaMovement(Vec3.ZERO);
-                i++;
-            }
+        // santrayi en ondeki oyuncu kullanir
+        LivingEntity taker = null;
+        double best = -9;
+        for (LivingEntity e : members(t)) {
+            double a = posOf(e).a + (e instanceof Player ? 0.05 : 0);
+            if (a > best) { best = a; taker = e; }
         }
-        for (FootballerEntity f : bots()) {
-            if (!f.getSquad().playing()) continue;
-            Vec3 pos = formationSpot(f.getSquad(), f.getSlot(), null, true);
-            if (f.getSquad() == t && f.getSlot() == firstOutfieldSlot(t) && playersOf(t).isEmpty()) {
-                pos = pitch.world(-attackSign(t) * 1.2, 0, pitch.surfaceY());
+        for (Team tt : new Team[]{Team.RED, Team.BLUE}) {
+            for (LivingEntity e : members(tt)) {
+                Vec3 pos = e == taker ? pitch.world(-attackSign(tt) * 1.2, 0, pitch.surfaceY())
+                        : formationSpot(tt, posOf(e), null, false, true);
+                float yaw = yawToward(pos, pitch.goalCenter(attackSign(tt)));
+                if (e instanceof ServerPlayer p) {
+                    p.teleportTo(level(), pos.x, pos.y, pos.z, yaw, 0);
+                } else {
+                    e.teleportTo(pos.x, pos.y, pos.z);
+                    e.setYRot(yaw);
+                    e.setYHeadRot(yaw);
+                    if (e instanceof FootballerEntity f) f.getNavigation().stop();
+                }
+                e.setDeltaMovement(Vec3.ZERO);
             }
-            f.teleportTo(pos.x, pos.y, pos.z);
-            f.setYRot(yawToward(pos, pitch.goalCenter(attackSign(f.getSquad()))));
-            f.setYHeadRot(f.getYRot());
-            f.setDeltaMovement(Vec3.ZERO);
-            f.getNavigation().stop();
         }
         sync();
-    }
-
-    private int firstOutfieldSlot(Team t) {
-        int best = 99;
-        for (FootballerEntity f : bots()) if (f.getSquad() == t && f.getSlot() > 0) best = Math.min(best, f.getSlot());
-        return best == 99 ? 0 : best;
     }
 
     public static float yawToward(Vec3 from, Vec3 to) {
@@ -436,6 +514,13 @@ public class Match {
             }
         }
         if (mvp != null) broadcast(Component.translatable("msg.rabonaarena.mvp", mvp.getDisplayName()).withStyle(ChatFormatting.LIGHT_PURPLE));
+        Team winner = scoreRed == scoreBlue ? Team.NONE : scoreRed > scoreBlue ? Team.RED : Team.BLUE;
+        for (Team t : new Team[]{Team.RED, Team.BLUE}) {
+            for (ServerPlayer p : playersOf(t)) {
+                Cards.reward(p, winner == Team.NONE ? 70 : winner == t ? 150 : 40, winner == Team.NONE ? "draw" : winner == t ? "win" : "loss");
+                if (p == mvp) Cards.reward(p, 60, "mvp");
+            }
+        }
         Net.toAll(new S2C.Banner(2, scoreRed, scoreBlue, mvp == null ? "" : mvp.getName().getString(), ""));
         for (FootballerEntity f : bots()) {
             if (scoreRed != scoreBlue && f.getSquad() == (scoreRed > scoreBlue ? Team.RED : Team.BLUE)) {
@@ -503,13 +588,15 @@ public class Match {
         if (last instanceof LivingEntity le && !own) {
             Athlete.of(le).goals++;
             Athlete.of(le).addEnergy(25);
+            if (le instanceof ServerPlayer sp) Cards.reward(sp, 50, "goal");
             if (prev instanceof LivingEntity pe && pe != le && teamOf(pe) == scorerTeam) {
+                if (pe instanceof ServerPlayer sp2) Cards.reward(sp2, 30, "assist");
                 Athlete.of(pe).assists++;
                 Athlete.of(pe).addEnergy(15);
                 assistName = pe.getName().getString();
             }
             if (le instanceof FootballerEntity fb) {
-                Move[] c = {Move.CELEB_SIU, Move.CELEB_KNEESLIDE, Move.CELEB_BACKFLIP, Move.CELEB_PLANE, Move.CELEB_DANCE, Move.CELEB_SHUSH};
+                Move[] c = {Move.CELEB_SIU, Move.CELEB_KNEESLIDE, Move.CELEB_BACKFLIP, Move.CELEB_PLANE, Move.CELEB_DANCE, Move.CELEB_SHUSH, Move.CELEB_SHIRT_OFF};
                 Scheduler.later(12, () -> MoveLogic.tryPerform(fb, c[fb.getRandom().nextInt(c.length)], 1, 0, null));
             } else if (le instanceof ServerPlayer sp) {
                 sp.displayClientMessage(Component.translatable("msg.rabonaarena.celebrate_hint").withStyle(ChatFormatting.GOLD), true);
@@ -519,7 +606,7 @@ public class Match {
         lastScorer = scorerName;
         String moveName = ball.lastMove >= 0 ? Move.byId(ball.lastMove).key() : "";
         phase = Phase.GOAL;
-        phaseTimer = 110;
+        phaseTimer = 200; // istemci bu surede gol tekrarini oynatir
         kickoffTeam = scorerTeam.opponent();
         ball.setEffect(0, 0);
         sound(ModSounds.GOAL_HORN.get(), 3f, 1f);

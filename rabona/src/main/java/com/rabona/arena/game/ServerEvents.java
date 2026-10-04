@@ -43,6 +43,7 @@ public final class ServerEvents {
         if (e.getEntity() instanceof ServerPlayer sp) {
             Athlete.of(sp).dirty = true;
             Match.get(sp.server).sync();
+            Cards.sync(sp, java.util.List.of());
         }
     }
 

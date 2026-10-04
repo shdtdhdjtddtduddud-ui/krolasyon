@@ -23,6 +23,16 @@ minecraft {
                 }
             }
         }
+        server {
+            workingDirectory project.file('run-server')
+            property 'forge.logging.console.level', 'info'
+            args '--nogui'
+            mods {
+                rabonaarena {
+                    source sourceSets.main
+                }
+            }
+        }
     }
 }
 

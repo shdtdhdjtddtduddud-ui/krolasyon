@@ -36,7 +36,18 @@ public final class ClientHooks {
     public static void banner(S2C.Banner b) {
         ClientState.banner = b;
         ClientState.bannerTicks = b.type() == 1 ? 100 : 200;
-        if (b.type() == 1) ClientEvents.addShake(0.6f);
+        if (b.type() == 1) {
+            ClientEvents.addShake(0.6f);
+            Replay.onGoal();
+        }
+    }
+
+    public static void profile(S2C.Profile p) {
+        ClientState.profile = p;
+        if (!p.opened().isEmpty()) {
+            ClientState.packReveal = p.opened();
+            ClientState.packRevealStart = ClientState.clientTicks;
+        }
     }
 
     public static void feed(S2C.Feed f) { ClientState.addFeed(f.text()); }

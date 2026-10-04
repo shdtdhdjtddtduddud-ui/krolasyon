@@ -31,6 +31,10 @@ public final class Hud {
         LocalPlayer p = mc.player;
         if (p == null || mc.options.hideGui) return;
         Font font = mc.font;
+        if (Replay.playing()) {
+            replay(g, font, w, h);
+            return;
+        }
         S2C.MatchState m = ClientState.match;
         BallEntity myBall = null, nearBall = null;
         for (BallEntity b : mc.level.getEntitiesOfClass(BallEntity.class, p.getBoundingBox().inflate(16))) {
@@ -174,11 +178,15 @@ public final class Hud {
     // ================================================================ calim yuvalari
     private static void slots(GuiGraphics g, Font f, int w, int h) {
         int x = w - 132, y = h - 124;
-        g.fill(x - 4, y - 4, w - 4, y + 86, 0x90000000);
-        for (int i = 0; i < 4; i++) slotRow(g, f, x, y + i * 13, Keys.SKILLS[i].getTranslatedKeyMessage(), ClientState.slots[i]);
-        slotRow(g, f, x, y + 54, Keys.ABILITY.getTranslatedKeyMessage(), ClientState.ability);
-        Component st = Component.literal("").append(Keys.STYLE.getTranslatedKeyMessage()).append(": ").append(ClientState.shotStyle.title());
-        g.drawString(f, st, x, y + 70, 0xFFEF9A9A, true);
+        g.fill(x - 4, y - 4, w - 4, y + 96, 0x90000000);
+        for (int i = 0; i < 3; i++) slotRow(g, f, x, y + i * 13, Keys.SHOTS[i].getTranslatedKeyMessage(), ClientState.shotSlots[i]);
+        g.fill(x, y + 40, w - 8, y + 41, 0x40FFFFFF);
+        for (int i = 0; i < 3; i++) slotRow(g, f, x, y + 44 + i * 13, Keys.SKILLS[i].getTranslatedKeyMessage(), ClientState.slots[i]);
+        slotRow(g, f, x, y + 83, Keys.ABILITY.getTranslatedKeyMessage(), ClientState.ability);
+        if (ClientState.profile != null) {
+            String c = "\u26C1 " + ClientState.profile.coins();
+            g.drawString(f, c, w - 8 - f.width(c), y - 14, 0xFFFFD54F, true);
+        }
     }
 
     private static void slotRow(GuiGraphics g, Font f, int x, int y, Component key, Move m) {
@@ -208,7 +216,7 @@ public final class Hud {
             g.fill(x, y + bh - i - 1, x + bw, y + bh - i, col);
         }
         g.fill(x - 3, y + bh - okH, x + bw + 3, y + bh - okH + 1, 0xFFFFFFFF);
-        Component st = ClientState.shotStyle.title();
+        Component st = ClientState.shotSlots[ClientInput.chargingSlot].title();
         g.drawString(f, st, x + bw + 5, y + bh / 2 - 4, 0xFFFFFFFF, true);
         String pct = (int) (Math.min(c, 1.35f) * 100) + "%";
         g.drawString(f, pct, x + bw + 5, y + bh / 2 + 6, c > 1 ? 0xFFFF5252 : 0xFFB0BEC5, true);
@@ -241,6 +249,21 @@ public final class Hud {
             g.drawString(f, l.text(), w - tw - 8, y, 0xFFFFFF | (alpha << 24), true);
             y += 13;
         }
+    }
+
+    // ================================================================ tekrar
+    private static void replay(GuiGraphics g, Font f, int w, int h) {
+        g.fill(0, 0, w, 28, 0xFF000000);
+        g.fill(0, h - 28, w, h, 0xFF000000);
+        boolean blink = (ClientState.clientTicks / 10) % 2 == 0;
+        if (blink) g.fill(12, 10, 20, 18, 0xFFFF1744);
+        g.drawString(f, Component.translatable("hud.rabonaarena.replay"), 26, 10, 0xFFFFFFFF, true);
+        if (Replay.slowMo()) {
+            Component sm = Component.translatable("hud.rabonaarena.slowmo");
+            g.drawString(f, sm, w - f.width(sm) - 12, 10, 0xFFFFD54F, true);
+        }
+        Component skip = Component.translatable("hud.rabonaarena.replay_skip", Keys.REPLAY.getTranslatedKeyMessage());
+        g.drawString(f, skip, w / 2 - f.width(skip) / 2, h - 18, 0xFFB0BEC5, false);
     }
 
     // ================================================================ buyuk yazi

@@ -33,10 +33,40 @@ public final class ClientEvents {
         if (ClientState.bannerTicks > 0) ClientState.bannerTicks--;
         shake *= 0.86f;
         ClientInput.tick();
+        Replay.tick();
         AutoTest.tick();
+        ClientAnims.CONTROLLERS.clear();
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level != null && mc.player != null) {
+            for (com.rabona.arena.entity.BallEntity b : mc.level.getEntitiesOfClass(com.rabona.arena.entity.BallEntity.class, mc.player.getBoundingBox().inflate(96))) {
+                if (b.getControllerId() >= 0) ClientAnims.CONTROLLERS.add(b.getControllerId());
+            }
+        }
     }
 
     /** Takla, plonjon, kayma gibi tum vucut hareketleri. */
+    /** Tekrar sirasinda gercek oyuncular gizlenir (kuklalar gorunur). */
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void hideDuringReplay(RenderLivingEvent.Pre<?, ?> e) {
+        LivingEntity le = e.getEntity();
+        if (Replay.playing() && !Replay.isPuppet(le)
+                && (le instanceof net.minecraft.world.entity.player.Player || le instanceof com.rabona.arena.entity.FootballerEntity)) {
+            e.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public static void stage(net.minecraftforge.client.event.RenderLevelStageEvent e) {
+        if (e.getStage() != net.minecraftforge.client.event.RenderLevelStageEvent.Stage.AFTER_ENTITIES) return;
+        CrowdRenderer.render(e.getPoseStack(), e.getPartialTick());
+        Replay.render(e.getPoseStack(), e.getPartialTick());
+    }
+
+    @SubscribeEvent
+    public static void input(net.minecraftforge.client.event.MovementInputUpdateEvent e) {
+        if (e.getEntity() instanceof net.minecraft.client.player.LocalPlayer lp) CameraCtl.onInput(lp, e.getInput());
+    }
+
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void pre(RenderLivingEvent.Pre<?, ?> e) {
         if (e.isCanceled()) return;
@@ -65,6 +95,7 @@ public final class ClientEvents {
 
     @SubscribeEvent
     public static void camera(ViewportEvent.ComputeCameraAngles e) {
+        CameraCtl.onAngles(e);
         if (shake < 0.01f) return;
         float t = (ClientState.clientTicks + (float) e.getPartialTick()) * 1.7f;
         e.setYaw(e.getYaw() + Mth.sin(t * 1.3f) * shake * 2.2f);
@@ -75,6 +106,7 @@ public final class ClientEvents {
     @SubscribeEvent
     public static void logout(ClientPlayerNetworkEvent.LoggingOut e) {
         ClientAnims.clear();
+        Replay.stop();
         ClientState.match = null;
         ClientState.pitch = null;
         ClientState.stats = null;

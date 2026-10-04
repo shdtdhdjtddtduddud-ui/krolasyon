@@ -35,6 +35,10 @@ public final class C2S {
                 if (p == null || p.isSpectator()) return;
                 float pw = Mth.clamp(power, 0, 1.4f);
                 int sd = Mth.clamp(side, -1, 1);
+                if (kind == 5) {
+                    Match.get(p.server).requestPass(p);
+                    return;
+                }
                 Move m = resolve(p, this);
                 if (m != null) MoveLogic.tryPerform(p, m, pw, sd, null);
             });
@@ -86,7 +90,7 @@ public final class C2S {
     /** Menu islemleri. */
     public record Menu(int action, int value) {
         public static final int JOIN = 0, FILL_BOTS = 1, CLEAR_BOTS = 2, START = 3, STOP = 4, DURATION = 5, TEAM_SIZE = 6,
-                DIFFICULTY = 7, BUILD = 8, BALL = 9, TP = 10;
+                DIFFICULTY = 7, BUILD = 8, BALL = 9, TP = 10, POS = 11, CARD_OPEN = 12, CARD_SQUAD = 13, CARD_SELL = 14, CARD_SYNC = 15;
 
         public Menu(FriendlyByteBuf b) { this(b.readByte(), b.readVarInt()); }
 
@@ -103,6 +107,14 @@ public final class C2S {
                 if (action == JOIN) {
                     m.join(p, Team.byId(value));
                     return;
+                }
+                switch (action) {
+                    case POS -> { m.setPlayerPos(p, Pos.byId(value)); return; }
+                    case CARD_OPEN -> { Cards.openPack(p, Cards.Pack.byId(value)); return; }
+                    case CARD_SQUAD -> { Cards.toggleSquad(p, value); return; }
+                    case CARD_SELL -> { Cards.sell(p, value); return; }
+                    case CARD_SYNC -> { Cards.sync(p, java.util.List.of()); return; }
+                    default -> {}
                 }
                 if (action == TP) {
                     if (m.pitch != null) {

@@ -44,9 +44,37 @@ public class KitLayer<T extends LivingEntity, M extends HumanoidModel<T>> extend
         ClientAnims.sync(kit);
         kit.hat.visible = false;
         kit.head.visible = false;
+        ClientAnims.Active act = ClientAnims.get(e, age);
+        boolean shirtless = act != null && act.move() == com.rabona.arena.game.Move.CELEB_SHIRT_OFF && age - act.start() > 10;
+        kit.body.visible = kit.jacket.visible = !shirtless;
+        kit.rightArm.visible = kit.leftArm.visible = kit.rightSleeve.visible = kit.leftSleeve.visible = !shirtless;
         renderColoredCutoutModel(kit, tex, ps, buf, light, e, 1f, 1f, 1f);
+        kit.body.visible = kit.jacket.visible = true;
+        kit.rightArm.visible = kit.leftArm.visible = kit.rightSleeve.visible = kit.leftSleeve.visible = true;
+        if (shirtless) {
+            renderShirtInHand(ps, buf, light, tex);
+            return;
+        }
         int number = e instanceof FootballerEntity f ? f.getNumber() : ClientState.numberOf(e.getUUID());
         if (number > 0) renderNumber(ps, buf, light, number);
+    }
+
+    /** Cikarilan forma: sag elde sallanan kumas. */
+    private void renderShirtInHand(PoseStack ps, MultiBufferSource buf, int light, ResourceLocation tex) {
+        ps.pushPose();
+        kit.rightArm.translateAndRotate(ps);
+        ps.translate(-0.05, 0.62, 0);
+        VertexConsumer vc = buf.getBuffer(RenderType.entityCutoutNoCull(tex));
+        Matrix4f m = ps.last().pose();
+        Matrix3f n = ps.last().normal();
+        // govde on yuzunun UV'si (20..28, 20..32) / 64
+        float u0 = 20 / 64f, u1 = 28 / 64f, v0 = 20 / 64f, v1 = 32 / 64f;
+        float w = 0.32f, h = 0.5f;
+        vc.vertex(m, -w, 0, 0).color(255, 255, 255, 255).uv(u0, v0).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(n, 0, 0, 1).endVertex();
+        vc.vertex(m, -w, h, 0.05f).color(255, 255, 255, 255).uv(u0, v1).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(n, 0, 0, 1).endVertex();
+        vc.vertex(m, w, h, -0.05f).color(255, 255, 255, 255).uv(u1, v1).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(n, 0, 0, 1).endVertex();
+        vc.vertex(m, w, 0, 0).color(255, 255, 255, 255).uv(u1, v0).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(n, 0, 0, 1).endVertex();
+        ps.popPose();
     }
 
     private void renderNumber(PoseStack ps, MultiBufferSource buf, int light, int number) {

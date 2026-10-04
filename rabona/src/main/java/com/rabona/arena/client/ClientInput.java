@@ -5,12 +5,12 @@ import com.rabona.arena.net.C2S;
 import com.rabona.arena.net.Net;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.network.chat.Component;
 
-/** Tus girdileri: sut sarji, pas, calim yuvalari, yetenek. */
+/** Tus girdileri: 3 sut yuvasi (sarjli), pas, pas isteme, 3 calim yuvasi, yetenek, kamera, tekrar. */
 public final class ClientInput {
     public static float charge;
     public static boolean charging;
+    public static int chargingSlot;
     private static int chargeTicks;
 
     private ClientInput() {}
@@ -24,23 +24,24 @@ public final class ClientInput {
             charge = 0;
             return;
         }
-        // menuler
         while (Keys.MOVES.consumeClick()) mc.setScreen(new MoveScreen());
         while (Keys.MATCH.consumeClick()) mc.setScreen(new MatchScreen());
-        while (Keys.STYLE.consumeClick()) {
-            Move[] st = ClientState.SHOT_STYLES;
-            int i = 0;
-            for (int k = 0; k < st.length; k++) if (st[k] == ClientState.shotStyle) i = k;
-            ClientState.shotStyle = st[(i + 1) % st.length];
-            ClientState.save();
-            p.displayClientMessage(Component.translatable("msg.rabonaarena.style_set", ClientState.shotStyle.title()), true);
+        while (Keys.CARDS.consumeClick()) mc.setScreen(new CardScreen());
+        while (Keys.CAMERA.consumeClick()) CameraCtl.cycle();
+        while (Keys.REPLAY.consumeClick()) Replay.toggle();
+        if (Replay.playing()) {
+            charging = false;
+            return;
         }
         int side = side(p);
         boolean mod = p.isShiftKeyDown();
-        // sut: basili tut, birak
-        if (Keys.SHOOT.isDown()) {
+        // sut yuvalari: basili tut, birak
+        int down = -1;
+        for (int i = 0; i < Keys.SHOTS.length; i++) if (Keys.SHOTS[i].isDown()) { down = i; break; }
+        if (down >= 0 && (!charging || down == chargingSlot)) {
             if (!charging) {
                 charging = true;
+                chargingSlot = down;
                 chargeTicks = 0;
             }
             chargeTicks++;
@@ -48,13 +49,14 @@ public final class ClientInput {
         } else if (charging) {
             charging = false;
             float power = chargeTicks < 3 ? 0.35f : charge;
-            send(1, ClientState.shotStyle, power, side, mod);
+            send(1, ClientState.shotSlots[chargingSlot], power, side, mod);
             charge = 0;
         }
-        while (Keys.SHOOT.consumeClick()) { /* isDown ile islenir */ }
+        for (var k : Keys.SHOTS) while (k.consumeClick()) { /* isDown ile islenir */ }
         while (Keys.PASS.consumeClick()) send(2, Move.PASS_SHORT, 1, side, mod);
         while (Keys.LOB.consumeClick()) send(3, Move.PASS_LOB, 1, side, mod);
         while (Keys.TACKLE.consumeClick()) send(4, Move.TACKLE, 1, side, mod || p.isSprinting());
+        while (Keys.CALL.consumeClick()) send(5, Move.CALL_PASS, 1, 0, false);
         for (int i = 0; i < Keys.SKILLS.length; i++) {
             while (Keys.SKILLS[i].consumeClick()) send(0, ClientState.slots[i], 1, side, mod);
         }
@@ -63,8 +65,7 @@ public final class ClientInput {
     }
 
     public static int side(LocalPlayer p) {
-        float l = p.input.leftImpulse;
-        return l > 0.1f ? -1 : l < -0.1f ? 1 : 0;
+        return p.input.left && !p.input.right ? -1 : p.input.right && !p.input.left ? 1 : 0;
     }
 
     public static void send(int kind, Move m, float power, int side, boolean mod) {

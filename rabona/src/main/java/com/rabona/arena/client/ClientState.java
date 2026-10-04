@@ -26,6 +26,9 @@ public final class ClientState {
     public static S2C.MatchState match;
     public static Pitch pitch;
     public static S2C.Stats stats;
+    public static S2C.Profile profile;
+    public static java.util.List<com.rabona.arena.game.Cards.Card> packReveal = java.util.List.of();
+    public static int packRevealStart;
     public static long statsTime;
 
     // banner
@@ -38,8 +41,10 @@ public final class ClientState {
     public static int clientTicks;
 
     // kullanici ayarlari
-    public static final Move[] slots = {Move.RAINBOW, Move.ELASTICO, Move.ROULETTE, Move.STEPOVER};
-    public static Move shotStyle = Move.SHOT_POWER;
+    public static final Move[] slots = {Move.BODY_FEINT, Move.ELASTICO, Move.RAINBOW};
+    public static final Move[] shotSlots = {Move.SHOT_POWER, Move.SHOT_FINESSE, Move.SHOT_TRIVELA};
+    public static int cameraMode;
+    public static boolean autoReplay = true;
     public static Move ability = Move.AB_FIRE;
     public static Move celebration = Move.CELEB_SIU;
     public static final Move[] SHOT_STYLES = {Move.SHOT_POWER, Move.SHOT_FINESSE, Move.SHOT_CHIP, Move.SHOT_TRIVELA,
@@ -79,7 +84,9 @@ public final class ClientState {
             Properties p = new Properties();
             try (Reader r = Files.newBufferedReader(f)) { p.load(r); }
             for (int i = 0; i < slots.length; i++) slots[i] = parse(p.getProperty("slot" + i), slots[i]);
-            shotStyle = parse(p.getProperty("shot"), shotStyle);
+            for (int i = 0; i < shotSlots.length; i++) shotSlots[i] = parse(p.getProperty("shot" + i), shotSlots[i]);
+            cameraMode = Integer.parseInt(p.getProperty("camera", "0"));
+            autoReplay = !"false".equals(p.getProperty("autoReplay"));
             ability = parse(p.getProperty("ability"), ability);
             celebration = parse(p.getProperty("celebration"), celebration);
         } catch (Exception ignored) {
@@ -90,7 +97,9 @@ public final class ClientState {
         try {
             Properties p = new Properties();
             for (int i = 0; i < slots.length; i++) p.setProperty("slot" + i, slots[i].name());
-            p.setProperty("shot", shotStyle.name());
+            for (int i = 0; i < shotSlots.length; i++) p.setProperty("shot" + i, shotSlots[i].name());
+            p.setProperty("camera", Integer.toString(cameraMode));
+            p.setProperty("autoReplay", Boolean.toString(autoReplay));
             p.setProperty("ability", ability.name());
             p.setProperty("celebration", celebration.name());
             try (Writer w = Files.newBufferedWriter(file())) { p.store(w, "Rabona Arena istemci ayarlari"); }

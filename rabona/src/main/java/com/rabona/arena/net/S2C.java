@@ -52,7 +52,7 @@ public final class S2C {
         }
     }
 
-    public record RosterEntry(UUID id, String name, int team, int number) {}
+    public record RosterEntry(UUID id, String name, int team, int number, int pos) {}
 
     public record MatchState(int phase, int scoreRed, int scoreBlue, int timeLeft, int totalTime, int half, boolean swapped,
                              int duration, int teamSize, int difficulty, boolean hasPitch, long origin, boolean alongX,
@@ -61,7 +61,7 @@ public final class S2C {
             List<RosterEntry> r = new ArrayList<>();
             m.roster.forEach((u, t) -> {
                 ServerPlayer p = m.level().getServer().getPlayerList().getPlayer(u);
-                if (p != null) r.add(new RosterEntry(u, p.getGameProfile().getName(), t.ordinal(), m.numbers.getOrDefault(u, 10)));
+                if (p != null) r.add(new RosterEntry(u, p.getGameProfile().getName(), t.ordinal(), m.numbers.getOrDefault(u, 10), m.posOf(p).ordinal()));
             });
             BallEntity b = m.ball();
             int restrict = b != null && b.tickCount < b.restrictUntil ? b.restrictTeam : -1;
@@ -73,7 +73,7 @@ public final class S2C {
         public MatchState(FriendlyByteBuf b) {
             this(b.readByte(), b.readVarInt(), b.readVarInt(), b.readVarInt(), b.readVarInt(), b.readByte(), b.readBoolean(),
                     b.readByte(), b.readByte(), b.readByte(), b.readBoolean(), b.readLong(), b.readBoolean(), b.readVarInt(),
-                    b.readByte(), b.readList(x -> new RosterEntry(x.readUUID(), x.readUtf(40), x.readByte(), x.readByte())));
+                    b.readByte(), b.readList(x -> new RosterEntry(x.readUUID(), x.readUtf(40), x.readByte(), x.readByte(), x.readByte())));
         }
 
         public void encode(FriendlyByteBuf b) {
@@ -97,6 +97,7 @@ public final class S2C {
                 x.writeUtf(e.name(), 40);
                 x.writeByte(e.team());
                 x.writeByte(e.number());
+                x.writeByte(e.pos());
             });
         }
 
@@ -182,6 +183,26 @@ public final class S2C {
 
         public void handle(Supplier<NetworkEvent.Context> ctx) {
             client(ctx, () -> com.rabona.arena.client.ClientHooks.openMenu(this));
+        }
+    }
+
+    /** Oyuncu profili: jeton, kartlar, kadro, yeni acilan kartlar. */
+    public record Profile(int coins, java.util.List<com.rabona.arena.game.Cards.Card> cards, java.util.List<Integer> squad,
+                          java.util.List<com.rabona.arena.game.Cards.Card> opened) {
+        public Profile(FriendlyByteBuf b) {
+            this(b.readVarInt(), b.readList(com.rabona.arena.game.Cards.Card::read), b.readList(FriendlyByteBuf::readVarInt),
+                    b.readList(com.rabona.arena.game.Cards.Card::read));
+        }
+
+        public void encode(FriendlyByteBuf b) {
+            b.writeVarInt(coins);
+            b.writeCollection(cards, (x, c) -> c.write(x));
+            b.writeCollection(squad, FriendlyByteBuf::writeVarInt);
+            b.writeCollection(opened, (x, c) -> c.write(x));
+        }
+
+        public void handle(Supplier<NetworkEvent.Context> ctx) {
+            client(ctx, () -> com.rabona.arena.client.ClientHooks.profile(this));
         }
     }
 

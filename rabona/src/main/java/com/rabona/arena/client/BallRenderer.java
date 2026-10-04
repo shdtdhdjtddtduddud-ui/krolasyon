@@ -56,6 +56,7 @@ public class BallRenderer extends EntityRenderer<BallEntity> {
 
     @Override
     public void render(BallEntity e, float yaw, float partial, PoseStack ps, MultiBufferSource buf, int light) {
+        if (Replay.playing() && !Replay.isPuppet(e)) return;
         int skin = Mth.clamp(e.getSkin(), 0, TEX.length - 1);
         ps.pushPose();
         ps.translate(0, BallEntity.RADIUS, 0);

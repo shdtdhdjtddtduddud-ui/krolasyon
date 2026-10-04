@@ -233,7 +233,7 @@ public final class MoveLogic {
         // hata: yorgunluk + asiri yukleme
         float tired = 1 - a.stamina / 100f;
         double over = Math.max(0, a.power - 1.0) * 30;
-        double err = tired * 3.5 + over + (actor instanceof FootballerEntity fb ? (100 - fb.getSkill()) * 0.06 : 0);
+        double err = tired * 3.5 + over + (actor instanceof FootballerEntity fb ? (100 - fb.shooting) * 0.07 : 0);
         dir = rotY(dir, (actor.getRandom().nextDouble() - 0.5) * 2 * err + curveDeg);
         double tt = Math.max(3, hd / speed * 1.12);
         double vy = (d.y + 0.5 * BallEntity.GRAVITY * tt * tt) / tt;
@@ -300,7 +300,7 @@ public final class MoveLogic {
         Vec3 f = face(actor);
         switch (m) {
             case SLIDE -> {
-                push(actor, f.scale(0.95).add(0, 0.05, 0));
+                push(actor, f.scale(0.78).add(0, 0.05, 0));
                 sound(actor, ModSounds.SLIDE.get(), 1f, 1f);
             }
             case GK_DIVE_LEFT, GK_DIVE_RIGHT -> {
@@ -449,7 +449,7 @@ public final class MoveLogic {
                 ball.setPos(behind.x, actor.getY() + 0.05, behind.z);
                 ball.kick(actor, f.scale(0.17).add(0, 0.45, 0), topspin(f, -0.1f), BallEntity.FX_RAINBOW, 30);
                 ball.makeImmune(actor, 14);
-                Scheduler.later(5, () -> push(actor, f.scale(0.42)));
+                Scheduler.later(5, () -> push(actor, f.scale(0.30)));
                 skillBeat(actor, a, 4.5, 0.7, 26);
             }
             case ELASTICO -> {
@@ -467,7 +467,7 @@ public final class MoveLogic {
                 skillBeat(actor, a, 3.5, 0.6, 22);
             }
             case ROULETTE -> {
-                push(actor, r.scale(0.42 * side).add(f.scale(0.2)));
+                push(actor, r.scale(0.30 * side).add(f.scale(0.2)));
                 skillBeat(actor, a, 3.5, 0.55, 20);
             }
             case STEPOVER -> {
@@ -491,7 +491,7 @@ public final class MoveLogic {
             case CROQUETA -> {
                 ball.setController(null, false);
                 ball.setDeltaMovement(r.scale(0.36 * side).add(f.scale(0.05)));
-                push(actor, r.scale(0.48 * side).add(f.scale(0.08)));
+                push(actor, r.scale(0.35 * side).add(f.scale(0.08)));
                 skillBeat(actor, a, 3, 0.55, 16);
             }
             case SOMBRERO -> {
@@ -499,7 +499,7 @@ public final class MoveLogic {
                 ball.kick(actor, f.scale(0.17).add(0, 0.5, 0), topspin(f, -0.12f), BallEntity.FX_RAINBOW, 20);
                 ball.makeImmune(actor, 10);
                 for (LivingEntity o : opponents(actor, 4, 0.3)) ball.makeImmune(o, 22);
-                Scheduler.later(6, () -> push(actor, f.scale(0.4)));
+                Scheduler.later(6, () -> push(actor, f.scale(0.29)));
                 skillBeat(actor, a, 4, 0.6, 22);
             }
             case NUTMEG -> {
@@ -507,8 +507,8 @@ public final class MoveLogic {
                 ball.kick(actor, f.scale(0.62), new Vector3f(), 0, 0);
                 ball.makeImmune(actor, 6);
                 for (LivingEntity o : opponents(actor, 4, 0.4)) ball.makeImmune(o, 25);
-                push(actor, r.scale(0.35 * side).add(f.scale(0.3)));
-                Scheduler.later(5, () -> push(actor, f.scale(0.45).add(r.scale(-0.2 * side))));
+                push(actor, r.scale(0.25 * side).add(f.scale(0.3)));
+                Scheduler.later(5, () -> push(actor, f.scale(0.32).add(r.scale(-0.2 * side))));
                 skillBeat(actor, a, 4, 0.7, 24);
             }
             case CHOP -> {
@@ -525,7 +525,7 @@ public final class MoveLogic {
                 ball.setPos(behind.x, actor.getY() + 0.1, behind.z);
                 ball.kick(actor, f.scale(0.26).add(0, 0.5, 0), topspin(f, 0.15f), BallEntity.FX_RAINBOW, 20);
                 ball.makeImmune(actor, 12);
-                Scheduler.later(4, () -> push(actor, f.scale(0.38)));
+                Scheduler.later(4, () -> push(actor, f.scale(0.27)));
                 skillBeat(actor, a, 4, 0.6, 20);
             }
             case SEAL -> {
@@ -544,8 +544,14 @@ public final class MoveLogic {
             case SPEED_BURST -> {
                 ball.kick(actor, f.scale(0.78), new Vector3f(), 0, 0);
                 ball.makeImmune(actor, 4);
-                push(actor, f.scale(0.6));
+                push(actor, f.scale(0.43));
                 actor.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 40, 2, false, false, true));
+            }
+            case BODY_FEINT -> {
+                // govdeyle bir tarafa yatip ters yone cikis; top ayakta kalir
+                Scheduler.later(4, () -> push(actor, r.scale(-0.3 * side).add(f.scale(0.16))));
+                a.evade = Math.max(a.evade, 12);
+                skillBeat(actor, a, 3.2, 0.5, 16);
             }
             case FAKE_SHOT -> {
                 List<LivingEntity> fooled = opponents(actor, 7, 0.2);
@@ -642,7 +648,7 @@ public final class MoveLogic {
         switch (m) {
             case SLIDE -> {
                 if (t < 12) {
-                    double sp = 0.85 * (1 - t / 14.0);
+                    double sp = 0.7 * (1 - t / 13.0);
                     Vec3 v = actor.getDeltaMovement();
                     push(actor, new Vec3(f.x * sp, Math.min(v.y, 0), f.z * sp));
                     if (t % 3 == 0) particles((ServerLevel) actor.level(), ParticleTypes.COMPOSTER, actor.position(), 4, 0.3, 0.05);
@@ -864,9 +870,9 @@ public final class MoveLogic {
         });
     }
 
-    static double defend(LivingEntity e) { return e instanceof FootballerEntity f ? f.getSkill() : 75; }
+    static double defend(LivingEntity e) { return e instanceof FootballerEntity f ? f.defending : 75; }
 
-    static double dribble(LivingEntity e) { return e instanceof FootballerEntity f ? f.getSkill() : 80; }
+    static double dribble(LivingEntity e) { return e instanceof FootballerEntity f ? f.dribbling : 80; }
 
     // ================================================================ dusuk seviye
     public static void push(LivingEntity e, Vec3 v) {

@@ -13,6 +13,6 @@ public class AnimatedPlayerModel<T extends LivingEntity> extends PlayerModel<T> 
     @Override
     public void setupAnim(T e, float limbSwing, float limbAmount, float age, float headYaw, float headPitch) {
         super.setupAnim(e, limbSwing, limbAmount, age, headYaw, headPitch);
-        if (age > 0) ClientAnims.apply(this, e, age);
+        if (age > 0) ClientAnims.apply(this, e, age, limbSwing, limbAmount);
     }
 }

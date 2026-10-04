@@ -256,6 +256,14 @@ public final class AnimLibrary {
                 .at(8).rl(-12, 0, 0).body(14, 20, 6).head(20, 0, 0)
                 .at(10).rl(20, 0, 0).body(10, -10, -8).pos(0.3f, 0, 0)
                 .at(12).rest().pos(0, 0, 0));
+        // vucut calimi: govde bir yana yatar, agirlik aktarilir, ters yone patlar
+        put(Move.BODY_FEINT, Anim.of(Move.BODY_FEINT.duration)
+                .at(0).rest()
+                .at(2).body(6, 18, 0).root(0, 0, 14).ll(-10, 0, -14).rl(0, 0, 10).arms(-10, 45, 15, -20).head(10, 20, 0).pos(0.12f, -0.04f, 0)
+                .at(4).body(8, 24, 0).root(0, 0, 20).arms(-15, 55, 20, -15).head(12, 26, 0).pos(0.18f, -0.06f, 0)
+                .at(6).body(10, -20, 0).root(0, 0, -16).rl(-25, 0, -18).ll(15, 0, 6).arms(25, 20, -20, -60).head(8, -20, 0).pos(-0.2f, 0, 0.1f)
+                .at(9).body(14, -8, 0).root(0, 0, -6).rl(20, 0, 0).ll(-30, 0, 0).pos(-0.35f, 0, 0.25f)
+                .at(12).rest().root(0, 0, 0).pos(0, 0, 0));
         // ============================================================ SAVUNMA
         put(Move.TACKLE, Anim.of(Move.TACKLE.duration)
                 .at(0).rest()
@@ -356,6 +364,27 @@ public final class AnimLibrary {
                 .at(4).ra(-120, -35, 8).la(0, 0, -15).head(5, 15, 0).body(0, 10, 0)
                 .at(30).ra(-122, -38, 8).head(8, 18, 0).body(-4, 12, 0)
                 .at(36).rest());
+        // forma cikarma: kollar formayi bastan cikarir, sonra havada sallar
+        Anim.B shirt = Anim.of(Move.CELEB_SHIRT_OFF.duration)
+                .at(0).rest()
+                .at(4).arms(-60, -30, -60, 30).body(12, 0, 0).head(20, 0, 0)
+                .at(8).arms(-150, -15, -150, 15).body(4, 0, 0).head(-10, 0, 0)
+                .at(11).arms(-175, 10, -175, -10).body(-6, 0, 0).head(-25, 0, 0);
+        for (int i = 0; i < 9; i++) {
+            float t = 14 + i * 5;
+            float sw = (i % 2 == 0) ? 1 : -1;
+            shirt.at(t).ra(-170, 20 * sw, 20 + 15 * sw).la(-20, 0, -25).body(-8, 10 * sw, 0).head(-30, 0, 0)
+                    .legs(i % 2 == 0 ? -25 : 10, i % 2 == 0 ? 10 : -25).pos(0, i % 2 == 0 ? 0.08f : 0, 0);
+        }
+        put(Move.CELEB_SHIRT_OFF, shirt.at(Move.CELEB_SHIRT_OFF.duration).rest().pos(0, 0, 0));
+        // pas isteme: kol havada, isaret
+        put(Move.CALL_PASS, Anim.of(Move.CALL_PASS.duration)
+                .at(0).rest()
+                .at(3).ra(-165, 0, -10).la(-40, 0, -30).head(-15, 0, 0).body(-4, 0, 0)
+                .at(6).ra(-155, 0, 15)
+                .at(9).ra(-165, 0, -10)
+                .at(14).rest());
+
         // ============================================================ YETENEKLER
         put(Move.AB_FIRE, Anim.of(Move.AB_FIRE.duration)
                 .at(0).rest()

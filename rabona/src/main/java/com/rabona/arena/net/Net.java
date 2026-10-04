@@ -32,6 +32,7 @@ public final class Net {
         reg(S2C.Stats.class, S2C.Stats::encode, S2C.Stats::new, S2C.Stats::handle, NetworkDirection.PLAY_TO_CLIENT);
         reg(S2C.Banner.class, S2C.Banner::encode, S2C.Banner::new, S2C.Banner::handle, NetworkDirection.PLAY_TO_CLIENT);
         reg(S2C.Feed.class, S2C.Feed::encode, S2C.Feed::new, S2C.Feed::handle, NetworkDirection.PLAY_TO_CLIENT);
+        reg(S2C.Profile.class, S2C.Profile::encode, S2C.Profile::new, S2C.Profile::handle, NetworkDirection.PLAY_TO_CLIENT);
         reg(S2C.OpenMenu.class, S2C.OpenMenu::encode, S2C.OpenMenu::new, S2C.OpenMenu::handle, NetworkDirection.PLAY_TO_CLIENT);
     }
 
