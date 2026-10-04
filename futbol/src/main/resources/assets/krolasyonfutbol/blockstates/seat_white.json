@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "krolasyonfutbol:block/seat_white"
+    },
+    "facing=east": {
+      "model": "krolasyonfutbol:block/seat_white",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "krolasyonfutbol:block/seat_white",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "krolasyonfutbol:block/seat_white",
+      "y": 270
+    }
+  }
+}

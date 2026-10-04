@@ -1,0 +1,111 @@
+{
+  "parent": "minecraft:block/block",
+  "render_type": "minecraft:cutout",
+  "ambientocclusion": false,
+  "textures": {
+    "particle": "krolasyonfutbol:block/corner_flag",
+    "f": "krolasyonfutbol:block/corner_flag"
+  },
+  "elements": [
+    {
+      "from": [
+        7.5,
+        0,
+        7.5
+      ],
+      "to": [
+        8.5,
+        16,
+        8.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            1,
+            16
+          ],
+          "texture": "#f"
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            1,
+            16
+          ],
+          "texture": "#f"
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            1,
+            16
+          ],
+          "texture": "#f"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            1,
+            16
+          ],
+          "texture": "#f"
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            1,
+            16
+          ],
+          "texture": "#f"
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            1,
+            16
+          ],
+          "texture": "#f"
+        }
+      }
+    },
+    {
+      "from": [
+        8.5,
+        9,
+        8
+      ],
+      "to": [
+        15.5,
+        16,
+        8
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            9,
+            0,
+            2,
+            8
+          ],
+          "texture": "#f"
+        },
+        "south": {
+          "uv": [
+            2,
+            0,
+            9,
+            8
+          ],
+          "texture": "#f"
+        }
+      }
+    }
+  ]
+}

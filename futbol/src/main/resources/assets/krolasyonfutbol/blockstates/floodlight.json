@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "krolasyonfutbol:block/floodlight"
+    },
+    "facing=east": {
+      "model": "krolasyonfutbol:block/floodlight",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "krolasyonfutbol:block/floodlight",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "krolasyonfutbol:block/floodlight",
+      "y": 270
+    }
+  }
+}

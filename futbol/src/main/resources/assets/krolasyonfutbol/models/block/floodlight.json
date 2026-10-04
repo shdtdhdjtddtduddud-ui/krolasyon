@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "krolasyonfutbol:block/floodlight_side",
+    "front": "krolasyonfutbol:block/floodlight_front",
+    "side": "krolasyonfutbol:block/floodlight_side"
+  }
+}

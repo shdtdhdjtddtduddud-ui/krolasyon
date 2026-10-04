@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "krolasyonfutbol:block/pitch_grass_light",
+    "side": "krolasyonfutbol:block/pitch_side",
+    "bottom": "minecraft:block/dirt"
+  }
+}

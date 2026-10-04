@@ -1,0 +1,127 @@
+{
+  "kick": {
+    "sounds": [
+      "krolasyonfutbol:kick1",
+      "krolasyonfutbol:kick2",
+      "krolasyonfutbol:kick3"
+    ],
+    "subtitle": "subtitles.krolasyonfutbol.kick"
+  },
+  "kick_power": {
+    "sounds": [
+      "krolasyonfutbol:kick_power"
+    ],
+    "subtitle": "subtitles.krolasyonfutbol.kick_power"
+  },
+  "pass": {
+    "sounds": [
+      "krolasyonfutbol:pass1",
+      "krolasyonfutbol:pass2"
+    ],
+    "subtitle": "subtitles.krolasyonfutbol.pass"
+  },
+  "header": {
+    "sounds": [
+      "krolasyonfutbol:header"
+    ],
+    "subtitle": "subtitles.krolasyonfutbol.header"
+  },
+  "bounce": {
+    "sounds": [
+      "krolasyonfutbol:bounce1",
+      "krolasyonfutbol:bounce2"
+    ],
+    "subtitle": "subtitles.krolasyonfutbol.bounce"
+  },
+  "post_hit": {
+    "sounds": [
+      "krolasyonfutbol:post_hit"
+    ],
+    "subtitle": "subtitles.krolasyonfutbol.post_hit"
+  },
+  "net_hit": {
+    "sounds": [
+      "krolasyonfutbol:net_hit"
+    ],
+    "subtitle": "subtitles.krolasyonfutbol.net_hit"
+  },
+  "whistle": {
+    "sounds": [
+      "krolasyonfutbol:whistle"
+    ],
+    "subtitle": "subtitles.krolasyonfutbol.whistle"
+  },
+  "whistle_end": {
+    "sounds": [
+      "krolasyonfutbol:whistle_end"
+    ],
+    "subtitle": "subtitles.krolasyonfutbol.whistle_end"
+  },
+  "crowd_cheer": {
+    "sounds": [
+      {
+        "name": "krolasyonfutbol:crowd_cheer",
+        "stream": true
+      }
+    ],
+    "subtitle": "subtitles.krolasyonfutbol.crowd_cheer"
+  },
+  "crowd_ambient": {
+    "sounds": [
+      {
+        "name": "krolasyonfutbol:crowd_ambient1",
+        "stream": true
+      },
+      {
+        "name": "krolasyonfutbol:crowd_ambient2",
+        "stream": true
+      }
+    ],
+    "subtitle": "subtitles.krolasyonfutbol.crowd_ambient"
+  },
+  "crowd_ooh": {
+    "sounds": [
+      {
+        "name": "krolasyonfutbol:crowd_ooh",
+        "stream": true
+      }
+    ],
+    "subtitle": "subtitles.krolasyonfutbol.crowd_ooh"
+  },
+  "goal_horn": {
+    "sounds": [
+      "krolasyonfutbol:goal_horn"
+    ],
+    "subtitle": "subtitles.krolasyonfutbol.goal_horn"
+  },
+  "slide": {
+    "sounds": [
+      "krolasyonfutbol:slide"
+    ],
+    "subtitle": "subtitles.krolasyonfutbol.slide"
+  },
+  "super_charge": {
+    "sounds": [
+      "krolasyonfutbol:super_charge"
+    ],
+    "subtitle": "subtitles.krolasyonfutbol.super_charge"
+  },
+  "skill": {
+    "sounds": [
+      "krolasyonfutbol:skill"
+    ],
+    "subtitle": "subtitles.krolasyonfutbol.skill"
+  },
+  "tackle": {
+    "sounds": [
+      "krolasyonfutbol:tackle"
+    ],
+    "subtitle": "subtitles.krolasyonfutbol.tackle"
+  },
+  "catch": {
+    "sounds": [
+      "krolasyonfutbol:catch"
+    ],
+    "subtitle": "subtitles.krolasyonfutbol.catch"
+  }
+}

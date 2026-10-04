@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "krolasyonfutbol:block/goal_post"
+    },
+    "axis=z": {
+      "model": "krolasyonfutbol:block/goal_post",
+      "x": 90
+    },
+    "axis=x": {
+      "model": "krolasyonfutbol:block/goal_post",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

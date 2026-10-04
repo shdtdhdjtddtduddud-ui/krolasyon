@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/template_glass_pane_noside_alt",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "pane": "krolasyonfutbol:block/goal_net",
+    "edge": "krolasyonfutbol:block/goal_net_edge",
+    "particle": "krolasyonfutbol:block/goal_net"
+  }
+}
