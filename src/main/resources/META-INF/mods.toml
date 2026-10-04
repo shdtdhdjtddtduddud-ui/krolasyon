@@ -4,12 +4,14 @@ license="All Rights Reserved"
 
 [[mods]]
 modId="krolasyonbosses"
-version="1.1.0"
-displayName="Krolasyon Bosses"
+version="2.0.0"
+displayName="Krolasyon: Krallıklar Çağı"
 authors="krolasyon"
 description='''
-Dort boss: Muhur Bekcisi, Kizil Cehennem Kurdu, Intikam ve Kalp Kirici Iblis.
-Her birinin 5 ozel yetenegi vardir ve etraftaki tum canavarlara saldirirlar.
+Bir RPG / isekai modu. Aldoria'nin baskenti Solmere'de yoksul bir ailenin cocugu olarak dogarsin.
+10 krallik, 18 bolge, 9 irk (insan, elf, cuce, iblis, dev, ork, hayvan-insan, bucukluk, kara elf),
+122 canavar + 36 boss, 108 buyu, 35 isimli kilic, yasayan NPC'ler, iliski ve guven sistemi,
+ekip, evlilik, cocuklar, kolelik, rutbe, sayginlik, savaslar ve secimlere gore degisen bir hikaye.
 '''
 
 [[dependencies.krolasyonbosses]]

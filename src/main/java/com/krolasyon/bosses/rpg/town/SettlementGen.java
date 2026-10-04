@@ -69,14 +69,22 @@ public final class SettlementGen {
     }
 
     public static int baseHeight(ServerLevel level, Site s) {
-        int sum = 0, n = 0;
+        int sum = 0, n = 0, water = 0, total = 0;
         int rad = Math.min(30, s.type.radius / 2);
-        for (int dx = -rad; dx <= rad; dx += Math.max(4, rad / 4)) for (int dz = -rad; dz <= rad; dz += Math.max(4, rad / 4)) {
-            sum += level.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, s.x + dx, s.z + dz);
+        int step = Math.max(4, rad / 4);
+        for (int dx = -rad; dx <= rad; dx += step) for (int dz = -rad; dz <= rad; dz += step) {
+            int floor = level.getHeight(Heightmap.Types.OCEAN_FLOOR, s.x + dx, s.z + dz);
+            int top = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, s.x + dx, s.z + dz);
+            total++;
+            if (top > floor + 1) { water++; continue; }
+            sum += floor;
             n++;
         }
-        int y = n == 0 ? 64 : sum / n;
-        return Math.max(level.getSeaLevel() + 1, Math.min(y, level.getSeaLevel() + 45));
+        int sea = level.getSeaLevel();
+        if (n == 0 || water * 2 > total) return Math.max(sea + 1, level.getMinBuildHeight() + 2);
+        int y = sum / n;
+        if (water > 0) y = Math.max(y, sea + 1);
+        return Math.min(y, Math.max(sea + 45, level.getMinBuildHeight() + 60));
     }
 
     // ------------------------------------------------------------------ terrain

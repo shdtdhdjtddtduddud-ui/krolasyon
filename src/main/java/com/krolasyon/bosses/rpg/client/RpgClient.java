@@ -135,7 +135,8 @@ public final class RpgClient {
             super(ctx);
             for (Summon.Kind k : Summon.Kind.values()) {
                 ResourceLocation t = tex(k.texture());
-                byKind.put(k, new RpgMobRenderer<Summon>(ctx, model(k.arch, ctx.bakeLayer(LAYERS.get(k.arch))), 0.5F, x -> t, x -> t,
+                ResourceLocation glow = tex(k.texture() + "_glow");
+                byKind.put(k, new RpgMobRenderer<Summon>(ctx, model(k.arch, ctx.bakeLayer(LAYERS.get(k.arch))), 0.5F, x -> t, x -> glow,
                         x -> k == Summon.Kind.TREANT || k == Summon.Kind.BLOOD_GOLEM ? 0.8F : 1.0F, k == Summon.Kind.SPIRIT_WOLF || k == Summon.Kind.SPIRIT_WARRIOR || k == Summon.Kind.MIRROR));
             }
         }

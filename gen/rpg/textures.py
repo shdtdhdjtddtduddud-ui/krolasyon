@@ -225,8 +225,12 @@ def monster_texture(mid, colors, pat, boss=False, glow_on=False, translucent=Fal
         img[y:y + h, x:x + w, :3] = rgbimg
         img[y:y + h, x:x + w, 3] = 255 if alpha is None else alpha
         if gl is not None and gcol is not None:
-            glow[y:y + h, x:x + w, :3] = gcol
-            glow[y:y + h, x:x + w, 3] = np.maximum(glow[y:y + h, x:x + w, 3], gl * 255)
+            g = np.clip(np.asarray(gl, dtype=np.float64), 0, 1)
+            if g.ndim == 0:
+                g = np.full((h, w), float(g))
+            # the eyes render type is additive: colour must be black wherever nothing should glow
+            glow[y:y + h, x:x + w, :3] = np.maximum(glow[y:y + h, x:x + w, :3], gcol[None, None, :] * g[..., None])
+            glow[y:y + h, x:x + w, 3] = np.maximum(glow[y:y + h, x:x + w, 3], g * 255)
 
     # A body
     a_rgb, a_glow, a_alpha = pattern(pat, 64, 64, base, sec, acc, rng)
@@ -339,7 +343,8 @@ def main(defs):
         if m.glow:
             gl.save(os.path.join(ENT, m.id + '_glow.png'))
     for name, (cols, pat) in SUMMONS.items():
-        tex, _ = monster_texture(name, cols, pat, False, True, pat == 'ghost')
+        tex, gl = monster_texture(name, cols, pat, False, True, pat == 'ghost')
         tex.save(os.path.join(ENT, name + '.png'))
+        gl.save(os.path.join(ENT, name + '_glow.png'))
     orb_textures()
     effect_icons()

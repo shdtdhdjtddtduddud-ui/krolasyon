@@ -169,6 +169,41 @@ public final class RpgAutoTest {
         screen(30, "ui_character", CharacterScreen::new);
         screen(30, "ui_journal", JournalScreen::new);
         screen(30, "ui_map", MapScreen::new);
+        // story and dialogue logic: talk, gift, the first story steps, a shop
+        shotGui(30, "story_steps", s -> {
+            ServerPlayer p = player(s);
+            RpgNpc mom = NpcFactory.findStory(p.serverLevel(), p.blockPosition(), "mother", 80);
+            if (mom == null) { LOG.warn("[AUTOTEST] no mother"); return; }
+            p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new ItemStack(net.minecraft.world.item.Items.POPPY, 3));
+            NpcDialog.choose(p, mom.getId(), "talk");
+            NpcDialog.choose(p, mom.getId(), "gift");
+            NpcDialog.choose(p, mom.getId(), "story_bread");
+            p.getInventory().add(new ItemStack(net.minecraft.world.item.Items.BREAD, 3));
+            NpcDialog.choose(p, mom.getId(), "story_give_bread");
+            RpgNpc dad = NpcFactory.findStory(p.serverLevel(), p.blockPosition(), "father", 80);
+            if (dad != null) NpcDialog.choose(p, dad.getId(), "story_sword");
+            PlayerRpg d = RpgWorldData.player(p);
+            LOG.info("[AUTOTEST] story chapter={} step={} objective={}", d.chapter, d.step, com.krolasyon.bosses.rpg.story.Story.objective(d));
+        });
+        server(5, null, s -> NpcDialog.close(player(s)));
+        shotGui(30, "ui_trade", s -> {
+            ServerPlayer p = player(s);
+            Site c = cap(s, Kingdom.ALDORIA);
+            RpgNpc m = NpcFactory.spawn(p.serverLevel(), new BlockPos(c.x + 3, c.y + 1, c.z + 20), Race.DWARF, false, NpcRole.BLACKSMITH, 0, null, null);
+            look(p, c.x + 3.5, c.y + 1, c.z + 23.5, 180, 0);
+            if (m != null) {
+                NpcDialog.choose(p, m.getId(), "quest");
+                m.openTrade(p);
+                LOG.info("[AUTOTEST] quests={} offers={}", RpgWorldData.player(p).quests.size(), m.getOffers().size());
+            }
+        });
+        server(5, null, s -> player(s).closeContainer());
+        // warm up the gallery area so its chunks are loaded on the client
+        server(80, null, s -> {
+            Site g = gallerySite(s);
+            int y = ground(s.overworld(), g.x, g.z);
+            look(player(s), g.x + 0.5, y + 2, g.z + 12.5, 180, 8);
+        });
         // monster gallery, far from town
         List<MonsterDef> mobs = new ArrayList<>(RpgDefs.MONSTERS);
         for (int i = 0; i < mobs.size(); i += 8) {
@@ -220,6 +255,10 @@ public final class RpgAutoTest {
                 look(player(s), c.x + 0.5, Math.max(c.y, ground(s.overworld(), c.x, c.z)) + 120, c.z + 120.5, 180, 40);
             });
             until(2400, s -> cap(s, k).built);
+            server(120, null, s -> {
+                Site c = cap(s, k);
+                look(player(s), c.x + 0.5, c.y + 90, c.z + 105.5, 180, 42);
+            });
             server(60, "capital_" + k.name().toLowerCase(), s -> {
                 Site c = cap(s, k);
                 look(player(s), c.x + 0.5, c.y + 90, c.z + 105.5, 180, 42);
@@ -270,7 +309,7 @@ public final class RpgAutoTest {
             maxH = Math.max(maxH, d.hitHeight());
             x += w;
         }
-        double dist = Math.max(total * 0.75, maxH * 1.6) + 3;
+        double dist = boss ? Math.max(total * 0.8, maxH * 2.2) + 5 : Math.max(total * 0.62, maxH * 1.6) + 3;
         look(p, g.x + 0.5, y + maxH * 0.55 + 0.5, g.z + dist, 180, 8);
         StringBuilder b = new StringBuilder();
         for (MonsterDef d : batch) b.append(d.id()).append(' ');

@@ -144,7 +144,7 @@ public final class RpgModels {
         public static LayerDefinition layer() {
             MeshDefinition mesh = new MeshDefinition();
             PartDefinition root = mesh.getRoot().addOrReplaceChild("root", CubeListBuilder.create(), PartPose.offset(0, 24, 0));
-            PartDefinition body = add(root, "body", c(AU, AV).addBox(-7, -14, -4.5F, 14, 14, 9), 0, -18, 0, 0.35F, 0, 0);
+            PartDefinition body = add(root, "body", c(AU, AV).addBox(-7, -14, -4.5F, 14, 14, 9), 0, -10, 0, 0.35F, 0, 0);
             add(body, "belly", c(BU, BV + 40).addBox(-5.5F, -6, -5.2F, 11, 7, 2), 0, 0, 0);
             add(body, "hips", c(EU, EV).addBox(-6, -1, -4, 12, 3, 8), 0, 0, 0);
             PartDefinition head = add(body, "head", c(AU, AV + 24).addBox(-4, -7, -7, 8, 8, 8), 0, -13, -3, -0.35F, 0, 0);
@@ -153,8 +153,8 @@ public final class RpgModels {
             add(jaw, "teeth", c(CU + 32, CV).addBox(-3, -1, -6.4F, 6, 1, 1), 0, 0, 0);
             RpgMobModel.headParts(head, -7, -7, 4, 8);
             add(body, "mane", c(AU, AV + 40).addBox(-7.5F, -15.5F, -2, 15, 6, 9), 0, 0, 0);
-            PartDefinition ra = add(root, "right_arm", c(BU, BV).addBox(-5, -2, -3, 6, 18, 6), -8.5F, -29, -2);
-            PartDefinition la = add(root, "left_arm", c(BU, BV).mirror().addBox(-1, -2, -3, 6, 18, 6), 8.5F, -29, -2);
+            PartDefinition ra = add(root, "right_arm", c(BU, BV).addBox(-5, -2, -3, 6, 18, 6), -8.5F, -22, -4);
+            PartDefinition la = add(root, "left_arm", c(BU, BV).mirror().addBox(-1, -2, -3, 6, 18, 6), 8.5F, -22, -4);
             add(ra, "fist_r", c(BU + 24, BV + 24).addBox(-5.5F, 14, -3.5F, 7, 5, 7), 0, 0, 0);
             add(la, "fist_l", c(BU + 24, BV + 24).mirror().addBox(-1.5F, 14, -3.5F, 7, 5, 7), 0, 0, 0);
             PartDefinition cr = group(ra, "claws", -2, 19, -1);
@@ -439,7 +439,7 @@ public final class RpgModels {
         public static LayerDefinition layer() {
             MeshDefinition mesh = new MeshDefinition();
             PartDefinition root = mesh.getRoot().addOrReplaceChild("root", CubeListBuilder.create(), PartPose.offset(0, 24, 0));
-            PartDefinition body = add(root, "body", c(AU, AV).addBox(-3, -3, -6, 6, 6, 12), 0, -10, 0);
+            PartDefinition body = add(root, "body", c(AU, AV).addBox(-3, -3, -6, 6, 6, 12), 0, -8, 0);
             add(body, "breast", c(BU, BV + 40).addBox(-2.5F, -1, -6.5F, 5, 4.5F, 6), 0, 0, 0);
             PartDefinition head = add(body, "head", c(AU, AV + 20).addBox(-3, -4, -5, 6, 5, 5), 0, -1, -6);
             add(head, "beak", c(CU, CV + 48).addBox(-1, -1.5F, -8, 2, 2, 3), 0, 0, 0);
