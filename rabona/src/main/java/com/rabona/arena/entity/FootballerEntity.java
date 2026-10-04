@@ -34,9 +34,9 @@ public class FootballerEntity extends PathfinderMob {
     private static final EntityDataAccessor<Integer> SKIN = SynchedEntityData.defineId(FootballerEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> POS = SynchedEntityData.defineId(FootballerEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> SKILL = SynchedEntityData.defineId(FootballerEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<String> NAME = SynchedEntityData.defineId(FootballerEntity.class, EntityDataSerializers.STRING);
 
     private final BotBrain brain = new BotBrain(this);
-    private String baseName = "Bot";
 
     public FootballerEntity(EntityType<? extends PathfinderMob> type, Level level) {
         super(type, level);
@@ -59,6 +59,7 @@ public class FootballerEntity extends PathfinderMob {
         entityData.define(SKIN, 0);
         entityData.define(POS, Pos.CM.ordinal());
         entityData.define(SKILL, 75);
+        entityData.define(NAME, "Bot");
     }
 
     @Override
@@ -71,14 +72,14 @@ public class FootballerEntity extends PathfinderMob {
         entityData.set(NUMBER, number);
         entityData.set(SKIN, skin);
         entityData.set(SKILL, Math.min(99, skill));
-        baseName = name;
+        entityData.set(NAME, name);
         refreshName();
     }
 
     private void refreshName() {
         Team t = getSquad();
         setCustomName(Component.literal(getNumber() + " ").withStyle(ChatFormatting.WHITE, ChatFormatting.BOLD)
-                .append(Component.literal(baseName).withStyle(t.chat))
+                .append(Component.literal(getBaseName()).withStyle(t.chat))
                 .append(Component.literal(" [" + getSkill() + "]").withStyle(ChatFormatting.GOLD)));
         setCustomNameVisible(true);
     }
@@ -102,7 +103,7 @@ public class FootballerEntity extends PathfinderMob {
 
     public boolean isKeeper() { return getFieldPos() == Pos.GK; }
 
-    public String getBaseName() { return baseName; }
+    public String getBaseName() { return entityData.get(NAME); }
 
     public void onBallBlocked(Vec3 v) {}
 
@@ -186,7 +187,7 @@ public class FootballerEntity extends PathfinderMob {
         t.putInt("RPos", getFieldPos().ordinal());
         t.putIntArray("RStats", new int[]{pace, shooting, passing, dribbling, defending});
         t.putInt("RSkill", getSkill());
-        t.putString("RName", baseName);
+        t.putString("RName", getBaseName());
     }
 
     @Override

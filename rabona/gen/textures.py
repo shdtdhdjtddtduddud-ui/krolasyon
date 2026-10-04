@@ -519,6 +519,14 @@ def make_kits():
     for name, k in KITS.items():
         save(kit_texture(k), f'entity/kit/{name}.png')
     save(digits(), 'entity/kit/digits.png')
+    # taraftar dokulari: ten + forma tek dokuda (forma alfa > 0 olan pikseller tene islenir)
+    for team in ('red', 'blue'):
+        kit = kit_texture(KITS[team])
+        for i in range(8):
+            skin = bot_skin(i)
+            m = kit[..., 3] > 0
+            skin[m] = kit[m]
+            save(skin, f'entity/fan/{team}_{i}.png')
 
 
 # =====================================================================  BLOKLAR

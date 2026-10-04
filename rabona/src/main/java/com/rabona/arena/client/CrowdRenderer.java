@@ -33,13 +33,15 @@ public final class CrowdRenderer {
     private static final List<Fan> FANS = new ArrayList<>();
     private static Pitch builtFor;
     private static int scanTick;
-    private static PlayerModel<Player> model, kitModel;
-    private static final ResourceLocation[] SKINS = new ResourceLocation[8];
-    private static final ResourceLocation KIT_RED = RabonaArena.id("textures/entity/kit/red.png");
-    private static final ResourceLocation KIT_BLUE = RabonaArena.id("textures/entity/kit/blue.png");
+    private static PlayerModel<Player> model;
+    /** [takim-1][ten]: ten ve forma tek dokuda. */
+    private static final ResourceLocation[][] FAN = new ResourceLocation[2][8];
 
     static {
-        for (int i = 0; i < 8; i++) SKINS[i] = RabonaArena.id("textures/entity/footballer/skin_" + i + ".png");
+        for (int i = 0; i < 8; i++) {
+            FAN[0][i] = RabonaArena.id("textures/entity/fan/red_" + i + ".png");
+            FAN[1][i] = RabonaArena.id("textures/entity/fan/blue_" + i + ".png");
+        }
     }
 
     private CrowdRenderer() {}
@@ -78,7 +80,6 @@ public final class CrowdRenderer {
         if (FANS.isEmpty()) return;
         if (model == null) {
             model = new PlayerModel<>(mc.getEntityModels().bakeLayer(ModelLayers.PLAYER), false);
-            kitModel = new PlayerModel<>(mc.getEntityModels().bakeLayer(ClientSetup.KIT), false);
         }
         float time = ClientState.clientTicks + partial;
         int goalTeam = 0;
@@ -118,16 +119,13 @@ public final class CrowdRenderer {
                 raise(model, ph);
             }
             ClientAnims.sync(model);
-            copy(model, kitModel);
             ps.pushPose();
             ps.translate(dx, dy - 0.0 + jump, dz);
             ps.mulPose(Axis.YP.rotationDegrees(180 - f.yaw));
             ps.scale(-0.9375f, -0.9375f, 0.9375f);
             ps.translate(0, -1.501, 0);
             int light = LevelRenderer.getLightColor(mc.level, f.pos.above());
-            model.renderToBuffer(ps, buf.getBuffer(RenderType.entityCutoutNoCull(SKINS[f.skin])), light, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
-            kitModel.head.visible = kitModel.hat.visible = false;
-            kitModel.renderToBuffer(ps, buf.getBuffer(RenderType.entityCutoutNoCull(f.team == 1 ? KIT_RED : KIT_BLUE)), light, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+            model.renderToBuffer(ps, buf.getBuffer(RenderType.entityCutoutNoCull(FAN[f.team == 1 ? 0 : 1][f.skin])), light, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
             ps.popPose();
         }
         buf.endBatch();

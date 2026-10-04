@@ -18,6 +18,7 @@ import java.util.List;
 /** Mac menusu: takim secimi, botlar, ayarlar ve stadyum. */
 public class MatchScreen extends Screen {
     private Button diffBtn, posBtn, replayBtn;
+    private int rosterBottom;
 
     private Pos myPos() {
         if (m() != null && minecraft.player != null)
@@ -102,6 +103,7 @@ public class MatchScreen extends Screen {
         g.drawCenteredString(font, title, cx, 12, 0xFFFFD54F);
         int lx = cx - 210;
         // kadrolar
+        rosterBottom = 0;
         drawRoster(g, lx, 92, Team.RED);
         drawRoster(g, lx + 138, 92, Team.BLUE);
         // ayarlar
@@ -114,6 +116,10 @@ public class MatchScreen extends Screen {
         g.drawString(font, Component.translatable(pitch ? "screen.rabonaarena.pitch_ok" : "screen.rabonaarena.pitch_missing"), rx, ry + 190, pitch ? 0xFF81C784 : 0xFFFF8A65, false);
         // kontroller
         int hy = height - 92;
+        if (rosterBottom > hy - 6) {
+            super.render(g, mx, my, partial);
+            return;
+        }
         g.fill(lx - 4, hy - 4, lx + 272, hy + 56, 0x60000000);
         g.drawString(font, Component.translatable("screen.rabonaarena.controls"), lx, hy, 0xFFFFD54F, true);
         g.drawString(font, Component.translatable("screen.rabonaarena.controls1", Keys.SHOOT.getTranslatedKeyMessage(), Keys.PASS.getTranslatedKeyMessage(), Keys.LOB.getTranslatedKeyMessage()), lx, hy + 12, 0xFFE0E0E0, false);
@@ -138,6 +144,7 @@ public class MatchScreen extends Screen {
             }
         }
         int yy = y + 17;
+        rosterBottom = Math.max(rosterBottom, y + 18 + Math.max(1, names.size()) * 10);
         g.fill(x, y + 14, x + 130, y + 18 + Math.max(1, names.size()) * 10, 0x60000000);
         for (String n : names) {
             g.drawString(font, n, x + 4, yy, 0xFFFFFFFF, false);

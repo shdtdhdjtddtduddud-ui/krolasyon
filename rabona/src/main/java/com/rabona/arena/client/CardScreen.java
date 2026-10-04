@@ -63,9 +63,12 @@ public class CardScreen extends Screen {
         String coins = "⛁ " + (pr == null ? 0 : pr.coins()) + " " + Component.translatable("screen.rabonaarena.coins").getString();
         g.drawString(font, coins, width - font.width(coins) - 12, 9, 0xFFFFD54F, true);
         hits.clear();
+        if (revealing()) {
+            reveal(g, partial);
+            return;
+        }
         if (tab == 0) shop(g, mx, my); else collection(g, mx, my, pr);
         super.render(g, mx, my, partial);
-        if (revealing()) reveal(g, partial);
     }
 
     // ================================================================ magaza
