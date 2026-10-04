@@ -21,6 +21,7 @@ public class KrolasyonBosses {
         ModItems.TABS.register(bus);
         ModSounds.SOUNDS.register(bus);
         bus.addListener(this::onAttributes);
+        com.krolasyon.bosses.rpg.RpgMod.init(bus);
         if (Boolean.getBoolean("krolasyon.autotest")) {
             net.minecraftforge.fml.DistExecutor.unsafeRunWhenOn(net.minecraftforge.api.distmarker.Dist.CLIENT,
                     () -> com.krolasyon.bosses.client.AutoTest::init);
