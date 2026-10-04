@@ -11,7 +11,7 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 public class MatchS2C {
-    public record Entry(UUID id, String name, int team, int number, boolean online) {}
+    public record Entry(UUID id, String name, int team, int number, boolean online, int role) {}
 
     public final int state, red, blue, timeLeft, stateTimer, kickoffTeam, playersPerTeam, minutes;
     public final boolean hasPitch;
@@ -58,7 +58,7 @@ public class MatchS2C {
         this.bots = b.readVarInt();
         int n = b.readVarInt();
         List<Entry> l = new ArrayList<>();
-        for (int i = 0; i < n; i++) l.add(new Entry(b.readUUID(), b.readUtf(64), b.readVarInt(), b.readVarInt(), b.readBoolean()));
+        for (int i = 0; i < n; i++) l.add(new Entry(b.readUUID(), b.readUtf(64), b.readVarInt(), b.readVarInt(), b.readBoolean(), b.readByte()));
         this.entries = l;
     }
 
@@ -85,6 +85,7 @@ public class MatchS2C {
             b.writeVarInt(e.team());
             b.writeVarInt(e.number());
             b.writeBoolean(e.online());
+            b.writeByte(e.role());
         }
     }
 

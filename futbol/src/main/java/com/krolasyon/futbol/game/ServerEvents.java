@@ -35,6 +35,7 @@ public final class ServerEvents {
         if (event.getEntity() instanceof ServerPlayer sp) {
             MatchManager.markDirty();
             MatchManager.welcome(sp);
+            CardData.sync(sp, -1);
         }
     }
 

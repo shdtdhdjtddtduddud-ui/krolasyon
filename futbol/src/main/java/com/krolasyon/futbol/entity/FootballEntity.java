@@ -221,8 +221,21 @@ public class FootballEntity extends Entity {
 
     // ------------------------------------------------------------------ tick
 
+    /** client-only replay driver (goal replays drive fake copies of the ball) */
+    public java.util.function.Consumer<Entity> replayDriver;
+
     @Override
     public void tick() {
+        if (replayDriver != null) {
+            prevRot.set(rot);
+            replayDriver.accept(this);
+            Vec3 d = new Vec3(getX() - xo, getY() - yo, getZ() - zo);
+            double h = d.horizontalDistance();
+            if (h > 1.0E-4) rot.premul(new Quaternionf().rotateAxis((float) (h / R), (float) (d.z / h), 0F, (float) (-d.x / h)));
+            rot.normalize();
+            spawnTrail(d);
+            return;
+        }
         super.tick();
         if (level().isClientSide) {
             clientTick();
@@ -349,6 +362,7 @@ public class FootballEntity extends Entity {
                 e -> e.isAlive() && !e.isSpectator() && !isImmune(e));
         for (LivingEntity e : list) {
             if (e instanceof FootballerEntity bot && bot.isKeeper() && com.krolasyon.futbol.game.BotBrain.tryCatch(bot, this)) return;
+            if (e instanceof Player pl && MatchManager.tryHumanCatch(pl, this, true)) return;
             Vec3 n = new Vec3(getX() - e.getX(), 0, getZ() - e.getZ());
             n = n.lengthSqr() < 1.0E-6 ? v.scale(-1).normalize() : n.normalize();
             double vn = v.dot(n);
@@ -399,6 +413,7 @@ public class FootballEntity extends Entity {
                 best = e;
             }
         }
+        if (best instanceof Player pl && MatchManager.tryHumanCatch(pl, this, false)) return;
         if (best != null) setController(best);
     }
 

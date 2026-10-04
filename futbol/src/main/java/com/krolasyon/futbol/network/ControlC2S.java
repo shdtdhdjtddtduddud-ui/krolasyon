@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 
 /** Match menu actions sent from the client GUI. */
 public class ControlC2S {
-    public static final int TEAM = 0, START = 1, STOP = 2, PLAYERS = 3, MINUTES = 4, BUILD = 5, CENTER = 6;
+    public static final int TEAM = 0, START = 1, STOP = 2, PLAYERS = 3, MINUTES = 4, BUILD = 5, CENTER = 6, ROLE = 7, PASS_REQUEST = 8;
 
     public final int action;
     public final int arg;
@@ -63,6 +63,8 @@ public class ControlC2S {
                 MatchManager.markDirty();
             }
             case CENTER -> MatchManager.centerBall();
+            case ROLE -> MatchManager.setRole(p, com.krolasyon.futbol.game.Role.byId(arg));
+            case PASS_REQUEST -> MatchManager.requestPass(p);
             default -> {}
         }
     }

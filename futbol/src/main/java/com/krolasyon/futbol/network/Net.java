@@ -13,7 +13,7 @@ import net.minecraftforge.network.simple.SimpleChannel;
 public final class Net {
     private Net() {}
 
-    private static final String VERSION = "1";
+    private static final String VERSION = "2";
     public static final SimpleChannel CH = NetworkRegistry.newSimpleChannel(new ResourceLocation(FutbolMod.MODID, "main"),
             () -> VERSION, VERSION::equals, VERSION::equals);
 
@@ -31,6 +31,10 @@ public final class Net {
                 .consumerMainThread(GoalS2C::handle).add();
         CH.messageBuilder(OpenMenuS2C.class, id++, NetworkDirection.PLAY_TO_CLIENT).encoder(OpenMenuS2C::encode).decoder(OpenMenuS2C::new)
                 .consumerMainThread(OpenMenuS2C::handle).add();
+        CH.messageBuilder(ProfileS2C.class, id++, NetworkDirection.PLAY_TO_CLIENT).encoder(ProfileS2C::encode).decoder(ProfileS2C::new)
+                .consumerMainThread(ProfileS2C::handle).add();
+        CH.messageBuilder(ClubC2S.class, id++, NetworkDirection.PLAY_TO_SERVER).encoder(ClubC2S::encode).decoder(ClubC2S::new)
+                .consumerMainThread(ClubC2S::handle).add();
         CH.messageBuilder(ShakeS2C.class, id++, NetworkDirection.PLAY_TO_CLIENT).encoder(ShakeS2C::encode).decoder(ShakeS2C::new)
                 .consumerMainThread(ShakeS2C::handle).add();
     }

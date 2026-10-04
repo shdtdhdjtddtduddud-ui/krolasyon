@@ -39,6 +39,7 @@ public enum Move {
     SOMBRERO(Cat.SKILL, "Şapka Çıkarma", "Topu rakibin kafasının üstünden aşırt.", true, 6, 14),
     SPEED_BURST(Cat.SKILL, "Hız Patlaması", "Topu ileri vurup depar at.", false, 4, 12),
     FIRST_TOUCH(Cat.SKILL, "İlk Dokunuş", "Gelen topu ayağının altında öldür.", true, 3, 10),
+    BODY_FEINT(Cat.SKILL, "Vücut Çalımı", "Omzunu bir yana atıp diğer yandan çık — rakibi ters ayağa yatır.", true, 7, 14),
     // ---- defence
     TACKLE(Cat.DEFENSE, "Top Çalma", "Rakipten topu kapmak için ayakla müdahale.", false, 5, 14),
     SLIDE(Cat.DEFENSE, "Kayarak Müdahale", "Yerde kayarak topu uzaklaştır.", false, 4, 22),
@@ -60,7 +61,8 @@ public enum Move {
     KNEE_SLIDE(Cat.CELEBRATION, "Diz Kayması", "Dizlerinin üstünde kayarak kutla.", false, 0, 34),
     AIRPLANE(Cat.CELEBRATION, "Uçak", "Kollarını açıp uçak gibi süzül.", false, 0, 40),
     BACKFLIP(Cat.CELEBRATION, "Ters Takla", "Havada ters takla at.", false, 0, 20),
-    DANCE(Cat.CELEBRATION, "Zafer Dansı", "Kornerde zafer dansı.", false, 0, 40);
+    DANCE(Cat.CELEBRATION, "Zafer Dansı", "Kornerde zafer dansı.", false, 0, 40),
+    SHIRT_OFF(Cat.CELEBRATION, "Formayı Çıkar", "Formanı çıkarıp havada salla!", false, 0, 56);
 
     public enum Cat {
         PASS("Paslar", 0x43A047), SHOT("Şutlar", 0xE53935), SKILL("Çalımlar", 0xFFB300), DEFENSE("Savunma", 0x5E35B1),
@@ -98,6 +100,21 @@ public enum Move {
     }
 
     public boolean isSuper() { return cat == Cat.SUPER; }
+
+    /** cooldown (ticks) before the same move can be used again; supers use {@link #cooldown} */
+    public int reuseTicks() {
+        if (isSuper()) return cooldown;
+        return switch (this) {
+            case SLIDE -> 100;
+            case SHOULDER -> 40;
+            case BLOCK, DIVE -> 30;
+            case TACKLE -> 16;
+            case SEAL, JUGGLE -> 60;
+            default -> 0;
+        };
+    }
+
+    public boolean isShot() { return cat == Cat.SHOT || this == FIRE_SHOT || this == LIGHTNING_SHOT || this == TORNADO_SHOT || this == EAGLE_SHOT; }
 
     public static Move byId(int id) {
         Move[] v = values();

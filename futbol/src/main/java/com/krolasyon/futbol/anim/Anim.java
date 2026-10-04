@@ -24,7 +24,8 @@ public final class Anim {
 
     /** blend weight of limb tracks: quick fade in, softer fade out */
     public float weight(float t) {
-        float in = Math.min(1F, t / 2.0F);
+        float in = Math.min(1F, t / 2.5F);
+        in = in * in * (3F - 2F * in);
         float out = Math.min(1F, (length - t) / 3.0F);
         return Math.max(0F, Math.min(in, out));
     }

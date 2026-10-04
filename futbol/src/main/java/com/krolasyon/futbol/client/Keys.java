@@ -18,7 +18,14 @@ public final class Keys {
     public static final KeyMapping MATCH = new KeyMapping("key.krolasyonfutbol.match", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_J, CAT);
     public static final KeyMapping CELEBRATE = new KeyMapping("key.krolasyonfutbol.celebrate", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_H, CAT);
 
-    public static final KeyMapping[] ALL = {SHOOT, PASS, TACKLE, SKILL, SUPER, MOVES, MATCH, CELEBRATE};
+    public static final KeyMapping SKILL2 = new KeyMapping("key.krolasyonfutbol.skill2", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_N, CAT);
+    public static final KeyMapping SKILL3 = new KeyMapping("key.krolasyonfutbol.skill3", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_M, CAT);
+    public static final KeyMapping REQUEST = new KeyMapping("key.krolasyonfutbol.request", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_X, CAT);
+    public static final KeyMapping CAMERA = new KeyMapping("key.krolasyonfutbol.camera", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_K, CAT);
+    public static final KeyMapping REPLAY = new KeyMapping("key.krolasyonfutbol.replay", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_O, CAT);
+    public static final KeyMapping CLUB = new KeyMapping("key.krolasyonfutbol.club", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_U, CAT);
+
+    public static final KeyMapping[] ALL = {SHOOT, PASS, TACKLE, SKILL, SKILL2, SKILL3, SUPER, REQUEST, MOVES, MATCH, CELEBRATE, CAMERA, REPLAY, CLUB};
 
     public static String name(KeyMapping k) { return k.getTranslatedKeyMessage().getString().toUpperCase(); }
 }

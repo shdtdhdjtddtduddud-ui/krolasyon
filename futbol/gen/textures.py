@@ -657,7 +657,17 @@ def items():
         save(it, f'item/{name}.png')
 
 
+def fan():
+    img = canvas(16, 16)
+    for y in range(16):
+        for x in range(16):
+            img[y, x] = shade(rgba('#FFFFFF'), 0.9 + 0.1 * R.random())
+    img[..., 3] = 255
+    save(img, 'entity/fan.png')
+
+
 if __name__ == '__main__':
+    fan()
     ball()
     aura()
     for n, k in KITS.items():

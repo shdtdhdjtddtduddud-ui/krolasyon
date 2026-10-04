@@ -43,11 +43,16 @@ public final class MoveExecutor {
         long now = lvl.getGameTime();
         FootData fd = FootData.of(a);
         if (now < fd.busyUntil || now < fd.stunnedUntil) return false;
-        if (move.isSuper() && now < fd.superReadyAt) {
+        Move m = contextual(a, move);
+        if (m.isSuper() && now < fd.superReadyAt) {
             msg(a, "Süper yetenek hazır değil: " + ((fd.superReadyAt - now) / 20 + 1) + " sn", ChatFormatting.RED);
             return false;
         }
-        Move m = contextual(a, move);
+        Long ready = fd.readyAt.get(m);
+        if (ready != null && now < ready) {
+            msg(a, m.title + " bekleme süresinde: " + ((ready - now) / 20 + 1) + " sn", ChatFormatting.GRAY);
+            return false;
+        }
         FootballEntity ball = findBall(a, m);
         if (m.needsBall && ball == null) {
             msg(a, "Top yakında değil!", ChatFormatting.GRAY);
@@ -60,13 +65,14 @@ public final class MoveExecutor {
         int variant = variant(a, m, ball, aim);
         fd.busyUntil = now + m.lock;
         fd.lastMove = m.ordinal();
+        if (m.reuseTicks() > 0) fd.readyAt.put(m, now + m.reuseTicks());
         if (m.isSuper()) {
             fd.superReadyAt = now + m.cooldown;
             lvl.playSound(null, a.getX(), a.getY(), a.getZ(), ModSounds.SUPER_CHARGE.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
             msg(a, "✦ " + m.title + "!", ChatFormatting.LIGHT_PURPLE);
         }
         if (aim != null && a instanceof Mob) face(a, aim);
-        Net.sendAnim(a, m, variant, m.isSuper() ? m.cooldown : 0);
+        Net.sendAnim(a, m, variant, m.reuseTicks());
         if (ball != null && m.needsBall && ball.getController() == null && ball.getHolder() == null && !airborne(ball, a)
                 && m != Move.FIRST_TOUCH && m.cat != Move.Cat.KEEPER) {
             ball.setController(a);
@@ -105,6 +111,11 @@ public final class MoveExecutor {
     // ------------------------------------------------------------------ helpers
 
     private static Move contextual(LivingEntity a, Move m) {
+        FootballEntity held = nearestBall(a, 3.0);
+        if (held != null && held.getHolder() == a) {
+            if (m.cat == Move.Cat.PASS) return Move.KEEPER_THROW;
+            if (m.isShot()) return Move.LOB_PASS;
+        }
         if (m != Move.SHOT && m != Move.POWER_SHOT && m != Move.FINESSE) return m;
         FootballEntity b = nearestBall(a, 3.0);
         if (b == null || b.getController() == a || b.getController() != null) return m;
@@ -156,7 +167,7 @@ public final class MoveExecutor {
                 Vec3 to = target.subtract(a.position());
                 return to.dot(right(facing(a))) >= 0 ? 0 : 1;
             }
-            case STEPOVER, ELASTICO, ROULETTE, CRUYFF, DANCE -> {
+            case STEPOVER, ELASTICO, ROULETTE, CRUYFF, DANCE, BODY_FEINT -> {
                 return r.nextInt(2);
             }
             case SHOT, POWER_SHOT, SHORT_PASS, THROUGH_PASS, LOB_PASS, VOLLEY -> {
@@ -641,6 +652,13 @@ public final class MoveExecutor {
                 b.noBodyCollision(16);
                 fd.evadeUntil = now + 25;
                 b.playBallSound(ModSounds.SKILL.get(), 0.8F, 1.3F);
+            }
+            case BODY_FEINT -> {
+                b.kick(a, rotY(f, -38 * side).scale(0.44), Vec3.ZERO, 0, 0);
+                b.immune(a, 4);
+                fd.evadeUntil = now + 28;
+                push(a, rotY(f, -40 * side).scale(0.35).add(0, a.getDeltaMovement().y, 0));
+                b.playBallSound(ModSounds.SKILL.get(), 0.6F, 1.1F);
             }
             case DRAGBACK -> {
                 b.kick(a, f.scale(-0.24), Vec3.ZERO, 0, 0);

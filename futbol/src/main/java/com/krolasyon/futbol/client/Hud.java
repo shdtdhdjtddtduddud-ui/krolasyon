@@ -17,7 +17,16 @@ public final class Hud {
         Minecraft mc = Minecraft.getInstance();
         if (mc.options.hideGui || mc.player == null) return;
         Font font = mc.font;
+        if (Replay.active) {
+            replay(g, font, w, h);
+            return;
+        }
         boolean active = ClientState.state != 0;
+        if (ClientState.clientTicks < ClientState.cameraToastUntil) {
+            String s = "Kamera: " + CameraController.NAMES[ClientState.cameraMode] + "  (" + Keys.name(Keys.CAMERA) + ")";
+            g.fill(w / 2 - font.width(s) / 2 - 6, h / 2 + 34, w / 2 + font.width(s) / 2 + 6, h / 2 + 48, 0xA0000000);
+            g.drawCenteredString(font, s, w / 2, h / 2 + 37, 0x80D8FF);
+        }
         if (active) scoreboard(g, font, w);
         if (ClientState.state == 1) {
             int sec = ClientState.stateTimer / 20 + 1;
@@ -104,24 +113,54 @@ public final class Hud {
     private static void hints(GuiGraphics g, Font font, int w, int h, boolean active) {
         boolean near = ClientState.nearestBallDist < 14;
         if (!near && !active) return;
-        int y = h - 62;
+        int y = h - 72;
         int x = 4;
         long now = ClientState.clientTicks;
         String sup = ClientState.favSuper.title;
         int left = (int) Math.max(0, ClientState.superCooldownEnd - now);
         String supState = left > 0 ? (left / 20 + 1) + " sn" : "HAZIR";
-        line(g, font, x, y, Keys.name(Keys.SHOOT) + " Şut (basılı tut)  " + Keys.name(Keys.PASS) + " Pas  " + Keys.name(Keys.TACKLE) + " Top Çal", 0xE0E0E0);
-        line(g, font, x, y + 10, Keys.name(Keys.SKILL) + " " + ClientState.favSkill.title + "  " + Keys.name(Keys.MOVES) + " Tüm Hareketler  " + Keys.name(Keys.MATCH) + " Maç", 0xE0E0E0);
-        line(g, font, x, y + 20, Keys.name(Keys.SUPER) + " ✦ " + sup + " [" + supState + "]", left > 0 ? 0xB0B0B0 : 0xFF80C0);
+        long slide = ClientState.cooldownLeft(com.krolasyon.futbol.game.Move.SLIDE);
+        line(g, font, x, y, Keys.name(Keys.SHOOT) + " " + ClientState.shots[0].title + " • ⇧" + Keys.name(Keys.SHOOT) + " " + ClientState.shots[1].title
+                + " • Koş+" + Keys.name(Keys.SHOOT) + " " + ClientState.shots[2].title, 0xE0E0E0);
+        line(g, font, x, y + 10, Keys.name(Keys.PASS) + " Pas  " + Keys.name(Keys.REQUEST) + " Pas İste  " + Keys.name(Keys.TACKLE) + " Top Çal"
+                + (slide > 0 ? " (kayma " + (slide / 20 + 1) + "sn)" : ""), 0xE0E0E0);
+        line(g, font, x, y + 20, Keys.name(Keys.SKILL) + " " + ClientState.skills[0].title + "  " + Keys.name(Keys.SKILL2) + " " + ClientState.skills[1].title
+                + "  " + Keys.name(Keys.SKILL3) + " " + ClientState.skills[2].title, 0xFFE082);
+        line(g, font, x, y + 30, Keys.name(Keys.SUPER) + " ✦ " + sup + " [" + supState + "]", left > 0 ? 0xB0B0B0 : 0xFF80C0);
+        line(g, font, x, y + 40, Keys.name(Keys.CAMERA) + " Kamera  " + Keys.name(Keys.REPLAY) + " Tekrar  " + Keys.name(Keys.MOVES) + " Hareketler  "
+                + Keys.name(Keys.MATCH) + " Maç  " + Keys.name(Keys.CLUB) + " Kulüp", 0xB0B0B0);
         if (left > 0) {
             float frac = 1F - left / (float) Math.max(1, ClientState.superCooldownTotal);
-            g.fill(x, y + 30, x + 100, y + 32, 0x80000000);
-            g.fill(x, y + 30, x + (int) (100 * frac), y + 32, 0xFFFF4081);
+            g.fill(x, y + 50, x + 100, y + 52, 0x80000000);
+            g.fill(x, y + 50, x + (int) (100 * frac), y + 52, 0xFFFF4081);
         }
-        if (ClientState.nearestBall != null && ClientState.nearestBall.getControllerId() == Minecraft.getInstance().player.getId()) {
+        Minecraft mc = Minecraft.getInstance();
+        if (active && ClientState.myTeam().playing()) {
+            String role = "Mevkin: " + com.krolasyon.futbol.game.Role.byId(ClientState.roleOf(mc.player.getUUID())).title;
+            g.drawString(font, role, w - font.width(role) - 4, h - 12, 0x80D8FF, true);
+        }
+        if (ClientState.nearestBall != null && ClientState.nearestBall.getHolder() == mc.player) {
+            String s = "🧤 Top elinde!  " + Keys.name(Keys.PASS) + ": at   " + Keys.name(Keys.SHOOT) + ": uzun vur";
+            g.drawString(font, s, w / 2 - font.width(s) / 2, h - 82, 0x80FF80, true);
+        } else if (ClientState.nearestBall != null && ClientState.nearestBall.getControllerId() == mc.player.getId()) {
             String s = "⚽ Top sende!  (Shift: topu ayağının altına al)";
-            g.drawString(font, s, w / 2 - font.width(s) / 2, h - 72, 0x80FF80, true);
+            g.drawString(font, s, w / 2 - font.width(s) / 2, h - 82, 0x80FF80, true);
         }
+    }
+
+    private static void replay(GuiGraphics g, Font font, int w, int h) {
+        int bar = h / 9;
+        g.fill(0, 0, w, bar, 0xFF000000);
+        g.fill(0, h - bar, w, h, 0xFF000000);
+        boolean blink = (ClientState.clientTicks / 10) % 2 == 0;
+        g.drawString(font, (blink ? "● " : "  ") + "TEKRAR", 12, bar / 2 - 4, 0xFF4040, true);
+        String sk = Keys.name(Keys.REPLAY) + ": geç";
+        g.drawString(font, sk, w - font.width(sk) - 12, bar / 2 - 4, 0xB0B0B0, false);
+        int len = Math.max(1, Replay.length());
+        g.fill(12, h - bar / 2, w - 12, h - bar / 2 + 2, 0x60FFFFFF);
+        g.fill(12, h - bar / 2, 12 + (int) ((w - 24) * (Replay.progress() / (float) len)), h - bar / 2 + 2, 0xFFFF4040);
+        String sc = Team.RED.abbr + " " + ClientState.red + " - " + ClientState.blue + " " + Team.BLUE.abbr + "   ⚽ " + ClientState.goalScorer;
+        g.drawCenteredString(font, sc, w / 2, bar / 2 - 4, 0xFFFFFF);
     }
 
     private static void line(GuiGraphics g, Font font, int x, int y, String s, int c) {

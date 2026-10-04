@@ -61,7 +61,29 @@ public class JerseyLayer<T extends LivingEntity, M extends PlayerModel<T>> exten
         m.rightPants.visible = false;
         int overlay = LivingEntityRenderer.getOverlayCoords(e, 0.0F);
         VertexConsumer vc = buf.getBuffer(RenderType.entityCutoutNoCull(tex));
+        float off = ClientAnims.timeIn(e, com.krolasyon.futbol.game.Move.SHIRT_OFF, age);
+        boolean shirtless = off > 13F;
+        if (shirtless) {
+            m.body.visible = false;
+            m.leftArm.visible = false;
+            m.rightArm.visible = false;
+        }
         m.renderToBuffer(ps, vc, light, overlay, 1F, 1F, 1F, 1F);
+        if (shirtless) {
+            // the shirt swinging in the raised right hand
+            ps.pushPose();
+            getParentModel().rightArm.translateAndRotate(ps);
+            ps.translate(-1F / 16F, 10.5F / 16F, 0);
+            ps.mulPose(com.mojang.math.Axis.ZP.rotationDegrees((float) Math.sin(age * 0.7F) * 35F));
+            ps.mulPose(com.mojang.math.Axis.XP.rotationDegrees(180F));
+            ps.scale(0.75F, 0.75F, 0.35F);
+            m.body.visible = true;
+            m.body.xRot = m.body.yRot = m.body.zRot = 0;
+            m.body.x = m.body.y = m.body.z = 0;
+            m.body.render(ps, vc, light, overlay);
+            ps.popPose();
+            return;
+        }
 
         int number = ClientState.numberOf(e);
         if (number > 0) {

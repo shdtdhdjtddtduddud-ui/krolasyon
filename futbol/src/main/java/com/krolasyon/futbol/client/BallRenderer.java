@@ -42,6 +42,8 @@ public class BallRenderer extends EntityRenderer<FootballEntity> {
 
     @Override
     public void render(FootballEntity ball, float yaw, float partial, PoseStack ps, MultiBufferSource buf, int light) {
+        if (Replay.active && ball.replayDriver == null) return;
+        if (ball.isInvisible()) return;
         ps.pushPose();
         ps.translate(0, FootballEntity.R, 0);
         Quaternionf q = new Quaternionf(ball.prevRot).slerp(ball.rot, partial);

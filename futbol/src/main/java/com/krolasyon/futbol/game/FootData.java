@@ -12,6 +12,8 @@ public final class FootData {
     public long evadeUntil;
     public long stunnedUntil;
     public int lastMove = -1;
+    public final java.util.EnumMap<Move, Long> readyAt = new java.util.EnumMap<>(Move.class);
+    public long passRequestUntil;
 
     private static final Map<LivingEntity, FootData> DATA = new WeakHashMap<>();
 

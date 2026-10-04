@@ -20,21 +20,35 @@ public final class ClientPackets {
         if (!(e instanceof LivingEntity le) || m == null) return;
         ClientAnims.start(le, m, msg.variant);
         if (mc.player != null && e == mc.player && msg.cooldown > 0) {
-            ClientState.superCooldownEnd = ClientState.clientTicks + msg.cooldown;
-            ClientState.superCooldownTotal = msg.cooldown;
+            ClientState.COOLDOWN_END.put(m, ClientState.clientTicks + msg.cooldown);
+            ClientState.COOLDOWN_LEN.put(m, msg.cooldown);
+            if (m.isSuper()) {
+                ClientState.superCooldownEnd = ClientState.clientTicks + msg.cooldown;
+                ClientState.superCooldownTotal = msg.cooldown;
+            }
         }
     }
 
     public static void match(MatchS2C msg) { ClientState.update(msg); }
 
     public static void goal(GoalS2C msg) {
-        ClientState.goalTicks = 90;
+        ClientState.goalTicks = 70;
+        Replay.onGoal();
         ClientState.goalTeam = msg.team;
         ClientState.goalScorer = msg.scorer;
         ClientState.goalOwn = msg.own;
         ClientState.red = msg.red;
         ClientState.blue = msg.blue;
         ClientState.shake = Math.max(ClientState.shake, 10);
+    }
+
+    public static void profile(com.krolasyon.futbol.network.ProfileS2C msg) {
+        ClientState.coins = msg.coins;
+        ClientState.cards = msg.cards;
+        if (msg.revealed >= 0) {
+            ClientState.revealed = msg.revealed;
+            ClientState.revealStart = ClientState.clientTicks;
+        }
     }
 
     public static void shake(ShakeS2C msg) { ClientState.shake = Math.max(ClientState.shake, msg.strength); }

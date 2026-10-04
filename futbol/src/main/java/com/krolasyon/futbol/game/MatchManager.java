@@ -62,20 +62,24 @@ public final class MatchManager {
     private static final Map<Team, List<LivingEntity>> MEMBERS = new EnumMap<>(Team.class);
     private static final Map<Team, LivingEntity[]> CHASERS = new EnumMap<>(Team.class);
 
+    private static final double G = 0, D = 1, M = 2, W = 3, F = 4;
+    /** formation slots per team size: {u, v, role} - slot 0 is the keeper from 2 players up */
     private static final double[][][] FORMATIONS = {
             {},
-            {{0.55, 0}},
-            {{0.03, 0}, {0.5, 0}},
-            {{0.03, 0}, {0.32, 0}, {0.62, 0}},
-            {{0.03, 0}, {0.3, -0.35}, {0.3, 0.35}, {0.62, 0}},
-            {{0.03, 0}, {0.28, -0.4}, {0.28, 0.4}, {0.5, 0}, {0.7, 0}},
-            {{0.03, 0}, {0.27, -0.45}, {0.27, 0.45}, {0.48, -0.35}, {0.48, 0.35}, {0.7, 0}},
-            {{0.03, 0}, {0.26, -0.5}, {0.24, 0}, {0.26, 0.5}, {0.48, -0.3}, {0.48, 0.3}, {0.7, 0}},
-            {{0.03, 0}, {0.26, -0.55}, {0.24, -0.18}, {0.24, 0.18}, {0.26, 0.55}, {0.5, -0.3}, {0.5, 0.3}, {0.72, 0}},
-            {{0.03, 0}, {0.26, -0.55}, {0.24, -0.18}, {0.24, 0.18}, {0.26, 0.55}, {0.48, -0.5}, {0.45, 0}, {0.48, 0.5}, {0.72, 0}},
-            {{0.03, 0}, {0.26, -0.55}, {0.24, -0.18}, {0.24, 0.18}, {0.26, 0.55}, {0.47, -0.55}, {0.45, -0.18}, {0.45, 0.18}, {0.47, 0.55}, {0.72, 0}},
-            {{0.03, 0}, {0.26, -0.55}, {0.24, -0.18}, {0.24, 0.18}, {0.26, 0.55}, {0.47, -0.6}, {0.45, -0.2}, {0.45, 0.2}, {0.47, 0.6}, {0.72, -0.15}, {0.72, 0.15}},
+            {{0.55, 0, F}},
+            {{0.03, 0, G}, {0.5, 0, F}},
+            {{0.03, 0, G}, {0.3, 0, D}, {0.62, 0, F}},
+            {{0.03, 0, G}, {0.28, -0.35, D}, {0.28, 0.35, D}, {0.62, 0, F}},
+            {{0.03, 0, G}, {0.26, -0.4, D}, {0.26, 0.4, D}, {0.46, 0, M}, {0.68, 0, F}},
+            {{0.03, 0, G}, {0.25, -0.38, D}, {0.25, 0.38, D}, {0.44, 0, M}, {0.56, -0.7, W}, {0.68, 0.05, F}},
+            {{0.03, 0, G}, {0.25, -0.45, D}, {0.25, 0.45, D}, {0.42, -0.25, M}, {0.42, 0.25, M}, {0.58, 0.72, W}, {0.68, -0.05, F}},
+            {{0.03, 0, G}, {0.25, -0.6, D}, {0.23, -0.2, D}, {0.23, 0.2, D}, {0.25, 0.6, D}, {0.44, -0.22, M}, {0.44, 0.22, M}, {0.7, 0, F}},
+            {{0.03, 0, G}, {0.25, -0.6, D}, {0.23, -0.2, D}, {0.23, 0.2, D}, {0.25, 0.6, D}, {0.42, 0, M}, {0.55, -0.72, W}, {0.55, 0.72, W}, {0.7, 0, F}},
+            {{0.03, 0, G}, {0.25, -0.6, D}, {0.23, -0.2, D}, {0.23, 0.2, D}, {0.25, 0.6, D}, {0.4, -0.22, M}, {0.4, 0.22, M}, {0.56, -0.74, W}, {0.56, 0.74, W}, {0.7, 0, F}},
+            {{0.03, 0, G}, {0.25, -0.6, D}, {0.23, -0.2, D}, {0.23, 0.2, D}, {0.25, 0.6, D}, {0.4, -0.22, M}, {0.4, 0.22, M}, {0.55, -0.74, W}, {0.55, 0.74, W}, {0.7, -0.14, F}, {0.7, 0.14, F}},
     };
+    public static final Map<UUID, Role> ROLES = new HashMap<>();
+    private static final Map<UUID, Integer> HUMAN_SLOT = new HashMap<>();
     private static final int[] NUMBER_PREF = {10, 9, 7, 11, 8, 17, 19, 21, 23, 4, 5, 6, 3, 2, 14, 16, 18, 20, 22, 24};
 
     // ------------------------------------------------------------------ lifecycle
@@ -280,7 +284,11 @@ public final class MatchManager {
                     bot.setYRot(team.attackDir() > 0 ? -90F : 90F);
                     bot.yBodyRot = bot.getYRot();
                 } else if (e instanceof ServerPlayer sp && sp.level() == l) {
-                    Vec3 k = p.point(team, t == team && idx == 0 ? 0.47 : 0.38, idx == 0 ? 0.0 : (idx % 2 == 0 ? 1 : -1) * 0.25 * ((idx + 1) / 2));
+                    Integer hs = HUMAN_SLOT.get(sp.getUUID());
+                    int n = Mth.clamp(playersPerTeam, 1, 11);
+                    Vec3 k = hs != null ? slotPos(p, team, hs, n, 0.5, 0, true)
+                            : p.point(team, 0.38, (idx % 2 == 0 ? 1 : -1) * 0.25 * ((idx + 1) / 2));
+                    if (t == team && hs != null && roleOfSlot(n, hs) == Role.FWD) k = p.point(team, 0.485, 0.02);
                     sp.teleportTo(l, k.x, k.y, k.z, team.attackDir() > 0 ? -90F : 90F, 0F);
                     idx++;
                 }
@@ -303,6 +311,13 @@ public final class MatchManager {
                 .append(Component.literal(scoreBlue + " " + Team.BLUE.abbr).withStyle(ChatFormatting.BLUE));
         c.append(Component.literal(w == Team.NONE ? "  Berabere!" : "  Kazanan: " + w.title).withStyle(w == Team.NONE ? ChatFormatting.YELLOW : w.chat));
         broadcast(c);
+        for (ServerPlayer sp : server.getPlayerList().getPlayers()) {
+            Team t = TEAMS.get(sp.getUUID());
+            if (t == null) continue;
+            if (w == Team.NONE) CardData.addCoins(sp, 70, "beraberlik");
+            else if (w == t) CardData.addCoins(sp, 150, "galibiyet");
+            else CardData.addCoins(sp, 40, "maç oynadın");
+        }
         if (w != Team.NONE) for (int i = 0; i < 8; i++) {
             final int k = i;
             Scheduler.later(i * 8, () -> fireworks(w, k));
@@ -322,6 +337,7 @@ public final class MatchManager {
             return;
         }
         refreshMembers();
+        if (s.getTickCount() % 20 == 0) speedBoosts(p);
         switch (state) {
             case KICKOFF -> {
                 if (--stateTimer <= 0) {
@@ -348,7 +364,7 @@ public final class MatchManager {
                 }
             }
             case GOAL -> {
-                if (stateTimer == 95) {
+                if (stateTimer == 180) {
                     FootballEntity b = ball();
                     if (b != null) b.frozen = true;
                 }
@@ -444,7 +460,7 @@ public final class MatchManager {
         lastScorer = b.lastToucherName == null || b.lastToucherName.isEmpty() ? "?" : b.lastToucherName;
         lastGoalTeam = scoring;
         state = State.GOAL;
-        stateTimer = 130;
+        stateTimer = 215;
         kickoffTeam = conceding;
         b.restrictTeam = Team.NONE;
         playAll(ModSounds.GOAL_HORN.get(), 1.0F, 1.0F);
@@ -459,10 +475,15 @@ public final class MatchManager {
             final int k = i;
             Scheduler.later(5 + i * 9, () -> fireworks(scoring, k));
         }
+        for (ServerPlayer sp : server.getPlayerList().getPlayers()) {
+            if (TEAMS.get(sp.getUUID()) != scoring) continue;
+            boolean me = sp.getUUID().equals(b.lastToucher) && !own;
+            CardData.addCoins(sp, me ? 30 : 10, me ? "gol attın" : "takımın gol attı");
+        }
         if (b.lastToucher != null) {
             Entity scorer = p.level(server).getEntity(b.lastToucher);
             if (scorer instanceof FootballerEntity bot && !own) {
-                Move[] c = {Move.SIUU, Move.KNEE_SLIDE, Move.AIRPLANE, Move.BACKFLIP, Move.DANCE};
+                Move[] c = {Move.SIUU, Move.KNEE_SLIDE, Move.AIRPLANE, Move.BACKFLIP, Move.DANCE, Move.SHIRT_OFF};
                 Scheduler.later(8, () -> MoveExecutor.perform(bot, c[bot.getRandom().nextInt(c.length)], 0));
             } else if (scorer instanceof ServerPlayer sp && !own) {
                 sp.displayClientMessage(Component.literal("Gol sevinci için [H] tuşuna bas!").withStyle(ChatFormatting.GOLD), true);
@@ -532,18 +553,39 @@ public final class MatchManager {
         MEMBERS.clear();
     }
 
-    private static int[] slotOrder(int n) {
-        // GK first, then attack, defence, midfield, remaining
-        int[] order = new int[n];
-        for (int i = 0; i < n; i++) order[i] = i;
-        if (n >= 3) {
-            List<Integer> l = new ArrayList<>();
-            l.add(0);
-            l.add(n - 1);
-            for (int i = 1; i < n - 1; i++) l.add(i);
-            for (int i = 0; i < n; i++) order[i] = l.get(i);
+    public static Role roleOfSlot(int n, int slot) {
+        double[][] f = FORMATIONS[Mth.clamp(n, 1, 11)];
+        return Role.byId((int) f[Mth.clamp(slot, 0, f.length - 1)][2]);
+    }
+
+    /** gives every online human of the team a formation slot that matches their chosen role */
+    private static Set<Integer> claimHumanSlots(Team t, int n) {
+        Set<Integer> used = new HashSet<>();
+        for (ServerPlayer sp : server.getPlayerList().getPlayers()) {
+            if (TEAMS.get(sp.getUUID()) != t) {
+                HUMAN_SLOT.remove(sp.getUUID());
+                continue;
+            }
+            Role want = ROLES.getOrDefault(sp.getUUID(), Role.FWD);
+            int pick = -1;
+            for (int s = n - 1; s >= 0; s--) if (!used.contains(s) && roleOfSlot(n, s) == want) {
+                pick = s;
+                break;
+            }
+            if (pick < 0) for (int s = n - 1; s >= 0; s--) if (!used.contains(s) && roleOfSlot(n, s) != Role.GK) {
+                pick = s;
+                break;
+            }
+            if (pick < 0) for (int s = 0; s < n; s++) if (!used.contains(s)) {
+                pick = s;
+                break;
+            }
+            if (pick >= 0) {
+                used.add(pick);
+                HUMAN_SLOT.put(sp.getUUID(), pick);
+            } else HUMAN_SLOT.remove(sp.getUUID());
         }
-        return order;
+        return used;
     }
 
     private static void spawnBots() {
@@ -551,21 +593,45 @@ public final class MatchManager {
         ServerLevel l = p.level(server);
         int n = Mth.clamp(playersPerTeam, 1, 11);
         for (Team t : new Team[]{Team.RED, Team.BLUE}) {
-            int humans = humansOnline(t);
-            int bots = Math.max(0, n - humans);
-            int[] order = slotOrder(n);
-            for (int i = 0; i < bots; i++) spawnBot(l, p, t, order[i], n);
+            Set<Integer> humans = claimHumanSlots(t, n);
+            List<CardData.Card> cards = squadCards(t);
+            for (int s = 0; s < n; s++) if (!humans.contains(s)) spawnBot(l, p, t, s, n, cards);
         }
     }
 
-    private static void spawnBot(ServerLevel l, Pitch p, Team t, int slot, int n) {
+    private static List<CardData.Card> squadCards(Team t) {
+        List<CardData.Card> out = new ArrayList<>();
+        for (ServerPlayer sp : server.getPlayerList().getPlayers())
+            if (TEAMS.get(sp.getUUID()) == t) out.addAll(CardData.get(server).profile(sp.getUUID()).squad());
+        return out;
+    }
+
+    private static void spawnBot(ServerLevel l, Pitch p, Team t, int slot, int n, List<CardData.Card> cards) {
         FootballerEntity b = ModEntities.FOOTBALLER.get().create(l);
         if (b == null) return;
         b.slot = slot;
         b.setFootTeam(t);
-        b.setKeeper(n >= 2 && slot == 0);
+        Role role = roleOfSlot(n, slot);
+        b.setKeeper(role == Role.GK && n >= 2);
+        b.setRole(role);
         int num = b.isKeeper() ? 1 : freeNumber(t, UUID.randomUUID());
         b.setNumber(num);
+        // best matching card from the human squads of this team
+        CardData.Card best = null;
+        for (CardData.Card c : cards) {
+            if (Role.byId(c.role) == role) {
+                best = c;
+                break;
+            }
+        }
+        if (best == null && role != Role.GK) for (CardData.Card c : cards) if (Role.byId(c.role) != Role.GK) {
+            best = c;
+            break;
+        }
+        if (best != null) {
+            cards.remove(best);
+            b.applyCard(best);
+        }
         Vec3 pos = slotPos(p, t, slot, n, 0.5, 0, true);
         b.moveTo(pos.x, pos.y, pos.z, t.attackDir() > 0 ? -90F : 90F, 0F);
         l.addFreshEntity(b);
@@ -573,46 +639,31 @@ public final class MatchManager {
         list.add(b);
     }
 
-    /** keeps the team at playersPerTeam when humans join or leave during a match */
+    /** keeps every formation slot filled (humans first, then bots) when people join, leave or change role */
     public static void rebalance() {
         Pitch p = pitch();
         if (p == null || !isActive()) return;
         refreshMembers();
         int n = Mth.clamp(playersPerTeam, 1, 11);
         for (Team t : new Team[]{Team.RED, Team.BLUE}) {
-            int humans = humansOnline(t);
-            List<FootballerEntity> bots = new ArrayList<>();
-            for (LivingEntity e : members(t)) if (e instanceof FootballerEntity b) bots.add(b);
-            int want = Math.max(0, n - humans);
-            int[] order = slotOrder(n);
-            if (bots.size() > want) {
-                bots.sort(Comparator.comparingInt(b -> -indexOf(order, b.slot)));
-                for (int i = 0; i < bots.size() - want; i++) bots.get(i).discard();
-            } else if (bots.size() < want) {
-                Set<Integer> used = new HashSet<>();
-                for (FootballerEntity b : bots) used.add(b.slot);
-                int add = want - bots.size();
-                for (int s : order) {
-                    if (add <= 0) break;
-                    if (used.contains(s)) continue;
-                    spawnBot(p.level(server), p, t, s, n);
-                    add--;
-                }
+            Set<Integer> humans = claimHumanSlots(t, n);
+            Set<Integer> botSlots = new HashSet<>();
+            for (LivingEntity e : members(t)) {
+                if (!(e instanceof FootballerEntity b)) continue;
+                if (humans.contains(b.slot) || b.slot >= n || botSlots.contains(b.slot)) b.discard();
+                else botSlots.add(b.slot);
             }
+            List<CardData.Card> cards = squadCards(t);
+            for (int s = 0; s < n; s++) if (!humans.contains(s) && !botSlots.contains(s)) spawnBot(p.level(server), p, t, s, n, cards);
         }
         refreshMembers();
-    }
-
-    private static int indexOf(int[] a, int v) {
-        for (int i = 0; i < a.length; i++) if (a[i] == v) return i;
-        return a.length;
     }
 
     public static Vec3 slotPos(Pitch p, Team t, int slot, int n, double ballU, double ballV, boolean kickoff) {
         double[][] f = FORMATIONS[Mth.clamp(n, 1, 11)];
         double[] s = f[Mth.clamp(slot, 0, f.length - 1)];
         double u = s[0], v = s[1];
-        boolean gk = n >= 2 && slot == 0;
+        boolean gk = s[2] == G && n >= 2;
         if (kickoff) {
             if (!gk) u = Math.min(u * 0.85, 0.44);
         } else if (!gk) {
@@ -622,13 +673,27 @@ public final class MatchManager {
         return p.point(t, u, v);
     }
 
+    /** raw formation anchor (u, v) of a slot */
+    public static double[] slotUV(int n, int slot) {
+        double[][] f = FORMATIONS[Mth.clamp(n, 1, 11)];
+        double[] s = f[Mth.clamp(slot, 0, f.length - 1)];
+        return new double[]{s[0], s[1]};
+    }
+
     public static Vec3 kickoffPos(FootballerEntity b) {
         Pitch p = pitch();
         Team t = b.getFootTeam();
         int n = Mth.clamp(playersPerTeam, 1, 11);
         Vec3 pos = slotPos(p, t, b.slot, n, 0.5, 0, true);
-        if (t == kickoffTeam && b.slot == (n >= 3 ? n - 1 : n - 1) && !b.isKeeper()) pos = p.point(t, 0.485, 0.02);
+        if (t == kickoffTeam && b.getRole() == Role.FWD && !kickoffHumanForward(t)) pos = p.point(t, 0.485, 0.02);
         return pos;
+    }
+
+    private static boolean kickoffHumanForward(Team t) {
+        int n = Mth.clamp(playersPerTeam, 1, 11);
+        for (Map.Entry<UUID, Integer> e : HUMAN_SLOT.entrySet())
+            if (TEAMS.get(e.getKey()) == t && roleOfSlot(n, e.getValue()) == Role.FWD) return true;
+        return false;
     }
 
     public static Vec3 dynamicPos(FootballerEntity b) {
@@ -703,6 +768,68 @@ public final class MatchManager {
                 .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(cmd))));
     }
 
+    private static final UUID SPEED_ID = UUID.fromString("6f6a2e3c-6d1a-4c8e-9a51-2b9a8f0c7d11");
+
+    /** human players in a team get a small sprint boost so they can keep up (and out-run) the bots */
+    private static void speedBoosts(Pitch p) {
+        for (ServerPlayer sp : server.getPlayerList().getPlayers()) {
+            var attr = sp.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED);
+            if (attr == null) continue;
+            boolean want = TEAMS.containsKey(sp.getUUID()) && sp.level() == p.level(server) && p.near(sp.position(), 12);
+            boolean has = attr.getModifier(SPEED_ID) != null;
+            if (want && !has) attr.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(SPEED_ID,
+                    "futbol_speed", 0.15, net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.MULTIPLY_TOTAL));
+            else if (!want && has) attr.removeModifier(SPEED_ID);
+        }
+    }
+
+    // ------------------------------------------------------------------ roles, pass requests, human keepers
+
+    public static Role roleOf(Player p) { return ROLES.getOrDefault(p.getUUID(), Role.FWD); }
+
+    public static void setRole(ServerPlayer p, Role r) {
+        ROLES.put(p.getUUID(), r);
+        p.displayClientMessage(Component.literal("Mevkin: " + r.title).withStyle(ChatFormatting.AQUA), true);
+        if (isActive()) rebalance();
+        dirty = true;
+    }
+
+    public static void requestPass(ServerPlayer p) {
+        Team t = TEAMS.getOrDefault(p.getUUID(), Team.NONE);
+        long now = p.level().getGameTime();
+        FootData.of(p).passRequestUntil = now + 40;
+        ((ServerLevel) p.level()).sendParticles(net.minecraft.core.particles.ParticleTypes.HAPPY_VILLAGER, p.getX(), p.getY() + 2.3, p.getZ(), 6, 0.3, 0.2, 0.3, 0);
+        p.level().playSound(null, p.blockPosition(), net.minecraft.sounds.SoundEvents.NOTE_BLOCK_BELL.value(), net.minecraft.sounds.SoundSource.PLAYERS, 0.6F, 1.6F);
+        FootballEntity b = ballFor(p);
+        if (b == null) return;
+        LivingEntity c = b.getController() != null ? b.getController() : b.getHolder();
+        if (c == null || c == p) return;
+        if (t.playing() && teamOf(c) != t) return;
+        if (c instanceof FootballerEntity bot) bot.brain.passRequested(p);
+        else if (c instanceof ServerPlayer mate)
+            mate.displayClientMessage(Component.literal("⚽ " + p.getName().getString() + " PAS İSTİYOR!").withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD), true);
+    }
+
+    public static boolean isHumanKeeper(Player p) {
+        return TEAMS.containsKey(p.getUUID()) && roleOf(p) == Role.GK && isActive();
+    }
+
+    /** a human goalkeeper catches the ball when it reaches him inside his own box */
+    public static boolean tryHumanCatch(Player p, FootballEntity ball, boolean collision) {
+        if (!isHumanKeeper(p) || ball.getHolder() != null) return false;
+        Pitch pt = pitch();
+        Team t = TEAMS.get(p.getUUID());
+        if (pt == null || !pt.inPenaltyArea(t, p.position())) return false;
+        if (ball.lastTouchTeam == t && ball.getDeltaMovement().length() < 1.0 && !collision) return false;
+        double speed = ball.getDeltaMovement().length();
+        if (collision && p.getRandom().nextFloat() > (speed > 2.0 ? 0.6F : 0.9F)) return false;
+        ball.setHolder(p);
+        ball.playBallSound(ModSounds.CATCH.get(), 1.0F, 1.0F);
+        p.displayClientMessage(Component.literal("Top elinde! R: at  •  Z: uzun vur").withStyle(ChatFormatting.GREEN), true);
+        onSave(p);
+        return true;
+    }
+
     // ------------------------------------------------------------------ sync
 
     public static void markDirty() { dirty = true; }
@@ -715,7 +842,8 @@ public final class MatchManager {
         for (Map.Entry<UUID, Team> e : TEAMS.entrySet()) {
             ServerPlayer sp = server.getPlayerList().getPlayer(e.getKey());
             String name = sp != null ? sp.getName().getString() : "?";
-            entries.add(new MatchS2C.Entry(e.getKey(), name, e.getValue().ordinal(), NUMBERS.getOrDefault(e.getKey(), 0), sp != null));
+            entries.add(new MatchS2C.Entry(e.getKey(), name, e.getValue().ordinal(), NUMBERS.getOrDefault(e.getKey(), 0), sp != null,
+                    ROLES.getOrDefault(e.getKey(), Role.FWD).ordinal()));
         }
         int bots = 0;
         for (Team t : new Team[]{Team.RED, Team.BLUE}) for (LivingEntity e : members(t)) if (e instanceof FootballerEntity) bots++;

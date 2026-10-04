@@ -23,6 +23,8 @@ public class FootballerEntity extends PathfinderMob {
     private static final EntityDataAccessor<Integer> DATA_NUMBER = SynchedEntityData.defineId(FootballerEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_SKIN = SynchedEntityData.defineId(FootballerEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> DATA_KEEPER = SynchedEntityData.defineId(FootballerEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Byte> DATA_ROLE = SynchedEntityData.defineId(FootballerEntity.class, EntityDataSerializers.BYTE);
+    private static final EntityDataAccessor<Byte> DATA_RARITY = SynchedEntityData.defineId(FootballerEntity.class, EntityDataSerializers.BYTE);
 
     public static final int SKINS = 8;
 
@@ -54,6 +56,8 @@ public class FootballerEntity extends PathfinderMob {
         this.entityData.define(DATA_NUMBER, 10);
         this.entityData.define(DATA_SKIN, 0);
         this.entityData.define(DATA_KEEPER, false);
+        this.entityData.define(DATA_ROLE, (byte) com.krolasyon.futbol.game.Role.MID.ordinal());
+        this.entityData.define(DATA_RARITY, (byte) -1);
     }
 
     private void randomize() {
@@ -70,7 +74,7 @@ public class FootballerEntity extends PathfinderMob {
 
     public void applySpeed() {
         var a = getAttribute(Attributes.MOVEMENT_SPEED);
-        if (a != null) a.setBaseValue(0.25 + statSpeed * 0.05);
+        if (a != null) a.setBaseValue(0.205 + statSpeed * 0.035);
     }
 
     public Team getFootTeam() { return Team.byId(this.entityData.get(DATA_TEAM)); }
@@ -91,21 +95,62 @@ public class FootballerEntity extends PathfinderMob {
 
     public boolean isKeeper() { return this.entityData.get(DATA_KEEPER); }
 
+    public com.krolasyon.futbol.game.Role getRole() { return com.krolasyon.futbol.game.Role.byId(this.entityData.get(DATA_ROLE)); }
+
+    public void setRole(com.krolasyon.futbol.game.Role r) {
+        this.entityData.set(DATA_ROLE, (byte) r.ordinal());
+        refreshName();
+    }
+
+    /** -1 = plain bot, otherwise the rarity of the player card it represents */
+    public int getRarity() { return this.entityData.get(DATA_RARITY); }
+
+    public void setSkin(int skin) { this.entityData.set(DATA_SKIN, skin); }
+
+    /** turn this bot into the player described by a card */
+    public void applyCard(com.krolasyon.futbol.game.CardData.Card c) {
+        baseName = c.name;
+        statSpeed = c.stats[0] / 100F;
+        statShot = c.stats[1] / 100F;
+        statPass = c.stats[2] / 100F;
+        statDribble = c.stats[3] / 100F;
+        statDefend = c.stats[4] / 100F;
+        statKeeper = c.stats[5] / 100F;
+        this.entityData.set(DATA_SKIN, c.skin);
+        this.entityData.set(DATA_RARITY, (byte) c.rarity);
+        applySpeed();
+        refreshName();
+    }
+
     public void setKeeper(boolean k) {
         this.entityData.set(DATA_KEEPER, k);
-        if (k) statKeeper = Math.max(statKeeper, 0.75F);
+        if (k) {
+            statKeeper = Math.max(statKeeper, 0.75F);
+            this.entityData.set(DATA_ROLE, (byte) com.krolasyon.futbol.game.Role.GK.ordinal());
+        }
         refreshName();
     }
 
     public void refreshName() {
         Team t = getFootTeam();
-        String role = isKeeper() ? " (K)" : "";
-        setCustomName(Component.literal(getNumber() + " " + baseName + role).withStyle(t.chat));
+        String role = " (" + getRole().abbr + ")";
+        int r = getRarity();
+        net.minecraft.ChatFormatting star = r == 3 ? net.minecraft.ChatFormatting.LIGHT_PURPLE : r == 2 ? net.minecraft.ChatFormatting.GOLD : t.chat;
+        setCustomName(Component.literal((r >= 2 ? "★ " : "") + getNumber() + " " + baseName + role).withStyle(star));
         setCustomNameVisible(false);
     }
 
     @Override
     protected void registerGoals() {}
+
+    /** client-only replay driver (goal replays drive fake copies of players) */
+    public java.util.function.Consumer<net.minecraft.world.entity.Entity> replayDriver;
+
+    @Override
+    public void tick() {
+        if (replayDriver != null) replayDriver.accept(this);
+        super.tick();
+    }
 
     @Override
     protected void customServerAiStep() {
@@ -137,6 +182,8 @@ public class FootballerEntity extends PathfinderMob {
         tag.putInt("FSkin", getSkin());
         tag.putBoolean("FKeeper", isKeeper());
         tag.putInt("FSlot", slot);
+        tag.putByte("FRole", this.entityData.get(DATA_ROLE));
+        tag.putByte("FRarity", this.entityData.get(DATA_RARITY));
         tag.putString("FName", baseName);
         tag.putFloat("SSpeed", statSpeed);
         tag.putFloat("SShot", statShot);
@@ -155,6 +202,8 @@ public class FootballerEntity extends PathfinderMob {
             this.entityData.set(DATA_SKIN, tag.getInt("FSkin"));
             this.entityData.set(DATA_KEEPER, tag.getBoolean("FKeeper"));
             slot = tag.getInt("FSlot");
+            this.entityData.set(DATA_ROLE, tag.getByte("FRole"));
+            this.entityData.set(DATA_RARITY, tag.getByte("FRarity"));
             baseName = tag.getString("FName");
             statSpeed = tag.getFloat("SSpeed");
             statShot = tag.getFloat("SShot");

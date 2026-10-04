@@ -14,6 +14,7 @@ public class MatchScreen extends Screen {
     private Button startStop;
     private int lastState = -1;
     private boolean lastPitch;
+    private int lastRole = -1;
 
     public MatchScreen() { super(Component.literal("Maç")); }
 
@@ -33,6 +34,19 @@ public class MatchScreen extends Screen {
         addRenderableWidget(Button.builder(Component.literal("§9§lMaviye Katıl"), b -> send(ControlC2S.TEAM, Team.BLUE.ordinal()))
                 .bounds(cx + colW / 2 + 6, top, colW, 20).build());
 
+        int myRole = ClientState.roleOf(minecraft.player.getUUID());
+        com.krolasyon.futbol.game.Role[] roles = com.krolasyon.futbol.game.Role.values();
+        int rw = 46;
+        int rx = cx - roles.length * rw / 2 + 30;
+        for (int i = 0; i < roles.length; i++) {
+            final int k = i;
+            Button rb = Button.builder(Component.literal(roles[i].abbr), b -> send(ControlC2S.ROLE, k)).bounds(rx + i * rw, top + 24, rw - 2, 18)
+                    .tooltip(net.minecraft.client.gui.components.Tooltip.create(Component.literal(roles[i].title
+                            + (roles[i] == com.krolasyon.futbol.game.Role.GK ? " — topu elle tutabilirsin" : "")))).build();
+            rb.active = i != myRole;
+            addRenderableWidget(rb);
+        }
+        lastRole = myRole;
         int sy = height - 76;
         addRenderableWidget(Button.builder(Component.literal("-"), b -> send(ControlC2S.PLAYERS, ClientState.playersPerTeam - 1)).bounds(cx - 150, sy, 20, 20).build());
         addRenderableWidget(Button.builder(Component.literal("+"), b -> send(ControlC2S.PLAYERS, ClientState.playersPerTeam + 1)).bounds(cx - 40, sy, 20, 20).build());
@@ -54,7 +68,8 @@ public class MatchScreen extends Screen {
 
     @Override
     public void tick() {
-        if (lastState != ClientState.state || lastPitch != ClientState.hasPitch) rebuildWidgets();
+        if (lastState != ClientState.state || lastPitch != ClientState.hasPitch
+                || (minecraft.player != null && lastRole != ClientState.roleOf(minecraft.player.getUUID()))) rebuildWidgets();
     }
 
     @Override
@@ -69,12 +84,13 @@ public class MatchScreen extends Screen {
         int colW = Math.min(130, (width - 40) / 3);
         int[] xs = {cx - colW * 3 / 2 - 6, cx - colW / 2, cx + colW / 2 + 6};
         Team[] teams = {Team.RED, Team.NONE, Team.BLUE};
-        int ly = 72;
+        int ly = 96;
+        g.drawString(font, "Mevkin:", cx - 5 * 46 / 2 + 30 - font.width("Mevkin:") - 6, 46 + 29, 0xFFFFFF, false);
         Team mine = ClientState.myTeam();
         for (int i = 0; i < 3; i++) {
             Team t = teams[i];
             int x = xs[i];
-            int boxH = height - 160;
+            int boxH = height - 184;
             g.fill(x, ly, x + colW, ly + boxH, 0x90000000);
             g.fill(x, ly, x + colW, ly + 2, 0xFF000000 | t.color);
             if (t == mine) g.fill(x, ly + boxH - 2, x + colW, ly + boxH, 0xFFFFFFFF);
@@ -83,7 +99,8 @@ public class MatchScreen extends Screen {
             y += 12;
             for (MatchS2C.Entry e : ClientState.entries) {
                 if (e.team() != t.ordinal()) continue;
-                String s = (e.number() > 0 ? "#" + e.number() + " " : "") + e.name() + (e.online() ? "" : " (çevrimdışı)");
+                String s = (e.number() > 0 ? "#" + e.number() + " " : "") + e.name() + (t != Team.NONE ? " [" + com.krolasyon.futbol.game.Role.byId(e.role()).abbr + "]" : "")
+                        + (e.online() ? "" : " (çevrimdışı)");
                 g.drawString(font, s, x + 5, y, 0xFFFFFF, false);
                 y += 10;
                 if (y > ly + boxH - 10) break;

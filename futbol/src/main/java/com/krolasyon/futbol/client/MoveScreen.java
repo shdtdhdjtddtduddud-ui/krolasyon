@@ -17,6 +17,30 @@ import java.util.List;
 /** All 49 moves grouped in tabs. Left click: perform, right click: bind to the quick key. */
 public class MoveScreen extends Screen {
     private static Move.Cat tab = Move.Cat.SKILL;
+    /** loadout slot being edited: 0-2 skills (V,N,M), 3-5 shot styles (Z, Shift+Z, sprint+Z), 6 super (B), 7 celebration (H) */
+    private static int slot = 0;
+    private static final String[] SLOT_KEY = {"V", "N", "M", "Z", "⇧Z", "Koş+Z", "B", "H"};
+
+    private static Move slotMove(int i) {
+        if (i < 3) return ClientState.skills[i];
+        if (i < 6) return ClientState.shots[i - 3];
+        return i == 6 ? ClientState.favSuper : ClientState.favCeleb;
+    }
+
+    private static boolean fits(int i, Move m) {
+        if (i < 3) return m.cat != Move.Cat.CELEBRATION && !m.isSuper() && m.cat != Move.Cat.SHOT;
+        if (i < 6) return m.cat == Move.Cat.SHOT;
+        return i == 6 ? m.isSuper() : m.cat == Move.Cat.CELEBRATION;
+    }
+
+    private static void assign(int i, Move m) {
+        if (i < 3) ClientState.skills[i] = m;
+        else if (i < 6) ClientState.shots[i - 3] = m;
+        else if (i == 6) ClientState.favSuper = m;
+        else ClientState.favCeleb = m;
+        ClientState.favSkill = ClientState.skills[0];
+        ClientState.savePrefs();
+    }
 
     public MoveScreen() { super(Component.literal("Hareketler")); }
 
@@ -34,13 +58,27 @@ public class MoveScreen extends Screen {
             b.active = c != tab;
             addRenderableWidget(b);
         }
+        int sw = Math.min(64, (width - 20) / 8);
+        int sx = width / 2 - sw * 4;
+        for (int i = 0; i < 8; i++) {
+            final int k = i;
+            Move m = slotMove(i);
+            String label = SLOT_KEY[i] + ": " + (m.title.length() > 7 ? m.title.substring(0, 7) + "." : m.title);
+            Button b = Button.builder(Component.literal(label), btn -> {
+                slot = k;
+                rebuildWidgets();
+            }).bounds(sx + i * sw, 48, sw - 2, 18).tooltip(net.minecraft.client.gui.components.Tooltip.create(
+                    Component.literal(SLOT_KEY[k] + " tuşu: " + m.title + "\nDeğiştirmek için seç, sonra bir karta sağ tıkla"))).build();
+            b.active = i != slot;
+            addRenderableWidget(b);
+        }
         List<Move> list = new ArrayList<>();
         for (Move m : Move.values()) if (m.cat == tab) list.add(m);
         int cols = width > 520 ? 3 : 2;
         int cw = Math.min(168, (width - 30) / cols);
         int ch = 42;
         int gx = width / 2 - cols * cw / 2;
-        int gy = 52;
+        int gy = 72;
         for (int i = 0; i < list.size(); i++) {
             int col = i % cols, row = i / cols;
             addRenderableWidget(new Card(gx + col * cw, gy + row * (ch + 4), cw - 4, ch, list.get(i)));
@@ -51,10 +89,9 @@ public class MoveScreen extends Screen {
     @Override
     public void render(GuiGraphics g, int mx, int my, float pt) {
         renderBackground(g);
-        g.drawCenteredString(font, "⚽ HAREKETLER — sol tık: yap • sağ tık: hızlı tuşa ata", width / 2, 10, 0xFFD54F);
+        g.drawCenteredString(font, "⚽ HAREKETLER — sol tık: yap • sağ tık: seçili tuşa (" + SLOT_KEY[slot] + ") ata", width / 2, 10, 0xFFD54F);
         super.render(g, mx, my, pt);
-        String fav = "V: " + ClientState.favSkill.title + "   B: " + ClientState.favSuper.title + "   H: " + ClientState.favCeleb.title;
-        g.drawCenteredString(font, fav, width / 2, height - 36, 0xA0A0A0);
+        g.drawCenteredString(font, "Çalım tuşları V/N/M • Şut stilleri Z / Shift+Z / koşarken Z • Süper B • Sevinç H", width / 2, height - 36, 0xA0A0A0);
     }
 
     @Override
@@ -82,7 +119,11 @@ public class MoveScreen extends Screen {
                 g.fill(x, y + h - 1, x + w, y + h, 0xFFFFFFFF);
             }
             String title = move.title;
-            if (move == ClientState.favSkill || move == ClientState.favSuper || move == ClientState.favCeleb) title = "★ " + title;
+            for (int i = 0; i < 8; i++) if (slotMove(i) == move) {
+                title = "[" + SLOT_KEY[i] + "] " + title;
+                break;
+            }
+            if (!fits(slot, move)) g.fill(x, y, x + w, y + h, 0x50000000);
             g.drawString(f, title, x + 7, y + 4, 0xFFFFFF, true);
             String tag = move.isSuper() ? (move.cooldown / 20) + " sn" : move.needsBall ? "⚽" : "";
             if (!tag.isEmpty()) g.drawString(f, tag, x + w - 5 - f.width(tag), y + 4, 0xB0B0B0, false);
@@ -95,10 +136,12 @@ public class MoveScreen extends Screen {
             if (!active || !visible || !isMouseOver(mx, my)) return false;
             playDownSound(Minecraft.getInstance().getSoundManager());
             if (button == 1) {
-                if (move.isSuper()) ClientState.favSuper = move;
-                else if (move.cat == Move.Cat.CELEBRATION) ClientState.favCeleb = move;
-                else ClientState.favSkill = move;
-                ClientState.savePrefs();
+                int target = slot;
+                if (!fits(target, move)) {
+                    target = move.isSuper() ? 6 : move.cat == Move.Cat.CELEBRATION ? 7 : move.cat == Move.Cat.SHOT ? 3 : 0;
+                }
+                assign(target, move);
+                rebuildWidgets();
             } else {
                 Minecraft.getInstance().setScreen(null);
                 ClientEvents.send(move, 0.8F);

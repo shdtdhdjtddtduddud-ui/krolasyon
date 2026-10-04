@@ -47,6 +47,19 @@ public final class ClientState {
     public static Move favSkill = Move.RAINBOW;
     public static Move favSuper = Move.FIRE_SHOT;
     public static Move favCeleb = Move.SIUU;
+    /** three skill slots (V, N, M) and three shot styles (Z, Shift+Z, sprint+Z) */
+    public static final Move[] skills = {Move.RAINBOW, Move.BODY_FEINT, Move.ROULETTE};
+    public static final Move[] shots = {Move.SHOT, Move.FINESSE, Move.POWER_SHOT};
+    public static int cameraMode;
+    public static long cameraToastUntil;
+    public static final java.util.EnumMap<Move, Long> COOLDOWN_END = new java.util.EnumMap<>(Move.class);
+    public static final java.util.EnumMap<Move, Integer> COOLDOWN_LEN = new java.util.EnumMap<>(Move.class);
+
+    // club
+    public static int coins;
+    public static List<com.krolasyon.futbol.game.CardData.Card> cards = new ArrayList<>();
+    public static int revealed = -1;
+    public static long revealStart;
 
     // ball relations refreshed each tick
     public static final Set<Integer> CONTROLLERS = new HashSet<>();
@@ -81,16 +94,32 @@ public final class ClientState {
 
     public static Team teamOf(Entity e) {
         if (e instanceof FootballerEntity b) return b.getFootTeam();
+        if (e instanceof Replay.ReplayPlayer rp) return Team.byId(TEAMS.getOrDefault(rp.source, 0));
         if (e instanceof Player p) return Team.byId(TEAMS.getOrDefault(p.getUUID(), 0));
         return Team.NONE;
     }
 
     public static int numberOf(Entity e) {
         if (e instanceof FootballerEntity b) return b.getNumber();
+        if (e instanceof Replay.ReplayPlayer rp) return NUMBERS.getOrDefault(rp.source, 0);
         return NUMBERS.getOrDefault(e.getUUID(), 0);
     }
 
-    public static boolean keeper(Entity e) { return e instanceof FootballerEntity b && b.isKeeper(); }
+    public static int roleOf(UUID id) {
+        for (MatchS2C.Entry en : entries) if (en.id().equals(id)) return en.role();
+        return com.krolasyon.futbol.game.Role.FWD.ordinal();
+    }
+
+    public static long cooldownLeft(Move m) {
+        Long end = COOLDOWN_END.get(m);
+        return end == null ? 0 : Math.max(0, end - clientTicks);
+    }
+
+    public static boolean keeper(Entity e) {
+        if (e instanceof FootballerEntity b) return b.isKeeper();
+        UUID id = e instanceof Replay.ReplayPlayer rp ? rp.source : e instanceof Player ? e.getUUID() : null;
+        return id != null && state != 0 && TEAMS.containsKey(id) && roleOf(id) == com.krolasyon.futbol.game.Role.GK.ordinal();
+    }
 
     public static Team myTeam() {
         Player p = Minecraft.getInstance().player;
@@ -105,7 +134,7 @@ public final class ClientState {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null) return;
         for (Entity e : mc.level.entitiesForRendering()) {
-            if (e instanceof FootballEntity b) {
+            if (e instanceof FootballEntity b && b.replayDriver == null) {
                 int c = b.getControllerId();
                 if (c >= 0) CONTROLLERS.add(c);
                 LivingEntity h = b.getHolder();
@@ -135,6 +164,16 @@ public final class ClientState {
             Move b = Move.parse(pr.getProperty("super", ""));
             Move c = Move.parse(pr.getProperty("celebration", ""));
             if (a != null) favSkill = a;
+            for (int i = 0; i < 3; i++) {
+                Move k = Move.parse(pr.getProperty("skill" + i, ""));
+                if (k != null) skills[i] = k;
+                Move sh = Move.parse(pr.getProperty("shot" + i, ""));
+                if (sh != null) shots[i] = sh;
+            }
+            try {
+                cameraMode = Integer.parseInt(pr.getProperty("camera", "0"));
+            } catch (NumberFormatException ignored) {
+            }
             if (b != null && b.isSuper()) favSuper = b;
             if (c != null) favCeleb = c;
         } catch (Exception ignored) {
@@ -149,6 +188,11 @@ public final class ClientState {
             pr.setProperty("skill", favSkill.name());
             pr.setProperty("super", favSuper.name());
             pr.setProperty("celebration", favCeleb.name());
+            for (int i = 0; i < 3; i++) {
+                pr.setProperty("skill" + i, skills[i].name());
+                pr.setProperty("shot" + i, shots[i].name());
+            }
+            pr.setProperty("camera", Integer.toString(cameraMode));
             try (var out = Files.newBufferedWriter(p)) {
                 pr.store(out, "Krolasyon Futbol");
             }
