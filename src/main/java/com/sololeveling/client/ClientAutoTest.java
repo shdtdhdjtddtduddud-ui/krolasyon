@@ -41,7 +41,7 @@ public final class ClientAutoTest {
     }
 
     private static String wrap(String c) {
-        return c.startsWith("sl ") ? "execute as @p at @p run " + c : c;
+        return c.startsWith("kill ") || c.startsWith("gamerule") ? c : "execute as @p at @p run " + c;
     }
 
     private void cmd(int wait, String shot, String... commands) {
@@ -69,8 +69,10 @@ public final class ClientAutoTest {
         cmd(0, null, "gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false", "time set 6000", "weather clear",
                 "difficulty normal", "gamemode creative @a", "sl level 70", "sl gold 5000");
         // ---------------- showcase platform (y=250) with a backdrop wall
-        cmd(10, null, "tp @a 0 151 12 180 0", "fill -30 149 -20 240 149 20 minecraft:gray_concrete", "fill -30 150 -6 240 162 -6 minecraft:light_gray_concrete");
-        cmd(160, null);
+        cmd(10, null, "tp @a 0 151 12 180 0");
+        cmd(100, null);
+        cmd(5, null, "fill -26 149 -20 26 149 20 minecraft:gray_concrete", "fill -26 150 -6 26 162 -6 minecraft:light_gray_concrete");
+        cmd(40, null);
         // ---------------- items (3D models)
         List<String> weapons = new ArrayList<>(), misc = new ArrayList<>(), armor = new ArrayList<>(), blocks = new ArrayList<>();
         for (Content.WeaponDef d : Content.WEAPONS) weapons.add(d.id());
@@ -93,9 +95,9 @@ public final class ClientAutoTest {
         String[] weaps = {"hunter_dagger", "igris_blade", "ice_elf_staff", "shadow_monarch_sword"};
         for (int i = 0; i < 4; i++) {
             st.add(String.format(Locale.ROOT, "summon minecraft:armor_stand %d 150 0 {ShowArms:1b,NoGravity:1b,Rotation:[%df,0f],HandItems:[{id:\"sololeveling:%s\",Count:1b},{}],ArmorItems:[{id:\"sololeveling:%s_boots\",Count:1b},{id:\"sololeveling:%s_leggings\",Count:1b},{id:\"sololeveling:%s_chestplate\",Count:1b},{id:\"sololeveling:%s_helmet\",Count:1b}]}",
-                    200 + i * 3, -10 + i * 8, weaps[i], sets[i], sets[i], sets[i], sets[i]));
+                    -7 + i * 5, -10 + i * 8, weaps[i], sets[i], sets[i], sets[i], sets[i]));
         }
-        cmd(10, null, "kill @e[type=!player]", "tp @a 204.5 151 8 180 0");
+        cmd(10, null, "kill @e[type=!player]", "tp @a 0 151 9 180 0");
         cmd(5, null, st.toArray(new String[0]));
         cmd(30, "armor_stands");
         // ---------------- UI screens
