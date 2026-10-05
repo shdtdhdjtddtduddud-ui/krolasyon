@@ -32,11 +32,13 @@ public class RegionPortalBlock extends BaseEntityBlock {
     @Override
     public void entityInside(BlockState state, Level level, BlockPos pos, Entity e) {
         if (level.isClientSide || !(e instanceof ServerPlayer p) || p.isOnPortalCooldown()) return;
-        if (level.getBlockEntity(pos) instanceof RegionPortalBlockEntity be) {
-            p.setPortalCooldown();
-            p.setPortalCooldown(60);
-            Regions.teleport(p, be.target);
+        String target = level.getBlockEntity(pos) instanceof RegionPortalBlockEntity be ? be.target : "seoul_plaza";
+        if (level.dimension() == Regions.SEOUL) {
+            String t = com.krolasyon.sololeveling.world.Landmark.portalTarget(pos.getX(), pos.getZ());
+            if (t != null) target = t;
         }
+        p.setPortalCooldown(60);
+        Regions.teleport(p, target);
     }
 
     @Override

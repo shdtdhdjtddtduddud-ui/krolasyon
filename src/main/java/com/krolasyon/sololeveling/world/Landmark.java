@@ -28,6 +28,20 @@ public enum Landmark {
     static final String[] NORTH_PORTALS = {"double_dungeon", "job_change", "demon_castle"};
     static final String[] SOUTH_PORTALS = {"jeju_island", "overworld", "home"};
 
+    /** Target of the plaza portal at a world column (portals are generated before their block entities exist). */
+    public static String portalTarget(int x, int z) {
+        if (CityPlan.sbOf(x) != 0 || CityPlan.sbOf(z) != 0) return null;
+        int ax = CityPlan.local(x) - CityPlan.ROAD, az = CityPlan.local(z) - CityPlan.ROAD;
+        for (int i = 0; i < 3; i++) {
+            int cx = 8 + i * 16;
+            if (Math.abs(ax - cx) <= 2) {
+                if (az == 4) return NORTH_PORTALS[i];
+                if (az == 43) return SOUTH_PORTALS[i];
+            }
+        }
+        return null;
+    }
+
     void column(CityPlan.Writer w, int x, int z, int ax, int az) {
         switch (this) {
             case PLAZA -> plaza(w, x, z, ax, az);
