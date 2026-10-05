@@ -21,6 +21,7 @@ minecraft {
         server {
             workingDirectory project.file('run-server')
             property 'forge.logging.console.level', 'info'
+            property 'sololeveling.autotest', 'true'
             args '--nogui'
             mods { sololeveling { source sourceSets.main } }
         }
