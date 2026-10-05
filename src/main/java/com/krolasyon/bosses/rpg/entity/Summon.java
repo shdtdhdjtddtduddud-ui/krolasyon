@@ -52,7 +52,7 @@ public class Summon extends PathfinderMob implements RpgAnimatable, Combat.Alleg
             this.title = title; this.arch = arch; this.hp = hp; this.atk = atk; this.speed = speed; this.parts = parts; this.color = color;
         }
 
-        public String texture() { return "summon_" + name().toLowerCase(); }
+        public String texture() { return "summon_" + name().toLowerCase(java.util.Locale.ROOT); }
     }
 
     @Nullable private UUID owner;

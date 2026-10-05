@@ -259,11 +259,11 @@ public final class RpgAutoTest {
                 Site c = cap(s, k);
                 look(player(s), c.x + 0.5, c.y + 90, c.z + 105.5, 180, 42);
             });
-            server(60, "capital_" + k.name().toLowerCase(), s -> {
+            server(60, "capital_" + k.name().toLowerCase(java.util.Locale.ROOT), s -> {
                 Site c = cap(s, k);
                 look(player(s), c.x + 0.5, c.y + 90, c.z + 105.5, 180, 42);
             });
-            server(40, "street_" + k.name().toLowerCase(), s -> {
+            server(40, "street_" + k.name().toLowerCase(java.util.Locale.ROOT), s -> {
                 Site c = cap(s, k);
                 look(player(s), c.x + 0.5, c.y + 3, c.z + 26.5, 180, 6);
             });

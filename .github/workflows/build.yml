@@ -73,6 +73,7 @@ jobs:
           mkdir -p mods && cp ../build/libs/krolasyon_rpg-*.jar mods/
           echo "eula=true" > eula.txt
           printf "online-mode=false\nlevel-seed=777\n" > server.properties
+          echo "-Duser.language=tr -Duser.country=TR" >> user_jvm_args.txt
           (sleep 240; echo stop) | timeout 600 ./run.sh nogui > srv.log 2>&1; echo "server exit $?" >> ../prod_server.log
           grep -E "Done \(|Exception|ERROR|Caused by|FATAL|krolasyon|Mod File|requires" srv.log | head -800 >> ../prod_server.log
           cp logs/latest.log ../prod_server_latest.log 2>/dev/null

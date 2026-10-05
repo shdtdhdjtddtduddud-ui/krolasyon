@@ -30,7 +30,7 @@ public final class RpgClient {
     public static final Map<Archetype, ModelLayerLocation> LAYERS = new EnumMap<>(Archetype.class);
 
     static {
-        for (Archetype a : Archetype.values()) LAYERS.put(a, new ModelLayerLocation(new ResourceLocation(KrolasyonBosses.MODID, "rpg_" + a.name().toLowerCase()), "main"));
+        for (Archetype a : Archetype.values()) LAYERS.put(a, new ModelLayerLocation(new ResourceLocation(KrolasyonBosses.MODID, "rpg_" + a.name().toLowerCase(java.util.Locale.ROOT)), "main"));
     }
 
     public static ResourceLocation tex(String name) {

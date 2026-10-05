@@ -39,8 +39,8 @@ public class NpcRenderer extends EntityRenderer<RpgNpc> {
 
     public static ResourceLocation texture(RpgNpc n) {
         String g = n.female() ? "f" : "m";
-        String outfit = n.isChildNpc() ? "common" : n.role().outfit.name().toLowerCase();
-        return new ResourceLocation(KrolasyonBosses.MODID, "textures/entity/npc/" + n.race().name().toLowerCase() + "_" + g + "_" + outfit + "_" + (n.variant() & 1) + ".png");
+        String outfit = n.isChildNpc() ? "common" : n.role().outfit.name().toLowerCase(java.util.Locale.ROOT);
+        return new ResourceLocation(KrolasyonBosses.MODID, "textures/entity/npc/" + n.race().name().toLowerCase(java.util.Locale.ROOT) + "_" + g + "_" + outfit + "_" + (n.variant() & 1) + ".png");
     }
 
     @Override
@@ -134,7 +134,7 @@ public class NpcRenderer extends EntityRenderer<RpgNpc> {
         public void render(PoseStack ps, MultiBufferSource buf, int light, RpgNpc e, float limb, float limbAmt, float partial, float age, float yaw, float pitch) {
             if (e.isInvisible()) return;
             Race r = e.race();
-            ResourceLocation tex = new ResourceLocation(KrolasyonBosses.MODID, "textures/entity/npc/features_" + r.name().toLowerCase() + ".png");
+            ResourceLocation tex = new ResourceLocation(KrolasyonBosses.MODID, "textures/entity/npc/features_" + r.name().toLowerCase(java.util.Locale.ROOT) + ".png");
             VertexConsumer vc = buf.getBuffer(RenderType.entityCutoutNoCull(tex));
             int ov = LivingEntityRenderer.getOverlayCoords(e, 0);
             ps.pushPose();

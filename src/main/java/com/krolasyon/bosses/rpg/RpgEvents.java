@@ -264,7 +264,7 @@ public final class RpgEvents {
                         .suggests((c, b) -> SharedSuggestionProvider.suggest(java.util.Arrays.stream(NpcRole.values()).map(Enum::name), b)).executes(c -> {
                             ServerPlayer p = c.getSource().getPlayerOrException();
                             NpcRole role;
-                            try { role = NpcRole.valueOf(StringArgumentType.getString(c, "role").toUpperCase()); } catch (IllegalArgumentException ex) { return 0; }
+                            try { role = NpcRole.valueOf(StringArgumentType.getString(c, "role").toUpperCase(java.util.Locale.ROOT)); } catch (IllegalArgumentException ex) { return 0; }
                             int k = Math.max(0, WorldMap.kingdomAt(RpgWorldData.get(p.server), p.getX(), p.getZ()));
                             Kingdom kk = Kingdom.of(k);
                             NpcFactory.spawn(p.serverLevel(), p.blockPosition().offset(2, 0, 2), kk.citizens()[p.getRandom().nextInt(kk.citizens().length)], p.getRandom().nextBoolean(), role, k, null, null);

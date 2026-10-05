@@ -141,7 +141,7 @@ public final class WorldMap {
         }
         for (Kingdom k : Kingdom.values()) {
             Site cap = new Site();
-            cap.id = "cap_" + k.name().toLowerCase();
+            cap.id = "cap_" + k.name().toLowerCase(java.util.Locale.ROOT);
             cap.name = k.capital;
             cap.type = Site.Type.CAPITAL;
             cap.kingdom = k.ordinal();
@@ -161,7 +161,7 @@ public final class WorldMap {
                 s.x = (int) (cap.x + Math.cos(a) * dist);
                 s.z = (int) (cap.z + Math.sin(a) * dist);
                 s.name = townName(k, r);
-                s.id = (town ? "city_" : "vil_") + k.name().toLowerCase() + "_" + i;
+                s.id = (town ? "city_" : "vil_") + k.name().toLowerCase(java.util.Locale.ROOT) + "_" + i;
                 s.seed = r.nextLong();
                 d.sites.add(s);
             }
@@ -261,6 +261,6 @@ public final class WorldMap {
             case BEASTKIN -> BEAST_TOWN; case HALFLING -> HALF_TOWN; case DARK_ELF -> DARK_TOWN; default -> null;
         };
         if (pool != null) return pool[r.nextInt(pool.length)];
-        return TOWN_PREFIX[r.nextInt(TOWN_PREFIX.length)] + TOWN_ROOT[r.nextInt(TOWN_ROOT.length)].toLowerCase();
+        return TOWN_PREFIX[r.nextInt(TOWN_PREFIX.length)] + TOWN_ROOT[r.nextInt(TOWN_ROOT.length)].toLowerCase(java.util.Locale.forLanguageTag("tr"));
     }
 }
