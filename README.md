@@ -31,6 +31,7 @@ Solo Leveling animesinden ilham alan, sıfırdan yazılmış büyük bir Forge 1
 | R | Seçili yeteneği kullan |
 | Z / X | Önceki / sonraki yetenek |
 | G | ARISE (gölge çıkar) |
+| V | Gölgeleri yanına çağır |
 
 ## Komutlar (OP)
 `/sl gate <rütbe> [tema] [red]`, `/sl dungeon <tema> <rütbe>`, `/sl bossroom`, `/sl region <seoul|gangnam|busan|incheon|jeju>`,

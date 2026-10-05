@@ -1,14 +1,16 @@
 modLoader="javafml"
 loaderVersion="[47,)"
 license="All Rights Reserved"
+issueTrackerURL="https://github.com/shdtdhdjtddtduddud-ui/krolasyon/issues"
 
 [[mods]]
 modId="sololeveling"
 version="1.0.0"
 displayName="Solo Leveling: Arise"
+logoFile="logo.png"
 authors="krolasyon"
 description='''
-Solo Leveling: Sistem, Seviye, Golgeler, Kapilar, Zindanlar, Loncalar ve canli bir Kore dunyasi.
+Solo Leveling: Sistem penceresi, seviye ve istatistikler, 13 yetenek, golge ordusu (ARISE), Kapilar ve 8 temali zindan, 8 boss, Avci Dunyasi (Seul, Gangnam, Busan, Incheon, Cheju), loncalar, haber agi, gorevler, 3B silah/zirh/iksirler. (Turkce + English)
 '''
 
 [[dependencies.sololeveling]]
