@@ -58,6 +58,49 @@ jobs:
           tail -c 200000 client.log > vtest/client_tail.log
           grep -E "AUTOTEST|Exception|ERROR" client.log | head -2000 > vtest/summary.log
           cd vtest && zip -q ../vtest.zip * ; ls -la
+      - name: Production server test (real Forge install)
+        id: ps
+        if: steps.b.outputs.status == '0' && contains(github.event.head_commit.message, '[ptest]')
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          FV=$(curl -sSL https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json | python3 -c "import sys,json;p=json.load(sys.stdin)['promos'];print(p.get('1.20.1-recommended') or p['1.20.1-latest'])")
+          echo "forge $FV" | tee prod_server.log
+          mkdir -p prodsrv && cd prodsrv
+          curl -sSLo inst.jar "https://maven.minecraftforge.net/net/minecraftforge/forge/1.20.1-$FV/forge-1.20.1-$FV-installer.jar"
+          java -jar inst.jar --installServer > install.log 2>&1; echo "install exit $?" >> ../prod_server.log
+          mkdir -p mods && cp ../build/libs/krolasyon_rpg-*.jar mods/
+          echo "eula=true" > eula.txt
+          printf "online-mode=false\nlevel-seed=777\n" > server.properties
+          (sleep 240; echo stop) | timeout 600 ./run.sh nogui > srv.log 2>&1; echo "server exit $?" >> ../prod_server.log
+          grep -E "Done \(|Exception|ERROR|Caused by|FATAL|krolasyon|Mod File|requires" srv.log | head -800 >> ../prod_server.log
+          cp logs/latest.log ../prod_server_latest.log 2>/dev/null
+          cp crash-reports/*.txt ../ 2>/dev/null; ls crash-reports 2>/dev/null
+      - name: Prepare production client test
+        if: steps.b.outputs.status == '0' && contains(github.event.head_commit.message, '[ptest]')
+        shell: bash
+        run: |
+          rm -rf run && mkdir -p run/mods && cp build/libs/krolasyon_rpg-*.jar run/mods/ && ls run/mods
+      - name: Production client test (real Forge client, joins a world)
+        id: pc
+        if: steps.b.outputs.status == '0' && contains(github.event.head_commit.message, '[ptest]')
+        continue-on-error: true
+        uses: headlesshq/mc-runtime-test@4.5.2
+        with:
+          mc: 1.20.1
+          modloader: forge
+          regex: .*forge.*
+          mc-runtime-test: lexforge
+          java: 17
+      - name: Collect production client logs
+        if: always() && contains(github.event.head_commit.message, '[ptest]')
+        shell: bash
+        run: |
+          echo "client outcome: ${{ steps.pc.outcome }}" > prod_client.log
+          find . -path ./prodsrv -prune -o \( -name latest.log -o -name "crash-*.txt" -o -name debug.log \) -print 2>/dev/null | head -20 >> prod_client.log
+          for f in $(find . -path ./prodsrv -prune -o \( -name latest.log -o -name "crash-*.txt" \) -print 2>/dev/null | grep -v prod_server | head -5); do echo "=== $f"; tail -c 60000 "$f"; done >> prod_client.log
+          for f in $(find / -xdev -path /proc -prune -o \( -name "crash-*client*.txt" \) -print 2>/dev/null | head -3); do echo "=== $f"; cat "$f"; done >> prod_client.log
       - name: Publish release
         if: always()
         shell: bash
@@ -69,6 +112,7 @@ jobs:
           for f in build/libs/*.jar; do [ -f "$f" ] && FILES="$FILES $f"; done
           [ -f vtest.zip ] && FILES="$FILES vtest.zip"
           [ -f server_summary.log ] && FILES="$FILES server_summary.log server_tail.log"
+          for f in prod_server.log prod_server_latest.log prod_client.log crash-*.txt; do [ -f "$f" ] && FILES="$FILES $f"; done
           gh release create "$TAG" $FILES --title "Build ${{ github.run_number }} (status ${{ steps.b.outputs.status }})" --notes "commit ${{ github.sha }}" --prerelease --target "${{ github.sha }}"
       - name: Fail on build error
         if: steps.b.outputs.status != '0'
