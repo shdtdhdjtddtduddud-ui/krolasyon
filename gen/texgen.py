@@ -9,6 +9,12 @@ def _rng(seed):
     return np.random.default_rng(seed * 7717 + 5)
 
 
+def premul(img):
+    a = np.asarray(img).astype(np.float32)
+    a[..., :3] *= a[..., 3:4] / 255.0
+    return Image.fromarray(np.clip(a, 0, 255).astype(np.uint8), 'RGBA')
+
+
 def to_img(a, alpha=None):
     a = np.clip(a, 0, 255)
     if a.shape[-1] == 3:

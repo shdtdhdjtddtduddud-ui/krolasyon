@@ -115,7 +115,8 @@ public final class ClientAutoTest {
         cmd(220, null);
         cmd(5, "city_plaza", "tp @a 4.5 74 36.5 0 8");
         cmd(40, "city_plaza2", "tp @a 4.5 80 60 180 12");
-        cmd(40, "city_hq", "tp @a 3.5 80 40 0 -25");
+        cmd(40, "city_hq", "tp @a 3.5 76 33 180 -28");
+        cmd(40, "city_hq2", "tp @a 3.5 75 22 180 -12");
         cmd(60, "city_hq_far", "tp @a 3.5 110 150 180 -12");
         cmd(80, "city_skyline", "tp @a -90 130 -90 -45 22");
         cmd(60, "city_street", "tp @a -2 74 20 0 3");
@@ -138,7 +139,7 @@ public final class ClientAutoTest {
         cmd(40, "gate_night", "tp @a 4.5 74 42 0 3");
         cmd(5, null, "time set 6000", "kill @e[type=sololeveling:gate]", "tp @a 4.5 74 46 0 0", "sl gate B venom_swamp red");
         cmd(60, "gate_red", "tp @a 4.5 74 44 0 2");
-        cmd(40, "gate_close", "tp @a 4.5 75 52 0 -4");
+        cmd(40, "gate_close", "tp @a 4.5 74.5 47.5 0 3");
         cmd(5, null, "kill @e[type=sololeveling:gate]");
         // ---------------- skills
         cmd(5, null, "tp @a 4.5 74 36 180 3", "summon sololeveling:goblin 4 74 31 {NoAI:1b}", "summon sololeveling:orc 8 74 30 {NoAI:1b}", "summon sololeveling:orc 0 74 30 {NoAI:1b}");
@@ -159,6 +160,7 @@ public final class ClientAutoTest {
         for (String[] d : dungeons) {
             cmd(5, null, "sl dungeon " + d[0] + " " + d[1]);
             cmd(100, "dg_" + d[0] + "_entry", "tp @a ~ ~ ~ -90 5");
+            cmd(5, null, "tp @a ~16 ~ ~ -90 4");
             cmd(40, "dg_" + d[0] + "_hall");
             cmd(5, null, "sl bossroom");
             cmd(70, "dg_" + d[0] + "_boss", "tp @a ~ ~ ~ -90 4");

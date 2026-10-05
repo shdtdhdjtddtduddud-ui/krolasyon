@@ -47,7 +47,14 @@ public final class ClientHooks {
         toasts.add(new Toast(kind, title, body));
         while (toasts.size() > 5) toasts.remove(0);
         Minecraft mc = Minecraft.getInstance();
-        mc.getSoundManager().play(SimpleSoundInstance.forUI(kind == 5 ? SoundEvents.BEACON_ACTIVATE : (kind == 3 ? SoundEvents.NOTE_BLOCK_BIT.get() : SoundEvents.EXPERIENCE_ORB_PICKUP), kind == 3 ? 0.7F : 1.4F, 0.8F));
+        net.minecraft.sounds.SoundEvent snd = switch (kind) {
+            case 1 -> com.sololeveling.registry.ModSounds.LEVEL_UP.get();
+            case 2 -> com.sololeveling.registry.ModSounds.QUEST.get();
+            case 3 -> com.sololeveling.registry.ModSounds.WARNING.get();
+            case 5 -> com.sololeveling.registry.ModSounds.ARISE.get();
+            default -> com.sololeveling.registry.ModSounds.SYSTEM_CHIME.get();
+        };
+        mc.getSoundManager().play(SimpleSoundInstance.forUI(snd, kind == 4 ? 1.15F : 1.0F, kind == 5 ? 0.9F : 0.8F));
     }
 
     public static void news(CompoundTag t) {

@@ -23,6 +23,7 @@ public class SoloLeveling {
         ModItems.ITEMS.register(bus);
         ModEntities.ENTITIES.register(bus);
         ModTabs.TABS.register(bus);
+        ModSounds.SOUNDS.register(bus);
         ModFeatures.FEATURES.register(bus);
         bus.addListener(this::attributes);
         bus.addListener(this::common);

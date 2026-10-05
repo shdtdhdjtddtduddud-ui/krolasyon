@@ -118,7 +118,7 @@ public final class GateManager {
             Vec3 pos = new Vec3(inst.spawn.getX() + 0.5 + (i % 3) - 1, inst.spawn.getY(), inst.spawn.getZ() + 0.5 + (i / 3));
             i++;
             Travel.teleport(p, dl, pos.x, pos.y, pos.z, -90F);
-            p.playNotifySound(SoundEvents.PORTAL_TRAVEL, SoundSource.PLAYERS, 0.5F, 1.4F);
+            p.playNotifySound(com.sololeveling.registry.ModSounds.GATE_ENTER.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
             Sys.notify(p, Sys.WARN, Component.translatable("gui.sololeveling.gate_entered"),
                     Component.translatable("gui.sololeveling.gate_name", Ranks.tag(inst.rank), Component.translatable("theme.sololeveling." + inst.theme)));
             Net(p, "gate");
@@ -149,6 +149,7 @@ public final class GateManager {
             double x = rp.getX() + 0.5 + (i % 3) - 1, z = rp.getZ() + 4.5 + (i / 3);
             i++;
             int y = Travel.surfaceY(dest, (int) x, (int) z);
+            p.playNotifySound(com.sololeveling.registry.ModSounds.GATE_ENTER.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
             Travel.teleport(p, dest, x, Math.max(y, rp.getY()), z, 0F);
             Net(p, "gate");
         }

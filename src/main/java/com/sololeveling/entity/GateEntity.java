@@ -101,7 +101,7 @@ public class GateEntity extends Entity {
             return;
         }
         ServerLevel sl = (ServerLevel) level();
-        if (age2 % 80 == 0) sl.playSound(null, blockPosition(), SoundEvents.PORTAL_AMBIENT, SoundSource.AMBIENT, 0.4F, 0.8F);
+        if (age2 % 70 == 0) sl.playSound(null, blockPosition(), com.sololeveling.registry.ModSounds.GATE_HUM.get(), SoundSource.AMBIENT, 1.4F, 1.0F);
         if (mode() == ENTRANCE && !isBroken() && age2 > BREAK_TICKS) {
             entityData.set(BROKEN, true);
             DungeonManager.dungeonBreak(this);

@@ -62,6 +62,8 @@ public final class SkillExec {
         d.fatigue = Math.min(100, d.fatigue + 2);
         CD.put(key, now + def.cooldown() * 20L);
         Net.toPlayer(sp, new Packets.Cooldown(id, def.cooldown() * 20));
+        if (!id.equals("shadow_extraction") && !id.equals("shadow_step") && !id.equals("sprint"))
+            lvl.playSound(null, sp.blockPosition(), com.sololeveling.registry.ModSounds.SKILL_CAST.get(), SoundSource.PLAYERS, 0.5F, 0.9F + sp.getRandom().nextFloat() * 0.3F);
         PlayerSync.sync(sp);
     }
 
@@ -138,7 +140,7 @@ public final class SkillExec {
                 sp.teleportTo(dest.x, dest.y, dest.z);
                 sp.fallDistance = 0;
                 lvl.sendParticles(ParticleTypes.PORTAL, sp.getX(), sp.getY() + 1, sp.getZ(), 40, 0.4, 0.8, 0.4, 0.4);
-                lvl.playSound(null, sp.blockPosition(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1F, 1.3F);
+                lvl.playSound(null, sp.blockPosition(), com.sololeveling.registry.ModSounds.SHADOW_STEP.get(), SoundSource.PLAYERS, 1F, 1.0F);
                 return true;
             }
             case "mutilation": {
@@ -297,7 +299,7 @@ public final class SkillExec {
             double ang = a / 36.0 * Math.PI * 2;
             lvl.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, c.x + Math.cos(ang) * 1.5, c.y + 0.1, c.z + Math.sin(ang) * 1.5, 1, 0, 0.3, 0, 0.05);
         }
-        lvl.playSound(null, sp.blockPosition(), SoundEvents.WITHER_SPAWN, SoundSource.PLAYERS, 0.6F, 1.6F);
+        lvl.playSound(null, sp.blockPosition(), com.sololeveling.registry.ModSounds.ARISE.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
         Sys.notify(sp, Sys.ARISE, Component.translatable("gui.sololeveling.arise"), Component.translatable("gui.sololeveling.extracted", sh.getDisplayName()));
         Net.toPlayer(sp, new Packets.Fx("arise", 0));
         return true;

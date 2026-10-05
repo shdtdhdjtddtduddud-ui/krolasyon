@@ -1,6 +1,16 @@
 # -*- coding: utf-8 -*-
 """UI / message strings: key -> (tr, en)."""
 UI = {
+    'subtitles.sololeveling.system_chime': ('Sistem bildirimi', 'System notification'),
+    'subtitles.sololeveling.quest': ('Görev bildirimi', 'Quest notification'),
+    'subtitles.sololeveling.warning': ('Sistem uyarısı', 'System warning'),
+    'subtitles.sololeveling.level_up': ('Seviye atlandı', 'Level up'),
+    'subtitles.sololeveling.arise': ('ARISE! Gölge yükseliyor', 'ARISE! A shadow rises'),
+    'subtitles.sololeveling.gate_hum': ('Kapı uğuldar', 'Gate hums'),
+    'subtitles.sololeveling.gate_enter': ('Kapıdan geçiş', 'Gate travel'),
+    'subtitles.sololeveling.shadow_step': ('Gölge adımı', 'Shadow step'),
+    'subtitles.sololeveling.skill_cast': ('Yetenek kullanıldı', 'Skill cast'),
+    'subtitles.sololeveling.alarm': ('Zindan kırılması alarmı', 'Dungeon break alarm'),
     'key.categories.sololeveling': ('Solo Leveling', 'Solo Leveling'),
     'key.sololeveling.system': ('Sistem Penceresi', 'System Window'),
     'key.sololeveling.cast': ('Yetenek Kullan', 'Cast Skill'),

@@ -2,12 +2,15 @@ package com.sololeveling.world;
 
 import com.sololeveling.registry.ModBlocks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.LanternBlock;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
@@ -116,7 +119,7 @@ public final class DungeonBuilder {
         for (int r = 0; r < rooms; r++) {
             int len = 9 + rnd.nextInt(4);
             b.corridor(x, x + len - 1, zc, 5, 6);
-            for (int lx = x + 3; lx < x + len; lx += 6) b.set(lx, fy + 5, zc, b.light);
+            for (int lx = x + 2; lx < x + len; lx += 4) b.set(lx, fy + 5, zc, b.light);
             if (pal.accent.contains("cobweb") || pal.accent.contains("vine")) {
                 for (int i = 0; i < 3; i++) b.set(x + rnd.nextInt(len), fy + 5, zc - 2 + rnd.nextInt(5), st(pal.accent.contains("cobweb") ? pal.accent : "minecraft:air"));
             }
@@ -126,7 +129,7 @@ public final class DungeonBuilder {
             int h = 8 + rnd.nextInt(3);
             int z0 = zc - d / 2, z1 = zc + d / 2;
             b.room(x, z0, x + w - 1, z1, h);
-            lightGrid(b, x, z0, x + w - 1, z1, h, 6);
+            lightGrid(b, x, z0, x + w - 1, z1, h, 4);
             // pillars
             for (int px : new int[]{x + 3, x + w - 4})
                 for (int pz : new int[]{z0 + 3, z1 - 3}) b.pillarAt(px, pz, h);
@@ -136,7 +139,7 @@ public final class DungeonBuilder {
                 BlockState fluid = st(pal.pool);
                 b.fill(px, fy - 1, pz, px + 2, fy - 1, pz + 2, fluid);
             }
-            decorate(b, pal, rnd, x, z0, x + w - 1, z1, fy);
+            decorate(b, theme, pal, rnd, x, z0, x + w - 1, z1, fy, h, false);
             int mobs = 3 + rnd.nextInt(3) + rankIdx / 2;
             for (int m = 0; m < mobs; m++) {
                 int mx = x + 3 + rnd.nextInt(w - 6), mz = z0 + 3 + rnd.nextInt(d - 6);
@@ -155,7 +158,7 @@ public final class DungeonBuilder {
         int bw = dragon ? 61 : 35, bd = dragon ? 61 : 35, bh = dragon ? 30 : 16;
         int z0 = zc - bd / 2, z1 = zc + bd / 2;
         b.room(x, z0, x + bw - 1, z1, bh);
-        lightGrid(b, x, z0, x + bw - 1, z1, bh, 8);
+        lightGrid(b, x, z0, x + bw - 1, z1, bh, dragon ? 6 : 5);
         for (int i = 0; i < 4; i++) {
             int px = x + 6 + (i % 2) * (bw - 13);
             int pz = z0 + 6 + (i / 2) * (bd - 13);
@@ -176,7 +179,7 @@ public final class DungeonBuilder {
                 b.fill(px, fy - 1, pz, px + 2, fy - 1, pz + 2, st(pal.pool));
             }
         }
-        decorate(b, pal, rnd, x, z0, x + bw - 1, z1, fy);
+        decorate(b, theme, pal, rnd, x, z0, x + bw - 1, z1, fy, bh, true);
         lay.boss = new BlockPos(cx, fy, cz);
         lay.maxX = x + bw;
         lay.minZ = z0 - 2;
@@ -190,17 +193,106 @@ public final class DungeonBuilder {
                 b.set(x, b.FY + h, z, b.light);
     }
 
-    private static void decorate(B b, Palette pal, RandomSource rnd, int x0, int z0, int x1, int z1, int fy) {
-        String theme = pal.wall;
-        for (int i = 0; i < 14; i++) {
-            int x = x0 + 1 + rnd.nextInt(Math.max(1, x1 - x0 - 1));
-            int z = z0 + 1 + rnd.nextInt(Math.max(1, z1 - z0 - 1));
-            if (rnd.nextInt(3) == 0) b.set(x, fy, z, st(pal.wall.contains("ice") ? "minecraft:packed_ice" : "minecraft:cobblestone_slab"));
-            else if (rnd.nextInt(4) == 0) b.set(x, fy, z, st(pal.wall.contains("demon") || pal.wall.contains("blackstone") ? "minecraft:bone_block" : "minecraft:mossy_cobblestone"));
+    private static BlockState hangLantern(String id) {
+        return st(id).setValue(LanternBlock.HANGING, true);
+    }
+
+    private static BlockState stalactite() {
+        return Blocks.POINTED_DRIPSTONE.defaultBlockState().setValue(BlockStateProperties.VERTICAL_DIRECTION, Direction.DOWN);
+    }
+
+    private static void decorate(B b, String theme, Palette pal, RandomSource rnd, int x0, int z0, int x1, int z1, int fy, int h, boolean boss) {
+        int w = x1 - x0 + 1, d = z1 - z0 + 1;
+        int count = boss ? 60 : 26;
+        int zc = (z0 + z1) / 2;
+        // wall-side light strip so the rooms are never pitch dark
+        for (int x = x0 + 2; x <= x1 - 1; x += boss ? 5 : 6) {
+            b.set(x, fy + 3, z0, b.light);
+            b.set(x, fy + 3, z1, b.light);
         }
-        // wall torches (lanterns on walls)
-        for (int x = x0 + 2; x <= x1; x += 7) {
-            b.set(x, fy + 3, z0, st("minecraft:soul_lantern") == null ? b.light : b.light);
+        for (int i = 0; i < count; i++) {
+            int x = x0 + 1 + rnd.nextInt(Math.max(1, w - 2));
+            int z = z0 + 1 + rnd.nextInt(Math.max(1, d - 2));
+            switch (theme) {
+                case "goblin_cave" -> {
+                    int r = rnd.nextInt(6);
+                    if (r == 0) { b.set(x, fy, z, Blocks.POINTED_DRIPSTONE.defaultBlockState()); }
+                    else if (r == 1) { b.set(x, fy + h - 1, z, stalactite()); }
+                    else if (r == 2) b.set(x, fy, z, st("minecraft:bone_block"));
+                    else if (r == 3) b.set(x, fy, z, st("minecraft:campfire"));
+                    else if (r == 4) b.set(x, fy, z, st("minecraft:mossy_cobblestone"));
+                    else b.set(x, fy + h - 1, z, st("minecraft:cobweb"));
+                }
+                case "temple" -> {
+                    int r = rnd.nextInt(5);
+                    if (r == 0) { b.pillarAt(x, z, 4); b.set(x, fy + 4, z, st("minecraft:soul_lantern")); }
+                    else if (r == 1) b.set(x, fy, z, st("minecraft:chiseled_sandstone"));
+                    else if (r == 2) b.set(x, fy, z, st("minecraft:gold_block"));
+                    else if (r == 3) b.set(x, fy + h - 1, z, hangLantern("minecraft:lantern"));
+                }
+                case "venom_swamp" -> {
+                    int r = rnd.nextInt(6);
+                    if (r == 0) b.set(x, fy, z, st("minecraft:red_mushroom"));
+                    else if (r == 1) b.set(x, fy, z, st("minecraft:brown_mushroom"));
+                    else if (r == 2) b.set(x, fy, z, st("minecraft:moss_carpet"));
+                    else if (r == 3) { for (int k = 0; k < 3 + rnd.nextInt(3); k++) b.set(x, fy + h - 1 - k, z, st("minecraft:vine")); }
+                    else if (r == 4) b.set(x, fy, z, st("minecraft:mud"));
+                    else b.set(x, fy, z, st("minecraft:fern"));
+                }
+                case "ice_cave" -> {
+                    int r = rnd.nextInt(5);
+                    if (r == 0) { for (int k = 0; k < 2 + rnd.nextInt(3); k++) b.set(x, fy + k, z, st("minecraft:blue_ice")); }
+                    else if (r == 1) { b.set(x, fy + h - 1, z, stalactite()); b.set(x, fy + h - 2, z, stalactite()); }
+                    else if (r == 2) b.set(x, fy, z, st("minecraft:snow"));
+                    else if (r == 3) b.set(x, fy, z, st("minecraft:packed_ice"));
+                    else b.set(x, fy, z, st("minecraft:powder_snow"));
+                }
+                case "hell_den" -> {
+                    int r = rnd.nextInt(5);
+                    if (r == 0) b.set(x, fy, z, st("minecraft:magma_block"));
+                    else if (r == 1) { b.set(x, fy, z, st("minecraft:blackstone")); b.set(x, fy + 1, z, st("minecraft:fire")); }
+                    else if (r == 2) { for (int k = 0; k < 3; k++) b.set(x, fy + h - 1 - k, z, st("minecraft:chain")); b.set(x, fy + h - 4, z, hangLantern("minecraft:soul_lantern")); }
+                    else if (r == 3) b.set(x, fy, z, st("minecraft:bone_block"));
+                    else b.set(x, fy, z, st("minecraft:soul_sand"));
+                }
+                case "ant_nest" -> {
+                    int r = rnd.nextInt(5);
+                    if (r == 0) b.set(x, fy, z, st("minecraft:turtle_egg").setValue(net.minecraft.world.level.block.TurtleEggBlock.EGGS, 1 + rnd.nextInt(4)));
+                    else if (r == 1) b.set(x, fy, z, st("minecraft:honeycomb_block"));
+                    else if (r == 2) b.set(x, fy + h - 1, z, stalactite());
+                    else if (r == 3) b.set(x, fy, z, st("minecraft:cobweb"));
+                    else b.set(x, fy, z, st("minecraft:brown_mushroom_block"));
+                }
+                case "demon_castle" -> {
+                    int r = rnd.nextInt(6);
+                    if (r == 0) { for (int k = 0; k < 4; k++) b.set(x, fy + k, z, st("minecraft:chiseled_polished_blackstone")); b.set(x, fy + 4, z, st("minecraft:soul_campfire")); }
+                    else if (r == 1) { for (int k = 0; k < 4; k++) b.set(x, fy + h - 1 - k, z, st("minecraft:chain")); b.set(x, fy + h - 5, z, hangLantern("minecraft:soul_lantern")); }
+                    else if (r == 2) b.set(x, fy, z, st("minecraft:red_carpet"));
+                    else if (r == 3) b.set(x, fy, z, st("minecraft:wither_skeleton_skull"));
+                    else if (r == 4) b.set(x, fy, z, st("minecraft:crying_obsidian"));
+                    else b.set(x, fy, z, st("minecraft:gilded_blackstone"));
+                }
+                default -> {
+                    int r = rnd.nextInt(5);
+                    if (r == 0) { for (int k = 0; k < 2 + rnd.nextInt(3); k++) b.set(x, fy + k, z, st("minecraft:raw_gold_block")); }
+                    else if (r == 1) b.set(x, fy, z, st("minecraft:gold_block"));
+                    else if (r == 2) b.set(x, fy, z, st("minecraft:bone_block"));
+                    else if (r == 3) { b.set(x, fy, z, st("minecraft:obsidian")); b.set(x, fy + 1, z, st("minecraft:obsidian")); b.set(x, fy + 2, z, st("minecraft:crying_obsidian")); }
+                    else b.set(x, fy + h - 1, z, stalactite());
+                }
+            }
+        }
+        // ceremonial carpet / aisle toward the boss in castle & temple rooms
+        if (theme.equals("demon_castle") || theme.equals("temple")) {
+            for (int x = x0; x <= x1; x++) for (int dz = -1; dz <= 1; dz++)
+                b.set(x, fy, zc + dz, st(theme.equals("temple") ? "minecraft:yellow_carpet" : "minecraft:red_carpet"));
+        }
+        if (boss) {
+            // braziers at the four inner corners
+            for (int[] c : new int[][]{{x0 + 3, z0 + 3}, {x1 - 3, z0 + 3}, {x0 + 3, z1 - 3}, {x1 - 3, z1 - 3}}) {
+                b.set(c[0], fy, c[1], st("minecraft:stone_bricks"));
+                b.set(c[0], fy + 1, c[1], st(theme.equals("ice_cave") ? "minecraft:soul_campfire" : "minecraft:campfire"));
+            }
         }
     }
 }

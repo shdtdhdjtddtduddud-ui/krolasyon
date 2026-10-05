@@ -94,6 +94,6 @@ public class GateRenderer extends EntityRenderer<GateEntity> {
     }
 
     private static void vert(VertexConsumer vc, Matrix4f m, Matrix3f n, float x, float y, float z, float u, float v, int r, int g, int b, int a) {
-        vc.vertex(m, x, y, z).color(r, g, b, a).uv(u, v).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(15728880).normal(n, 0, 1, 0).endVertex();
+        vc.vertex(m, x, y, z).color(r * a / 255, g * a / 255, b * a / 255, 255).uv(u, v).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(15728880).normal(n, 0, 1, 0).endVertex();
     }
 }

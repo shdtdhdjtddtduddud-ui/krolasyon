@@ -1,0 +1,92 @@
+{
+ "system_chime": {
+  "sounds": [
+   {
+    "name": "sololeveling:system_chime",
+    "stream": false
+   }
+  ],
+  "subtitle": "subtitles.sololeveling.system_chime"
+ },
+ "quest": {
+  "sounds": [
+   {
+    "name": "sololeveling:quest",
+    "stream": false
+   }
+  ],
+  "subtitle": "subtitles.sololeveling.quest"
+ },
+ "warning": {
+  "sounds": [
+   {
+    "name": "sololeveling:warning",
+    "stream": false
+   }
+  ],
+  "subtitle": "subtitles.sololeveling.warning"
+ },
+ "level_up": {
+  "sounds": [
+   {
+    "name": "sololeveling:level_up",
+    "stream": false
+   }
+  ],
+  "subtitle": "subtitles.sololeveling.level_up"
+ },
+ "arise": {
+  "sounds": [
+   {
+    "name": "sololeveling:arise",
+    "stream": false
+   }
+  ],
+  "subtitle": "subtitles.sololeveling.arise"
+ },
+ "gate_hum": {
+  "sounds": [
+   {
+    "name": "sololeveling:gate_hum",
+    "stream": true
+   }
+  ],
+  "subtitle": "subtitles.sololeveling.gate_hum"
+ },
+ "gate_enter": {
+  "sounds": [
+   {
+    "name": "sololeveling:gate_enter",
+    "stream": false
+   }
+  ],
+  "subtitle": "subtitles.sololeveling.gate_enter"
+ },
+ "shadow_step": {
+  "sounds": [
+   {
+    "name": "sololeveling:shadow_step",
+    "stream": false
+   }
+  ],
+  "subtitle": "subtitles.sololeveling.shadow_step"
+ },
+ "skill_cast": {
+  "sounds": [
+   {
+    "name": "sololeveling:skill_cast",
+    "stream": false
+   }
+  ],
+  "subtitle": "subtitles.sololeveling.skill_cast"
+ },
+ "alarm": {
+  "sounds": [
+   {
+    "name": "sololeveling:alarm",
+    "stream": false
+   }
+  ],
+  "subtitle": "subtitles.sololeveling.alarm"
+ }
+}

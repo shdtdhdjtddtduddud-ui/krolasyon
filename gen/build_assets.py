@@ -259,18 +259,18 @@ def build_blocks():
 
 # ================================================================ effect textures
 def build_effects():
-    save_png(texgen.swirl(256, 4, 5.0, 1), f'{ASSETS}/textures/entity/gate_swirl.png')
-    save_png(texgen.swirl(256, 3, -4.0, 7), f'{ASSETS}/textures/entity/gate_swirl2.png')
-    save_png(texgen.gate_ring(256), f'{ASSETS}/textures/entity/gate_ring.png')
-    save_png(texgen.beam_tex(64), f'{ASSETS}/textures/entity/gate_beam.png')
-    save_png(texgen.magic_circle(256), f'{ASSETS}/textures/entity/magic_circle.png')
+    save_png(texgen.premul(texgen.swirl(256, 4, 5.0, 1)), f'{ASSETS}/textures/entity/gate_swirl.png')
+    save_png(texgen.premul(texgen.swirl(256, 3, -4.0, 7)), f'{ASSETS}/textures/entity/gate_swirl2.png')
+    save_png(texgen.premul(texgen.gate_ring(256)), f'{ASSETS}/textures/entity/gate_ring.png')
+    save_png(texgen.premul(texgen.beam_tex(64)), f'{ASSETS}/textures/entity/gate_beam.png')
+    save_png(texgen.premul(texgen.magic_circle(256)), f'{ASSETS}/textures/entity/magic_circle.png')
     # small white soft glow for bolts
     S = 64
     yy, xx = np.mgrid[0:S, 0:S] + 0.5
     d = np.hypot(xx - S / 2, yy - S / 2) / (S / 2)
     a = np.clip(1 - d, 0, 1) ** 1.8
     im = np.zeros((S, S, 4), np.float32); im[..., :3] = 255; im[..., 3] = a * 255
-    save_png(Image.fromarray(im.astype(np.uint8), 'RGBA'), f'{ASSETS}/textures/entity/glow_orb.png')
+    save_png(texgen.premul(Image.fromarray(im.astype(np.uint8), 'RGBA')), f'{ASSETS}/textures/entity/glow_orb.png')
     # slash crescent
     S = 128
     yy, xx = np.mgrid[0:S, 0:S] + 0.5
@@ -280,7 +280,7 @@ def build_effects():
     mask = np.clip(1 - np.abs(yy - S / 2) / (S * 0.42), 0, 1)
     a = np.clip(ring * mask * 1.6, 0, 1)
     im = np.zeros((S, S, 4), np.float32); im[..., :3] = 255; im[..., 3] = a * 255
-    save_png(Image.fromarray(im.astype(np.uint8), 'RGBA'), f'{ASSETS}/textures/entity/slash.png')
+    save_png(texgen.premul(Image.fromarray(im.astype(np.uint8), 'RGBA')), f'{ASSETS}/textures/entity/slash.png')
 
 
 # ================================================================ recipes

@@ -288,6 +288,7 @@ public class DungeonManager extends SavedData {
             int y = Travel.surfaceY(sl, gate.blockPosition().getX() + 4, gate.blockPosition().getZ());
             spawnMob(sl, bossFor(gate.theme()), new BlockPos(gate.blockPosition().getX() + 4, y, gate.blockPosition().getZ()), null, 1.0, true);
         }
+        sl.playSound(null, gate.blockPosition(), com.sololeveling.registry.ModSounds.ALARM.get(), net.minecraft.sounds.SoundSource.HOSTILE, 4.0F, 1.0F);
         sl.getServer().getPlayerList().broadcastSystemMessage(Component.translatable("gui.sololeveling.dungeon_break_warn", Ranks.tag(gate.rank()), (int) gate.getX(), (int) gate.getZ()), false);
         NewsManager.add(sl.getServer(), NewsManager.BREAK, Component.translatable("news.sololeveling.break", Ranks.tag(gate.rank()), Component.translatable("theme.sololeveling." + gate.theme()), (int) gate.getX(), (int) gate.getZ()));
     }
