@@ -1,0 +1,17 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "CCC",
+  "CCC",
+  "CCC"
+ ],
+ "key": {
+  "C": {
+   "item": "sololeveling:mana_crystal_d"
+  }
+ },
+ "result": {
+  "item": "sololeveling:mana_crystal_block",
+  "count": 1
+ }
+}

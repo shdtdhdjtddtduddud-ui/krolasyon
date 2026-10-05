@@ -1,0 +1,19 @@
+{
+ "variants": {
+  "facing=south": {
+   "model": "sololeveling:block/bounty_board"
+  },
+  "facing=west": {
+   "model": "sololeveling:block/bounty_board",
+   "y": 90
+  },
+  "facing=north": {
+   "model": "sololeveling:block/bounty_board",
+   "y": 180
+  },
+  "facing=east": {
+   "model": "sololeveling:block/bounty_board",
+   "y": 270
+  }
+ }
+}

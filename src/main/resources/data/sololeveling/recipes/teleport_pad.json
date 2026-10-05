@@ -1,0 +1,26 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "EDE",
+  "DCD",
+  "SSS"
+ ],
+ "key": {
+  "E": {
+   "item": "minecraft:ender_pearl"
+  },
+  "D": {
+   "item": "minecraft:diamond"
+  },
+  "C": {
+   "item": "sololeveling:mana_crystal_c"
+  },
+  "S": {
+   "item": "minecraft:stone"
+  }
+ },
+ "result": {
+  "item": "sololeveling:teleport_pad",
+  "count": 1
+ }
+}

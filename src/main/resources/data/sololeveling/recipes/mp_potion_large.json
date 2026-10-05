@@ -1,0 +1,18 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "ingredients": [
+  {
+   "item": "sololeveling:mp_potion_small"
+  },
+  {
+   "item": "sololeveling:mp_potion_small"
+  },
+  {
+   "item": "sololeveling:mana_crystal_c"
+  }
+ ],
+ "result": {
+  "item": "sololeveling:mp_potion_large",
+  "count": 1
+ }
+}

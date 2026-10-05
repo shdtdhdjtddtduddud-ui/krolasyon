@@ -1,0 +1,18 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "ingredients": [
+  {
+   "item": "minecraft:gold_ingot"
+  },
+  {
+   "item": "sololeveling:mana_crystal_b"
+  },
+  {
+   "item": "minecraft:nether_star"
+  }
+ ],
+ "result": {
+  "item": "sololeveling:red_gate_key",
+  "count": 1
+ }
+}

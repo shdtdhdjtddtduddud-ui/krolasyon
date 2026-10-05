@@ -1,0 +1,18 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "ingredients": [
+  {
+   "item": "sololeveling:hp_potion_small"
+  },
+  {
+   "item": "sololeveling:hp_potion_small"
+  },
+  {
+   "item": "minecraft:golden_apple"
+  }
+ ],
+ "result": {
+  "item": "sololeveling:hp_potion_medium",
+  "count": 1
+ }
+}

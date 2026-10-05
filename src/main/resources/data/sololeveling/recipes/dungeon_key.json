@@ -1,0 +1,18 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "ingredients": [
+  {
+   "item": "minecraft:gold_ingot"
+  },
+  {
+   "item": "sololeveling:mana_crystal_e"
+  },
+  {
+   "item": "minecraft:ender_pearl"
+  }
+ ],
+ "result": {
+  "item": "sololeveling:dungeon_key",
+  "count": 1
+ }
+}

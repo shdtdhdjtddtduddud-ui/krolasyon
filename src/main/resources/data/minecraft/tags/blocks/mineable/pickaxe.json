@@ -1,0 +1,21 @@
+{
+ "replace": false,
+ "values": [
+  "sololeveling:dungeon_bricks",
+  "sololeveling:dungeon_floor",
+  "sololeveling:dungeon_pillar",
+  "sololeveling:temple_stone",
+  "sololeveling:ice_bricks",
+  "sololeveling:demon_bricks",
+  "sololeveling:shadow_stone",
+  "sololeveling:ant_hive",
+  "sololeveling:swamp_stone",
+  "sololeveling:goblin_stone",
+  "sololeveling:mana_crystal_ore",
+  "sololeveling:mana_crystal_block",
+  "sololeveling:mana_lamp",
+  "sololeveling:teleport_pad",
+  "sololeveling:bounty_board",
+  "sololeveling:news_board"
+ ]
+}

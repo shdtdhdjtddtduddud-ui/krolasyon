@@ -1,0 +1,18 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "ingredients": [
+  {
+   "item": "minecraft:glass_bottle"
+  },
+  {
+   "item": "minecraft:sugar"
+  },
+  {
+   "item": "minecraft:golden_carrot"
+  }
+ ],
+ "result": {
+  "item": "sololeveling:stamina_potion",
+  "count": 1
+ }
+}

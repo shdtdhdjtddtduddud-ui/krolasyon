@@ -1,0 +1,16 @@
+{
+ "variants": {
+  "axis=y": {
+   "model": "sololeveling:block/dungeon_pillar"
+  },
+  "axis=z": {
+   "model": "sololeveling:block/dungeon_pillar",
+   "x": 90
+  },
+  "axis=x": {
+   "model": "sololeveling:block/dungeon_pillar",
+   "x": 90,
+   "y": 90
+  }
+ }
+}

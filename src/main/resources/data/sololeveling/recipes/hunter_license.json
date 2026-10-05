@@ -1,0 +1,18 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "ingredients": [
+  {
+   "item": "minecraft:paper"
+  },
+  {
+   "item": "minecraft:iron_ingot"
+  },
+  {
+   "item": "sololeveling:mana_crystal_e"
+  }
+ ],
+ "result": {
+  "item": "sololeveling:hunter_license",
+  "count": 1
+ }
+}

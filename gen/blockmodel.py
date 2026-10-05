@@ -189,7 +189,8 @@ class BM:
                 cl = col[yy[ok], xx[ok], :3]
                 al = col[yy[ok], xx[ok], 3:4] / 255.0
                 img[gy, gx] = img[gy, gx] * (1 - al) + cl * al
-                zb[gy, gx] = z
+                opq = (al[:, 0] > 0.97)
+                zb[gy[opq], gx[opq]] = z[opq]
         return Image.fromarray(np.clip(img, 0, 255).astype(np.uint8))
 
 

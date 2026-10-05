@@ -1,0 +1,23 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "GCG",
+  "CLC",
+  "GCG"
+ ],
+ "key": {
+  "G": {
+   "item": "minecraft:glass"
+  },
+  "C": {
+   "item": "sololeveling:mana_crystal_e"
+  },
+  "L": {
+   "item": "minecraft:glowstone"
+  }
+ },
+ "result": {
+  "item": "sololeveling:mana_lamp",
+  "count": 2
+ }
+}

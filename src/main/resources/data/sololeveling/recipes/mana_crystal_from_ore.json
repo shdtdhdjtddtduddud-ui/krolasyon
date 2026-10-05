@@ -1,0 +1,9 @@
+{
+ "type": "minecraft:smelting",
+ "ingredient": {
+  "item": "sololeveling:mana_crystal_ore"
+ },
+ "result": "sololeveling:mana_crystal_d",
+ "experience": 0.5,
+ "cookingtime": 200
+}

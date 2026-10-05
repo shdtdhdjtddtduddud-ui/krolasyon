@@ -1,0 +1,20 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  " O ",
+  "OOO",
+  " S "
+ ],
+ "key": {
+  "O": {
+   "item": "minecraft:obsidian"
+  },
+  "S": {
+   "item": "minecraft:netherite_ingot"
+  }
+ },
+ "result": {
+  "item": "sololeveling:obsidian_greatsword",
+  "count": 1
+ }
+}

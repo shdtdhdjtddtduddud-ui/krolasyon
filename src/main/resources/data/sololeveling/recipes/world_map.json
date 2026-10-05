@@ -1,0 +1,18 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "ingredients": [
+  {
+   "item": "minecraft:map"
+  },
+  {
+   "item": "minecraft:compass"
+  },
+  {
+   "item": "sololeveling:mana_crystal_e"
+  }
+ ],
+ "result": {
+  "item": "sololeveling:world_map",
+  "count": 1
+ }
+}

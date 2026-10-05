@@ -1,0 +1,16 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "I I",
+  "I I"
+ ],
+ "key": {
+  "I": {
+   "item": "sololeveling:mana_crystal_a"
+  }
+ },
+ "result": {
+  "item": "sololeveling:ice_boots",
+  "count": 1
+ }
+}
