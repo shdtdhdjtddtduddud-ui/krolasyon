@@ -4,4 +4,4 @@ pluginManagement {
         maven { name = 'MinecraftForge'; url = 'https://maven.minecraftforge.net/' }
     }
 }
-rootProject.name = 'krolasyon_bosses'
+rootProject.name = 'sololeveling'

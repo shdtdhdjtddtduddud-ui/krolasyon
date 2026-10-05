@@ -23,29 +23,50 @@ jobs:
           set +e
           gradle build --no-daemon --stacktrace 2>&1 | tee build.log
           echo "status=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
-      - name: Visual self-test (headless client)
-        id: vt
-        if: steps.b.outputs.status == '0' && contains(github.event.head_commit.message, '[vtest]')
-        continue-on-error: true
+
+      - name: API dump (javap of requested classes -> branch api-dump)
+        if: always() && hashFiles('apidump/request.txt') != ''
         shell: bash
-        env:
-          LIBGL_ALWAYS_SOFTWARE: '1'
-          MESA_GL_VERSION_OVERRIDE: '4.5'
         run: |
-          sudo apt-get update -qq && sudo apt-get install -y -qq xvfb libgl1-mesa-dri libglx-mesa0 mesa-utils > /dev/null
-          mkdir -p run
-          printf "onboardAccessibility:false\nrenderDistance:5\nsimulationDistance:5\npauseOnLostFocus:false\ntutorialStep:none\njoinedFirstServer:true\nskipMultiplayerWarning:true\nmaxFps:60\nfov:-0.45\n" > run/options.txt
           set +e
-          timeout 1500 xvfb-run -a -s "-screen 0 1280x720x24" gradle runClient --no-daemon > client.log 2>&1
-          echo "client exit $?"
-          mkdir -p vtest
-          cp run/screenshots/ktest_*.png vtest/ 2>/dev/null
-          cp run/logs/latest.log vtest/latest.log 2>/dev/null
-          tail -c 200000 client.log > vtest/client_tail.log
-          grep -E "AUTOTEST|Exception|ERROR" client.log | head -300 > vtest/summary.log
-          cd vtest && zip -q ../vtest.zip * ; ls -la
-      - name: Publish release
+          mkdir -p apidump_out
+          CP=$(find ~/.gradle/caches -name '*.jar' | tr '\n' ':')
+          MAPPED=$(find ~/.gradle/caches -name '*mapped_official_1.20.1*.jar' | head -1)
+          FORGE=$(find ~/.gradle/caches -name 'forge-1.20.1-47.2.0*universal*.jar' | head -1)
+          echo "mapped=$MAPPED forge=$FORGE" > apidump_out/_info.txt
+          [ -n "$MAPPED" ] && unzip -Z1 "$MAPPED" | grep '\.class$' | sed 's/\.class$//; s#/#.#g' | sort > apidump_out/_all_minecraft_classes.txt
+          [ -n "$FORGE" ] && unzip -Z1 "$FORGE" | grep '\.class$' | sed 's/\.class$//; s#/#.#g' | sort > apidump_out/_all_forge_classes.txt
+          while read -r line; do
+            [ -z "$line" ] && continue
+            case "$line" in
+              \#*) continue;;
+              *\*) pre="${line%\*}"; mapfile -t cls < <(cat apidump_out/_all_*_classes.txt | grep -F "$pre" | grep -v '\$' | head -80);;
+              *) cls=("$line");;
+            esac
+            for c in "${cls[@]}"; do
+              javap -protected -cp "$CP" "$c" > "apidump_out/$c.txt" 2>&1
+            done
+          done < apidump/request.txt
+          rm -rf /tmp/adrepo && mkdir /tmp/adrepo && cp -r apidump_out/. /tmp/adrepo/
+          cd /tmp/adrepo && git init -q && git checkout -q -b api-dump
+          git config user.name "ci"; git config user.email "ci@example.com"
+          git add -A && git commit -q -m "api dump for ${GITHUB_SHA}"
+          git remote add origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git"
+          git push -f origin api-dump
+
+      - name: Upload build outputs
         if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-outputs
+          path: |
+            build.log
+            build/libs/*.jar
+            run-server/logs/latest.log
+            run-server/crash-reports/*
+
+      - name: Publish release
+        if: always() && contains(github.event.head_commit.message, '[release]')
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -53,8 +74,8 @@ jobs:
           TAG="build-${{ github.run_number }}"
           FILES="build.log"
           for f in build/libs/*.jar; do [ -f "$f" ] && FILES="$FILES $f"; done
-          [ -f vtest.zip ] && FILES="$FILES vtest.zip"
-          gh release create "$TAG" $FILES --title "Build ${{ github.run_number }} (status ${{ steps.b.outputs.status }})" --notes "commit ${{ github.sha }}" --prerelease --target "${{ github.sha }}"
+          gh release create "$TAG" $FILES --title "Build ${{ github.run_number }} (status ${{ steps.b.outputs.status }})" --notes "commit ${{ github.sha }}" --target "${{ github.sha }}"
+
       - name: Fail on build error
         if: steps.b.outputs.status != '0'
         run: exit 1
