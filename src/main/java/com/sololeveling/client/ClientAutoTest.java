@@ -116,8 +116,8 @@ public final class ClientAutoTest {
         cmd(5, "city_plaza", "tp @a 4.5 74 36.5 0 8");
         cmd(40, "city_plaza2", "tp @a 4.5 80 60 180 12");
         cmd(40, "city_hq", "tp @a 3.5 80 40 0 -25");
-        cmd(60, "city_hq_far", "tp @a 3.5 120 140 0 -20");
-        cmd(80, "city_skyline", "tp @a -70 150 -70 -135 30");
+        cmd(60, "city_hq_far", "tp @a 3.5 110 150 180 -12");
+        cmd(80, "city_skyline", "tp @a -90 130 -90 -45 22");
         cmd(60, "city_street", "tp @a -2 74 20 0 3");
         cmd(80, "city_street2", "tp @a 44 74 20 90 3");
         cmd(60, "city_guild_hunters", "tp @a -37 74 22 180 5");
@@ -132,13 +132,16 @@ public final class ClientAutoTest {
         cmd(40, "jeju_far", "tp @a 964.5 110 -800 0 40");
         // ---------------- gate in front of the city, day + night
         cmd(5, null, "sl region seoul");
-        cmd(150, null, "tp @a 4.5 74 20 0 2", "sl gate S demon_castle", "sl gate B venom_swamp red");
-        cmd(80, "gate_day", "tp @a 4.5 74 8 0 4");
+        cmd(150, null, "tp @a 4.5 74 46 0 0", "sl gate S demon_castle");
+        cmd(70, "gate_day", "tp @a 4.5 74 44 0 2");
         cmd(5, null, "time set 18000");
-        cmd(40, "gate_night", "tp @a 4.5 74 8 0 4");
-        cmd(5, null, "time set 6000");
+        cmd(40, "gate_night", "tp @a 4.5 74 42 0 3");
+        cmd(5, null, "time set 6000", "kill @e[type=sololeveling:gate]", "tp @a 4.5 74 46 0 0", "sl gate B venom_swamp red");
+        cmd(60, "gate_red", "tp @a 4.5 74 44 0 2");
+        cmd(40, "gate_close", "tp @a 4.5 75 52 0 -4");
+        cmd(5, null, "kill @e[type=sololeveling:gate]");
         // ---------------- skills
-        cmd(5, null, "tp @a 4.5 74 0 0 3", "summon sololeveling:goblin 4 74 6 {NoAI:1b}", "summon sololeveling:orc 8 74 8 {NoAI:1b}", "summon sololeveling:orc 0 74 8 {NoAI:1b}");
+        cmd(5, null, "tp @a 4.5 74 36 180 3", "summon sololeveling:goblin 4 74 31 {NoAI:1b}", "summon sololeveling:orc 8 74 30 {NoAI:1b}", "summon sololeveling:orc 0 74 30 {NoAI:1b}");
         cmd(20, null, "sl cast violent_slash");
         cmd(8, "skill_slash");
         cmd(40, null, "sl cast rulers_authority");
@@ -150,7 +153,7 @@ public final class ClientAutoTest {
         cmdGui(30, "skill_arise");
         cmd(30, null, "sl cast domain_of_monarch");
         cmd(40, "skill_domain");
-        cmd(5, null, "kill @e[type=!player]", "sl cast shadow_step");
+        cmd(5, null, "kill @e[type=!player]");
         // ---------------- dungeons
         String[][] dungeons = {{"goblin_cave", "E"}, {"temple", "D"}, {"venom_swamp", "B"}, {"ice_cave", "A"}, {"hell_den", "A"}, {"ant_nest", "S"}, {"demon_castle", "S"}, {"dragon_lair", "N"}};
         for (String[] d : dungeons) {
@@ -165,17 +168,17 @@ public final class ClientAutoTest {
     }
 
     private void itemShots(String name, List<String> ids, int y0) {
-        int perShot = 18;
+        int perShot = 8;
         for (int s = 0; s * perShot < ids.size(); s++) {
             List<String> cmds = new ArrayList<>();
             cmds.add("kill @e[type=minecraft:item_display]");
             for (int i = 0; i < perShot && s * perShot + i < ids.size(); i++) {
                 String id = ids.get(s * perShot + i);
-                int row = i / 9, col = i % 9;
-                double x = (col - 4) * 2.2, y = y0 + 3.2 - row * 3.0;
-                cmds.add(itemCmd(id, x, y, -2, 2.0, "gui"));
+                int row = i / 4, col = i % 4;
+                double x = (col - 1.5) * 3.2, y = y0 + 3.4 - row * 3.4;
+                cmds.add(itemCmd(id, x, y, -2, 3.0, "gui"));
             }
-            cmd(8, null, "tp @a 0 151 12 180 0");
+            cmd(8, null, "tp @a 0 151.5 6.5 180 0");
             cmd(3, null, cmds.toArray(new String[0]));
             cmd(14, name + "_" + s);
         }
