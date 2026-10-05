@@ -97,11 +97,20 @@ class BM:
     def to_json(self, textures_key='0', tex_path=None, display=None):
         S = self.size
         els = []
+        # keep every coordinate inside Minecraft's allowed model range (-16..32)
+        maxs = [max(e.b[i] for e in self.els) for i in range(3)]
+        mins = [min(e.a[i] for e in self.els) for i in range(3)]
+        sh = [0.0, 0.0, 0.0]
+        for i in range(3):
+            if maxs[i] > 31.9:
+                sh[i] = 31.9 - maxs[i]
+            if mins[i] + sh[i] < -15.9:
+                sh[i] = -15.9 - mins[i]
         for e in self.els:
-            d = {'from': [round(v, 4) for v in e.a], 'to': [round(v, 4) for v in e.b], 'faces': {}}
+            d = {'from': [round(e.a[i] + sh[i], 4) for i in range(3)], 'to': [round(e.b[i] + sh[i], 4) for i in range(3)], 'faces': {}}
             if e.rot:
                 axis, ang, org = e.rot
-                d['rotation'] = {'angle': ang, 'axis': axis, 'origin': [round(v, 4) for v in org]}
+                d['rotation'] = {'angle': ang, 'axis': axis, 'origin': [round(org[i] + sh[i], 4) for i in range(3)]}
             for f, (x, y, w, h) in e.rect.items():
                 d['faces'][f] = {'uv': [round(x / S * 16, 4), round(y / S * 16, 4), round((x + w) / S * 16, 4), round((y + h) / S * 16, 4)],
                                  'texture': '#' + textures_key}

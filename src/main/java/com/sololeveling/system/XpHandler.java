@@ -38,7 +38,20 @@ public final class XpHandler {
                 Sys.notify(sp, Sys.REWARD, Component.translatable("gui.sololeveling.rank_up"), Ranks.tag(after));
             }
         }
+        d.title = titleFor(d.rank());
         PlayerSync.sync(sp);
+    }
+
+    public static String titleFor(String rank) {
+        return switch (rank) {
+            case "E" -> "weakest";
+            case "D" -> "wolf";
+            case "C" -> "dagger";
+            case "B" -> "shadow_hunter";
+            case "A" -> "assassin";
+            case "S" -> "sovereign";
+            default -> "monarch";
+        };
     }
 
     /** rank index equivalent of a creature with this much max health */

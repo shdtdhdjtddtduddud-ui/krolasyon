@@ -289,6 +289,10 @@ public final class SkillExec {
         sh.setRankIdx(c.rankIdx);
         lvl.addFreshEntity(sh);
         d.shadowsExtracted++;
+        if (d.job.equals("none")) {
+            d.job = "necromancer";
+            Sys.notify(sp, Sys.REWARD, Component.translatable("gui.sololeveling.job_change"), Component.translatable("gui.sololeveling.job.necromancer"));
+        }
         for (int a = 0; a < 36; a++) {
             double ang = a / 36.0 * Math.PI * 2;
             lvl.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, c.x + Math.cos(ang) * 1.5, c.y + 0.1, c.z + Math.sin(ang) * 1.5, 1, 0, 0.3, 0, 0.05);

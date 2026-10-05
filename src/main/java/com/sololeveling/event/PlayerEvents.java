@@ -58,6 +58,7 @@ public final class PlayerEvents {
             Scheduler.later(60, () -> {
                 Sys.notify(sp, Sys.QUEST, Component.translatable("gui.sololeveling.chosen"), Component.translatable("gui.sololeveling.chosen_body"));
                 Net.toPlayer(sp, new Packets.Fx("levelup", 1));
+                Scheduler.later(120, () -> sp.sendSystemMessage(Component.translatable("gui.sololeveling.first_hint")));
             });
         } else {
             Scheduler.later(40, () -> Sys.notify(sp, Sys.INFO, Component.translatable("gui.sololeveling.system"), Component.translatable("gui.sololeveling.welcome_back", d.level)));

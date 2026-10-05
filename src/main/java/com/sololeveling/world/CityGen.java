@@ -420,6 +420,18 @@ public final class CityGen {
 
     public static void spawnNpcsInChunk(WorldGenLevel level, Content.RegionDef reg, int cx0, int cz0, long seed) {
         int Y0 = ModDimensions.CITY_Y;
+        if (reg.type().equals("ruins")) {
+            int gx = reg.cx() + 4, gz = reg.cz() + 24;
+            if (gx >= cx0 && gx < cx0 + 16 && gz >= cz0 && gz < cz0 + 16) {
+                com.sololeveling.entity.GateEntity g = ModEntities.GATE.get().create(level.getLevel());
+                if (g != null) {
+                    g.moveTo(gx + 0.5, Y0 + 1, gz + 0.5, 0F, 0F);
+                    g.setup("S", "ant_nest", false, com.sololeveling.entity.GateEntity.ENTRANCE);
+                    g.age2 = Integer.MIN_VALUE / 2;
+                    level.addFreshEntity(g);
+                }
+            }
+        }
         for (NpcSpawn n : npcs(reg, seed)) {
             int x = reg.cx() + n.lx(), z = reg.cz() + n.lz();
             if (x < cx0 || x >= cx0 + 16 || z < cz0 || z >= cz0 + 16) continue;

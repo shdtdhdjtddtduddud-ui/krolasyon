@@ -24,7 +24,7 @@ public class SLPlayer {
     public int fatigue = 0;
     public long gold = 0;
     public String job = "none";
-    public String title = "Wolf Hunter";
+    public String title = "weakest";
     public String guild = "";
     public final Set<String> skills = new HashSet<>();
     public int kills = 0;
@@ -163,7 +163,7 @@ public class SLPlayer {
         mana = t.contains("mana") ? t.getFloat("mana") : maxMana();
         fatigue = t.getInt("fatigue"); gold = t.getLong("gold");
         job = t.contains("job") ? t.getString("job") : "none";
-        title = t.contains("title") ? t.getString("title") : "Wolf Hunter";
+        title = t.contains("title") ? t.getString("title") : "weakest";
         guild = t.getString("guild");
         skills.clear();
         for (Tag e : t.getList("skills", Tag.TAG_STRING)) skills.add(e.getAsString());

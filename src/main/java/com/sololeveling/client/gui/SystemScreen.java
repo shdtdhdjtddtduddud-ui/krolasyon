@@ -98,7 +98,7 @@ public class SystemScreen extends Screen {
         int half = w / 2 - 6;
         // left column
         g.drawString(font, Component.literal(mc.player == null ? "Player" : mc.player.getGameProfile().getName()), x, y, UiKit.TEXT, true);
-        g.drawString(font, Component.translatable("gui.sololeveling.title_label", d.title), x, y + 11, UiKit.DIM, false);
+        g.drawString(font, Component.translatable("gui.sololeveling.title_label", Component.translatable("gui.sololeveling.title." + d.title)), x, y + 11, UiKit.DIM, false);
         g.pose().pushPose();
         g.pose().translate(x, y + 24, 0);
         g.pose().scale(2.2F, 2.2F, 1);
@@ -140,9 +140,10 @@ public class SystemScreen extends Screen {
     }
 
     private void bar(GuiGraphics g, int x, int y, int w, String label, float frac, int color, String text) {
+        int lw = Math.max(26, font.width(label) + 6);
         g.drawString(font, label, x, y + 1, UiKit.DIM, false);
-        UiKit.bar(g, x + 26, y, w - 26, 11, frac, color);
-        g.drawCenteredString(font, text, x + 26 + (w - 26) / 2, y + 2, 0xFFFFFFFF);
+        UiKit.bar(g, x + lw, y, w - lw, 11, frac, color);
+        g.drawCenteredString(font, text, x + lw + (w - lw) / 2, y + 2, 0xFFFFFFFF);
     }
 
     // ------------------------------------------------------------------ SKILLS

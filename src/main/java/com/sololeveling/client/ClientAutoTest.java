@@ -40,15 +40,19 @@ public final class ClientAutoTest {
         MinecraftForge.EVENT_BUS.register(new ClientAutoTest());
     }
 
+    private static String wrap(String c) {
+        return c.startsWith("sl ") ? "execute as @p at @p run " + c : c;
+    }
+
     private void cmd(int wait, String shot, String... commands) {
         steps.add(new Step(wait, shot, s -> {
-            for (String c : commands) s.getCommands().performPrefixedCommand(s.createCommandSourceStack().withSuppressedOutput(), c);
+            for (String c : commands) s.getCommands().performPrefixedCommand(s.createCommandSourceStack().withSuppressedOutput(), wrap(c));
         }, null, false));
     }
 
     private void cmdGui(int wait, String shot, String... commands) {
         steps.add(new Step(wait, shot, s -> {
-            for (String c : commands) s.getCommands().performPrefixedCommand(s.createCommandSourceStack().withSuppressedOutput(), c);
+            for (String c : commands) s.getCommands().performPrefixedCommand(s.createCommandSourceStack().withSuppressedOutput(), wrap(c));
         }, null, true));
     }
 
@@ -65,7 +69,8 @@ public final class ClientAutoTest {
         cmd(0, null, "gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false", "time set 6000", "weather clear",
                 "difficulty normal", "gamemode creative @a", "sl level 70", "sl gold 5000");
         // ---------------- showcase platform (y=250) with a backdrop wall
-        cmd(10, null, "tp @a 0 251 12 180 0", "fill -40 249 -20 330 249 20 minecraft:gray_concrete", "fill -40 250 -6 330 262 -6 minecraft:light_gray_concrete");
+        cmd(10, null, "tp @a 0 151 12 180 0", "fill -30 149 -20 240 149 20 minecraft:gray_concrete", "fill -30 150 -6 240 162 -6 minecraft:light_gray_concrete");
+        cmd(160, null);
         // ---------------- items (3D models)
         List<String> weapons = new ArrayList<>(), misc = new ArrayList<>(), armor = new ArrayList<>(), blocks = new ArrayList<>();
         for (Content.WeaponDef d : Content.WEAPONS) weapons.add(d.id());
@@ -76,10 +81,10 @@ public final class ClientAutoTest {
         for (String m : Content.MISC) if (!m.equals("shadow_essence")) misc.add(m);
         for (var e : ModItems.ARMOR.keySet()) armor.add(e);
         for (Content.BlockDef b : Content.BLOCKS) blocks.add(b.id());
-        itemShots("weapons", weapons, 250);
-        itemShots("misc", misc, 250);
-        itemShots("armor", armor, 250);
-        itemShots("blocks", blocks, 250);
+        itemShots("weapons", weapons, 150);
+        itemShots("misc", misc, 150);
+        itemShots("armor", armor, 150);
+        itemShots("blocks", blocks, 150);
         // ---------------- creature lineup in the overworld sky platform
         creatureShots();
         // ---------------- armor stands wearing the sets
@@ -87,10 +92,10 @@ public final class ClientAutoTest {
         String[] sets = {"hunter", "knight", "ice", "monarch"};
         String[] weaps = {"hunter_dagger", "igris_blade", "ice_elf_staff", "shadow_monarch_sword"};
         for (int i = 0; i < 4; i++) {
-            st.add(String.format(Locale.ROOT, "summon minecraft:armor_stand %d 250 0 {ShowArms:1b,NoGravity:1b,Rotation:[%df,0f],HandItems:[{id:\"sololeveling:%s\",Count:1b},{}],ArmorItems:[{id:\"sololeveling:%s_boots\",Count:1b},{id:\"sololeveling:%s_leggings\",Count:1b},{id:\"sololeveling:%s_chestplate\",Count:1b},{id:\"sololeveling:%s_helmet\",Count:1b}]}",
+            st.add(String.format(Locale.ROOT, "summon minecraft:armor_stand %d 150 0 {ShowArms:1b,NoGravity:1b,Rotation:[%df,0f],HandItems:[{id:\"sololeveling:%s\",Count:1b},{}],ArmorItems:[{id:\"sololeveling:%s_boots\",Count:1b},{id:\"sololeveling:%s_leggings\",Count:1b},{id:\"sololeveling:%s_chestplate\",Count:1b},{id:\"sololeveling:%s_helmet\",Count:1b}]}",
                     200 + i * 3, -10 + i * 8, weaps[i], sets[i], sets[i], sets[i], sets[i]));
         }
-        cmd(10, null, "kill @e[type=!player]", "tp @a 204.5 251 8 180 0");
+        cmd(10, null, "kill @e[type=!player]", "tp @a 204.5 151 8 180 0");
         cmd(5, null, st.toArray(new String[0]));
         cmd(30, "armor_stands");
         // ---------------- UI screens
@@ -168,7 +173,7 @@ public final class ClientAutoTest {
                 double x = (col - 4) * 2.2, y = y0 + 3.2 - row * 3.0;
                 cmds.add(itemCmd(id, x, y, -2, 2.0, "gui"));
             }
-            cmd(8, null, "tp @a 0 251 12 180 0");
+            cmd(8, null, "tp @a 0 151 12 180 0");
             cmd(3, null, cmds.toArray(new String[0]));
             cmd(14, name + "_" + s);
         }
@@ -191,14 +196,14 @@ public final class ClientAutoTest {
             double sp = g == 1 ? 7 : (g == 3 ? 0 : (g == 2 ? 6 : 3.2));
             for (int i = 0; i < n; i++) {
                 double x = (i - (n - 1) / 2.0) * sp;
-                c.add(String.format(Locale.ROOT, "summon sololeveling:%s %.1f 250 0 %s", groups[g][i], x, nbt));
+                c.add(String.format(Locale.ROOT, "summon sololeveling:%s %.1f 150 0 %s", groups[g][i], x, nbt));
             }
-            cmd(5, null, "tp @a 0 251 " + dist[g] + " 180 4");
+            cmd(5, null, "tp @a 0 151 " + dist[g] + " 180 4");
             cmd(3, null, c.toArray(new String[0]));
             cmd(30, "creatures_" + g);
             if (g != 5) {
                 // attack pose: damage dealer next to them? just a second angle
-                cmd(2, null, "tp @a " + (-dist[g] * 0.6) + " 253 " + (dist[g] * 0.8) + " 150 12");
+                cmd(2, null, "tp @a " + (-dist[g] * 0.6) + " 153 " + (dist[g] * 0.8) + " 150 12");
                 cmd(10, "creatures_" + g + "_side");
             }
         }

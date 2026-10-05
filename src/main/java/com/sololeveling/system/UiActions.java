@@ -132,6 +132,7 @@ public final class UiActions {
         double[] a = Regions.arrival(r);
         Travel.teleport(sp, hw, a[0], a[1], a[2], 180F);
         d.discovered.add(id);
+        sp.setRespawnPosition(ModDimensions.HUNTER_WORLD, BlockPos.containing(a[0], a[1], a[2]), 180F, true, false);
         Sys.notify(sp, Sys.INFO, Component.translatable("gui.sololeveling.region_arrived"), Component.translatable("region.sololeveling." + id));
         PlayerSync.sync(sp);
     }
