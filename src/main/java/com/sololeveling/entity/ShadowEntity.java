@@ -43,6 +43,7 @@ public class ShadowEntity extends PathfinderMob implements SLCaster {
         super(type, level);
         this.def = def;
         this.xpReward = 0;
+        initGoals();
     }
 
     public static AttributeSupplier.Builder attributes(Content.ShadowDef def) {
@@ -71,7 +72,9 @@ public class ShadowEntity extends PathfinderMob implements SLCaster {
     @Override public boolean isCasting() { return this.entityData.get(CAST) > 0; }
 
     @Override
-    protected void registerGoals() {
+    protected void registerGoals() { }
+
+    private void initGoals() {
         this.goalSelector.addGoal(0, new FloatGoal(this));
         if (def.ranged()) this.goalSelector.addGoal(1, new CastGoal());
         this.goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.25D, true));

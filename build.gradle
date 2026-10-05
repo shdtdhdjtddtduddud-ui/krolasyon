@@ -15,6 +15,7 @@ minecraft {
         client {
             workingDirectory project.file('run')
             property 'forge.logging.console.level', 'info'
+            property 'sololeveling.clienttest', 'true'
             args '--width', '1280', '--height', '720'
             mods { sololeveling { source sourceSets.main } }
         }

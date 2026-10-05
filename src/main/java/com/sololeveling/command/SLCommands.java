@@ -43,6 +43,11 @@ public final class SLCommands {
                 .then(Commands.literal("level").then(Commands.argument("n", IntegerArgumentType.integer(1, 200)).executes(c -> level(c.getSource(), IntegerArgumentType.getInteger(c, "n")))))
                 .then(Commands.literal("skills").executes(c -> skills(c.getSource())))
                 .then(Commands.literal("region").then(Commands.argument("id", StringArgumentType.word()).executes(c -> region(c.getSource(), StringArgumentType.getString(c, "id")))))
+                .then(Commands.literal("dungeon")
+                        .then(Commands.argument("theme", StringArgumentType.word())
+                                .then(Commands.argument("rank", StringArgumentType.word()).executes(c -> dungeon(c.getSource(), StringArgumentType.getString(c, "theme"), StringArgumentType.getString(c, "rank"))))))
+                .then(Commands.literal("cast").then(Commands.argument("skill", StringArgumentType.word()).executes(c -> cast(c.getSource(), StringArgumentType.getString(c, "skill")))))
+                .then(Commands.literal("bossroom").executes(c -> bossroom(c.getSource())))
                 .then(Commands.literal("gold").then(Commands.argument("n", IntegerArgumentType.integer(0)).executes(c -> gold(c.getSource(), IntegerArgumentType.getInteger(c, "n"))))));
     }
 
@@ -58,6 +63,45 @@ public final class SLCommands {
         Vec3 look = src.getRotation().y == 0 && src.getRotation().x == 0 ? new Vec3(0, 0, 1) : Vec3.directionFromRotation(0, src.getRotation().y);
         GateManager.spawnGate(lvl, p.x + look.x * 5, p.y, p.z + look.z * 5, rank, theme, red, true);
         return 1;
+    }
+
+    private static int dungeon(CommandSourceStack src, String theme, String rank) {
+        ServerPlayer sp = src.getPlayer();
+        if (sp == null) return 0;
+        ServerLevel lvl = sp.serverLevel();
+        com.sololeveling.entity.GateEntity g = com.sololeveling.registry.ModEntities.GATE.get().create(lvl);
+        if (g == null) return 0;
+        g.moveTo(sp.getX(), sp.getY(), sp.getZ());
+        g.setup(rank.toUpperCase(), theme, false, com.sololeveling.entity.GateEntity.ENTRANCE);
+        g.returnDim = lvl.dimension().location().toString();
+        com.sololeveling.world.DungeonManager.Inst inst = com.sololeveling.world.DungeonManager.ensure(lvl, g);
+        ServerLevel dl = src.getServer().getLevel(ModDimensions.DUNGEON);
+        if (inst == null || dl == null) return 0;
+        Travel.teleport(sp, dl, inst.spawn.getX() + 0.5, inst.spawn.getY(), inst.spawn.getZ() + 0.5, -90F);
+        return 1;
+    }
+
+    private static int cast(CommandSourceStack src, String skill) {
+        ServerPlayer sp = src.getPlayer();
+        if (sp == null) return 0;
+        com.sololeveling.skill.SkillExec.cast(sp, skill);
+        return 1;
+    }
+
+    private static int bossroom(CommandSourceStack src) {
+        ServerPlayer sp = src.getPlayer();
+        if (sp == null) return 0;
+        ServerLevel dl = src.getServer().getLevel(ModDimensions.DUNGEON);
+        com.sololeveling.world.DungeonManager dm = com.sololeveling.world.DungeonManager.get(src.getServer());
+        for (long id = 0; id < 400; id++) {
+            com.sololeveling.world.DungeonManager.Inst i = dm.get(id);
+            if (i == null) continue;
+            if (sp.getX() >= i.minX - 4 && sp.getX() <= i.maxX + 4 && Math.abs(sp.getZ() - i.origin.getZ()) < 60 && dl != null) {
+                Travel.teleport(sp, dl, i.boss.getX() - 14.5, i.boss.getY(), i.boss.getZ() + 0.5, -90F);
+                return 1;
+            }
+        }
+        return 0;
     }
 
     private static int level(CommandSourceStack src, int n) {

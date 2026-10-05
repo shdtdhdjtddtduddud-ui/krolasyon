@@ -26,6 +26,10 @@ public class SoloLeveling {
         ModFeatures.FEATURES.register(bus);
         bus.addListener(this::attributes);
         bus.addListener(this::common);
+        if (Boolean.getBoolean("sololeveling.clienttest")) {
+            net.minecraftforge.fml.DistExecutor.unsafeRunWhenOn(net.minecraftforge.api.distmarker.Dist.CLIENT,
+                    () -> com.sololeveling.client.ClientAutoTest::init);
+        }
     }
 
     private void common(FMLCommonSetupEvent e) {
