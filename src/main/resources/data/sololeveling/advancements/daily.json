@@ -1,0 +1,23 @@
+{
+ "display": {
+  "icon": {
+   "item": "sololeveling:hp_potion_small"
+  },
+  "title": {
+   "translate": "advancements.sololeveling.daily.title"
+  },
+  "description": {
+   "translate": "advancements.sololeveling.daily.desc"
+  },
+  "frame": "task",
+  "show_toast": true,
+  "announce_to_chat": true,
+  "hidden": false
+ },
+ "criteria": {
+  "done": {
+   "trigger": "minecraft:impossible"
+  }
+ },
+ "parent": "sololeveling:awakened"
+}

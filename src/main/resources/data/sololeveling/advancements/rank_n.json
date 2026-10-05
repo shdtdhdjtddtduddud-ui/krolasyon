@@ -1,0 +1,23 @@
+{
+ "display": {
+  "icon": {
+   "item": "sololeveling:shadow_monarch_sword"
+  },
+  "title": {
+   "translate": "advancements.sololeveling.rank_n.title"
+  },
+  "description": {
+   "translate": "advancements.sololeveling.rank_n.desc"
+  },
+  "frame": "challenge",
+  "show_toast": true,
+  "announce_to_chat": true,
+  "hidden": false
+ },
+ "criteria": {
+  "done": {
+   "trigger": "minecraft:impossible"
+  }
+ },
+ "parent": "sololeveling:rank_s"
+}

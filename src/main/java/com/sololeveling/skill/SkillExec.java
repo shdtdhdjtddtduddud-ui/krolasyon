@@ -291,6 +291,8 @@ public final class SkillExec {
         sh.setRankIdx(c.rankIdx);
         lvl.addFreshEntity(sh);
         d.shadowsExtracted++;
+        Adv.grant(sp, "arise");
+        if (d.shadowsExtracted >= 10) Adv.grant(sp, "army");
         if (d.job.equals("none")) {
             d.job = "necromancer";
             Sys.notify(sp, Sys.REWARD, Component.translatable("gui.sololeveling.job_change"), Component.translatable("gui.sololeveling.job.necromancer"));

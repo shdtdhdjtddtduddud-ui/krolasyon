@@ -33,6 +33,12 @@ public final class XpHandler {
                 }
             }
             String after = d.rank();
+            if (d.level >= 10) Adv.grant(sp, "rank_d");
+            if (d.level >= 25) Adv.grant(sp, "rank_c");
+            if (d.level >= 40) Adv.grant(sp, "rank_b");
+            if (d.level >= 60) Adv.grant(sp, "rank_a");
+            if (d.level >= 80) Adv.grant(sp, "rank_s");
+            if (d.level >= 100) Adv.grant(sp, "rank_n");
             if (!after.equals(before)) {
                 NewsManager.add(sp.getServer(), NewsManager.HUNTER, Component.translatable("news.sololeveling.rank_up", sp.getDisplayName(), Ranks.tag(after)));
                 Sys.notify(sp, Sys.REWARD, Component.translatable("gui.sololeveling.rank_up"), Ranks.tag(after));

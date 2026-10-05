@@ -323,6 +323,47 @@ def build_recipes():
     w_json(f'{DATA}/recipes/mana_crystal_from_ore.json', {'type': 'minecraft:smelting', 'ingredient': {'item': f'{MOD}:mana_crystal_ore'}, 'result': f'{MOD}:mana_crystal_d', 'experience': 0.5, 'cookingtime': 200})
 
 
+
+# ================================================================ advancements
+ADV = [
+    # id, parent, icon item, frame, tr title, tr desc, en title, en desc
+    ('root', None, 'hunter_license', 'task', 'Solo Leveling', 'Sistem seni seçti. Güçlenmeye başla.', 'Solo Leveling', 'The System has chosen you. Begin to level up.'),
+    ('awakened', 'root', 'hunter_license', 'task', 'Uyanış', 'Oyuncu olarak seçildin.', 'Awakening', 'You were chosen as a Player.'),
+    ('rank_d', 'awakened', 'iron_blade', 'task', 'Kurt Avcı', 'D-Rütbeye ulaş (Seviye 10).', 'Wolf Hunter', 'Reach D-rank (level 10).'),
+    ('rank_c', 'rank_d', 'knight_killer', 'task', 'Hançer Ustası', 'C-Rütbeye ulaş (Seviye 25).', 'Dagger Master', 'Reach C-rank (level 25).'),
+    ('rank_b', 'rank_c', 'kasaka_venom_fang', 'goal', 'Gölge Avcısı', 'B-Rütbeye ulaş (Seviye 40).', 'Shadow Hunter', 'Reach B-rank (level 40).'),
+    ('rank_a', 'rank_b', 'igris_blade', 'goal', 'Gölge Suikastçısı', 'A-Rütbeye ulaş (Seviye 60).', 'Shadow Assassin', 'Reach A-rank (level 60).'),
+    ('rank_s', 'rank_a', 'demon_king_dagger', 'challenge', 'Gölge Hükümdarı', 'S-Rütbeye ulaş (Seviye 80).', 'Shadow Sovereign', 'Reach S-rank (level 80).'),
+    ('rank_n', 'rank_s', 'shadow_monarch_sword', 'challenge', 'Gölgelerin Monarkı', 'Ulusal Seviyeye ulaş (Seviye 100).', 'Monarch of Shadows', 'Reach National level (level 100).'),
+    ('seoul', 'awakened', 'world_map', 'task', 'Seul\'a Hoş Geldin', 'Avcı Dünyası\'nda Seul\'a seyahat et.', 'Welcome to Seoul', 'Travel to Seoul in the Hunter World.'),
+    ('explorer', 'seoul', 'dungeon_key', 'goal', 'Kâşif', 'Tüm bölgeleri keşfet.', 'Explorer', 'Discover every region.'),
+    ('guild', 'seoul', 'hunter_helmet', 'task', 'Lonca Üyesi', 'Bir loncaya katıl.', 'Guild Member', 'Join a guild.'),
+    ('daily', 'awakened', 'hp_potion_small', 'task', 'Hazırlık Tamam', 'Günlük görevi tamamla.', 'Preparation Complete', 'Complete a daily quest.'),
+    ('first_gate', 'awakened', 'dungeon_key', 'task', 'İlk Kapı', 'Bir zindanı temizle.', 'First Gate', 'Clear a dungeon.'),
+    ('arise', 'first_gate', 'shadow_essence', 'goal', 'ARISE!', 'İlk gölgeni çıkar.', 'ARISE!', 'Extract your first shadow.'),
+    ('army', 'arise', 'necromancer_staff', 'challenge', 'Gölge Ordusu', '10 gölge çıkar.', 'Shadow Army', 'Extract 10 shadows.'),
+]
+for _b in C.MONSTERS:
+    if _b[11]:
+        ADV.append((f'boss_{_b[0]}', 'first_gate', f'{_b[0]}_spawn_egg', 'challenge' if _b[2] in ('S', 'N') else 'goal',
+                    f'{_b[13]} Yenildi', f'{_b[13]} adlı bossu yen.', f'{_b[14]} Defeated', f'Defeat {_b[14]}.'))
+
+
+def build_advancements():
+    for aid, parent, icon, frame, ttr, dtr, ten, den in ADV:
+        d = {'display': {'icon': {'item': f'{MOD}:{icon}'}, 'title': {'translate': f'advancements.{MOD}.{aid}.title'},
+                         'description': {'translate': f'advancements.{MOD}.{aid}.desc'}, 'frame': frame,
+                         'show_toast': aid != 'root', 'announce_to_chat': aid != 'root', 'hidden': False},
+             'criteria': {'done': {'trigger': 'minecraft:tick' if aid == 'root' else 'minecraft:impossible'}}}
+        if aid == 'root':
+            d['display']['background'] = 'minecraft:textures/gui/advancements/backgrounds/stone.png'
+        else:
+            d['parent'] = f'{MOD}:{parent}'
+        w_json(f'{DATA}/advancements/{aid}.json', d)
+        lang(f'advancements.{MOD}.{aid}.title', ttr, ten)
+        lang(f'advancements.{MOD}.{aid}.desc', dtr, den)
+
+
 # ================================================================ Java content + lang
 def js(s):
     return json.dumps(s, ensure_ascii=False)
@@ -408,5 +449,5 @@ def build_lang():
 if __name__ == '__main__':
     for d in (f'{ASSETS}/textures', f'{ASSETS}/models', f'{ASSETS}/blockstates', f'{DATA}/recipes', f'{DATA}/loot_tables', f'{JAVA}/client/model', f'{JAVA}/gen'):
         pass
-    build_items(); build_armor(); build_entities(); build_blocks(); build_effects(); build_recipes(); build_java_content(); build_lang()
+    build_items(); build_armor(); build_entities(); build_blocks(); build_effects(); build_recipes(); build_advancements(); build_java_content(); build_lang()
     print('assets ok:', len(LANG_EN), 'lang keys')

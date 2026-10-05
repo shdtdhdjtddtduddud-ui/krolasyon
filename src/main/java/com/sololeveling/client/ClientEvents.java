@@ -35,6 +35,7 @@ public final class ClientEvents {
     public static final KeyMapping KEY_CAST = new KeyMapping("key.sololeveling.cast", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, "key.categories.sololeveling");
     public static final KeyMapping KEY_NEXT = new KeyMapping("key.sololeveling.next_skill", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_X, "key.categories.sololeveling");
     public static final KeyMapping KEY_PREV = new KeyMapping("key.sololeveling.prev_skill", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_Z, "key.categories.sololeveling");
+    public static final KeyMapping KEY_RECALL = new KeyMapping("key.sololeveling.recall", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_V, "key.categories.sololeveling");
     public static final KeyMapping KEY_ARISE = new KeyMapping("key.sololeveling.arise", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_G, "key.categories.sololeveling");
 
     public static ModelLayerLocation layer(String name) {
@@ -47,7 +48,7 @@ public final class ClientEvents {
 
         @SubscribeEvent
         public static void keys(RegisterKeyMappingsEvent e) {
-            e.register(KEY_SYSTEM); e.register(KEY_CAST); e.register(KEY_NEXT); e.register(KEY_PREV); e.register(KEY_ARISE);
+            e.register(KEY_SYSTEM); e.register(KEY_CAST); e.register(KEY_NEXT); e.register(KEY_PREV); e.register(KEY_ARISE); e.register(KEY_RECALL);
         }
 
         @SubscribeEvent
@@ -92,6 +93,7 @@ public final class ClientEvents {
                 int sel = Math.floorMod(ClientHooks.selectedSkill, unlocked.size());
                 Net.toServer(new Packets.Cast(unlocked.get(sel).id()));
             }
+            while (KEY_RECALL.consumeClick()) Net.toServer(new Packets.Action("recall", "", 0));
             while (KEY_ARISE.consumeClick()) Net.toServer(new Packets.Cast("shadow_extraction"));
         }
     }

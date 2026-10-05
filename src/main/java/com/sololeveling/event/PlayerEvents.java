@@ -51,6 +51,7 @@ public final class PlayerEvents {
         }
         for (Content.SkillDef s : Content.SKILLS) if (d.level >= s.level()) d.skills.add(s.id());
         Stats.apply(sp);
+        Adv.grant(sp, "awakened");
         Quests.checkDaily(sp);
         PlayerSync.sync(sp);
         NewsManager.send(sp);

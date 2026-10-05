@@ -37,6 +37,7 @@ public final class WorldEvents {
         if (r == null) return;
         SLPlayer d = ModCaps.get(sp);
         if (d.discovered.add(r.id())) {
+            if (d.discovered.size() >= Content.REGIONS.length) com.sololeveling.system.Adv.grant(sp, "explorer");
             Sys.notify(sp, Sys.INFO, Component.translatable("gui.sololeveling.region_discovered"), Component.translatable("region.sololeveling." + r.id()));
             NewsManager.add(sp.getServer(), NewsManager.GENERAL, Component.translatable("news.sololeveling.discovered", sp.getDisplayName(), Component.translatable("region.sololeveling." + r.id())));
             PlayerSync.sync(sp);

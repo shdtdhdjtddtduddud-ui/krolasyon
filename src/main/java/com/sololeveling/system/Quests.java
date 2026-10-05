@@ -52,6 +52,7 @@ public final class Quests {
         long gold = 150 + d.level * 15L;
         d.gold += gold;
         d.points += 2;
+        Adv.grant(sp, "daily");
         sp.getInventory().add(new ItemStack(ModItems.get("hp_potion_small"), 2));
         Sys.notify(sp, Sys.REWARD, Component.translatable("gui.sololeveling.daily_complete"), Component.translatable("gui.sololeveling.daily_reward", xp, gold));
         XpHandler.giveXp(sp, xp);

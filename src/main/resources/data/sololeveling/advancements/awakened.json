@@ -1,0 +1,23 @@
+{
+ "display": {
+  "icon": {
+   "item": "sololeveling:hunter_license"
+  },
+  "title": {
+   "translate": "advancements.sololeveling.awakened.title"
+  },
+  "description": {
+   "translate": "advancements.sololeveling.awakened.desc"
+  },
+  "frame": "task",
+  "show_toast": true,
+  "announce_to_chat": true,
+  "hidden": false
+ },
+ "criteria": {
+  "done": {
+   "trigger": "minecraft:impossible"
+  }
+ },
+ "parent": "sololeveling:root"
+}

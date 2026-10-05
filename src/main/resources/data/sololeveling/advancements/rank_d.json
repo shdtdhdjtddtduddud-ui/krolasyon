@@ -1,0 +1,23 @@
+{
+ "display": {
+  "icon": {
+   "item": "sololeveling:iron_blade"
+  },
+  "title": {
+   "translate": "advancements.sololeveling.rank_d.title"
+  },
+  "description": {
+   "translate": "advancements.sololeveling.rank_d.desc"
+  },
+  "frame": "task",
+  "show_toast": true,
+  "announce_to_chat": true,
+  "hidden": false
+ },
+ "criteria": {
+  "done": {
+   "trigger": "minecraft:impossible"
+  }
+ },
+ "parent": "sololeveling:awakened"
+}

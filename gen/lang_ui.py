@@ -16,6 +16,8 @@ UI = {
     'key.sololeveling.cast': ('Yetenek Kullan', 'Cast Skill'),
     'key.sololeveling.next_skill': ('Sonraki Yetenek', 'Next Skill'),
     'key.sololeveling.prev_skill': ('Önceki Yetenek', 'Previous Skill'),
+    'key.sololeveling.recall': ('Gölgeleri Çağır', 'Recall Shadows'),
+    'gui.sololeveling.recalled': ('%s gölge yanına çağrıldı.', '%s shadow(s) recalled to your side.'),
     'key.sololeveling.arise': ('ARISE (Gölge Çıkar)', 'ARISE (Extract Shadow)'),
 
     'gui.sololeveling.system': ('Sistem', 'System'),

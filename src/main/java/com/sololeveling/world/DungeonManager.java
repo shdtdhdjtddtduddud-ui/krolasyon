@@ -212,6 +212,8 @@ public class DungeonManager extends SavedData {
             d.gatesCleared++;
             d.dqGates++;
             Quests.onGateCleared(p, inst.rank);
+            Adv.grant(p, "first_gate");
+            Adv.grant(p, "boss_" + boss.def.id());
             XpHandler.giveXp(p, baseXp);
             long gold = (long) (200 * Math.pow(2.2, ri));
             d.gold += gold;

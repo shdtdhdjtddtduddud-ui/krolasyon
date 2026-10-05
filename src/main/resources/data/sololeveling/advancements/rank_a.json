@@ -1,0 +1,23 @@
+{
+ "display": {
+  "icon": {
+   "item": "sololeveling:igris_blade"
+  },
+  "title": {
+   "translate": "advancements.sololeveling.rank_a.title"
+  },
+  "description": {
+   "translate": "advancements.sololeveling.rank_a.desc"
+  },
+  "frame": "goal",
+  "show_toast": true,
+  "announce_to_chat": true,
+  "hidden": false
+ },
+ "criteria": {
+  "done": {
+   "trigger": "minecraft:impossible"
+  }
+ },
+ "parent": "sololeveling:rank_b"
+}

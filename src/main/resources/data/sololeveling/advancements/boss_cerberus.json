@@ -1,0 +1,23 @@
+{
+ "display": {
+  "icon": {
+   "item": "sololeveling:cerberus_spawn_egg"
+  },
+  "title": {
+   "translate": "advancements.sololeveling.boss_cerberus.title"
+  },
+  "description": {
+   "translate": "advancements.sololeveling.boss_cerberus.desc"
+  },
+  "frame": "goal",
+  "show_toast": true,
+  "announce_to_chat": true,
+  "hidden": false
+ },
+ "criteria": {
+  "done": {
+   "trigger": "minecraft:impossible"
+  }
+ },
+ "parent": "sololeveling:first_gate"
+}

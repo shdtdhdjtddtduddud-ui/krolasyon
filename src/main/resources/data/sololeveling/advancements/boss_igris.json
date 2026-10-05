@@ -1,0 +1,23 @@
+{
+ "display": {
+  "icon": {
+   "item": "sololeveling:igris_spawn_egg"
+  },
+  "title": {
+   "translate": "advancements.sololeveling.boss_igris.title"
+  },
+  "description": {
+   "translate": "advancements.sololeveling.boss_igris.desc"
+  },
+  "frame": "challenge",
+  "show_toast": true,
+  "announce_to_chat": true,
+  "hidden": false
+ },
+ "criteria": {
+  "done": {
+   "trigger": "minecraft:impossible"
+  }
+ },
+ "parent": "sololeveling:first_gate"
+}

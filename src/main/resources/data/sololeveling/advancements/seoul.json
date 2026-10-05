@@ -1,0 +1,23 @@
+{
+ "display": {
+  "icon": {
+   "item": "sololeveling:world_map"
+  },
+  "title": {
+   "translate": "advancements.sololeveling.seoul.title"
+  },
+  "description": {
+   "translate": "advancements.sololeveling.seoul.desc"
+  },
+  "frame": "task",
+  "show_toast": true,
+  "announce_to_chat": true,
+  "hidden": false
+ },
+ "criteria": {
+  "done": {
+   "trigger": "minecraft:impossible"
+  }
+ },
+ "parent": "sololeveling:awakened"
+}

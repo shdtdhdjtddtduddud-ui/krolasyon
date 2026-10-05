@@ -20,6 +20,7 @@ public class GateRenderer extends EntityRenderer<GateEntity> {
     private static final ResourceLocation SWIRL = new ResourceLocation(SoloLeveling.MODID, "textures/entity/gate_swirl.png");
     private static final ResourceLocation SWIRL2 = new ResourceLocation(SoloLeveling.MODID, "textures/entity/gate_swirl2.png");
     private static final ResourceLocation RING = new ResourceLocation(SoloLeveling.MODID, "textures/entity/gate_ring.png");
+    private static final ResourceLocation BEAM = new ResourceLocation(SoloLeveling.MODID, "textures/entity/gate_beam.png");
     private static final ResourceLocation ORB = new ResourceLocation(SoloLeveling.MODID, "textures/entity/glow_orb.png");
 
     public GateRenderer(EntityRendererProvider.Context ctx) { super(ctx); }
@@ -71,9 +72,34 @@ public class GateRenderer extends EntityRenderer<GateEntity> {
         // core glow
         quad(ps, buf.getBuffer(RenderType.eyes(ORB)), 0.9F * pulse, 1.3F * pulse, 255, 255, 255, 200);
         ps.popPose();
+        // light pillar so gates can be spotted from far away
+        if (e.mode() == GateEntity.ENTRANCE) {
+            int ri = Math.max(0, java.util.Arrays.asList(Ranks.ORDER).indexOf(e.rank()));
+            float height = 24 + ri * 10;
+            ps.pushPose();
+            ps.mulPose(Axis.YP.rotationDegrees(time * 0.4F));
+            for (int k = 0; k < 2; k++) {
+                pillar(ps, buf.getBuffer(RenderType.eyes(BEAM)), 1.6F + ri * 0.15F, height, r, g, b, 0.55F * pulse);
+                ps.mulPose(Axis.YP.rotationDegrees(90F));
+            }
+            ps.popPose();
+        }
         // name
         if (e.hasCustomName() && this.entityRenderDispatcher.distanceToSqr(e) < 40 * 40)
             this.renderNameTag(e, e.getDisplayName(), ps, buf, light);
+    }
+
+    private static void pillar(PoseStack ps, VertexConsumer vc, float hw, float h, int r, int g, int b, float a) {
+        Matrix4f m = ps.last().pose();
+        Matrix3f n = ps.last().normal();
+        int rb = (int) (r * a), gb = (int) (g * a), bb = (int) (b * a);
+        for (int side = 0; side < 2; side++) {
+            float s0 = side == 0 ? -hw : hw, s1 = side == 0 ? hw : -hw;
+            vc.vertex(m, s0, 0, 0).color(rb, gb, bb, 255).uv(0, 1).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(15728880).normal(n, 0, 1, 0).endVertex();
+            vc.vertex(m, s1, 0, 0).color(rb, gb, bb, 255).uv(1, 1).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(15728880).normal(n, 0, 1, 0).endVertex();
+            vc.vertex(m, s1, h, 0).color(0, 0, 0, 255).uv(1, 0).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(15728880).normal(n, 0, 1, 0).endVertex();
+            vc.vertex(m, s0, h, 0).color(0, 0, 0, 255).uv(0, 0).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(15728880).normal(n, 0, 1, 0).endVertex();
+        }
     }
 
     private static void quadSquareScaled(PoseStack ps, VertexConsumer vc, float half, float sx, float sy, int r, int g, int b, int a) {

@@ -170,6 +170,27 @@ public final class AutoTest {
             com.sololeveling.system.NewsManager.add(server, 0, net.minecraft.network.chat.Component.literal("autotest"));
             ok("news ok");
         } catch (Throwable ex) { fail("news", ex); }
+        // economy / actions / xp / advancements / dungeon clear
+        try {
+            com.sololeveling.system.XpHandler.giveXp(fp, 1_000_000L);
+            ok("xp -> level " + d.level);
+            com.sololeveling.system.Quests.refreshOffers(fp);
+            com.sololeveling.system.Quests.accept(fp, 0);
+            d.gold = 100000;
+            for (String[] a : new String[][]{{"stat", "0", "5"}, {"buy", "hp_potion_small", "2"}, {"heal", "", "0"}, {"guild_join", "hunters", "0"}, {"recall", "", "0"}, {"gates", "", "0"}, {"news", "", "0"}, {"register", "", "0"}, {"claim_quest", "", "0"}}) {
+                try { com.sololeveling.system.UiActions.handle(fp, a[0], a[1], Integer.parseInt(a[2])); } catch (Throwable ex) { fail("action " + a[0], ex); }
+            }
+            ok("ui actions ran, gold=" + d.gold + " guild=" + d.guild);
+            GateEntity tg = ModEntities.GATE.get().create(ow);
+            tg.moveTo(30.5, 100, 30.5);
+            tg.setup("D", "temple", false, GateEntity.ENTRANCE);
+            DungeonManager.Inst inst = DungeonManager.ensure(ow, tg);
+            ServerLevel dl = server.getLevel(ModDimensions.DUNGEON);
+            fp.setPos(inst.boss.getX(), inst.boss.getY(), inst.boss.getZ());
+            for (SLMonster m : dl.getEntitiesOfClass(SLMonster.class, new net.minecraft.world.phys.AABB(inst.minX, 0, inst.minZ, inst.maxX, 200, inst.maxZ))) {
+                if (m.def.boss()) { m.kill(); ok("boss killed -> cleared=" + inst.cleared); }
+            }
+        } catch (Throwable ex) { fail("economy/clear", ex); }
         // gate enter/exit with fake player
         try {
             GateEntity g = GateManager.spawnGate(ow, 5, ow.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, 5, 5), 5, "E", "goblin_cave", false, false);

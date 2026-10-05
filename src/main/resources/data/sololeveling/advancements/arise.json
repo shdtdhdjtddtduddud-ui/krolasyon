@@ -1,0 +1,23 @@
+{
+ "display": {
+  "icon": {
+   "item": "sololeveling:shadow_essence"
+  },
+  "title": {
+   "translate": "advancements.sololeveling.arise.title"
+  },
+  "description": {
+   "translate": "advancements.sololeveling.arise.desc"
+  },
+  "frame": "goal",
+  "show_toast": true,
+  "announce_to_chat": true,
+  "hidden": false
+ },
+ "criteria": {
+  "done": {
+   "trigger": "minecraft:impossible"
+  }
+ },
+ "parent": "sololeveling:first_gate"
+}

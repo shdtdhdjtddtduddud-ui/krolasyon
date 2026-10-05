@@ -49,6 +49,7 @@ public final class UiActions {
                 if (d.gold < Guilds.JOIN_COST) { Sys.warn(sp, "gui.sololeveling.no_gold"); return; }
                 d.gold -= Guilds.JOIN_COST;
                 d.guild = arg;
+                Adv.grant(sp, "guild");
                 Stats.apply(sp);
                 Sys.notify(sp, Sys.REWARD, Component.translatable("gui.sololeveling.guild_joined"), Component.translatable("guild.sololeveling." + arg));
                 NewsManager.add(sp.getServer(), NewsManager.HUNTER, Component.translatable("news.sololeveling.guild_join", sp.getDisplayName(), Component.translatable("guild.sololeveling." + arg)));
@@ -93,6 +94,14 @@ public final class UiActions {
                     Sys.notify(sp, Sys.REWARD, Component.translatable("gui.sololeveling.system"), Component.translatable("gui.sololeveling.license_given"));
                 } else Sys.info(sp, "gui.sololeveling.license_have");
             }
+            case "recall" -> {
+                int n = 0;
+                for (var s : com.sololeveling.skill.ShadowUtil.owned(sp)) {
+                    Travel.moveEntity(s, sp.serverLevel(), sp.getX() + (sp.getRandom().nextDouble() - 0.5) * 4, sp.getY(), sp.getZ() + (sp.getRandom().nextDouble() - 0.5) * 4);
+                    n++;
+                }
+                Sys.info(sp, "gui.sololeveling.recalled", n);
+            }
             case "sync" -> PlayerSync.sync(sp);
             default -> { }
         }
@@ -132,6 +141,8 @@ public final class UiActions {
         double[] a = Regions.arrival(r);
         Travel.teleport(sp, hw, a[0], a[1], a[2], 180F);
         d.discovered.add(id);
+        Adv.grant(sp, "seoul");
+        if (d.discovered.size() >= Content.REGIONS.length) Adv.grant(sp, "explorer");
         sp.setRespawnPosition(ModDimensions.HUNTER_WORLD, BlockPos.containing(a[0], a[1], a[2]), 180F, true, false);
         Sys.notify(sp, Sys.INFO, Component.translatable("gui.sololeveling.region_arrived"), Component.translatable("region.sololeveling." + id));
         PlayerSync.sync(sp);

@@ -1,0 +1,23 @@
+{
+ "display": {
+  "icon": {
+   "item": "sololeveling:demon_king_dagger"
+  },
+  "title": {
+   "translate": "advancements.sololeveling.rank_s.title"
+  },
+  "description": {
+   "translate": "advancements.sololeveling.rank_s.desc"
+  },
+  "frame": "challenge",
+  "show_toast": true,
+  "announce_to_chat": true,
+  "hidden": false
+ },
+ "criteria": {
+  "done": {
+   "trigger": "minecraft:impossible"
+  }
+ },
+ "parent": "sololeveling:rank_a"
+}

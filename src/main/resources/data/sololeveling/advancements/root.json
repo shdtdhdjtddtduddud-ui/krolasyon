@@ -1,0 +1,23 @@
+{
+ "display": {
+  "icon": {
+   "item": "sololeveling:hunter_license"
+  },
+  "title": {
+   "translate": "advancements.sololeveling.root.title"
+  },
+  "description": {
+   "translate": "advancements.sololeveling.root.desc"
+  },
+  "frame": "task",
+  "show_toast": false,
+  "announce_to_chat": false,
+  "hidden": false,
+  "background": "minecraft:textures/gui/advancements/backgrounds/stone.png"
+ },
+ "criteria": {
+  "done": {
+   "trigger": "minecraft:tick"
+  }
+ }
+}

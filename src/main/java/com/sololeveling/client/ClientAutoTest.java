@@ -118,7 +118,7 @@ public final class ClientAutoTest {
         cmd(40, "city_hq", "tp @a 3.5 76 33 180 -28");
         cmd(40, "city_hq2", "tp @a 3.5 75 22 180 -12");
         cmd(60, "city_hq_far", "tp @a 3.5 110 150 180 -12");
-        cmd(80, "city_skyline", "tp @a -90 130 -90 -45 22");
+        cmd(80, "city_skyline", "tp @a -100 175 -100 -45 32");
         cmd(60, "city_street", "tp @a -2 74 20 0 3");
         cmd(80, "city_street2", "tp @a 44 74 20 90 3");
         cmd(60, "city_guild_hunters", "tp @a -37 74 22 180 5");

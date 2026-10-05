@@ -1,0 +1,23 @@
+{
+ "display": {
+  "icon": {
+   "item": "sololeveling:kasaka_venom_fang"
+  },
+  "title": {
+   "translate": "advancements.sololeveling.rank_b.title"
+  },
+  "description": {
+   "translate": "advancements.sololeveling.rank_b.desc"
+  },
+  "frame": "goal",
+  "show_toast": true,
+  "announce_to_chat": true,
+  "hidden": false
+ },
+ "criteria": {
+  "done": {
+   "trigger": "minecraft:impossible"
+  }
+ },
+ "parent": "sololeveling:rank_c"
+}
