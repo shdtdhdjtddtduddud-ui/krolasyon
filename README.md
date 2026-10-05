@@ -1,1 +1,1 @@
-# Boss Mod (Forge 1.20.1)
+# Solo Leveling: Arise (Forge 1.20.1)

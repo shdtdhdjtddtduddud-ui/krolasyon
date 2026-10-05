@@ -3,23 +3,23 @@ loaderVersion="[47,)"
 license="All Rights Reserved"
 
 [[mods]]
-modId="krolasyonbosses"
-version="1.1.0"
-displayName="Krolasyon Bosses"
+modId="sololeveling"
+version="1.0.0"
+displayName="Solo Leveling: Arise"
 authors="krolasyon"
 description='''
-Dort boss: Muhur Bekcisi, Kizil Cehennem Kurdu, Intikam ve Kalp Kirici Iblis.
-Her birinin 5 ozel yetenegi vardir ve etraftaki tum canavarlara saldirirlar.
+Solo Leveling dunyasi: Sistem, seviye ve statlar, avci rutbeleri, kapilar ve zindanlar,
+Seul sehri, loncalar, haberler, golge cikarma (ARISE!), yetenekler, silahlar ve iksirler.
 '''
 
-[[dependencies.krolasyonbosses]]
+[[dependencies.sololeveling]]
     modId="forge"
     mandatory=true
     versionRange="[47,)"
     ordering="NONE"
     side="BOTH"
 
-[[dependencies.krolasyonbosses]]
+[[dependencies.sololeveling]]
     modId="minecraft"
     mandatory=true
     versionRange="[1.20.1,1.21)"
