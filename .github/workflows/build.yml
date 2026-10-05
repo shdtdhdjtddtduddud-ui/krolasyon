@@ -30,8 +30,8 @@ jobs:
         run: |
           set +e
           mkdir -p apidump_out
-          CP=$(find ~/.gradle/caches -name '*.jar' | tr '\n' ':')
           MAPPED=$(find ~/.gradle/caches -name '*mapped_official_1.20.1*.jar' | head -1)
+          CP="$MAPPED:$(find ~/.gradle/caches/modules-2 ~/.gradle/caches/forge_gradle/maven_downloader -name '*.jar' 2>/dev/null | grep -v -- '-sources' | tr '\n' ':')"
           FORGE=$(find ~/.gradle/caches -name 'forge-1.20.1-47.2.0*universal*.jar' | head -1)
           echo "mapped=$MAPPED forge=$FORGE" > apidump_out/_info.txt
           [ -n "$MAPPED" ] && unzip -Z1 "$MAPPED" | grep '\.class$' | sed 's/\.class$//; s#/#.#g' | sort > apidump_out/_all_minecraft_classes.txt
