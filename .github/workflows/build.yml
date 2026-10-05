@@ -36,8 +36,8 @@ jobs:
           set +e
           timeout 900 gradle runServer --no-daemon > server.log 2>&1
           echo "exit $?"
-          grep -E "AUTOTEST|FAIL|Exception|ERROR|Caused by" server.log | grep -v "^\s*at " | head -250 > autotest_summary.txt
-          tail -40 server.log >> autotest_summary.txt
+          grep -E "AUTOTEST|FAIL|Exception|ERROR|Caused by|WARN.*sololeveling" server.log | grep -v "^[[:space:]]*at " | head -250 > autotest_summary.txt
+          tail -25 server.log | grep -v "^[[:space:]]*at " >> autotest_summary.txt
 
       - name: API dump (javap of requested classes -> branch api-dump)
         if: always() && hashFiles('apidump/request.txt') != ''
