@@ -95,12 +95,12 @@ public final class UiActions {
                 } else Sys.info(sp, "gui.sololeveling.license_have");
             }
             case "recall" -> {
-                int n = 0;
+                int moved = 0;
                 for (var s : com.sololeveling.skill.ShadowUtil.owned(sp)) {
                     Travel.moveEntity(s, sp.serverLevel(), sp.getX() + (sp.getRandom().nextDouble() - 0.5) * 4, sp.getY(), sp.getZ() + (sp.getRandom().nextDouble() - 0.5) * 4);
-                    n++;
+                    moved++;
                 }
-                Sys.info(sp, "gui.sololeveling.recalled", n);
+                Sys.info(sp, "gui.sololeveling.recalled", moved);
             }
             case "sync" -> PlayerSync.sync(sp);
             default -> { }

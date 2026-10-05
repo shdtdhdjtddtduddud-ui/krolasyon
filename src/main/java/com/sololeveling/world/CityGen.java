@@ -381,6 +381,20 @@ public final class CityGen {
         if (h % 61 == 0) level.setBlock(m.set(x, Y0 + 1, z), s(Blocks.COBWEB), 2);
     }
 
+    /** a free plaza / parking lot of a city where an urban gate may open, or null */
+    public static BlockPos gateSpot(Content.RegionDef reg, long seed, net.minecraft.util.RandomSource rnd) {
+        if (reg.type().equals("ruins")) return null;
+        for (int tries = 0; tries < 12; tries++) {
+            int gx = rnd.nextInt(7) - 3, gz = rnd.nextInt(7) - 3;
+            Lot lot = lotAt(reg, gx, gz, seed);
+            if (lot.type() != PLAZA && lot.type() != PARKING && lot.type() != PARK) continue;
+            int lx = gx * CELL - 12 + 16 + rnd.nextInt(5) - 2, lz = gz * CELL - 12 + 16 + rnd.nextInt(5) - 2;
+            if (Math.hypot(lx, lz) > reg.radius() - 10) continue;
+            return new BlockPos(reg.cx() + lx, ModDimensions.CITY_Y + 1, reg.cz() + lz);
+        }
+        return null;
+    }
+
     // ------------------------------------------------------------------ NPCs
     public record NpcSpawn(String role, String skin, String name, String guild, int lx, int lz) {}
 

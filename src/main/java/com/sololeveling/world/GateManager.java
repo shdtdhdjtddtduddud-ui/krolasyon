@@ -207,6 +207,14 @@ public final class GateManager {
             double a = lvl.random.nextDouble() * Math.PI * 2, dist = 45 + lvl.random.nextDouble() * 70;
             int x = (int) (p.getX() + Math.cos(a) * dist), z = (int) (p.getZ() + Math.sin(a) * dist);
             int y = Travel.surfaceY(lvl, x, z);
+            if (hw) {
+                Content.RegionDef reg = Regions.at((int) p.getX(), (int) p.getZ());
+                if (reg != null) {
+                    BlockPos spot = CityGen.gateSpot(reg, lvl.getSeed(), lvl.random);
+                    if (spot == null) continue;
+                    x = spot.getX(); y = spot.getY(); z = spot.getZ();
+                } else if (Regions.at(x, z) != null) continue;
+            }
             if (lvl.getBlockState(new BlockPos(x, y - 1, z)).getFluidState().isEmpty() == false) continue;
             spawnGate(lvl, x + 0.5, y, z + 0.5, rank, randomTheme(rank, lvl.random), red, true);
         }

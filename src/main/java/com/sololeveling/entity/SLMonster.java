@@ -122,6 +122,16 @@ public class SLMonster extends Monster implements SLCaster {
     public void aiStep() {
         super.aiStep();
         if (level().isClientSide) {
+            if (def.boss() && tickCount % 3 == 0) {
+                var p = switch (def.id()) {
+                    case "igris", "demon_knight" -> ParticleTypes.CRIMSON_SPORE;
+                    case "baruka", "ice_elf" -> ParticleTypes.SNOWFLAKE;
+                    case "kamish", "cerberus", "hell_hound" -> ParticleTypes.FLAME;
+                    case "kasaka" -> ParticleTypes.ITEM_SLIME;
+                    default -> ParticleTypes.ELECTRIC_SPARK;
+                };
+                level().addParticle(p, getX() + (random.nextDouble() - 0.5) * getBbWidth() * 1.4, getY() + random.nextDouble() * getBbHeight(), getZ() + (random.nextDouble() - 0.5) * getBbWidth() * 1.4, 0, 0.04, 0);
+            }
             if (isCasting() && random.nextInt(2) == 0)
                 level().addParticle(def.id().contains("ice") || def.id().equals("baruka") ? ParticleTypes.SNOWFLAKE : ParticleTypes.ENCHANT,
                         getX() + (random.nextDouble() - 0.5) * getBbWidth(), getY() + random.nextDouble() * getBbHeight(), getZ() + (random.nextDouble() - 0.5) * getBbWidth(), 0, 0.05, 0);
