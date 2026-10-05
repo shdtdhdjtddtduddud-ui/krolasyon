@@ -1,0 +1,23 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "TI ",
+  "TS ",
+  " S "
+ ],
+ "key": {
+  "T": {
+   "item": "sololeveling:orc_tusk"
+  },
+  "I": {
+   "item": "minecraft:iron_block"
+  },
+  "S": {
+   "item": "minecraft:stick"
+  }
+ },
+ "result": {
+  "item": "sololeveling:orc_war_axe",
+  "count": 1
+ }
+}

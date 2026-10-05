@@ -1,0 +1,33 @@
+{
+ "replace": false,
+ "values": [
+  "sololeveling:asphalt",
+  "sololeveling:road_line",
+  "sololeveling:road_crossing",
+  "sololeveling:sidewalk",
+  "sololeveling:concrete_panel",
+  "sololeveling:dark_panel",
+  "sololeveling:glass_facade",
+  "sololeveling:office_window",
+  "sololeveling:dark_window",
+  "sololeveling:neon_blue",
+  "sololeveling:neon_red",
+  "sololeveling:neon_purple",
+  "sololeveling:neon_gold",
+  "sololeveling:association_emblem",
+  "sololeveling:emblem_hunters",
+  "sololeveling:emblem_white_tiger",
+  "sololeveling:emblem_fiend",
+  "sololeveling:emblem_knights",
+  "sololeveling:emblem_ahjin",
+  "sololeveling:dungeon_bricks",
+  "sololeveling:rune_bricks",
+  "sololeveling:dungeon_floor",
+  "sololeveling:temple_stone",
+  "sololeveling:demon_bricks",
+  "sololeveling:hive_wall",
+  "sololeveling:mana_crystal_ore",
+  "sololeveling:temple_pillar",
+  "sololeveling:news_board"
+ ]
+}

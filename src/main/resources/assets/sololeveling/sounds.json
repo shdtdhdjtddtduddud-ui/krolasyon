@@ -1,0 +1,286 @@
+{
+ "system": {
+  "subtitle": "subtitles.sololeveling.system",
+  "sounds": [
+   {
+    "name": "sololeveling:system",
+    "volume": 1.0
+   }
+  ]
+ },
+ "system_warn": {
+  "subtitle": "subtitles.sololeveling.system_warn",
+  "sounds": [
+   {
+    "name": "sololeveling:system_warn",
+    "volume": 1.0
+   }
+  ]
+ },
+ "level_up": {
+  "subtitle": "subtitles.sololeveling.level_up",
+  "sounds": [
+   {
+    "name": "sololeveling:level_up",
+    "volume": 1.0
+   }
+  ]
+ },
+ "news": {
+  "subtitle": "subtitles.sololeveling.news",
+  "sounds": [
+   {
+    "name": "sololeveling:news",
+    "volume": 1.0
+   }
+  ]
+ },
+ "arise": {
+  "subtitle": "subtitles.sololeveling.arise",
+  "sounds": [
+   {
+    "name": "sololeveling:arise",
+    "volume": 1.0
+   }
+  ]
+ },
+ "dash": {
+  "subtitle": "subtitles.sololeveling.dash",
+  "sounds": [
+   {
+    "name": "sololeveling:dash",
+    "volume": 1.0
+   }
+  ]
+ },
+ "slash": {
+  "subtitle": "subtitles.sololeveling.slash",
+  "sounds": [
+   {
+    "name": "sololeveling:slash1",
+    "volume": 1.0
+   },
+   {
+    "name": "sololeveling:slash2",
+    "volume": 1.0
+   }
+  ]
+ },
+ "bloodlust": {
+  "subtitle": "subtitles.sololeveling.bloodlust",
+  "sounds": [
+   {
+    "name": "sololeveling:bloodlust",
+    "volume": 1.0
+   }
+  ]
+ },
+ "authority": {
+  "subtitle": "subtitles.sololeveling.authority",
+  "sounds": [
+   {
+    "name": "sololeveling:authority",
+    "volume": 1.0
+   }
+  ]
+ },
+ "roar": {
+  "subtitle": "subtitles.sololeveling.roar",
+  "sounds": [
+   {
+    "name": "sololeveling:roar",
+    "volume": 1.0
+   }
+  ]
+ },
+ "domain": {
+  "subtitle": "subtitles.sololeveling.domain",
+  "sounds": [
+   {
+    "name": "sololeveling:domain",
+    "volume": 1.0
+   }
+  ]
+ },
+ "howl": {
+  "subtitle": "subtitles.sololeveling.howl",
+  "sounds": [
+   {
+    "name": "sololeveling:howl",
+    "volume": 1.0
+   }
+  ]
+ },
+ "laser": {
+  "subtitle": "subtitles.sololeveling.laser",
+  "sounds": [
+   {
+    "name": "sololeveling:laser",
+    "volume": 1.0
+   }
+  ]
+ },
+ "fire": {
+  "subtitle": "subtitles.sololeveling.fire",
+  "sounds": [
+   {
+    "name": "sololeveling:fire",
+    "volume": 1.0
+   }
+  ]
+ },
+ "thunder": {
+  "subtitle": "subtitles.sololeveling.thunder",
+  "sounds": [
+   {
+    "name": "sololeveling:thunder",
+    "volume": 1.0
+   }
+  ]
+ },
+ "slam": {
+  "subtitle": "subtitles.sololeveling.slam",
+  "sounds": [
+   {
+    "name": "sololeveling:slam",
+    "volume": 1.0
+   }
+  ]
+ },
+ "boss_death": {
+  "subtitle": "subtitles.sololeveling.boss_death",
+  "sounds": [
+   {
+    "name": "sololeveling:boss_death",
+    "volume": 1.0
+   }
+  ]
+ },
+ "gate_hum": {
+  "subtitle": "subtitles.sololeveling.gate_hum",
+  "sounds": [
+   {
+    "name": "sololeveling:gate_hum",
+    "volume": 1.0
+   }
+  ]
+ },
+ "gate_enter": {
+  "subtitle": "subtitles.sololeveling.gate_enter",
+  "sounds": [
+   {
+    "name": "sololeveling:gate_enter",
+    "volume": 1.0
+   }
+  ]
+ },
+ "small_voice": {
+  "subtitle": "subtitles.sololeveling.small_voice",
+  "sounds": [
+   {
+    "name": "sololeveling:small_voice1",
+    "volume": 1.0
+   },
+   {
+    "name": "sololeveling:small_voice2",
+    "volume": 1.0
+   }
+  ]
+ },
+ "beast_growl": {
+  "subtitle": "subtitles.sololeveling.beast_growl",
+  "sounds": [
+   {
+    "name": "sololeveling:beast_growl1",
+    "volume": 1.0
+   },
+   {
+    "name": "sololeveling:beast_growl2",
+    "volume": 1.0
+   }
+  ]
+ },
+ "insect_click": {
+  "subtitle": "subtitles.sololeveling.insect_click",
+  "sounds": [
+   {
+    "name": "sololeveling:insect_click1",
+    "volume": 1.0
+   },
+   {
+    "name": "sololeveling:insect_click2",
+    "volume": 1.0
+   }
+  ]
+ },
+ "stone_grind": {
+  "subtitle": "subtitles.sololeveling.stone_grind",
+  "sounds": [
+   {
+    "name": "sololeveling:stone_grind",
+    "volume": 1.0
+   }
+  ]
+ },
+ "armor_clank": {
+  "subtitle": "subtitles.sololeveling.armor_clank",
+  "sounds": [
+   {
+    "name": "sololeveling:armor_clank1",
+    "volume": 1.0
+   },
+   {
+    "name": "sololeveling:armor_clank2",
+    "volume": 1.0
+   }
+  ]
+ },
+ "demon_growl": {
+  "subtitle": "subtitles.sololeveling.demon_growl",
+  "sounds": [
+   {
+    "name": "sololeveling:demon_growl1",
+    "volume": 1.0
+   },
+   {
+    "name": "sololeveling:demon_growl2",
+    "volume": 1.0
+   }
+  ]
+ },
+ "serpent_hiss": {
+  "subtitle": "subtitles.sololeveling.serpent_hiss",
+  "sounds": [
+   {
+    "name": "sololeveling:serpent_hiss",
+    "volume": 1.0
+   }
+  ]
+ },
+ "hurt_flesh": {
+  "subtitle": "subtitles.sololeveling.hurt_flesh",
+  "sounds": [
+   {
+    "name": "sololeveling:hurt_flesh1",
+    "volume": 1.0
+   },
+   {
+    "name": "sololeveling:hurt_flesh2",
+    "volume": 1.0
+   }
+  ]
+ },
+ "hurt_hard": {
+  "subtitle": "subtitles.sololeveling.hurt_hard",
+  "sounds": [
+   {
+    "name": "sololeveling:hurt_hard1",
+    "volume": 1.0
+   },
+   {
+    "name": "sololeveling:hurt_hard2",
+    "volume": 1.0
+   }
+  ]
+ }
+}

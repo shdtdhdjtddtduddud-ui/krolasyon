@@ -1,0 +1,23 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  " G ",
+  " M ",
+  " I "
+ ],
+ "key": {
+  "G": {
+   "item": "minecraft:gold_ingot"
+  },
+  "M": {
+   "item": "sololeveling:magic_stone_c"
+  },
+  "I": {
+   "item": "minecraft:iron_ingot"
+  }
+ },
+ "result": {
+  "item": "sololeveling:instant_dungeon_key",
+  "count": 1
+ }
+}

@@ -1,0 +1,23 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  " F",
+  "M ",
+  "S "
+ ],
+ "key": {
+  "F": {
+   "item": "sololeveling:statue_fragment"
+  },
+  "M": {
+   "item": "sololeveling:magic_stone_b"
+  },
+  "S": {
+   "item": "minecraft:stick"
+  }
+ },
+ "result": {
+  "item": "sololeveling:knight_killer",
+  "count": 1
+ }
+}

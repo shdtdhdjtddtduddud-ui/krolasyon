@@ -1,0 +1,20 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  " L ",
+  "LML",
+  " L "
+ ],
+ "key": {
+  "L": {
+   "item": "minecraft:lapis_lazuli"
+  },
+  "M": {
+   "item": "sololeveling:magic_stone_e"
+  }
+ },
+ "result": {
+  "item": "sololeveling:return_stone",
+  "count": 1
+ }
+}

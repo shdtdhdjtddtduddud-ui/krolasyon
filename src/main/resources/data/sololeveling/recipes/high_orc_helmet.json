@@ -1,0 +1,19 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "TPT",
+  "P P"
+ ],
+ "key": {
+  "T": {
+   "item": "sololeveling:orc_tusk"
+  },
+  "P": {
+   "item": "sololeveling:ice_bear_pelt"
+  }
+ },
+ "result": {
+  "item": "sololeveling:high_orc_helmet",
+  "count": 1
+ }
+}

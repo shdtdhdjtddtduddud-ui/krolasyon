@@ -1,0 +1,15 @@
+{
+ "loader": "forge:separate_transforms",
+ "gui_light": "front",
+ "base": {
+  "parent": "sololeveling:item/3d/magic_stone_c"
+ },
+ "perspectives": {
+  "gui": {
+   "parent": "minecraft:item/generated",
+   "textures": {
+    "layer0": "sololeveling:item/magic_stone_c"
+   }
+  }
+ }
+}

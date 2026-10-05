@@ -63,6 +63,7 @@ public final class ClientSetup {
         e.registerLayerDefinition(ArmorModels.KNIGHT, ArmorModels::knightLayer);
         e.registerLayerDefinition(ArmorModels.ORC, ArmorModels::orcLayer);
         e.registerLayerDefinition(ArmorModels.HUNTER, ArmorModels::hunterLayer);
+        e.registerLayerDefinition(ArmorModels.INNER, ArmorModels::innerLayer);
     }
 
     private static void keys(RegisterKeyMappingsEvent e) {

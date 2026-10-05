@@ -1,0 +1,23 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  " I ",
+  " I ",
+  "MS "
+ ],
+ "key": {
+  "I": {
+   "item": "minecraft:iron_ingot"
+  },
+  "M": {
+   "item": "sololeveling:magic_stone_d"
+  },
+  "S": {
+   "item": "minecraft:stick"
+  }
+ },
+ "result": {
+  "item": "sololeveling:hunter_sword",
+  "count": 1
+ }
+}

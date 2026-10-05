@@ -1,0 +1,106 @@
+{
+ "parent": "minecraft:block/block",
+ "textures": {
+  "particle": "sololeveling:block/news_board_side",
+  "screen": "sololeveling:block/news_board_screen",
+  "side": "sololeveling:block/news_board_side"
+ },
+ "elements": [
+  {
+   "from": [
+    0,
+    0,
+    6
+   ],
+   "to": [
+    16,
+    16,
+    10
+   ],
+   "faces": {
+    "north": {
+     "uv": [
+      0,
+      0,
+      16,
+      16
+     ],
+     "texture": "#screen"
+    },
+    "south": {
+     "uv": [
+      0,
+      0,
+      16,
+      16
+     ],
+     "texture": "#side"
+    },
+    "east": {
+     "uv": [
+      6,
+      0,
+      10,
+      16
+     ],
+     "texture": "#side"
+    },
+    "west": {
+     "uv": [
+      6,
+      0,
+      10,
+      16
+     ],
+     "texture": "#side"
+    },
+    "up": {
+     "uv": [
+      0,
+      6,
+      16,
+      10
+     ],
+     "texture": "#side"
+    },
+    "down": {
+     "uv": [
+      0,
+      6,
+      16,
+      10
+     ],
+     "texture": "#side"
+    }
+   }
+  },
+  {
+   "from": [
+    0.5,
+    0.5,
+    5.9
+   ],
+   "to": [
+    15.5,
+    15.5,
+    6
+   ],
+   "shade": false,
+   "forge_data": {
+    "block_light": 15,
+    "sky_light": 15
+   },
+   "faces": {
+    "north": {
+     "uv": [
+      0.5,
+      0.5,
+      15.5,
+      15.5
+     ],
+     "texture": "#screen"
+    }
+   }
+  }
+ ]
+}

@@ -1,0 +1,7 @@
+{
+ "parent": "minecraft:block/cube_column",
+ "textures": {
+  "side": "sololeveling:block/temple_pillar",
+  "end": "sololeveling:block/temple_pillar_top"
+ }
+}

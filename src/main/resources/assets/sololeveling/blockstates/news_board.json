@@ -1,0 +1,19 @@
+{
+ "variants": {
+  "facing=north": {
+   "model": "sololeveling:block/news_board"
+  },
+  "facing=east": {
+   "model": "sololeveling:block/news_board",
+   "y": 90
+  },
+  "facing=south": {
+   "model": "sololeveling:block/news_board",
+   "y": 180
+  },
+  "facing=west": {
+   "model": "sololeveling:block/news_board",
+   "y": 270
+  }
+ }
+}

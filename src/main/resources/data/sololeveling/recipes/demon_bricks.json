@@ -1,0 +1,19 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "NM",
+  "MN"
+ ],
+ "key": {
+  "N": {
+   "item": "minecraft:nether_bricks"
+  },
+  "M": {
+   "item": "minecraft:magma_block"
+  }
+ },
+ "result": {
+  "item": "sololeveling:demon_bricks",
+  "count": 4
+ }
+}

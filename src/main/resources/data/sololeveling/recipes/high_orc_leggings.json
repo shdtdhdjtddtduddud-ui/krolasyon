@@ -1,0 +1,23 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "PIP",
+  "P P",
+  "T T"
+ ],
+ "key": {
+  "T": {
+   "item": "sololeveling:orc_tusk"
+  },
+  "P": {
+   "item": "sololeveling:ice_bear_pelt"
+  },
+  "I": {
+   "item": "minecraft:iron_block"
+  }
+ },
+ "result": {
+  "item": "sololeveling:high_orc_leggings",
+  "count": 1
+ }
+}

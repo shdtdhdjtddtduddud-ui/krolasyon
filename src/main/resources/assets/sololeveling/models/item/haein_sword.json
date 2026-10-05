@@ -1,0 +1,15 @@
+{
+ "loader": "forge:separate_transforms",
+ "gui_light": "front",
+ "base": {
+  "parent": "sololeveling:item/3d/haein_sword"
+ },
+ "perspectives": {
+  "gui": {
+   "parent": "minecraft:item/generated",
+   "textures": {
+    "layer0": "sololeveling:item/haein_sword"
+   }
+  }
+ }
+}

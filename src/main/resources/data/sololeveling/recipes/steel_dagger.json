@@ -1,0 +1,23 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  " I",
+  "M ",
+  "S "
+ ],
+ "key": {
+  "I": {
+   "item": "minecraft:iron_ingot"
+  },
+  "M": {
+   "item": "sololeveling:magic_stone_e"
+  },
+  "S": {
+   "item": "minecraft:stick"
+  }
+ },
+ "result": {
+  "item": "sololeveling:steel_dagger",
+  "count": 1
+ }
+}

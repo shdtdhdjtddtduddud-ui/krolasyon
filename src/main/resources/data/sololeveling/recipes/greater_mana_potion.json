@@ -1,0 +1,18 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "ingredients": [
+  {
+   "item": "sololeveling:mana_potion"
+  },
+  {
+   "item": "sololeveling:mana_potion"
+  },
+  {
+   "item": "sololeveling:magic_stone_c"
+  }
+ ],
+ "result": {
+  "item": "sololeveling:greater_mana_potion",
+  "count": 1
+ }
+}

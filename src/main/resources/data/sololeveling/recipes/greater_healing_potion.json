@@ -1,0 +1,18 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "ingredients": [
+  {
+   "item": "sololeveling:healing_potion"
+  },
+  {
+   "item": "sololeveling:healing_potion"
+  },
+  {
+   "item": "sololeveling:magic_stone_c"
+  }
+ ],
+ "result": {
+  "item": "sololeveling:greater_healing_potion",
+  "count": 1
+ }
+}

@@ -1,0 +1,19 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "C C",
+  "A A"
+ ],
+ "key": {
+  "C": {
+   "item": "sololeveling:cerberus_fang"
+  },
+  "A": {
+   "item": "sololeveling:ant_carapace"
+  }
+ },
+ "result": {
+  "item": "sololeveling:shadow_monarch_boots",
+  "count": 1
+ }
+}

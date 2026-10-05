@@ -1,0 +1,23 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "IMI",
+  "L L",
+  "I I"
+ ],
+ "key": {
+  "I": {
+   "item": "minecraft:iron_ingot"
+  },
+  "L": {
+   "item": "minecraft:leather"
+  },
+  "M": {
+   "item": "sololeveling:magic_stone_d"
+  }
+ },
+ "result": {
+  "item": "sololeveling:hunter_leggings",
+  "count": 1
+ }
+}

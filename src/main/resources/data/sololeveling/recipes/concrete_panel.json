@@ -1,0 +1,16 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "CC",
+  "CC"
+ ],
+ "key": {
+  "C": {
+   "item": "minecraft:white_concrete"
+  }
+ },
+ "result": {
+  "item": "sololeveling:concrete_panel",
+  "count": 4
+ }
+}

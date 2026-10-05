@@ -1,0 +1,16 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "DD",
+  "DD"
+ ],
+ "key": {
+  "D": {
+   "item": "minecraft:deepslate_bricks"
+  }
+ },
+ "result": {
+  "item": "sololeveling:dungeon_bricks",
+  "count": 4
+ }
+}
