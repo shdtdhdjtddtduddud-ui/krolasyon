@@ -48,7 +48,7 @@ public final class Corpses {
             rank = XpHandler.rankIdxForHealth(e.getMaxHealth());
             if (e instanceof Spider || e instanceof net.minecraft.world.entity.animal.Wolf) type = "wolf";
             else if (e instanceof Witch || e instanceof Evoker || e instanceof Blaze || e instanceof Ghast || e instanceof Illusioner) type = "mage";
-            else if (e instanceof Ravager || e instanceof Warden || e instanceof net.minecraft.world.entity.monster.hoglin.Hoglin || e.getBbHeight() > 2.6F) type = "tank";
+            else if (e instanceof Ravager || e instanceof net.minecraft.world.entity.monster.warden.Warden || e instanceof net.minecraft.world.entity.monster.hoglin.Hoglin || e.getBbHeight() > 2.6F) type = "tank";
             else type = "soldier";
             boss = e instanceof net.minecraft.world.entity.boss.wither.WitherBoss || e instanceof net.minecraft.world.entity.boss.enderdragon.EnderDragon;
         }

@@ -11,6 +11,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -206,7 +207,7 @@ public class ShadowEntity extends PathfinderMob implements SLCaster {
             if (o == null) return false;
             pick = defend ? o.getLastHurtByMob() : o.getLastHurtMob();
             if (pick == null || !pick.isAlive() || pick instanceof ShadowEntity || pick instanceof NpcEntity || pick == o) return false;
-            return canAttack(pick);
+            return ShadowEntity.this.canAttack(pick);
         }
 
         @Override public void start() {

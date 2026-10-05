@@ -30,6 +30,8 @@ jobs:
         run: |
           set +e
           mkdir -p apidump_out
+          grep -B1 -A4 'error:' build.log | head -400 > apidump_out/_errors.txt
+          tail -c 6000 build.log | grep -v '^\s*at ' > apidump_out/_build_tail.txt
           MAPPED=$(find ~/.gradle/caches -name '*mapped_official_1.20.1*.jar' | head -1)
           CP="$MAPPED:$(find ~/.gradle/caches/modules-2 ~/.gradle/caches/forge_gradle/maven_downloader -name '*.jar' 2>/dev/null | grep -v -- '-sources' | tr '\n' ':')"
           FORGE=$(find ~/.gradle/caches -name 'forge-1.20.1-47.2.0*universal*.jar' | head -1)
