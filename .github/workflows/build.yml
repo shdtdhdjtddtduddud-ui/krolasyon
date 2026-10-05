@@ -87,6 +87,7 @@ jobs:
         id: pc
         if: steps.b.outputs.status == '0' && contains(github.event.head_commit.message, '[ptest]')
         continue-on-error: true
+        timeout-minutes: 20
         uses: headlesshq/mc-runtime-test@4.5.2
         with:
           mc: 1.20.1

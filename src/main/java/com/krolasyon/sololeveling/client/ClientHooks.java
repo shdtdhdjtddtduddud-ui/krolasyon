@@ -80,8 +80,8 @@ public final class ClientHooks {
         Minecraft.getInstance().getSoundManager().play(net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK.get(), 1.4F, 0.25F));
     }
 
-    public static IClientItemExtensions armorExtensions(SLArmorItem.Mat mat) {
-        return com.krolasyon.sololeveling.client.render.ArmorModels.extensions(mat);
+    public static IClientItemExtensions armorExtensions() {
+        return com.krolasyon.sololeveling.client.render.ArmorModels.extensions();
     }
 
     public static Component t(String key, Object... args) { return Sys.t(key, args); }

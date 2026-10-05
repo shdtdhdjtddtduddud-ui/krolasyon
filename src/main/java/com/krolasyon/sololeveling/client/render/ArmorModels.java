@@ -72,15 +72,16 @@ public final class ArmorModels {
         return LayerDefinition.create(HumanoidModel.createMesh(new CubeDeformation(0.5F), 0F), 64, 64);
     }
 
-    public static IClientItemExtensions extensions(SLArmorItem.Mat mat) {
+    public static IClientItemExtensions extensions() {
         return new IClientItemExtensions() {
             private HumanoidModel<LivingEntity> outer, inner;
 
             @Override
             public HumanoidModel<?> getHumanoidArmorModel(LivingEntity entity, ItemStack stack, EquipmentSlot slot, HumanoidModel<?> original) {
                 var models = Minecraft.getInstance().getEntityModels();
+                SLArmorItem.Mat m = stack.getItem() instanceof SLArmorItem a ? a.mat : SLArmorItem.Mat.HUNTER;
                 if (outer == null) {
-                    ModelLayerLocation loc = switch (mat) {
+                    ModelLayerLocation loc = switch (m) {
                         case SHADOW_MONARCH -> MONARCH;
                         case CRIMSON_KNIGHT -> KNIGHT;
                         case HIGH_ORC -> ORC;

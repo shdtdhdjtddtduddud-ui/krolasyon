@@ -104,6 +104,6 @@ public class SLArmorItem extends ArmorItem {
 
     @Override
     public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-        consumer.accept(com.krolasyon.sololeveling.client.ClientHooks.armorExtensions(mat));
+        consumer.accept(com.krolasyon.sololeveling.client.ClientHooks.armorExtensions());
     }
 }
