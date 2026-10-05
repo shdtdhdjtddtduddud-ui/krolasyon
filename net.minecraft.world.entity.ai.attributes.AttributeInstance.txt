@@ -1,0 +1,22 @@
+Compiled from "AttributeInstance.java"
+public class net.minecraft.world.entity.ai.attributes.AttributeInstance {
+  public net.minecraft.world.entity.ai.attributes.AttributeInstance(net.minecraft.world.entity.ai.attributes.Attribute, java.util.function.Consumer<net.minecraft.world.entity.ai.attributes.AttributeInstance>);
+  public net.minecraft.world.entity.ai.attributes.Attribute getAttribute();
+  public double getBaseValue();
+  public void setBaseValue(double);
+  public java.util.Set<net.minecraft.world.entity.ai.attributes.AttributeModifier> getModifiers(net.minecraft.world.entity.ai.attributes.AttributeModifier$Operation);
+  public java.util.Set<net.minecraft.world.entity.ai.attributes.AttributeModifier> getModifiers();
+  public net.minecraft.world.entity.ai.attributes.AttributeModifier getModifier(java.util.UUID);
+  public boolean hasModifier(net.minecraft.world.entity.ai.attributes.AttributeModifier);
+  public void addTransientModifier(net.minecraft.world.entity.ai.attributes.AttributeModifier);
+  public void addPermanentModifier(net.minecraft.world.entity.ai.attributes.AttributeModifier);
+  protected void setDirty();
+  public void removeModifier(net.minecraft.world.entity.ai.attributes.AttributeModifier);
+  public void removeModifier(java.util.UUID);
+  public boolean removePermanentModifier(java.util.UUID);
+  public void removeModifiers();
+  public double getValue();
+  public void replaceFrom(net.minecraft.world.entity.ai.attributes.AttributeInstance);
+  public net.minecraft.nbt.CompoundTag save();
+  public void load(net.minecraft.nbt.CompoundTag);
+}

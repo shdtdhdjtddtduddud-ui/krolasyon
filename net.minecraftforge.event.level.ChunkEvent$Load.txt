@@ -1,0 +1,5 @@
+Compiled from "ChunkEvent.java"
+public class net.minecraftforge.event.level.ChunkEvent$Load extends net.minecraftforge.event.level.ChunkEvent {
+  public net.minecraftforge.event.level.ChunkEvent$Load(net.minecraft.world.level.chunk.ChunkAccess, boolean);
+  public boolean isNewChunk();
+}

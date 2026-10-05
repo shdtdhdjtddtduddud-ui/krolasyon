@@ -1,0 +1,29 @@
+Compiled from "TamableAnimal.java"
+public abstract class net.minecraft.world.entity.TamableAnimal extends net.minecraft.world.entity.animal.Animal implements net.minecraft.world.entity.OwnableEntity {
+  protected static final net.minecraft.network.syncher.EntityDataAccessor<java.lang.Byte> DATA_FLAGS_ID;
+  protected static final net.minecraft.network.syncher.EntityDataAccessor<java.util.Optional<java.util.UUID>> DATA_OWNERUUID_ID;
+  protected net.minecraft.world.entity.TamableAnimal(net.minecraft.world.entity.EntityType<? extends net.minecraft.world.entity.TamableAnimal>, net.minecraft.world.level.Level);
+  protected void defineSynchedData();
+  public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag);
+  public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag);
+  public boolean canBeLeashed(net.minecraft.world.entity.player.Player);
+  protected void spawnTamingParticles(boolean);
+  public void handleEntityEvent(byte);
+  public boolean isTame();
+  public void setTame(boolean);
+  protected void reassessTameGoals();
+  public boolean isInSittingPose();
+  public void setInSittingPose(boolean);
+  public java.util.UUID getOwnerUUID();
+  public void setOwnerUUID(java.util.UUID);
+  public void tame(net.minecraft.world.entity.player.Player);
+  public boolean canAttack(net.minecraft.world.entity.LivingEntity);
+  public boolean isOwnedBy(net.minecraft.world.entity.LivingEntity);
+  public boolean wantsToAttack(net.minecraft.world.entity.LivingEntity, net.minecraft.world.entity.LivingEntity);
+  public net.minecraft.world.scores.Team getTeam();
+  public boolean isAlliedTo(net.minecraft.world.entity.Entity);
+  public void die(net.minecraft.world.damagesource.DamageSource);
+  public boolean isOrderedToSit();
+  public void setOrderedToSit(boolean);
+  public net.minecraft.world.level.EntityGetter level();
+}

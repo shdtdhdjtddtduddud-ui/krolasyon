@@ -1,0 +1,9 @@
+Compiled from "SavedData.java"
+public abstract class net.minecraft.world.level.saveddata.SavedData {
+  public net.minecraft.world.level.saveddata.SavedData();
+  public abstract net.minecraft.nbt.CompoundTag save(net.minecraft.nbt.CompoundTag);
+  public void setDirty();
+  public void setDirty(boolean);
+  public boolean isDirty();
+  public void save(java.io.File);
+}

@@ -1,0 +1,35 @@
+Compiled from "HumanoidModel.java"
+public class net.minecraft.client.model.HumanoidModel<T extends net.minecraft.world.entity.LivingEntity> extends net.minecraft.client.model.AgeableListModel<T> implements net.minecraft.client.model.ArmedModel, net.minecraft.client.model.HeadedModel {
+  public static final float OVERLAY_SCALE;
+  public static final float HAT_OVERLAY_SCALE;
+  public static final float LEGGINGS_OVERLAY_SCALE;
+  public static final float TOOT_HORN_XROT_BASE;
+  public static final float TOOT_HORN_YROT_BASE;
+  public final net.minecraft.client.model.geom.ModelPart head;
+  public final net.minecraft.client.model.geom.ModelPart hat;
+  public final net.minecraft.client.model.geom.ModelPart body;
+  public final net.minecraft.client.model.geom.ModelPart rightArm;
+  public final net.minecraft.client.model.geom.ModelPart leftArm;
+  public final net.minecraft.client.model.geom.ModelPart rightLeg;
+  public final net.minecraft.client.model.geom.ModelPart leftLeg;
+  public net.minecraft.client.model.HumanoidModel$ArmPose leftArmPose;
+  public net.minecraft.client.model.HumanoidModel$ArmPose rightArmPose;
+  public boolean crouching;
+  public float swimAmount;
+  public net.minecraft.client.model.HumanoidModel(net.minecraft.client.model.geom.ModelPart);
+  public net.minecraft.client.model.HumanoidModel(net.minecraft.client.model.geom.ModelPart, java.util.function.Function<net.minecraft.resources.ResourceLocation, net.minecraft.client.renderer.RenderType>);
+  public static net.minecraft.client.model.geom.builders.MeshDefinition createMesh(net.minecraft.client.model.geom.builders.CubeDeformation, float);
+  protected java.lang.Iterable<net.minecraft.client.model.geom.ModelPart> headParts();
+  protected java.lang.Iterable<net.minecraft.client.model.geom.ModelPart> bodyParts();
+  public void prepareMobModel(T, float, float, float);
+  public void setupAnim(T, float, float, float, float, float);
+  protected void setupAttackAnimation(T, float);
+  protected float rotlerpRad(float, float, float);
+  public void copyPropertiesTo(net.minecraft.client.model.HumanoidModel<T>);
+  public void setAllVisible(boolean);
+  public void translateToHand(net.minecraft.world.entity.HumanoidArm, com.mojang.blaze3d.vertex.PoseStack);
+  protected net.minecraft.client.model.geom.ModelPart getArm(net.minecraft.world.entity.HumanoidArm);
+  public net.minecraft.client.model.geom.ModelPart getHead();
+  public void prepareMobModel(net.minecraft.world.entity.Entity, float, float, float);
+  public void setupAnim(net.minecraft.world.entity.Entity, float, float, float, float, float);
+}

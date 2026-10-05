@@ -1,0 +1,51 @@
+[23:32:48] [Server thread/INFO] [AUTOTEST/]: [OK] entity types created: 31
+[23:32:48] [Server thread/INFO] [AUTOTEST/]: [OK] items: 99 blocks: 16
+[23:32:48] [Server thread/INFO] [AUTOTEST/]: [OK] hunter_world loaded
+[23:32:54] [Server thread/INFO] [AUTOTEST/]: [OK] seoul chunks generated in 5812ms
+[23:32:54] [Server thread/INFO] [AUTOTEST/]: [OK] teleport pad present
+[23:32:54] [Server thread/INFO] [AUTOTEST/]: [OK] npcs spawned: 16
+[23:32:54] [Server thread/INFO] [AUTOTEST/]: [OK] city ground present
+[23:32:54] [Server thread/INFO] [AUTOTEST/]: [OK] gate spawned in hunter world
+[23:32:55] [Server thread/INFO] [AUTOTEST/]: [OK] blocks above y+30 sample count: 32
+[23:32:56] [Server thread/INFO] [AUTOTEST/]: [OK] dungeon goblin_cave built in 592ms, mobs=8 floor=Block{minecraft:shroomlight}
+[23:32:56] [Server thread/INFO] [AUTOTEST/]: [OK] dungeon temple built in 373ms, mobs=10 floor=Block{minecraft:gold_block}
+[23:32:57] [Server thread/INFO] [AUTOTEST/]: [OK] dungeon venom_swamp built in 373ms, mobs=19 floor=Block{minecraft:verdant_froglight}
+[23:32:57] [Server thread/INFO] [AUTOTEST/]: [OK] dungeon ice_cave built in 361ms, mobs=26 floor=Block{minecraft:sea_lantern}
+[23:32:57] [Server thread/INFO] [AUTOTEST/]: [OK] dungeon hell_den built in 358ms, mobs=27 floor=Block{minecraft:shroomlight}
+[23:32:58] [Server thread/INFO] [AUTOTEST/]: [OK] dungeon ant_nest built in 329ms, mobs=22 floor=Block{minecraft:shroomlight}
+[23:32:58] [Server thread/INFO] [AUTOTEST/]: [OK] dungeon demon_castle built in 395ms, mobs=29 floor=Block{minecraft:crying_obsidian}
+[23:32:59] [Server thread/INFO] [AUTOTEST/]: [OK] dungeon dragon_lair built in 647ms, mobs=37 floor=Block{minecraft:shroomlight}
+[23:32:59] [Server thread/INFO] [AUTOTEST/]: [OK] skills executed: 13
+[23:32:59] [Server thread/INFO] [AUTOTEST/]: [OK] shadow extraction ran, shadows=1
+[23:32:59] [Server thread/INFO] [AUTOTEST/]: [OK] daily quest ok
+[23:32:59] [Server thread/INFO] [AUTOTEST/]: [OK] news ok
+[23:32:59] [Server thread/INFO] [AUTOTEST/]: [OK] xp -> level 159
+[23:32:59] [Server thread/INFO] [AUTOTEST/]: [OK] ui actions ran, gold=98455 guild=hunters
+[23:33:00] [Server thread/INFO] [AUTOTEST/]: [OK] boss killed -> cleared=true
+[23:33:01] [Server thread/INFO] [AUTOTEST/]: [OK] gate enter -> dim sololeveling:dungeon
+[23:33:01] [Server thread/INFO] [AUTOTEST/]: === AUTOTEST DONE fails=0
+[23:33:01] [Server thread/INFO] [AUTOTEST/]: === AUTOTEST DONE fails=0
+[23:33:01] [Server thread/INFO] [minecraft/MinecraftServer]: Stopping server
+[23:33:01] [Server thread/INFO] [minecraft/MinecraftServer]: Saving players
+[23:33:01] [Server thread/INFO] [minecraft/MinecraftServer]: Saving worlds
+[23:33:03] [Server thread/INFO] [minecraft/MinecraftServer]: Saving chunks for level 'ServerLevel[world]'/minecraft:overworld
+[23:33:04] [Server thread/INFO] [minecraft/MinecraftServer]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_nether
+[23:33:04] [Server thread/INFO] [minecraft/MinecraftServer]: Saving chunks for level 'ServerLevel[world]'/sololeveling:hunter_world
+[23:33:04] [Server thread/INFO] [minecraft/MinecraftServer]: Saving chunks for level 'ServerLevel[world]'/sololeveling:dungeon
+[23:33:04] [Server thread/INFO] [minecraft/MinecraftServer]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_end
+[23:33:04] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage (world): All chunks are saved
+[23:33:04] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
+[23:33:04] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage (hunter_world): All chunks are saved
+[23:33:04] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage (dungeon): All chunks are saved
+[23:33:04] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+[23:33:04] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage: All dimensions are saved
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/st-1791243109172.json
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.8/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 1m 19s
+10 actionable tasks: 7 executed, 3 up-to-date

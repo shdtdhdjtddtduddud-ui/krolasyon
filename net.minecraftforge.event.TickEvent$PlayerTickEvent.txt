@@ -1,0 +1,5 @@
+Compiled from "TickEvent.java"
+public class net.minecraftforge.event.TickEvent$PlayerTickEvent extends net.minecraftforge.event.TickEvent {
+  public final net.minecraft.world.entity.player.Player player;
+  public net.minecraftforge.event.TickEvent$PlayerTickEvent(net.minecraftforge.event.TickEvent$Phase, net.minecraft.world.entity.player.Player);
+}

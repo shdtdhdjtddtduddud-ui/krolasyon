@@ -1,0 +1,4 @@
+Compiled from "IGuiOverlay.java"
+public interface net.minecraftforge.client.gui.overlay.IGuiOverlay {
+  public abstract void render(net.minecraftforge.client.gui.overlay.ForgeGui, net.minecraft.client.gui.GuiGraphics, float, int, int);
+}

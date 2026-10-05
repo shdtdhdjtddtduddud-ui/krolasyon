@@ -1,0 +1,5 @@
+Compiled from "LivingDeathEvent.java"
+public class net.minecraftforge.event.entity.living.LivingDeathEvent extends net.minecraftforge.event.entity.living.LivingEvent {
+  public net.minecraftforge.event.entity.living.LivingDeathEvent(net.minecraft.world.entity.LivingEntity, net.minecraft.world.damagesource.DamageSource);
+  public net.minecraft.world.damagesource.DamageSource getSource();
+}

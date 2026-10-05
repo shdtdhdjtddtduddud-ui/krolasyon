@@ -1,0 +1,35 @@
+Compiled from "BlockEntity.java"
+public abstract class net.minecraft.world.level.block.entity.BlockEntity extends net.minecraftforge.common.capabilities.CapabilityProvider<net.minecraft.world.level.block.entity.BlockEntity> implements net.minecraftforge.common.extensions.IForgeBlockEntity {
+  protected net.minecraft.world.level.Level level;
+  protected final net.minecraft.core.BlockPos worldPosition;
+  protected boolean remove;
+  public net.minecraft.world.level.block.entity.BlockEntity(net.minecraft.world.level.block.entity.BlockEntityType<?>, net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState);
+  public static net.minecraft.core.BlockPos getPosFromTag(net.minecraft.nbt.CompoundTag);
+  public net.minecraft.world.level.Level getLevel();
+  public void setLevel(net.minecraft.world.level.Level);
+  public boolean hasLevel();
+  public void load(net.minecraft.nbt.CompoundTag);
+  protected void saveAdditional(net.minecraft.nbt.CompoundTag);
+  public final net.minecraft.nbt.CompoundTag saveWithFullMetadata();
+  public final net.minecraft.nbt.CompoundTag saveWithId();
+  public final net.minecraft.nbt.CompoundTag saveWithoutMetadata();
+  public static void addEntityType(net.minecraft.nbt.CompoundTag, net.minecraft.world.level.block.entity.BlockEntityType<?>);
+  public void saveToItem(net.minecraft.world.item.ItemStack);
+  public static net.minecraft.world.level.block.entity.BlockEntity loadStatic(net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState, net.minecraft.nbt.CompoundTag);
+  public void setChanged();
+  protected static void setChanged(net.minecraft.world.level.Level, net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState);
+  public net.minecraft.core.BlockPos getBlockPos();
+  public net.minecraft.world.level.block.state.BlockState getBlockState();
+  public net.minecraft.network.protocol.Packet<net.minecraft.network.protocol.game.ClientGamePacketListener> getUpdatePacket();
+  public net.minecraft.nbt.CompoundTag getUpdateTag();
+  public boolean isRemoved();
+  public void setRemoved();
+  public void onChunkUnloaded();
+  public void clearRemoved();
+  public boolean triggerEvent(int, int);
+  public void fillCrashReportCategory(net.minecraft.CrashReportCategory);
+  public boolean onlyOpCanSetNbt();
+  public net.minecraft.world.level.block.entity.BlockEntityType<?> getType();
+  public net.minecraft.nbt.CompoundTag getPersistentData();
+  public void setBlockState(net.minecraft.world.level.block.state.BlockState);
+}

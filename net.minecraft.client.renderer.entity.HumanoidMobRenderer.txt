@@ -1,0 +1,5 @@
+Compiled from "HumanoidMobRenderer.java"
+public abstract class net.minecraft.client.renderer.entity.HumanoidMobRenderer<T extends net.minecraft.world.entity.Mob, M extends net.minecraft.client.model.HumanoidModel<T>> extends net.minecraft.client.renderer.entity.MobRenderer<T, M> {
+  public net.minecraft.client.renderer.entity.HumanoidMobRenderer(net.minecraft.client.renderer.entity.EntityRendererProvider$Context, M, float);
+  public net.minecraft.client.renderer.entity.HumanoidMobRenderer(net.minecraft.client.renderer.entity.EntityRendererProvider$Context, M, float, float, float, float);
+}

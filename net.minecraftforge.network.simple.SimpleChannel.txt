@@ -1,0 +1,16 @@
+Compiled from "SimpleChannel.java"
+public class net.minecraftforge.network.simple.SimpleChannel {
+  public net.minecraftforge.network.simple.SimpleChannel(net.minecraftforge.network.NetworkInstance);
+  public net.minecraftforge.network.simple.SimpleChannel(net.minecraftforge.network.NetworkInstance, java.util.function.Consumer<net.minecraftforge.network.NetworkEvent$ChannelRegistrationChangeEvent>);
+  public <MSG> int encodeMessage(MSG, net.minecraft.network.FriendlyByteBuf);
+  public <MSG> net.minecraftforge.network.simple.IndexedMessageCodec$MessageHandler<MSG> registerMessage(int, java.lang.Class<MSG>, java.util.function.BiConsumer<MSG, net.minecraft.network.FriendlyByteBuf>, java.util.function.Function<net.minecraft.network.FriendlyByteBuf, MSG>, java.util.function.BiConsumer<MSG, java.util.function.Supplier<net.minecraftforge.network.NetworkEvent$Context>>);
+  public <MSG> net.minecraftforge.network.simple.IndexedMessageCodec$MessageHandler<MSG> registerMessage(int, java.lang.Class<MSG>, java.util.function.BiConsumer<MSG, net.minecraft.network.FriendlyByteBuf>, java.util.function.Function<net.minecraft.network.FriendlyByteBuf, MSG>, java.util.function.BiConsumer<MSG, java.util.function.Supplier<net.minecraftforge.network.NetworkEvent$Context>>, java.util.Optional<net.minecraftforge.network.NetworkDirection>);
+  public <MSG> void sendToServer(MSG);
+  public <MSG> void sendTo(MSG, net.minecraft.network.Connection, net.minecraftforge.network.NetworkDirection);
+  public <MSG> void send(net.minecraftforge.network.PacketDistributor$PacketTarget, MSG);
+  public <MSG> net.minecraft.network.protocol.Packet<?> toVanillaPacket(MSG, net.minecraftforge.network.NetworkDirection);
+  public <MSG> void reply(MSG, net.minecraftforge.network.NetworkEvent$Context);
+  public boolean isRemotePresent(net.minecraft.network.Connection);
+  public <M> net.minecraftforge.network.simple.SimpleChannel$MessageBuilder<M> messageBuilder(java.lang.Class<M>, int);
+  public <M> net.minecraftforge.network.simple.SimpleChannel$MessageBuilder<M> messageBuilder(java.lang.Class<M>, int, net.minecraftforge.network.NetworkDirection);
+}

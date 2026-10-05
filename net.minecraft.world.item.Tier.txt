@@ -1,0 +1,10 @@
+Compiled from "Tier.java"
+public interface net.minecraft.world.item.Tier {
+  public abstract int getUses();
+  public abstract float getSpeed();
+  public abstract float getAttackDamageBonus();
+  public abstract int getLevel();
+  public abstract int getEnchantmentValue();
+  public abstract net.minecraft.world.item.crafting.Ingredient getRepairIngredient();
+  public default net.minecraft.tags.TagKey<net.minecraft.world.level.block.Block> getTag();
+}

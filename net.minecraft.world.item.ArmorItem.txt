@@ -1,0 +1,19 @@
+Compiled from "ArmorItem.java"
+public class net.minecraft.world.item.ArmorItem extends net.minecraft.world.item.Item implements net.minecraft.world.item.Equipable {
+  public static final net.minecraft.core.dispenser.DispenseItemBehavior DISPENSE_ITEM_BEHAVIOR;
+  protected final net.minecraft.world.item.ArmorItem$Type type;
+  protected final float knockbackResistance;
+  protected final net.minecraft.world.item.ArmorMaterial material;
+  public static boolean dispenseArmor(net.minecraft.core.BlockSource, net.minecraft.world.item.ItemStack);
+  public net.minecraft.world.item.ArmorItem(net.minecraft.world.item.ArmorMaterial, net.minecraft.world.item.ArmorItem$Type, net.minecraft.world.item.Item$Properties);
+  public net.minecraft.world.item.ArmorItem$Type getType();
+  public int getEnchantmentValue();
+  public net.minecraft.world.item.ArmorMaterial getMaterial();
+  public boolean isValidRepairItem(net.minecraft.world.item.ItemStack, net.minecraft.world.item.ItemStack);
+  public net.minecraft.world.InteractionResultHolder<net.minecraft.world.item.ItemStack> use(net.minecraft.world.level.Level, net.minecraft.world.entity.player.Player, net.minecraft.world.InteractionHand);
+  public com.google.common.collect.Multimap<net.minecraft.world.entity.ai.attributes.Attribute, net.minecraft.world.entity.ai.attributes.AttributeModifier> getDefaultAttributeModifiers(net.minecraft.world.entity.EquipmentSlot);
+  public int getDefense();
+  public float getToughness();
+  public net.minecraft.world.entity.EquipmentSlot getEquipmentSlot();
+  public net.minecraft.sounds.SoundEvent getEquipSound();
+}

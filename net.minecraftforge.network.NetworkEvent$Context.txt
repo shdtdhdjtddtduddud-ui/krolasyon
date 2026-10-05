@@ -1,0 +1,11 @@
+Compiled from "NetworkEvent.java"
+public class net.minecraftforge.network.NetworkEvent$Context {
+  public net.minecraftforge.network.NetworkDirection getDirection();
+  public net.minecraftforge.network.NetworkEvent$PacketDispatcher getPacketDispatcher();
+  public <T> io.netty.util.Attribute<T> attr(io.netty.util.AttributeKey<T>);
+  public void setPacketHandled(boolean);
+  public boolean getPacketHandled();
+  public java.util.concurrent.CompletableFuture<java.lang.Void> enqueueWork(java.lang.Runnable);
+  public net.minecraft.server.level.ServerPlayer getSender();
+  public net.minecraft.network.Connection getNetworkManager();
+}

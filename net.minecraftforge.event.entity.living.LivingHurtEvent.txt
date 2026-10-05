@@ -1,0 +1,7 @@
+Compiled from "LivingHurtEvent.java"
+public class net.minecraftforge.event.entity.living.LivingHurtEvent extends net.minecraftforge.event.entity.living.LivingEvent {
+  public net.minecraftforge.event.entity.living.LivingHurtEvent(net.minecraft.world.entity.LivingEntity, net.minecraft.world.damagesource.DamageSource, float);
+  public net.minecraft.world.damagesource.DamageSource getSource();
+  public float getAmount();
+  public void setAmount(float);
+}

@@ -1,0 +1,12 @@
+Compiled from "SwordItem.java"
+public class net.minecraft.world.item.SwordItem extends net.minecraft.world.item.TieredItem implements net.minecraft.world.item.Vanishable {
+  public net.minecraft.world.item.SwordItem(net.minecraft.world.item.Tier, int, float, net.minecraft.world.item.Item$Properties);
+  public float getDamage();
+  public boolean canAttackBlock(net.minecraft.world.level.block.state.BlockState, net.minecraft.world.level.Level, net.minecraft.core.BlockPos, net.minecraft.world.entity.player.Player);
+  public float getDestroySpeed(net.minecraft.world.item.ItemStack, net.minecraft.world.level.block.state.BlockState);
+  public boolean hurtEnemy(net.minecraft.world.item.ItemStack, net.minecraft.world.entity.LivingEntity, net.minecraft.world.entity.LivingEntity);
+  public boolean mineBlock(net.minecraft.world.item.ItemStack, net.minecraft.world.level.Level, net.minecraft.world.level.block.state.BlockState, net.minecraft.core.BlockPos, net.minecraft.world.entity.LivingEntity);
+  public boolean isCorrectToolForDrops(net.minecraft.world.level.block.state.BlockState);
+  public com.google.common.collect.Multimap<net.minecraft.world.entity.ai.attributes.Attribute, net.minecraft.world.entity.ai.attributes.AttributeModifier> getDefaultAttributeModifiers(net.minecraft.world.entity.EquipmentSlot);
+  public boolean canPerformAction(net.minecraft.world.item.ItemStack, net.minecraftforge.common.ToolAction);
+}

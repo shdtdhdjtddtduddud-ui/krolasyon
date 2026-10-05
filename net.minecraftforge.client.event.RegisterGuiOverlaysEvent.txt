@@ -1,0 +1,8 @@
+Compiled from "RegisterGuiOverlaysEvent.java"
+public class net.minecraftforge.client.event.RegisterGuiOverlaysEvent extends net.minecraftforge.eventbus.api.Event implements net.minecraftforge.fml.event.IModBusEvent {
+  public net.minecraftforge.client.event.RegisterGuiOverlaysEvent(java.util.Map<net.minecraft.resources.ResourceLocation, net.minecraftforge.client.gui.overlay.IGuiOverlay>, java.util.List<net.minecraft.resources.ResourceLocation>);
+  public void registerBelowAll(java.lang.String, net.minecraftforge.client.gui.overlay.IGuiOverlay);
+  public void registerBelow(net.minecraft.resources.ResourceLocation, java.lang.String, net.minecraftforge.client.gui.overlay.IGuiOverlay);
+  public void registerAbove(net.minecraft.resources.ResourceLocation, java.lang.String, net.minecraftforge.client.gui.overlay.IGuiOverlay);
+  public void registerAboveAll(java.lang.String, net.minecraftforge.client.gui.overlay.IGuiOverlay);
+}
