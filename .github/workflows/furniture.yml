@@ -54,8 +54,13 @@ jobs:
           mkdir -p run
           printf "onboardAccessibility:false\nrenderDistance:5\nsimulationDistance:5\npauseOnLostFocus:false\ntutorialStep:none\njoinedFirstServer:true\nskipMultiplayerWarning:true\nmaxFps:60\nfov:-0.1\n" > run/options.txt
           set +e
-          timeout -k 20 900 xvfb-run -a -s "-screen 0 1280x720x24" gradle runClient --no-daemon > client.log 2>&1
-          echo "client exit $?"
+          (xvfb-run -a -s "-screen 0 1280x720x24" gradle runClient --no-daemon > client.log 2>&1 &)
+          for i in $(seq 1 60); do
+            sleep 10
+            grep -q "AUTOTEST\] finished" client.log 2>/dev/null && break
+          done
+          sleep 5
+          pkill -9 -f java; pkill -9 -f Xvfb; sleep 2
           mkdir -p vtest
           cp run/screenshots/ftest_*.png vtest/ 2>/dev/null
           cp run/logs/latest.log vtest/latest.log 2>/dev/null
