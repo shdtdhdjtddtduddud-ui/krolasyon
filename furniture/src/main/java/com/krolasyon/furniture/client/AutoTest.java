@@ -117,6 +117,11 @@ public final class AutoTest {
         wait(3, "broom_swing2");
         wait(3, "broom_swing3");
         wait(3, "broom_swing4");
+        client(2, null, () -> Minecraft.getInstance().options.setCameraType(CameraType.THIRD_PERSON_BACK));
+        wait(6, "broom_third_hold");
+        server(1, null, s -> s.getPlayerList().getPlayers().forEach(p -> p.swing(InteractionHand.MAIN_HAND, true)));
+        wait(4, "broom_third_swing");
+        client(2, null, () -> Minecraft.getInstance().options.setCameraType(CameraType.FIRST_PERSON));
         // inventory style item showcase
         client(10, null, () -> {
             Minecraft mc = Minecraft.getInstance();
@@ -137,8 +142,8 @@ public final class AutoTest {
                     new ItemStack(ModItems.NIGHTSTAND.get()), new ItemStack(ModItems.WARDROBE.get()), new ItemStack(ModItems.BROOM.get())};
             for (int i = 0; i < items.length; i++) {
                 g.pose().pushPose();
-                g.pose().translate(40 + (i % 3) * 190, 40 + (i / 3) * 190, 0);
-                g.pose().scale(10, 10, 1);
+                g.pose().translate(40 + (i % 3) * 200, 20 + (i / 3) * 150, 0);
+                g.pose().scale(6, 6, 1);
                 g.renderItem(items[i], 0, 0);
                 g.pose().popPose();
             }
