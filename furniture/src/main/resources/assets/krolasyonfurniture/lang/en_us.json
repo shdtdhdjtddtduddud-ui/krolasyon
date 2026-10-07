@@ -1,0 +1,19 @@
+{
+  "itemGroup.krolasyonfurniture": "Krolasyon Furniture",
+  "block.krolasyonfurniture.sofa": "Sofa",
+  "block.krolasyonfurniture.piano": "Piano",
+  "block.krolasyonfurniture.chalkboard": "Chalkboard",
+  "block.krolasyonfurniture.nightstand": "Nightstand",
+  "block.krolasyonfurniture.wardrobe": "Wardrobe",
+  "item.krolasyonfurniture.broom": "Broom",
+  "entity.krolasyonfurniture.seat": "Seat",
+  "container.krolasyonfurniture.nightstand": "Nightstand",
+  "container.krolasyonfurniture.wardrobe": "Wardrobe",
+  "gui.krolasyonfurniture.swap": "Swap outfit",
+  "gui.krolasyonfurniture.swap.tooltip": "Swap the armor you wear with the outfit stored here",
+  "gui.krolasyonfurniture.outfit": "Outfit",
+  "gui.krolasyonfurniture.piano": "Piano",
+  "gui.krolasyonfurniture.piano.hint": "Click the keys or use Z-M / Q-U (S D G H J / 2 3 5 6 7 for sharps). Play 12 notes in a row to inspire everyone nearby!",
+  "gui.krolasyonfurniture.chalkboard": "Edit chalkboard",
+  "message.krolasyonfurniture.inspired": "The music inspires you!"
+}

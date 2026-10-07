@@ -1,7 +1,7 @@
-name: Build mod jar
+name: Build furniture mod jar
 on:
   push:
-    paths-ignore:
+    paths:
       - 'furniture/**'
       - '.github/workflows/furniture.yml'
   workflow_dispatch:
@@ -10,6 +10,9 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: furniture
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -37,12 +40,12 @@ jobs:
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq xvfb libgl1-mesa-dri libglx-mesa0 mesa-utils > /dev/null
           mkdir -p run
-          printf "onboardAccessibility:false\nrenderDistance:5\nsimulationDistance:5\npauseOnLostFocus:false\ntutorialStep:none\njoinedFirstServer:true\nskipMultiplayerWarning:true\nmaxFps:60\nfov:-0.45\n" > run/options.txt
+          printf "onboardAccessibility:false\nrenderDistance:5\nsimulationDistance:5\npauseOnLostFocus:false\ntutorialStep:none\njoinedFirstServer:true\nskipMultiplayerWarning:true\nmaxFps:60\nfov:-0.1\n" > run/options.txt
           set +e
           timeout 1500 xvfb-run -a -s "-screen 0 1280x720x24" gradle runClient --no-daemon > client.log 2>&1
           echo "client exit $?"
           mkdir -p vtest
-          cp run/screenshots/ktest_*.png vtest/ 2>/dev/null
+          cp run/screenshots/ftest_*.png vtest/ 2>/dev/null
           cp run/logs/latest.log vtest/latest.log 2>/dev/null
           tail -c 200000 client.log > vtest/client_tail.log
           grep -E "AUTOTEST|Exception|ERROR" client.log | head -300 > vtest/summary.log
@@ -53,11 +56,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG="build-${{ github.run_number }}"
+          TAG="furniture-${{ github.run_number }}"
           FILES="build.log"
           for f in build/libs/*.jar; do [ -f "$f" ] && FILES="$FILES $f"; done
           [ -f vtest.zip ] && FILES="$FILES vtest.zip"
-          gh release create "$TAG" $FILES --title "Build ${{ github.run_number }} (status ${{ steps.b.outputs.status }})" --notes "commit ${{ github.sha }}" --prerelease --target "${{ github.sha }}"
+          gh release create "$TAG" $FILES --title "Furniture build ${{ github.run_number }} (status ${{ steps.b.outputs.status }})" --notes "commit ${{ github.sha }}" --prerelease --target "${{ github.sha }}"
       - name: Fail on build error
         if: steps.b.outputs.status != '0'
         run: exit 1

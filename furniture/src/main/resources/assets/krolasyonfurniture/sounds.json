@@ -1,0 +1,18 @@
+{
+  "piano_c4": {
+    "sounds": [
+      {
+        "name": "krolasyonfurniture:piano_c4",
+        "stream": false
+      }
+    ]
+  },
+  "piano_c5": {
+    "sounds": [
+      {
+        "name": "krolasyonfurniture:piano_c5",
+        "stream": false
+      }
+    ]
+  }
+}

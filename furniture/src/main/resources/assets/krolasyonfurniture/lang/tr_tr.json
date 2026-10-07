@@ -1,0 +1,19 @@
+{
+  "itemGroup.krolasyonfurniture": "Krolasyon Mobilya",
+  "block.krolasyonfurniture.sofa": "Kanepe",
+  "block.krolasyonfurniture.piano": "Piyano",
+  "block.krolasyonfurniture.chalkboard": "Yazı Tahtası",
+  "block.krolasyonfurniture.nightstand": "Komodin",
+  "block.krolasyonfurniture.wardrobe": "Gardırop",
+  "item.krolasyonfurniture.broom": "Süpürge",
+  "entity.krolasyonfurniture.seat": "Koltuk",
+  "container.krolasyonfurniture.nightstand": "Komodin",
+  "container.krolasyonfurniture.wardrobe": "Gardırop",
+  "gui.krolasyonfurniture.swap": "Kıyafet Değiştir",
+  "gui.krolasyonfurniture.swap.tooltip": "Üzerindeki zırhı buradaki kıyafetle değiştirir",
+  "gui.krolasyonfurniture.outfit": "Kıyafet",
+  "gui.krolasyonfurniture.piano": "Piyano",
+  "gui.krolasyonfurniture.piano.hint": "Tuşlara tıkla veya Z-M / Q-U kullan (diyezler: S D G H J / 2 3 5 6 7). Üst üste 12 nota çal, yakındakilere ilham ver!",
+  "gui.krolasyonfurniture.chalkboard": "Yazı tahtasını düzenle",
+  "message.krolasyonfurniture.inspired": "Müzik sana ilham veriyor!"
+}

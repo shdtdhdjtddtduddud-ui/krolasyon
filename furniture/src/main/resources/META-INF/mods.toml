@@ -1,0 +1,27 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="krolasyonfurniture"
+version="1.0.0"
+displayName="Krolasyon Furniture"
+authors="krolasyon"
+description='''
+Islevsel mobilyalar: oturulabilen kanepe, caliabilen piyano, yazi tahtasi, cekmeceli komodin,
+kiyafet degistirme ozellikli gardirop ve supurge. Tum modeller animasyonludur.
+'''
+
+[[dependencies.krolasyonfurniture]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.krolasyonfurniture]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"

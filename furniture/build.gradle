@@ -1,0 +1,44 @@
+plugins {
+    id 'eclipse'
+    id 'net.minecraftforge.gradle' version '[6.0.16,6.2)'
+}
+
+version = '1.0.0'
+group = 'com.krolasyon.furniture'
+base { archivesName = 'krolasyon_furniture-1.20.1-forge' }
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+minecraft {
+    mappings channel: 'official', version: '1.20.1'
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.console.level', 'info'
+            property 'krolasyon.furniture.autotest', 'true'
+            args '--width', '1280', '--height', '720'
+            mods {
+                krolasyonfurniture {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+repositories {}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.1-47.2.0'
+}
+
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+
+tasks.named('jar', Jar).configure {
+    manifest {
+        attributes(["Specification-Title": "krolasyonfurniture", "Specification-Vendor": "krolasyon",
+                    "Specification-Version": "1", "Implementation-Title": project.name,
+                    "Implementation-Version": project.jar.archiveVersion])
+    }
+    finalizedBy 'reobfJar'
+}
