@@ -73,7 +73,7 @@ public class NightstandBlockEntity extends RandomizableContainerBlockEntity {
     protected Component getDefaultName() { return Component.translatable("container.krolasyonfurniture.nightstand"); }
 
     @Override
-    protected AbstractContainerMenu createMenu(int id, Inventory inv) { return ChestMenu.twoRows(id, inv, this); }
+    protected AbstractContainerMenu createMenu(int id, Inventory inv) { return new ChestMenu(net.minecraft.world.inventory.MenuType.GENERIC_9x2, id, inv, this, 2); }
 
     @Override
     protected NonNullList<ItemStack> getItems() { return items; }
