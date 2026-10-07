@@ -46,6 +46,7 @@ public final class AutoTest {
     private int stepIndex;
     private int stepStart;
     private Screen keep;
+    private boolean showGui;
 
     record Step(int delay, String shot, Consumer<MinecraftServer> action, Runnable client) {}
 
@@ -108,6 +109,7 @@ public final class AutoTest {
         cmd(2, null, "ride @p dismount");
         client(2, null, () -> Minecraft.getInstance().options.setCameraType(CameraType.FIRST_PERSON));
         // broom in first person
+        client(1, null, () -> showGui = true);
         cmd(6, null, "tp @p 4 -60 -3 180 28", "item replace entity @p weapon.mainhand with krolasyonfurniture:broom");
         wait(25, "broom_hold");
         server(1, null, s -> s.getPlayerList().getPlayers().forEach(p -> p.swing(InteractionHand.MAIN_HAND, true)));
@@ -195,7 +197,7 @@ public final class AutoTest {
         }
         if (mc.level == null || mc.player == null || mc.getSingleplayerServer() == null) return;
         if (mc.screen != null && mc.screen != keep) mc.setScreen(null);
-        mc.options.hideGui = keep == null;
+        mc.options.hideGui = keep == null && !showGui;
         if (inWorld < 0) {
             inWorld = tick;
             stepStart = tick + 100;

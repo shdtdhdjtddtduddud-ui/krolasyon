@@ -94,6 +94,13 @@ public class WardrobeBlock extends Block implements EntityBlock {
         if (level.getBlockEntity(pos) instanceof WardrobeBlockEntity n) n.recheckOpen();
     }
 
+    @Override
+    public boolean triggerEvent(BlockState state, Level level, BlockPos pos, int id, int param) {
+        super.triggerEvent(state, level, pos, id, param);
+        BlockEntity be = level.getBlockEntity(pos);
+        return be != null && be.triggerEvent(id, param);
+    }
+
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new WardrobeBlockEntity(pos, state); }

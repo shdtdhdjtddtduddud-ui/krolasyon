@@ -47,7 +47,7 @@ public class SeatEntity extends Entity {
         super.tick();
         if (level().isClientSide) return;
         BlockState st = level().getBlockState(blockPosition());
-        if (getPassengers().isEmpty() || !(st.getBlock() instanceof SofaBlock)) {
+        if ((tickCount > 40 && getPassengers().isEmpty()) || !(st.getBlock() instanceof SofaBlock)) {
             discard();
             return;
         }
