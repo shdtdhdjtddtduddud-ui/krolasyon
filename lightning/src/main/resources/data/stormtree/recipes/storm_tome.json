@@ -1,0 +1,27 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  " R ",
+  "DBD",
+  " A "
+ ],
+ "key": {
+  "R": {
+   "item": "minecraft:lightning_rod"
+  },
+  "D": {
+   "item": "minecraft:diamond"
+  },
+  "B": {
+   "item": "minecraft:book"
+  },
+  "A": {
+   "item": "minecraft:amethyst_shard"
+  }
+ },
+ "result": {
+  "item": "stormtree:storm_tome",
+  "count": 1
+ }
+}

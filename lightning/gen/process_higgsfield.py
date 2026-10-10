@@ -65,16 +65,26 @@ save(fetch('shield_hex').resize((64, 64), Image.LANCZOS), 'fx/shield_hex.png')
 # skull mark
 save(glow_alpha(bbox_square(fetch('skull')).resize((32, 32), Image.LANCZOS)), 'fx/skull.png')
 
-# tome item: key out the black background with a flood fill from the border, then 16x16
-tome = bbox_square(fetch('storm_tome'), thr=30, pad=0.02).resize((16, 16), Image.BOX)
-a = np.asarray(tome).astype(int)
-mask = np.zeros(a.shape[:2], bool)
-dark = a.max(axis=2) < 34
-stack = [(y, x) for y in range(16) for x in (0, 15)] + [(y, x) for x in range(16) for y in (0, 15)]
-while stack:
-    y, x = stack.pop()
-    if 0 <= y < 16 and 0 <= x < 16 and not mask[y, x] and dark[y, x]:
+# tome item: key out the black background on the full-res image (flood fill), premultiplied box downscale to 32x32
+from collections import deque
+a = np.asarray(fetch('storm_tome')).astype(int)
+dark = a.max(axis=2) < 40
+H, W = dark.shape
+mask = np.zeros_like(dark)
+q = deque([(0, 0), (0, W - 1), (H - 1, 0), (H - 1, W - 1)])
+while q:
+    y, x = q.popleft()
+    if 0 <= y < H and 0 <= x < W and not mask[y, x] and dark[y, x]:
         mask[y, x] = True
-        stack += [(y + 1, x), (y - 1, x), (y, x + 1), (y, x - 1)]
-rgba = np.dstack([a, np.where(mask, 0, 255)]).astype(np.uint8)
-save(Image.fromarray(rgba, 'RGBA'), 'item/storm_tome.png')
+        q.extend([(y + 1, x), (y - 1, x), (y, x + 1), (y, x - 1)])
+ys, xs = np.where(~mask)
+s = int(max(xs.max() - xs.min(), ys.max() - ys.min()) * 1.04)
+cx, cy = (xs.min() + xs.max()) // 2, (ys.min() + ys.max()) // 2
+img = Image.fromarray(np.dstack([a, np.where(mask, 0, 255)]).astype(np.uint8), 'RGBA').crop((cx - s // 2, cy - s // 2, cx + s // 2, cy + s // 2))
+arr = np.asarray(img).astype(float)
+al = arr[..., 3:] / 255
+pm = Image.fromarray(np.dstack([arr[..., :3] * al, arr[..., 3]]).astype(np.uint8), 'RGBA').resize((32, 32), Image.BOX)
+o = np.asarray(pm).astype(float)
+al = o[..., 3:] / 255
+rgb = np.where(al > 0.01, o[..., :3] / np.maximum(al, 0.01), 0)
+save(Image.fromarray(np.dstack([np.clip(rgb * 1.1, 0, 255), np.where(o[..., 3] > 120, 255, 0)]).astype(np.uint8), 'RGBA'), 'item/storm_tome.png')

@@ -1,0 +1,10 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.krolasyon.storm.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "stormtree.refmap.json",
+  "mixins": [],
+  "client": ["HumanoidModelMixin"],
+  "injectors": { "defaultRequire": 1 }
+}

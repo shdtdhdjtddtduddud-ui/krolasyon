@@ -1,0 +1,28 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="stormtree"
+version="1.0.0"
+displayName="Fırtına Yetenek Ağacı (Storm Skill Tree)"
+authors="krolasyon"
+logoFile="logo.png"
+description='''
+14 yetenekli yıldırım yetenek ağacı. K tuşu ile ağacı aç, XP seviyesi harcayarak yetenek aç,
+yetenekleri 4 slota ata ve Z / R / G / V tuşlarıyla kullan.
+'''
+
+[[dependencies.stormtree]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.stormtree]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"

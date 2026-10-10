@@ -1,0 +1,76 @@
+{
+ "zap": {
+  "subtitle": "subtitles.stormtree.zap",
+  "sounds": [
+   "stormtree:zap1",
+   "stormtree:zap2",
+   "stormtree:zap3"
+  ]
+ },
+ "arc": {
+  "subtitle": "subtitles.stormtree.arc",
+  "sounds": [
+   "stormtree:arc"
+  ]
+ },
+ "charge": {
+  "subtitle": "subtitles.stormtree.charge",
+  "sounds": [
+   "stormtree:charge"
+  ]
+ },
+ "nova": {
+  "subtitle": "subtitles.stormtree.nova",
+  "sounds": [
+   "stormtree:nova"
+  ]
+ },
+ "dome": {
+  "subtitle": "subtitles.stormtree.dome",
+  "sounds": [
+   "stormtree:dome"
+  ]
+ },
+ "ring": {
+  "subtitle": "subtitles.stormtree.ring",
+  "sounds": [
+   "stormtree:ring"
+  ]
+ },
+ "grasp": {
+  "subtitle": "subtitles.stormtree.grasp",
+  "sounds": [
+   "stormtree:grasp"
+  ]
+ },
+ "ball": {
+  "subtitle": "subtitles.stormtree.ball",
+  "sounds": [
+   "stormtree:ball"
+  ]
+ },
+ "spear": {
+  "subtitle": "subtitles.stormtree.spear",
+  "sounds": [
+   "stormtree:spear"
+  ]
+ },
+ "unlock": {
+  "subtitle": "subtitles.stormtree.unlock",
+  "sounds": [
+   "stormtree:unlock"
+  ]
+ },
+ "reaper": {
+  "subtitle": "subtitles.stormtree.reaper",
+  "sounds": [
+   "stormtree:reaper"
+  ]
+ },
+ "burst": {
+  "subtitle": "subtitles.stormtree.burst",
+  "sounds": [
+   "stormtree:burst"
+  ]
+ }
+}
