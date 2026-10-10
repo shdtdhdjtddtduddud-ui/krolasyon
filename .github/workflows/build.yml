@@ -1,6 +1,9 @@
 name: Build mod jar
 on:
   push:
+    paths-ignore:
+      - 'lightning/**'
+      - '.github/workflows/lightning-*.yml'
   workflow_dispatch:
 permissions:
   contents: write
