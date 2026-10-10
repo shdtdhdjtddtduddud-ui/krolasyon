@@ -126,6 +126,12 @@ public final class FxRenderer {
                     ArcGen.sprite(buf.getBuffer(FxRenderTypes.glow(SKULL)), m, e.a.add(0, t * 1.1, 0), right, up, 0.55F + t * 0.35F, 0.7F, 0.85F, 1F, a * flick);
                 }
                 case RING -> { if (owner != null) ringNodes(buf.getBuffer(FxRenderTypes.glow(ORB)), m, owner.getPosition(pt), e, age, right, up); }
+                case AURA -> {
+                    if (owner != null && e.duration > 60 && !(owner == mc.player && mc.options.getCameraType().isFirstPerson())) {
+                        float a = Math.min(1, Math.min(t * 10, (1 - t) * 8)) * (0.45F + 0.15F * Mth.sin(age * 0.7F));
+                        ArcGen.sprite(buf.getBuffer(FxRenderTypes.glow(ORB)), m, center(owner, pt), right, up, owner.getBbHeight() * 0.85F, 0.6F, 0.75F, 1F, a);
+                    }
+                }
                 case CHARGE -> {
                     if (owner != null) {
                         float s = 0.15F + t * 0.55F * e.param;
@@ -385,7 +391,19 @@ public final class FxRenderer {
         Vec3 base = owner.getPosition(pt);
         float w = owner.getBbWidth() * 0.75F, h = owner.getBbHeight();
         RandomSource r = RandomSource.create(flicker);
-        int n = e.duration > 60 ? 5 : 3;
+        boolean big = e.duration > 60;
+        int n = big ? 8 : 3;
+        if (big) {
+            // two arcs spiralling up around the body
+            for (int k = 0; k < 2; k++) {
+                List<Vec3> sp = new ArrayList<>();
+                for (int i = 0; i <= 14; i++) {
+                    double f = i / 14.0, ang = f * Math.PI * 3 + e.seed + k * Math.PI + (flicker - e.seed) * 0.9;
+                    sp.add(base.add(Math.cos(ang) * w * 1.2, f * h * 1.05, Math.sin(ang) * w * 1.2));
+                }
+                ArcGen.layers(vc, m, cam, sp, 0.03F, a * 0.8F);
+            }
+        }
         for (int i = 0; i < n; i++) {
             Vec3 p0 = base.add((r.nextDouble() - 0.5) * w * 2, r.nextDouble() * h, (r.nextDouble() - 0.5) * w * 2);
             Vec3 p1 = p0.add((r.nextDouble() - 0.5) * 0.9, (r.nextDouble() - 0.5) * 1.1, (r.nextDouble() - 0.5) * 0.9);
@@ -417,7 +435,8 @@ public final class FxRenderer {
         if (e == mc.player && mc.options.getCameraType().isFirstPerson()) {
             Camera c = mc.gameRenderer.getMainCamera();
             Vector3f l = c.getLeftVector(), u = c.getUpVector(), f = c.getLookVector();
-            return c.getPosition().add(f.x() * 0.6 - l.x() * 0.32 - u.x() * 0.22, f.y() * 0.6 - l.y() * 0.32 - u.y() * 0.22, f.z() * 0.6 - l.z() * 0.32 - u.z() * 0.22);
+            // a bit in front of the visible hand so effects don't fill the screen
+            return c.getPosition().add(f.x() * 1.5 - l.x() * 0.55 - u.x() * 0.4, f.y() * 1.5 - l.y() * 0.55 - u.y() * 0.4, f.z() * 1.5 - l.z() * 0.55 - u.z() * 0.4);
         }
         float yaw = (e instanceof LivingEntity le ? Mth.lerp(pt, le.yBodyRotO, le.yBodyRot) : e.getYRot()) * Mth.DEG_TO_RAD;
         Vec3 side = new Vec3(-Mth.cos(yaw), 0, -Mth.sin(yaw)).scale(0.38);

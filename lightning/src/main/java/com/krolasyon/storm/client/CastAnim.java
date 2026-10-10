@@ -158,12 +158,12 @@ public final class CastAnim {
         switch (a.anim) {
             case STRIKE -> {
                 float up = seg(t, 0, 0.38F), slam = seg(t, 0.38F, 0.5F);
-                ps.translate(0, w * (0.35F * up * (1 - slam) - 0.05F * slam), -w * 0.25F * slam);
-                ps.mulPose(Axis.XP.rotationDegrees(w * (50 * up * (1 - slam) - 25 * slam)));
+                ps.translate(0, w * (0.16F * up * (1 - slam) - 0.05F * slam), -w * 0.22F * slam);
+                ps.mulPose(Axis.XP.rotationDegrees(w * (22 * up * (1 - slam) - 18 * slam)));
             }
             case THRUST, PUSH -> {
                 float back = seg(t, 0, 0.25F), go = seg(t, 0.25F, 0.4F);
-                ps.translate(-0.08F * w * go, 0.05F * w, w * (0.12F * back * (1 - go) - 0.35F * go));
+                ps.translate(-0.08F * w * go, 0.05F * w, w * (0.04F * back * (1 - go) - 0.35F * go));
                 ps.mulPose(Axis.XP.rotationDegrees(w * 12 * go));
             }
             case BURST, NOVA -> {
@@ -174,8 +174,8 @@ public final class CastAnim {
             }
             case DOME, AVATAR -> {
                 float up = seg(t, 0, 0.4F), down = seg(t, 0.45F, 0.7F);
-                ps.translate(tr, w * (0.4F * up * (1 - down) - 0.1F * down), -0.1F * w);
-                ps.mulPose(Axis.XP.rotationDegrees(w * 60 * up * (1 - down)));
+                ps.translate(tr, w * (0.18F * up * (1 - down) - 0.1F * down), -0.12F * w);
+                ps.mulPose(Axis.XP.rotationDegrees(w * 25 * up * (1 - down)));
             }
             case CIRCLE -> {
                 float ang = t * Mth.TWO_PI * 2.2F;
@@ -183,13 +183,14 @@ public final class CastAnim {
             }
             case GRASP -> {
                 float reach = seg(t, 0, 0.2F), pull = seg(t, 0.62F, 0.78F);
-                ps.translate(tr * reach * (1 - pull) * 2, 0.05F * w, w * (-0.35F * reach * (1 - pull) + 0.1F * pull));
+                ps.translate(tr * reach * (1 - pull) * 2, 0.05F * w, w * (-0.35F * reach * (1 - pull) - 0.05F * pull));
                 ps.mulPose(Axis.XP.rotationDegrees(w * (15 * reach - 30 * pull)));
             }
             case SPEAR -> {
                 float wind = seg(t, 0, 0.35F), thr = seg(t, 0.38F, 0.46F);
-                ps.translate(tr * wind * (1 - thr), w * (0.25F * wind * (1 - thr)), w * (0.2F * wind * (1 - thr) - 0.45F * thr));
-                ps.mulPose(Axis.XP.rotationDegrees(w * (-35 * wind * (1 - thr) + 10 * thr)));
+                ps.translate(0.06F * w * wind * (1 - thr) + tr * wind * (1 - thr), w * (0.1F * wind * (1 - thr)), -w * (0.05F * wind * (1 - thr) + 0.4F * thr));
+                ps.mulPose(Axis.ZP.rotationDegrees(w * -12 * wind * (1 - thr)));
+                ps.mulPose(Axis.XP.rotationDegrees(w * 10 * thr));
             }
             default -> {}
         }

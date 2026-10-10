@@ -113,9 +113,6 @@ public class SkillTreeScreen extends Screen {
         float time = time();
         g.fill(0, 0, width, height, 0xFF1B1926);
         drawSparks(g, time);
-        // vignette
-        g.fillGradient(0, 0, width, height / 4, 0x66000000, 0x00000000);
-        g.fillGradient(0, height * 3 / 4, width, height, 0x00000000, 0x77000000);
 
         Skill hover = skillAt(mx, my);
         g.pose().pushPose();
@@ -127,6 +124,9 @@ public class SkillTreeScreen extends Screen {
         for (Skill k : Skill.VALUES) drawNode(g, k, d, k == hover, time);
         drawBursts(g);
         g.pose().popPose();
+        // vignette over everything (tree included) so the backdrop has no visible edge
+        g.fillGradient(0, 0, width, height / 4, 0x66000000, 0x00000000);
+        g.fillGradient(0, height * 3 / 4, width, height, 0x00000000, 0x77000000);
 
         // header
         Minecraft mc = Minecraft.getInstance();
