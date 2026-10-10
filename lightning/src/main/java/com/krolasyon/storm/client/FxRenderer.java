@@ -132,6 +132,12 @@ public final class FxRenderer {
                         ArcGen.sprite(buf.getBuffer(FxRenderTypes.glow(ORB)), m, center(owner, pt), right, up, owner.getBbHeight() * 0.85F, 0.6F, 0.75F, 1F, a);
                     }
                 }
+                case BEAM -> {
+                    float fade = t < 0.1F ? t / 0.1F : 1 - (t - 0.1F) / 0.9F;
+                    VertexConsumer g = buf.getBuffer(FxRenderTypes.glow(ORB));
+                    ArcGen.sprite(g, m, e.a, right, up, 0.7F * fade + 0.2F, 1, 1, 1, fade);
+                    ArcGen.sprite(g, m, e.b, right, up, 1.8F * fade, 1, 1, 1, fade);
+                }
                 case CHARGE -> {
                     if (owner != null) {
                         float s = 0.15F + t * 0.55F * e.param;
@@ -258,8 +264,6 @@ public final class FxRenderer {
             Vec3 end = s.add(ArcGen.perp(n, r).scale(1 + r.nextDouble() * 2)).add(n.scale(r.nextDouble() * 2));
             ArcGen.arc(vc, m, cam, s, end, r.nextLong(), 0.04F, fade, 0.3F, 3, 0);
         }
-        ArcGen.glowQuad(vc, m, a, right, up, 0.8F * fade + 0.2F, ArcGen.MID, fade * 0.6F);
-        ArcGen.glowQuad(vc, m, b, right, up, 1.6F * fade, ArcGen.GLOW, fade * 0.5F);
     }
 
     private static void nova(VertexConsumer vc, Matrix4f m, Vec3 cam, Vec3 c, float radius, float t, long flicker, float alphaMul) {

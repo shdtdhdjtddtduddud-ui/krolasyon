@@ -28,8 +28,7 @@ public class BoltRenderer extends EntityRenderer<BoltProjectile> {
         ArcGen.arc(vc, m, cam, Vec3.ZERO, tail.scale(0.7), seed * 7, 0.04F, 0.8F, 0.25F, 3, 0);
         Vec3 right = cam.cross(new Vec3(0, 1, 0)).normalize();
         Vec3 up = right.cross(cam).normalize();
-        ArcGen.glowQuad(vc, m, Vec3.ZERO, right, up, 0.35F, ArcGen.MID, 0.6F);
-        ArcGen.glowQuad(vc, m, Vec3.ZERO, right, up, 0.15F, ArcGen.CORE, 0.9F);
+        ArcGen.sprite(buf.getBuffer(FxRenderTypes.glow(FxRenderer.ORB)), m, Vec3.ZERO, right, up, 0.45F, 1, 1, 1, 1);
     }
 
     @Override
