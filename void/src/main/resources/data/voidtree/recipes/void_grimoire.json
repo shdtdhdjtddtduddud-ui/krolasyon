@@ -1,0 +1,27 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  " E ",
+  "OBO",
+  " A "
+ ],
+ "key": {
+  "E": {
+   "item": "minecraft:ender_eye"
+  },
+  "O": {
+   "item": "minecraft:crying_obsidian"
+  },
+  "B": {
+   "item": "minecraft:book"
+  },
+  "A": {
+   "item": "minecraft:amethyst_shard"
+  }
+ },
+ "result": {
+  "item": "voidtree:void_grimoire",
+  "count": 1
+ }
+}

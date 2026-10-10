@@ -1,0 +1,92 @@
+{
+ "whoosh": {
+  "subtitle": "subtitles.voidtree.whoosh",
+  "sounds": [
+   "voidtree:whoosh"
+  ]
+ },
+ "phantom": {
+  "subtitle": "subtitles.voidtree.phantom",
+  "sounds": [
+   "voidtree:phantom"
+  ]
+ },
+ "vortex": {
+  "subtitle": "subtitles.voidtree.vortex",
+  "sounds": [
+   "voidtree:vortex"
+  ]
+ },
+ "slash": {
+  "subtitle": "subtitles.voidtree.slash",
+  "sounds": [
+   "voidtree:slash"
+  ]
+ },
+ "prison": {
+  "subtitle": "subtitles.voidtree.prison",
+  "sounds": [
+   "voidtree:prison"
+  ]
+ },
+ "blade": {
+  "subtitle": "subtitles.voidtree.blade",
+  "sounds": [
+   "voidtree:blade"
+  ]
+ },
+ "hole": {
+  "subtitle": "subtitles.voidtree.hole",
+  "sounds": [
+   "voidtree:hole"
+  ]
+ },
+ "implode": {
+  "subtitle": "subtitles.voidtree.implode",
+  "sounds": [
+   "voidtree:implode"
+  ]
+ },
+ "rift": {
+  "subtitle": "subtitles.voidtree.rift",
+  "sounds": [
+   "voidtree:rift"
+  ]
+ },
+ "ascend": {
+  "subtitle": "subtitles.voidtree.ascend",
+  "sounds": [
+   "voidtree:ascend"
+  ]
+ },
+ "seal": {
+  "subtitle": "subtitles.voidtree.seal",
+  "sounds": [
+   "voidtree:seal"
+  ]
+ },
+ "summon": {
+  "subtitle": "subtitles.voidtree.summon",
+  "sounds": [
+   "voidtree:summon"
+  ]
+ },
+ "cosmic": {
+  "subtitle": "subtitles.voidtree.cosmic",
+  "sounds": [
+   "voidtree:cosmic"
+  ]
+ },
+ "unlock": {
+  "subtitle": "subtitles.voidtree.unlock",
+  "sounds": [
+   "voidtree:unlock"
+  ]
+ },
+ "evade": {
+  "subtitle": "subtitles.voidtree.evade",
+  "sounds": [
+   "voidtree:evade"
+  ]
+ }
+}

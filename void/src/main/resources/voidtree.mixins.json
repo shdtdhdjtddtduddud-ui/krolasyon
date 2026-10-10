@@ -1,0 +1,10 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.krolasyon.voidtree.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "voidtree.refmap.json",
+  "mixins": [],
+  "client": ["HumanoidModelMixin"],
+  "injectors": { "defaultRequire": 1 }
+}

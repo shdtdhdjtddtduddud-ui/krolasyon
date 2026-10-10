@@ -1,0 +1,28 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="voidtree"
+version="1.0.0"
+displayName="Boşluk Yetenek Ağacı (Void Skill Tree)"
+authors="krolasyon"
+logoFile="logo.png"
+description='''
+14 yetenekli mor boşluk/gölge yetenek ağacı. J tuşu ile ağacı aç, XP seviyesi harcayarak yetenek aç,
+yetenekleri 4 slota ata ve H / B / N / M tuşlarıyla kullan.
+'''
+
+[[dependencies.voidtree]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.voidtree]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"
