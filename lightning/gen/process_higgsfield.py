@@ -28,6 +28,7 @@ def glow_alpha(img):
     a = np.asarray(img).astype(np.float32) / 255.0
     alpha = a.max(axis=2)
     alpha = np.clip((alpha - 0.06) / 0.94, 0, 1)
+    alpha = np.clip((alpha - 0.12) / 0.88, 0, 1)  # kill the faint haze of the generated background
     rgb = np.where(alpha[..., None] > 1e-3, a / np.maximum(a.max(axis=2, keepdims=True), 1e-3), 0)
     out = np.dstack([rgb, alpha])
     return Image.fromarray((out * 255).astype(np.uint8), 'RGBA')
