@@ -4,6 +4,8 @@ on:
     paths-ignore:
       - 'lightning/**'
       - '.github/workflows/lightning-*.yml'
+      - 'void/**'
+      - '.github/workflows/void-*.yml'
   workflow_dispatch:
 permissions:
   contents: write
