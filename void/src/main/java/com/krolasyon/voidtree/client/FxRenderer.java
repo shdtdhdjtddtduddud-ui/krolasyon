@@ -203,27 +203,41 @@ public final class FxRenderer {
                 }
             }
             case SLASH -> {
-                if (pass == 0 || owner == null) return;
+                if (owner == null) return;
                 Vec3 eye = owner.getEyePosition(c.pt);
                 Vec3 look = owner.getViewVector(c.pt);
                 Vec3 side = look.cross(new Vec3(0, 1, 0));
                 side = side.lengthSqr() < 1e-4 ? new Vec3(1, 0, 0) : side.normalize();
                 Vec3 upv = side.cross(look).normalize();
-                double roll = e.param == 2 ? 0.0 : e.param > 0 ? 0.75 : -0.75;
-                Vec3 u = side.scale(Math.cos(roll)).add(upv.scale(Math.sin(roll)));
-                Vec3 center = eye.add(look.scale(1.2)).add(0, -0.25, 0);
-                double rad = e.param == 2 ? 2.4 : 1.8;
-                float sweep = Mth.clamp(age / 3.5F, 0, 1);
-                float a = 1 - Mth.clamp((age - 3) / 4F, 0, 1);
+                // the swipe lies in the plane facing the caster's view: diagonal for the side swipes, flat for the finisher
+                double roll = e.param == 2 ? 0.0 : e.param > 0 ? 0.7 : -0.7;
+                Vec3 ax = side.scale(Math.cos(roll)).add(upv.scale(Math.sin(roll)));
+                Vec3 ay = upv.scale(Math.cos(roll)).subtract(side.scale(Math.sin(roll)));
+                boolean fp = owner == mc.player && mc.options.getCameraType().isFirstPerson();
+                Vec3 center = eye.add(look.scale(fp ? 2.2 : 1.3)).add(0, fp ? -0.1 : -0.2, 0);
+                double rad = e.param == 2 ? 1.7 : 1.3;
+                float sweep = Mth.clamp(age / 3F, 0, 1);
+                float a = 1 - Mth.clamp((age - 2.5F) / 4.5F, 0, 1);
+                if (pass == 0) {
+                    // Higgsfield crescent sprite spanning the swipe
+                    VertexConsumer vc = tex(c, SLASH);
+                    Vec3 rx = ax.scale(rad * (e.param < 0 ? -1 : 1)), ry = ay.scale(rad);
+                    float sa = a * sweep;
+                    ArcGen.t(vc, m, center.subtract(rx).subtract(ry), 1, 1, 1, sa, 0, 1);
+                    ArcGen.t(vc, m, center.add(rx).subtract(ry), 1, 1, 1, sa, 1, 1);
+                    ArcGen.t(vc, m, center.add(rx).add(ry), 1, 1, 1, sa, 1, 0);
+                    ArcGen.t(vc, m, center.subtract(rx).add(ry), 1, 1, 1, sa, 0, 0);
+                    return;
+                }
                 List<Vec3> arc = new ArrayList<>();
                 int n = 20;
                 for (int i = 0; i <= n * sweep; i++) {
                     double f = (double) i / n;
-                    double ang = (f - 0.5) * Math.PI * 1.1 * (e.param < 0 ? -1 : 1);
-                    arc.add(center.add(u.scale(Math.sin(ang) * rad)).add(look.scale(Math.cos(ang) * rad * 0.6 - rad * 0.3)));
+                    double ang = (f - 0.5) * Math.PI * 1.15 * (e.param < 0 ? -1 : 1);
+                    arc.add(center.add(ax.scale(Math.sin(ang) * rad)).add(ay.scale(Math.cos(ang) * rad * 0.55 - rad * 0.25)));
                 }
                 if (arc.size() < 2) return;
-                float wdt = e.param == 2 ? 0.16F : 0.11F;
+                float wdt = e.param == 2 ? 0.14F : 0.1F;
                 if (pass == 1) ArcGen.taper(dark, m, c.cam, arc, wdt * 4, ArcGen.SHADOW, a * 0.5F);
                 else {
                     ArcGen.taper(glow, m, c.cam, arc, wdt * 3.5F, ArcGen.GLOW, a * 0.4F);
@@ -367,7 +381,7 @@ public final class FxRenderer {
             }
             case SEAL -> {
                 float r = e.param * Math.min(1, age / 8F);
-                if (pass == 0) { flatSprite(tex(c, STARFIELD), m, e.a.add(0, 0.03, 0), r, age * 0.01F, fadeIO * 0.55F); return; }
+                if (pass == 0) { flatTexDisc(tex(c, STARFIELD), m, e.a.add(0, 0.03, 0), r, age * 0.01F, fadeIO * 0.55F); return; }
                 if (pass == 1) return;
                 Vec3 cc = e.a.add(0, 0.08, 0);
                 ArcGen.layers(glow, m, c.cam, circle(cc, r, 64, age * 0.02), 0.07F, fadeIO);
@@ -392,9 +406,9 @@ public final class FxRenderer {
                 float r = e.param * Math.min(1, age / 15F);
                 Vec3 sky = e.a.add(0, 13, 0);
                 if (pass == 0) {
-                    flatSprite(tex(c, STARFIELD), m, sky, r * 1.2F, age * 0.006F, fadeIO);
+                    flatTexDisc(tex(c, STARFIELD), m, sky, r * 1.2F, age * 0.006F, fadeIO);
                     flatSprite(tex(c, VORTEX), m, sky.add(0, -0.1, 0), r * 0.9F, -age * 0.03F, fadeIO * 0.7F);
-                    flatSprite(tex(c, STARFIELD), m, e.a.add(0, 0.04, 0), r, -age * 0.006F, fadeIO * 0.35F);
+                    flatTexDisc(tex(c, STARFIELD), m, e.a.add(0, 0.04, 0), r, -age * 0.006F, fadeIO * 0.35F);
                     return;
                 }
                 if (pass == 1) { flatDisc(dark, m, sky.add(0, 0.05, 0), r * 1.25F, ArcGen.SHADOW, fadeIO * 0.6F); return; }
@@ -493,6 +507,32 @@ public final class FxRenderer {
         ArcGen.t(vc, m, c.add(cs + sn, 0, sn - cs), 1, 1, 1, a, 1, 0);
         ArcGen.t(vc, m, c.add(cs - sn, 0, sn + cs), 1, 1, 1, a, 1, 1);
         ArcGen.t(vc, m, c.add(-cs - sn, 0, -sn + cs), 1, 1, 1, a, 0, 1);
+    }
+
+    /** round horizontal textured disc (tiled texture, rotating), fading towards the rim */
+    private static void flatTexDisc(VertexConsumer vc, Matrix4f m, Vec3 c, float r, float rot, float a) {
+        int n = 32, rings = 3;
+        float tile = Math.max(1F, r / 3F);
+        for (int k = 0; k < rings; k++) {
+            float r0 = r * k / rings, r1 = r * (k + 1) / rings;
+            float a0 = a * (k == rings - 1 ? 1F : 1F), a1 = k == rings - 1 ? 0F : a;
+            for (int i = 0; i < n; i++) {
+                double t0 = i * Math.PI * 2 / n + rot, t1 = (i + 1) * Math.PI * 2 / n + rot;
+                Vec3 p00 = c.add(Math.cos(t0) * r0, 0, Math.sin(t0) * r0), p01 = c.add(Math.cos(t1) * r0, 0, Math.sin(t1) * r0);
+                Vec3 p10 = c.add(Math.cos(t0) * r1, 0, Math.sin(t0) * r1), p11 = c.add(Math.cos(t1) * r1, 0, Math.sin(t1) * r1);
+                ArcGen.t(vc, m, p00, 1, 1, 1, a0, uvOf(p00, c, r, tile, rot, true), uvOf(p00, c, r, tile, rot, false));
+                ArcGen.t(vc, m, p10, 1, 1, 1, a1, uvOf(p10, c, r, tile, rot, true), uvOf(p10, c, r, tile, rot, false));
+                ArcGen.t(vc, m, p11, 1, 1, 1, a1, uvOf(p11, c, r, tile, rot, true), uvOf(p11, c, r, tile, rot, false));
+                ArcGen.t(vc, m, p01, 1, 1, 1, a0, uvOf(p01, c, r, tile, rot, true), uvOf(p01, c, r, tile, rot, false));
+            }
+        }
+    }
+
+    private static float uvOf(Vec3 p, Vec3 c, float r, float tile, float rot, boolean u) {
+        double dx = p.x - c.x, dz = p.z - c.z;
+        double cs = Math.cos(-rot), sn = Math.sin(-rot);
+        double x = dx * cs - dz * sn, z = dx * sn + dz * cs;
+        return (float) (((u ? x : z) / (2 * r) + 0.5) * tile);
     }
 
     private static void flatDisc(VertexConsumer vc, Matrix4f m, Vec3 c, float r, float[] col, float a) {
