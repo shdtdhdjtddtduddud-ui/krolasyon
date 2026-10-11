@@ -1,0 +1,50 @@
+{
+  "transform": {
+    "sounds": [
+      "krolben10:transform"
+    ],
+    "subtitle": "subtitle.krolben10.transform"
+  },
+  "detransform": {
+    "sounds": [
+      "krolben10:detransform"
+    ],
+    "subtitle": "subtitle.krolben10.detransform"
+  },
+  "timeout": {
+    "sounds": [
+      "krolben10:timeout"
+    ],
+    "subtitle": "subtitle.krolben10.timeout"
+  },
+  "beep": {
+    "sounds": [
+      "krolben10:beep"
+    ],
+    "subtitle": "subtitle.krolben10.beep"
+  },
+  "dial": {
+    "sounds": [
+      "krolben10:dial"
+    ],
+    "subtitle": "subtitle.krolben10.dial"
+  },
+  "dial_open": {
+    "sounds": [
+      "krolben10:dial_open"
+    ],
+    "subtitle": "subtitle.krolben10.dial_open"
+  },
+  "sonic": {
+    "sounds": [
+      "krolben10:sonic"
+    ],
+    "subtitle": "subtitle.krolben10.sonic"
+  },
+  "whoosh": {
+    "sounds": [
+      "krolben10:whoosh"
+    ],
+    "subtitle": "subtitle.krolben10.whoosh"
+  }
+}
