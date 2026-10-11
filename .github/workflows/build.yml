@@ -6,6 +6,8 @@ on:
       - '.github/workflows/lightning-*.yml'
       - 'void/**'
       - '.github/workflows/void-*.yml'
+      - 'omnitrix/**'
+      - '.github/workflows/omnitrix-*.yml'
   workflow_dispatch:
 permissions:
   contents: write

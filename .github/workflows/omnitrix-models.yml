@@ -1,0 +1,29 @@
+name: Omnitrix mod - process Higgsfield 3D models
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'omnitrix/gen/higgsfield_models.json'
+      - 'omnitrix/gen/*.py'
+      - 'omnitrix/gen/rigs.json'
+permissions:
+  contents: write
+jobs:
+  models:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Process
+        run: |
+          pip install -q trimesh numpy pillow scipy fast-simplification rtree pygltflib
+          cd omnitrix/gen
+          python inspect_models.py
+          if [ -f process_models.py ]; then python process_models.py; fi
+          if [ -f process_textures.py ]; then python process_textures.py; fi
+      - name: Commit results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add omnitrix/gen/inspect omnitrix/src/main/resources/assets 2>/dev/null || true
+          git diff --cached --quiet || git commit -m "Omnitrix: processed Higgsfield models/textures"
+          git pull --rebase -q && git push
