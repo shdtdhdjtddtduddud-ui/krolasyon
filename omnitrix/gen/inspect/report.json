@@ -1,0 +1,281 @@
+{
+ "heatblast": {
+  "bytes": 1313288,
+  "type": "Scene",
+  "geometries": {
+   "geometry_0": [
+    4012,
+    5372,
+    "TextureVisuals"
+   ]
+  },
+  "graph_nodes": 2,
+  "vertices": 4012,
+  "faces": 5372,
+  "bounds": [
+   [
+    -0.22770024836063385,
+    -0.4996846914291382,
+    -0.09601160883903503
+   ],
+   [
+    0.22720777988433838,
+    0.5000746846199036,
+    0.10388883203268051
+   ]
+  ],
+  "visual": "TextureVisuals",
+  "texture": [
+   1024,
+   1024
+  ]
+ },
+ "terraspin": {
+  "bytes": 1491876,
+  "type": "Scene",
+  "geometries": {
+   "geometry_0": [
+    11235,
+    16456,
+    "TextureVisuals"
+   ]
+  },
+  "graph_nodes": 2,
+  "vertices": 11235,
+  "faces": 16456,
+  "bounds": [
+   [
+    -0.49973127245903015,
+    -0.46051570773124695,
+    -0.15911826491355896
+   ],
+   [
+    0.49981480836868286,
+    0.45776134729385376,
+    0.16445109248161316
+   ]
+  ],
+  "visual": "TextureVisuals",
+  "texture": [
+   1024,
+   1024
+  ]
+ },
+ "diamondhead": {
+  "bytes": 1430772,
+  "type": "Scene",
+  "geometries": {
+   "geometry_0": [
+    6561,
+    9166,
+    "TextureVisuals"
+   ]
+  },
+  "graph_nodes": 2,
+  "vertices": 6561,
+  "faces": 9166,
+  "bounds": [
+   [
+    -0.3219382166862488,
+    -0.4979439377784729,
+    -0.13435614109039307
+   ],
+   [
+    0.32261553406715393,
+    0.49747759103775024,
+    0.13414612412452698
+   ]
+  ],
+  "visual": "TextureVisuals",
+  "texture": [
+   1024,
+   1024
+  ]
+ },
+ "goop": {
+  "bytes": 1393408,
+  "type": "Scene",
+  "geometries": {
+   "geometry_0": [
+    4525,
+    6466,
+    "TextureVisuals"
+   ]
+  },
+  "graph_nodes": 2,
+  "vertices": 4525,
+  "faces": 6466,
+  "bounds": [
+   [
+    -0.36230844259262085,
+    -0.5005167126655579,
+    -0.11919441819190979
+   ],
+   [
+    0.36234593391418457,
+    0.49925339221954346,
+    0.10979047417640686
+   ]
+  ],
+  "visual": "TextureVisuals",
+  "texture": [
+   1024,
+   1024
+  ]
+ },
+ "xlr8": {
+  "bytes": 1447416,
+  "type": "Scene",
+  "geometries": {
+   "geometry_0": [
+    6164,
+    8891,
+    "TextureVisuals"
+   ]
+  },
+  "graph_nodes": 2,
+  "vertices": 6164,
+  "faces": 8891,
+  "bounds": [
+   [
+    -0.30709606409072876,
+    -0.49855390191078186,
+    -0.47267669439315796
+   ],
+   [
+    0.30828770995140076,
+    0.5003654360771179,
+    0.4983454644680023
+   ]
+  ],
+  "visual": "TextureVisuals",
+  "texture": [
+   1024,
+   1024
+  ]
+ },
+ "fourarms": {
+  "bytes": 1437484,
+  "type": "Scene",
+  "geometries": {
+   "geometry_0": [
+    7806,
+    11010,
+    "TextureVisuals"
+   ]
+  },
+  "graph_nodes": 2,
+  "vertices": 7806,
+  "faces": 11010,
+  "bounds": [
+   [
+    -0.3488679826259613,
+    -0.499985933303833,
+    -0.1440686136484146
+   ],
+   [
+    0.3570309579372406,
+    0.4996011257171631,
+    0.14487119019031525
+   ]
+  ],
+  "visual": "TextureVisuals",
+  "texture": [
+   1024,
+   1024
+  ]
+ },
+ "bigchill": {
+  "bytes": 1290448,
+  "type": "Scene",
+  "geometries": {
+   "geometry_0": [
+    5573,
+    7378,
+    "TextureVisuals"
+   ]
+  },
+  "graph_nodes": 2,
+  "vertices": 5573,
+  "faces": 7378,
+  "bounds": [
+   [
+    -0.23223832249641418,
+    -0.49990716576576233,
+    -0.16841557621955872
+   ],
+   [
+    0.23115287721157074,
+    0.4993351995944977,
+    0.17228971421718597
+   ]
+  ],
+  "visual": "TextureVisuals",
+  "texture": [
+   1024,
+   1024
+  ]
+ },
+ "ultimate_echo_echo": {
+  "bytes": 1306040,
+  "type": "Scene",
+  "geometries": {
+   "geometry_0": [
+    4436,
+    6092,
+    "TextureVisuals"
+   ]
+  },
+  "graph_nodes": 2,
+  "vertices": 4436,
+  "faces": 6092,
+  "bounds": [
+   [
+    -0.2614833116531372,
+    -0.500316858291626,
+    -0.09683237969875336
+   ],
+   [
+    0.2618982195854187,
+    0.49943631887435913,
+    0.10105033218860626
+   ]
+  ],
+  "visual": "TextureVisuals",
+  "texture": [
+   1024,
+   1024
+  ]
+ },
+ "ghostfreak": {
+  "bytes": 1374176,
+  "type": "Scene",
+  "geometries": {
+   "geometry_0": [
+    5635,
+    8468,
+    "TextureVisuals"
+   ]
+  },
+  "graph_nodes": 2,
+  "vertices": 5635,
+  "faces": 8468,
+  "bounds": [
+   [
+    -0.26957184076309204,
+    -0.49824315309524536,
+    -0.3388020992279053
+   ],
+   [
+    0.2681856155395508,
+    0.49863988161087036,
+    0.33050015568733215
+   ]
+  ],
+  "visual": "TextureVisuals",
+  "texture": [
+   1024,
+   1024
+  ]
+ }
+}
