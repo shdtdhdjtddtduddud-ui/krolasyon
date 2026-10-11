@@ -18,12 +18,13 @@ jobs:
           pip install -q trimesh numpy pillow scipy fast-simplification rtree pygltflib
           cd omnitrix/gen
           python inspect_models.py
+          python export_meshes.py
           if [ -f process_models.py ]; then python process_models.py; fi
           if [ -f process_textures.py ]; then python process_textures.py; fi
       - name: Commit results
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          for p in omnitrix/gen/inspect omnitrix/src/main/resources/assets; do [ -e "$p" ] && git add "$p"; done
+          for p in omnitrix/gen/inspect omnitrix/gen/mesh omnitrix/src/main/resources/assets; do [ -e "$p" ] && git add "$p"; done
           git diff --cached --quiet || git commit -m "Omnitrix: processed Higgsfield models/textures"
           git pull --rebase -q && git push
