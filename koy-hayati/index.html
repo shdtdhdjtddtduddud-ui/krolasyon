@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Köy Hayatı</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<style>
+:root {
+  --paper: #f7efdc;
+  --paper-2: #efe2c4;
+  --ink: #3b2a1c;
+  --ink-soft: #6d5640;
+  --wood: #7a4f2c;
+  --wood-dark: #4e3220;
+  --accent: #4f8f3a;
+  --accent-ink: #ffffff;
+  --gold: #e2a93b;
+  --danger: #b5432f;
+  --glass: rgba(30, 22, 14, 0.55);
+  --glass-ink: #fff8ea;
+  --shadow: 0 6px 18px rgba(0,0,0,.28);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #2c241b; --paper-2: #3a2f23; --ink: #f3e7cf; --ink-soft: #c9b597;
+    --wood: #a0703f; --wood-dark: #1d150e; --glass: rgba(10, 8, 6, 0.6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #2c241b; --paper-2: #3a2f23; --ink: #f3e7cf; --ink-soft: #c9b597;
+  --wood: #a0703f; --wood-dark: #1d150e; --glass: rgba(10, 8, 6, 0.6);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: #1b2a33; font-family: 'Nunito', system-ui, sans-serif; color: var(--ink); }
+canvas#c { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+.hidden { display: none !important; }
+button { font-family: inherit; cursor: pointer; }
+
+/* HUD */
+#hud { position: fixed; inset: 0; pointer-events: none; z-index: 5; }
+#info {
+  position: absolute; top: max(10px, env(safe-area-inset-top)); left: 10px;
+  background: var(--glass); color: var(--glass-ink); border-radius: 14px; padding: 8px 12px; min-width: 190px;
+  backdrop-filter: blur(4px); box-shadow: var(--shadow); font-size: 13px; line-height: 1.35;
+}
+#info .row { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+#info .date { font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 14px; }
+#info .time { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: .5px; }
+#info .money { font-weight: 800; color: #ffd36b; font-size: 15px; }
+#energy { height: 9px; background: rgba(255,255,255,.18); border-radius: 6px; overflow: hidden; margin-top: 6px; }
+#energy > i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, #f2c04a, #7fc24a); transition: width .3s; }
+#place { font-size: 12px; opacity: .85; margin-top: 3px; }
+#compass {
+  position: absolute; top: max(10px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%);
+  width: min(320px, 46vw); height: 26px; overflow: hidden; border-radius: 13px; background: var(--glass); color: var(--glass-ink);
+  font-family: 'Fredoka', sans-serif; font-size: 13px; box-shadow: var(--shadow);
+}
+#compass .strip { position: absolute; top: 4px; left: 0; white-space: nowrap; }
+#compass .strip span { display: inline-block; width: 40px; text-align: center; }
+#compass::after { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: #ffd36b; }
+#crosshair { position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: rgba(255,255,255,.85); box-shadow: 0 0 0 1.5px rgba(0,0,0,.35); }
+#prompt, #toolHint {
+  position: absolute; left: 50%; transform: translateX(-50%); background: var(--glass); color: var(--glass-ink);
+  padding: 6px 12px; border-radius: 10px; font-weight: 700; font-size: 14px; white-space: nowrap; max-width: 92vw; overflow: hidden; text-overflow: ellipsis;
+}
+#prompt { top: calc(50% + 26px); }
+#toolHint { top: calc(50% + 62px); font-weight: 600; font-size: 13px; opacity: .92; }
+#prompt kbd, #toolHint kbd { background: #ffd36b; color: #3b2a1c; border-radius: 5px; padding: 0 6px; margin-right: 6px; font-family: 'Fredoka'; }
+#hotbar {
+  position: absolute; bottom: max(12px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);
+  display: flex; gap: 6px; pointer-events: auto;
+}
+.slot {
+  width: 54px; height: 54px; border-radius: 12px; background: var(--glass); border: 2px solid rgba(255,255,255,.18);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; position: relative; font-size: 24px; cursor: pointer;
+}
+.slot.sel { border-color: #ffd36b; background: rgba(80, 55, 25, .75); transform: translateY(-4px); }
+.slot small { position: absolute; bottom: 2px; right: 5px; font-size: 11px; font-weight: 800; }
+.slot .k { position: absolute; top: 2px; left: 5px; font-size: 10px; opacity: .7; }
+.slot .sub { position: absolute; top: 2px; right: 4px; font-size: 14px; }
+#toasts { position: absolute; top: 90px; right: 10px; display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+.toast { background: var(--paper); color: var(--ink); border-left: 5px solid var(--accent); padding: 8px 12px; border-radius: 10px; box-shadow: var(--shadow); font-weight: 700; font-size: 13px; max-width: min(320px, 80vw); animation: tin .3s ease-out; }
+.toast.bad { border-left-color: var(--danger); }
+.toast.gold { border-left-color: var(--gold); }
+@keyframes tin { from { opacity: 0; transform: translateX(30px); } }
+#discover { position: absolute; top: 22%; left: 50%; transform: translateX(-50%); text-align: center; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,.6); font-family: 'Fredoka'; pointer-events: none; transition: opacity 1s; opacity: 0; }
+#discover b { display: block; font-size: 34px; }
+#discover span { font-size: 15px; letter-spacing: 2px; text-transform: uppercase; }
+#vehHint { position: absolute; bottom: 82px; left: 50%; transform: translateX(-50%); background: var(--glass); color: var(--glass-ink); padding: 5px 12px; border-radius: 10px; font-size: 12px; font-weight: 700; }
+
+/* Panel */
+#panel { position: fixed; inset: 0; z-index: 20; background: rgba(20, 14, 8, .45); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.pbox {
+  background: var(--paper); border: 4px solid var(--wood); border-radius: 18px; box-shadow: 0 20px 50px rgba(0,0,0,.45);
+  width: min(640px, 100%); max-height: min(86vh, 760px); display: flex; flex-direction: column; overflow: hidden;
+}
+.pbox header { background: var(--wood); color: #fff6e2; display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; }
+.pbox header h2 { margin: 0; font-family: 'Fredoka'; font-weight: 600; font-size: 20px; }
+.pbox header .money { font-weight: 800; color: #ffd36b; margin-left: auto; margin-right: 12px; }
+.pbox .x { background: rgba(255,255,255,.18); color: #fff; border: 0; border-radius: 10px; width: 34px; height: 34px; font-size: 18px; }
+.pbox .body { padding: 12px 14px 16px; overflow-y: auto; }
+.tabs { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.tabs button { border: 2px solid var(--wood); background: transparent; color: var(--ink); border-radius: 999px; padding: 5px 12px; font-weight: 800; }
+.tabs button.on { background: var(--wood); color: #fff6e2; }
+.list { display: flex; flex-direction: column; gap: 6px; }
+.item { display: flex; align-items: center; gap: 10px; background: var(--paper-2); border-radius: 12px; padding: 7px 10px; }
+.item .ic { font-size: 26px; width: 34px; text-align: center; position: relative; }
+.item .ic .sub { position: absolute; right: -4px; bottom: -4px; font-size: 14px; }
+.item .nm { flex: 1; min-width: 0; }
+.item .nm b { display: block; font-size: 14px; }
+.item .nm span { font-size: 12px; color: var(--ink-soft); }
+.item .act { display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end; }
+.btn { border: 0; border-radius: 10px; padding: 7px 11px; font-weight: 800; font-size: 13px; background: var(--accent); color: var(--accent-ink); white-space: nowrap; }
+.btn.alt { background: var(--wood); }
+.btn.gold { background: var(--gold); color: #3b2a1c; }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.note { font-size: 13px; color: var(--ink-soft); margin: 4px 0 10px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 520px) { .grid2 { grid-template-columns: 1fr; } }
+.card { background: var(--paper-2); border-radius: 12px; padding: 10px 12px; }
+.card h3 { margin: 0 0 6px; font-family: 'Fredoka'; font-size: 16px; }
+.card ul { margin: 0; padding-left: 18px; font-size: 13px; }
+.plus li::marker { content: '＋ '; color: var(--accent); }
+.minus li::marker { content: '－ '; color: var(--danger); }
+#mapCanvas { width: 100%; height: auto; border-radius: 12px; display: block; background: #4a6b3a; }
+
+/* balık oyunu */
+#fish { position: fixed; left: 50%; bottom: 120px; transform: translateX(-50%); width: min(360px, 86vw); z-index: 8; text-align: center; color: #fff; font-weight: 800; text-shadow: 0 1px 4px rgba(0,0,0,.6); }
+#fish .bar { position: relative; height: 22px; border-radius: 11px; background: rgba(0,0,0,.45); border: 2px solid rgba(255,255,255,.6); margin-top: 6px; overflow: hidden; }
+#fish .zone { position: absolute; top: 0; bottom: 0; background: rgba(110, 210, 90, .8); }
+#fish .cur { position: absolute; top: -2px; bottom: -2px; width: 5px; background: #ffd36b; border-radius: 3px; }
+
+#fade { position: fixed; inset: 0; background: #000; opacity: 0; pointer-events: none; transition: opacity .6s; z-index: 15; display: flex; align-items: center; justify-content: center; color: #fff; font-family: 'Fredoka'; font-size: 24px; }
+
+/* Dokunmatik */
+#touch { position: fixed; inset: 0; z-index: 4; pointer-events: none; }
+#lookArea { position: absolute; right: 0; top: 0; bottom: 0; width: 60%; pointer-events: auto; touch-action: none; }
+#joy { position: absolute; left: 22px; bottom: calc(90px + env(safe-area-inset-bottom)); width: 130px; height: 130px; border-radius: 50%; background: rgba(255,255,255,.12); border: 2px solid rgba(255,255,255,.35); pointer-events: auto; touch-action: none; }
+#joyKnob { position: absolute; left: 50%; top: 50%; width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,.55); transform: translate(-50%, -50%); }
+.tbtn { position: absolute; pointer-events: auto; touch-action: none; width: 62px; height: 62px; border-radius: 50%; background: var(--glass); border: 2px solid rgba(255,255,255,.4); color: #fff; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.05; user-select: none; }
+.tbtn.big { width: 78px; height: 78px; font-size: 15px; background: rgba(79, 143, 58, .75); }
+.tbtn.on { background: rgba(226, 169, 59, .85); }
+#tUse { right: 24px; bottom: calc(100px + env(safe-area-inset-bottom)); }
+#tAct { right: 112px; bottom: calc(150px + env(safe-area-inset-bottom)); background: rgba(122, 79, 44, .8); }
+#tJump { right: 30px; bottom: calc(190px + env(safe-area-inset-bottom)); }
+#tRun { left: 40px; bottom: calc(232px + env(safe-area-inset-bottom)); width: 54px; height: 54px; }
+#tTop { position: absolute; top: max(10px, env(safe-area-inset-top)); right: 10px; display: flex; gap: 6px; pointer-events: auto; }
+#tTop button, #dTop button { width: 44px; height: 44px; border-radius: 12px; border: 0; background: var(--glass); color: #fff; font-size: 20px; }
+#dTop { position: absolute; top: max(10px, env(safe-area-inset-top)); right: 10px; display: flex; gap: 6px; pointer-events: auto; }
+body.mobile #hotbar { bottom: max(8px, env(safe-area-inset-bottom)); }
+body.mobile .slot { width: 46px; height: 46px; font-size: 20px; }
+body.mobile #toasts { top: 112px; left: 10px; align-items: stretch; }
+body.mobile #info { min-width: 150px; font-size: 12px; padding: 6px 10px; }
+body.mobile #info .time { font-size: 17px; }
+body.mobile #compass { top: auto; bottom: calc(66px + env(safe-area-inset-bottom)); }
+body.mobile #prompt { top: calc(50% + 18px); }
+
+/* Başlangıç */
+#start {
+  position: fixed; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; padding: 16px;
+  background: radial-gradient(ellipse at 50% 20%, rgba(255, 220, 150, .35), transparent 60%), linear-gradient(180deg, rgba(40, 70, 90, .55), rgba(30, 20, 10, .85));
+}
+#start .box { background: var(--paper); border: 5px solid var(--wood); border-radius: 22px; padding: 22px; width: min(560px, 100%); box-shadow: 0 30px 70px rgba(0,0,0,.5); text-align: center; max-height: 92vh; overflow: auto; }
+#start h1 { font-family: 'Fredoka'; font-weight: 700; font-size: clamp(34px, 8vw, 52px); margin: 0; color: var(--wood); letter-spacing: 1px; }
+#start .sub { color: var(--ink-soft); margin: 4px 0 16px; font-weight: 700; }
+#start .btns { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+#start .btns .btn { font-size: 17px; padding: 12px; }
+#start .keys { text-align: left; font-size: 13px; background: var(--paper-2); border-radius: 12px; padding: 10px 14px; color: var(--ink); }
+#start .keys b { color: var(--wood); }
+#loading { margin-top: 10px; font-weight: 800; color: var(--accent); }
+#pauseNote { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); background: var(--glass); color: #fff; padding: 12px 18px; border-radius: 12px; font-weight: 800; z-index: 6; pointer-events: none; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="touch" class="hidden">
+  <div id="lookArea"></div>
+  <div id="joy"><div id="joyKnob"></div></div>
+  <div class="tbtn big" id="tUse" data-act="use">Kullan</div>
+  <div class="tbtn" id="tAct" data-act="interact">Etkileş</div>
+  <div class="tbtn" id="tJump" data-act="jump">Zıpla</div>
+  <div class="tbtn" id="tRun" data-act="run">Koş</div>
+  <div id="tTop">
+    <button data-act="bag" aria-label="Çanta">🎒</button>
+    <button data-act="map" aria-label="Harita">🗺️</button>
+    <button data-act="help" aria-label="Yardım">❔</button>
+  </div>
+</div>
+
+<div id="hud" class="hidden">
+  <div id="info">
+    <div class="row"><span class="date" id="hDate"></span></div>
+    <div class="row"><span class="time" id="hTime"></span><span id="hWeather"></span><span class="money" id="hMoney"></span></div>
+    <div id="energy"><i id="hEnergy"></i></div>
+    <div id="place"></div>
+  </div>
+  <div id="compass"><div class="strip" id="cStrip"></div></div>
+  <div id="dTop">
+    <button data-act="bag" title="Çanta (I)">🎒</button>
+    <button data-act="map" title="Harita (M)">🗺️</button>
+    <button data-act="help" title="Yardım (H)">❔</button>
+  </div>
+  <div id="crosshair"></div>
+  <div id="prompt" class="hidden"></div>
+  <div id="toolHint" class="hidden"></div>
+  <div id="vehHint" class="hidden"></div>
+  <div id="hotbar"></div>
+  <div id="toasts"></div>
+  <div id="discover"><span>Keşfedildi</span><b id="discName"></b></div>
+</div>
+
+<div id="fish" class="hidden"><div id="fishText">Bekle…</div><div class="bar"><div class="zone" id="fishZone"></div><div class="cur" id="fishCur"></div></div></div>
+<div id="panel" class="hidden"><div class="pbox"><header><h2 id="pTitle"></h2><span class="money" id="pMoney"></span><button class="x" id="pClose" aria-label="Kapat">✕</button></header><div class="body" id="pBody"></div></div></div>
+<div id="fade"></div>
+<div id="pauseNote" class="hidden">Devam etmek için tıkla</div>
+
+<div id="start">
+  <div class="box">
+    <h1>Köy Hayatı</h1>
+    <div class="sub">Dağların eteğinde, kendi çiftliğinde tek başına bir hayat</div>
+    <div class="btns">
+      <button class="btn" id="bContinue">Devam Et</button>
+      <button class="btn gold" id="bNew">Yeni Hayata Başla</button>
+    </div>
+    <div class="keys" id="keysHelp">
+      <div><b>W A S D</b> yürü · <b>Shift</b> koş · <b>Boşluk</b> zıpla</div>
+      <div><b>Fare</b> etrafa bak · <b>Sol tık</b> aleti kullan</div>
+      <div><b>E</b> etkileşim / araca bin-in · <b>1–6</b> alet seç</div>
+      <div><b>Q</b> tohum değiştir · <b>I</b> çanta · <b>M</b> harita · <b>R</b> bir şey ye</div>
+    </div>
+    <div id="loading">Dünya hazırlanıyor…</div>
+  </div>
+</div>
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
