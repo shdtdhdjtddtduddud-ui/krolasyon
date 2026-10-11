@@ -50,7 +50,7 @@ public final class AutoTest {
     }
 
     private AutoTest() {
-        cmd(0, null, "gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false", "gamerule mobGriefing false",
+        cmd(0, null, "gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false", "gamerule mobGriefing false", "gamerule doMobLoot false",
                 "time set 1000", "weather clear", "difficulty normal", "gamemode creative @a", "tp @a 0 -60 0 180 8", "kill @e[type=!player]");
         server(5, null, s -> { OmniData d = OmniCapability.get(player(s)); d.wearing = true; com.krolasyon.omnitrix.net.Net.sync(player(s)); });
         client(4, null, () -> Minecraft.getInstance().options.setCameraType(CameraType.THIRD_PERSON_FRONT));

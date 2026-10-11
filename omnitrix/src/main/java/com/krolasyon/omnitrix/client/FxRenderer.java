@@ -94,7 +94,8 @@ public final class FxRenderer {
                             owner.getZ() + (r.nextDouble() - 0.5) * 0.4, (r.nextDouble() - 0.5) * 0.05, -0.2, (r.nextDouble() - 0.5) * 0.05);
                 }
                 case TRANSFORM -> {
-                    if (owner == null) break;
+                    // in first person the swirl would sit right on the lens as big green blobs
+                    if (owner == null || (owner == mc.getCameraEntity() && mc.options.getCameraType().isFirstPerson())) break;
                     for (int i = 0; i < 3; i++) {
                         double ang = r.nextDouble() * Math.PI * 2;
                         mc.level.addParticle(ModRegistry.OMNI.get(), owner.getX() + Math.cos(ang) * 0.8, owner.getY() + r.nextDouble() * 2, owner.getZ() + Math.sin(ang) * 0.8,
@@ -359,7 +360,7 @@ public final class FxRenderer {
             }
             case TERROR -> {
                 float r = e.param * (1 - (1 - t) * (1 - t));
-                if (pass == 1) Geo.sphere(soft, m, e.a.add(0, 1, 0), r, r * 0.6, r, 0x050008, fade * 0.35F, 8, 16);
+                if (pass == 1) Geo.sphere(soft, m, e.a.add(0, 1, 0), r, r * 0.6, r, 0x2A0838, fade * 0.16F, 12, 32);
                 else if (pass == 2) Geo.ribbon(glow, m, c.cam, Geo.flatCircle(e.a.add(0, 0.2, 0), r, 40, age * 0.1), 0.15F, 0xFF40C0, fade * 0.7F, false);
                 else Geo.sprite(c.buf.getBuffer(OmniRenderTypes.sprite(ECTO_TEX)), m, e.a.add(0, 1.6, 0), c.right, c.up, 1.2F, age * 0.1F, 1, 0.6F, 0.9F, fade);
             }
