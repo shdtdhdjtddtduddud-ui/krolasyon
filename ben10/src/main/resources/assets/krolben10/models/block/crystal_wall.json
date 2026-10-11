@@ -1,0 +1,1 @@
+{ "parent": "minecraft:block/cube_all", "render_type": "minecraft:translucent", "textures": { "all": "krolben10:block/crystal_wall" } }

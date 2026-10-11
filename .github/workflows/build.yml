@@ -1,6 +1,9 @@
 name: Build mod jar
 on:
   push:
+    paths-ignore:
+      - 'ben10/**'
+      - '.github/workflows/ben10-build.yml'
   workflow_dispatch:
 permissions:
   contents: write
