@@ -4,6 +4,7 @@ import com.krolasyon.omnitrix.Ability;
 import com.krolasyon.omnitrix.Alien;
 import com.krolasyon.omnitrix.ModRegistry;
 import com.krolasyon.omnitrix.net.Net;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Axis;
@@ -63,11 +64,20 @@ public class OmnitrixScreen extends Screen {
             line(g, x0, y0, x1, y1, i % 5 == 0 ? 0xC060FF60 : 0x6040FF40);
         }
         // hologram dial texture (Higgsfield)
+        // the texture has a black background: add it on top instead of alpha blending it
+        g.flush();
         RenderSystem.enableBlend();
-        RenderSystem.setShaderColor(1, 1, 1, 0.55F * pop);
+        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE);
+        RenderSystem.setShaderColor(1, 1, 1, 0.6F * pop);
         int ds = (int) (r * 1.1F);
-        g.blit(FxRenderer.DIAL, cx - ds, cy - ds, ds * 2, ds * 2, 0, 0, 128, 128, 128, 128);
+        g.pose().pushPose();
+        g.pose().translate(cx, cy, 0);
+        g.pose().mulPose(Axis.ZP.rotationDegrees(time * 0.6F));
+        g.blit(FxRenderer.DIAL, -ds, -ds, ds * 2, ds * 2, 0, 0, 128, 128, 128, 128);
+        g.pose().popPose();
+        g.flush();
         RenderSystem.setShaderColor(1, 1, 1, 1);
+        RenderSystem.defaultBlendFunc();
         // the 3d watch at the bottom of the hologram
         // mouse selection
         if (confirmAt < 0) {

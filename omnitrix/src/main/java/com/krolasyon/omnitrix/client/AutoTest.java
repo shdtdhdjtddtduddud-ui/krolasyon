@@ -13,6 +13,8 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelSettings;
@@ -90,6 +92,7 @@ public final class AutoTest {
         for (int i = 0; i < 4; i++) {
             mobs();
             wait(12, null);
+            sideCamera(true);
             ability(i);
             int[] at = switch (a.ability(i).duration) {
                 default -> new int[]{Math.max(4, a.ability(i).duration / 2), a.ability(i).duration + 6};
@@ -97,6 +100,7 @@ public final class AutoTest {
             wait(at[0], a.id + "_ab" + i + "_a");
             wait(at[1] - at[0], a.id + "_ab" + i + "_b");
             wait(10, null);
+            sideCamera(false);
         }
         server(2, null, s -> Powers.setBlocking(player(s), true));
         client(2, null, () -> Minecraft.getInstance().options.setCameraType(CameraType.THIRD_PERSON_FRONT));
@@ -127,11 +131,33 @@ public final class AutoTest {
 
     private void mobs() {
         cmd(4, null, "kill @e[type=!player]", "tp @a 0 -60 0 180 8",
-                "summon minecraft:zombie 0 -60 -6 {PersistenceRequired:1b,Rotation:[0f,0f]}",
-                "summon minecraft:zombie -3 -60 -8 {PersistenceRequired:1b,Rotation:[0f,0f]}",
+                "summon minecraft:zombie 0 -60 -6 {PersistenceRequired:1b,ArmorItems:[{},{},{},{id:\"minecraft:leather_helmet\",Count:1b}],Rotation:[0f,0f]}",
+                "summon minecraft:zombie -3 -60 -8 {PersistenceRequired:1b,ArmorItems:[{},{},{},{id:\"minecraft:leather_helmet\",Count:1b}],Rotation:[0f,0f]}",
                 "summon minecraft:husk 3 -60 -8 {PersistenceRequired:1b,Rotation:[0f,0f]}",
-                "summon minecraft:skeleton -1 -60 -11 {PersistenceRequired:1b,Rotation:[0f,0f]}",
-                "summon minecraft:spider 2 -60 -12 {PersistenceRequired:1b,Rotation:[0f,0f]}");
+                "summon minecraft:skeleton -1 -60 -11 {PersistenceRequired:1b,ArmorItems:[{},{},{},{id:\"minecraft:leather_helmet\",Count:1b}],Rotation:[0f,0f]}",
+                "summon minecraft:spider 2 -60 -12 {PersistenceRequired:1b,Rotation:[0f,0f]}",
+                "summon minecraft:armor_stand 11 -57.4 -4 {Invisible:1b,NoGravity:1b,Marker:1b,Rotation:[101f,13f]}");
+    }
+
+    /** ability shots are taken from the side: from behind, the player hides everything that flies along the look line */
+    private void sideCamera(boolean on) {
+        client(1, null, () -> {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.level == null || mc.player == null) return;
+            if (!on) {
+                mc.setCameraEntity(mc.player);
+                mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
+                return;
+            }
+            for (Entity e : mc.level.entitiesForRendering()) {
+                if (e instanceof ArmorStand) {
+                    mc.setCameraEntity(e);
+                    mc.options.setCameraType(CameraType.FIRST_PERSON);
+                    return;
+                }
+            }
+            LOG.warn("[AUTOTEST] no side camera entity");
+        });
     }
 
     private static ServerPlayer player(MinecraftServer s) { return s.getPlayerList().getPlayers().get(0); }

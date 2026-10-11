@@ -155,6 +155,7 @@ public final class ClientEvents {
         public static void renderHand(RenderHandEvent e) {
             Minecraft mc = Minecraft.getInstance();
             if (mc.player == null) return;
+            if (mc.getCameraEntity() != mc.player) { e.setCanceled(true); return; }
             ClientState.Look look = ClientState.look(mc.player);
             Alien a = look.alien();
             if (a == null) return;

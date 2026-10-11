@@ -220,7 +220,8 @@ public final class FxRenderer {
                 boolean speed = e.type == Fx.Type.SPEED_VORTEX;
                 Vec3 base = speed ? e.a : e.a.add(e.b.subtract(e.a).scale(t));
                 int colA = speed ? 0x3FD9F0 : 0xE8FFF0, colB = speed ? 0x10303A : 0xA8C890;
-                if (pass == 0 && !speed) {
+                if (pass == 0) {
+                    if (speed) return;
                     VertexConsumer vc = c.buf.getBuffer(OmniRenderTypes.sprite(WIND));
                     for (int k = 0; k < 4; k++) Geo.sprite(vc, m, base.add(0, 0.6 + k * 1.1, 0), c.right, c.up, 0.8F + k * 0.35F, -age * 0.5F + k, 1, 1, 1, fade * 0.7F);
                     return;
