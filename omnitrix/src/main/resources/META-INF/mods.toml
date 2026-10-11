@@ -1,0 +1,30 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="omnitrix"
+version="1.0.0"
+displayName="Omnitrix (Ben 10)"
+authors="krolasyon"
+logoFile="logo.png"
+description='''
+Omnitrix'i bileğine tak, Y ile kadranı aç ve 9 uzaylıya dönüş: Heatblast, Terraspin, Diamondhead, Goop, XLR8,
+Four Arms, Big Chill, Ultimate Echo Echo, Ghostfreak. Her birinin 4 özel yeteneği (Z X C V), bloklaması (Sol Alt)
+ve pasif özellikleri vardır. Modeller Higgsfield 3D ile üretildi.
+Fan yapımıdır; Ben 10 Cartoon Network'e aittir.
+'''
+
+[[dependencies.omnitrix]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.omnitrix]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"

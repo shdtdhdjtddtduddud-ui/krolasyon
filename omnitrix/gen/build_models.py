@@ -84,6 +84,10 @@ PALETTE = np.array([[230, 25, 75], [60, 180, 75], [255, 225, 25], [0, 130, 200],
 
 if __name__ == '__main__':
     preview = sys.argv[1] if len(sys.argv) > 1 else None
+    # the watch: a single rigid bone
+    v, f, uv, tex = meshlib.load('omnitrix')
+    write('omnitrix', v, f, uv, tex.resize((512, 512)), {'root': (None, (0, 0.5, 0), (0, 0.6, 0), {}), 'pad': ('root', (0, 0.6, 0), (0, 0.61, 0), {'ymin': 99})})
+    print('omnitrix watch', len(v), 'verts')
     rows = []
     for name, rig in RIGS.items():
         v, f, uv, tex = meshlib.load(name)

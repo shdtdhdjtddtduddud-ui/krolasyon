@@ -1,0 +1,170 @@
+{
+ "activate": {
+  "subtitle": "subtitles.omnitrix.activate",
+  "sounds": [
+   "omnitrix:activate"
+  ]
+ },
+ "dial": {
+  "subtitle": "subtitles.omnitrix.dial",
+  "sounds": [
+   "omnitrix:dial"
+  ]
+ },
+ "select": {
+  "subtitle": "subtitles.omnitrix.select",
+  "sounds": [
+   "omnitrix:select"
+  ]
+ },
+ "transform": {
+  "subtitle": "subtitles.omnitrix.transform",
+  "sounds": [
+   "omnitrix:transform"
+  ]
+ },
+ "revert": {
+  "subtitle": "subtitles.omnitrix.revert",
+  "sounds": [
+   "omnitrix:revert"
+  ]
+ },
+ "timeout": {
+  "subtitle": "subtitles.omnitrix.timeout",
+  "sounds": [
+   "omnitrix:timeout"
+  ]
+ },
+ "beep": {
+  "subtitle": "subtitles.omnitrix.beep",
+  "sounds": [
+   "omnitrix:beep"
+  ]
+ },
+ "fire_shot": {
+  "subtitle": "subtitles.omnitrix.fire_shot",
+  "sounds": [
+   "omnitrix:fire_shot"
+  ]
+ },
+ "flame": {
+  "subtitle": "subtitles.omnitrix.flame",
+  "sounds": [
+   "omnitrix:flame"
+  ]
+ },
+ "supernova": {
+  "subtitle": "subtitles.omnitrix.supernova",
+  "sounds": [
+   "omnitrix:supernova"
+  ]
+ },
+ "jet": {
+  "subtitle": "subtitles.omnitrix.jet",
+  "sounds": [
+   "omnitrix:jet"
+  ]
+ },
+ "wind": {
+  "subtitle": "subtitles.omnitrix.wind",
+  "sounds": [
+   "omnitrix:wind"
+  ]
+ },
+ "tornado": {
+  "subtitle": "subtitles.omnitrix.tornado",
+  "sounds": [
+   "omnitrix:tornado"
+  ]
+ },
+ "crystal": {
+  "subtitle": "subtitles.omnitrix.crystal",
+  "sounds": [
+   "omnitrix:crystal"
+  ]
+ },
+ "shatter": {
+  "subtitle": "subtitles.omnitrix.shatter",
+  "sounds": [
+   "omnitrix:shatter"
+  ]
+ },
+ "slime_shot": {
+  "subtitle": "subtitles.omnitrix.slime_shot",
+  "sounds": [
+   "omnitrix:slime_shot"
+  ]
+ },
+ "splat": {
+  "subtitle": "subtitles.omnitrix.splat",
+  "sounds": [
+   "omnitrix:splat"
+  ]
+ },
+ "zoom": {
+  "subtitle": "subtitles.omnitrix.zoom",
+  "sounds": [
+   "omnitrix:zoom"
+  ]
+ },
+ "clap": {
+  "subtitle": "subtitles.omnitrix.clap",
+  "sounds": [
+   "omnitrix:clap"
+  ]
+ },
+ "slam": {
+  "subtitle": "subtitles.omnitrix.slam",
+  "sounds": [
+   "omnitrix:slam"
+  ]
+ },
+ "punch": {
+  "subtitle": "subtitles.omnitrix.punch",
+  "sounds": [
+   "omnitrix:punch"
+  ]
+ },
+ "freeze": {
+  "subtitle": "subtitles.omnitrix.freeze",
+  "sounds": [
+   "omnitrix:freeze"
+  ]
+ },
+ "phase": {
+  "subtitle": "subtitles.omnitrix.phase",
+  "sounds": [
+   "omnitrix:phase"
+  ]
+ },
+ "sonic": {
+  "subtitle": "subtitles.omnitrix.sonic",
+  "sounds": [
+   "omnitrix:sonic"
+  ]
+ },
+ "scream": {
+  "subtitle": "subtitles.omnitrix.scream",
+  "sounds": [
+   "omnitrix:scream"
+  ]
+ },
+ "ghost": {
+  "subtitle": "subtitles.omnitrix.ghost",
+  "sounds": [
+   "omnitrix:ghost"
+  ]
+ },
+ "terror": {
+  "subtitle": "subtitles.omnitrix.terror",
+  "sounds": [
+   "omnitrix:terror"
+  ]
+ },
+ "block": {
+  "subtitle": "subtitles.omnitrix.block",
+  "sounds": [
+   "omnitrix:block"
+  ]
+ }
+}
