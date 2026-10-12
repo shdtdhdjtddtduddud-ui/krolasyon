@@ -304,11 +304,11 @@ public final class Fx {
         } else if (s.getFluidState().is(Fluids.WATER) && s.getFluidState().isSource() && strong) {
             l.setBlockAndUpdate(bp, Blocks.AIR.defaultBlockState());
             l.sendParticles(ParticleTypes.CLOUD, bp.getX() + 0.5, bp.getY() + 0.8, bp.getZ() + 0.5, 3, 0.3, 0.1, 0.3, 0.02);
-        } else if (s.is(Blocks.GRASS) || s.is(Blocks.TALL_GRASS) || s.is(BlockTags.LEAVES)) {
+        } else if ((s.is(Blocks.GRASS) || s.is(Blocks.TALL_GRASS) || s.is(BlockTags.LEAVES)) && l.random.nextFloat() < 0.4F) {
             l.setBlockAndUpdate(bp, BaseFireBlock.getState(l, bp));
         } else if (s.isAir()) {
             BlockPos below = bp.below();
-            if (l.getBlockState(below).isFaceSturdy(l, below, net.minecraft.core.Direction.UP) && l.random.nextFloat() < (strong ? 0.5F : 0.25F)) {
+            if (l.getBlockState(below).isFaceSturdy(l, below, net.minecraft.core.Direction.UP) && l.random.nextFloat() < (strong ? 0.1F : 0.12F)) {
                 l.setBlockAndUpdate(bp, BaseFireBlock.getState(l, bp));
             }
         }

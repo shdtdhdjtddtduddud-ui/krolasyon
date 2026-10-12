@@ -60,6 +60,9 @@ public final class AutoTest {
                 "fill -6 -61 10 6 -61 14 minecraft:sand", "fill 3 -60 4 5 -58 4 minecraft:glass", "fill -5 -61 9 -2 -61 9 minecraft:water");
         client(10, "human_front", () -> cam(0));
         for (Alien a : Alien.values()) {
+            cmd(2, null, "fill -20 -61 -20 20 -50 30 air replace minecraft:fire", "fill -20 -61 -20 20 -50 30 air replace minecraft:snow",
+                    "fill -20 -61 -20 20 -50 30 air replace krolben10:frost_ice", "fill -20 -61 -20 20 -50 30 air replace krolben10:crystal_wall",
+                    "kill @e[type=minecraft:item]", "kill @e[type=krolben10:fx]", "kill @e[type=krolben10:alien_projectile]", "kill @e[type=krolben10:debris]");
             server(4, null, s -> {
                 ServerPlayer p = sp(s);
                 p.teleportTo(0.5, -60, 0.5);
@@ -78,6 +81,7 @@ public final class AutoTest {
             wait(4, a.id + "_side");
             for (int i = 0; i < 4; i++) {
                 final int slot = i;
+                cmd(1, null, "fill -20 -61 -20 20 -50 30 air replace minecraft:fire", "kill @e[type=minecraft:item]");
                 int dur = a.durations[i];
                 server(1, null, s -> {
                     ServerPlayer p = sp(s);

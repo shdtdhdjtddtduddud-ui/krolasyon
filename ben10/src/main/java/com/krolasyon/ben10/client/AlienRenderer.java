@@ -80,7 +80,7 @@ public final class AlienRenderer {
             r = 1 - 0.6F * k;
             b = 1 - 0.7F * k;
         }
-        RenderType main = alpha < 1F ? RenderType.entityTranslucent(tex(a)) : RenderType.entityCutoutNoCull(tex(a));
+        RenderType main = alpha < 1F || a == Alien.GOOP || a == Alien.GHOSTFREAK ? RenderType.entityTranslucent(tex(a)) : RenderType.entityCutoutNoCull(tex(a));
         VertexConsumer vc = buf.getBuffer(main);
         m.renderToBuffer(ps, vc, light, overlay, r, g, b, alpha);
         VertexConsumer gl = buf.getBuffer(RenderType.eyes(glow(a)));
