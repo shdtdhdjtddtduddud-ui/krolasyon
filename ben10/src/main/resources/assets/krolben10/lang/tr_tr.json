@@ -17,6 +17,7 @@
   "key.krolben10.ability4": "Yetenek 4",
   "msg.krolben10.recharging": "Omnitrix şarj oluyor... %ss",
   "msg.krolben10.timeout": "Omnitrix süresi doldu!",
+  "msg.krolben10.notarget": "Yakında hedef yok!",
   "hud.krolben10.recharging": "Şarj oluyor",
   "gui.krolben10.dial": "Omnitrix",
   "gui.krolben10.hint": "Kaydır / tıkla: seç  -  Tekrar tıkla veya Enter: DÖNÜŞ!",

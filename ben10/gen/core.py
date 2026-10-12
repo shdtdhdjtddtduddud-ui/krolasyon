@@ -247,7 +247,13 @@ def render(model, tex, pose=None, yaw=0.0, pitch=0.0, size=600, bg=(60, 64, 70),
     P = np.array([[1, 0, 0], [0, math.cos(pa), -math.sin(pa)], [0, math.sin(pa), math.cos(pa)]])
     # camera looks from -z toward +z (sees front). screen x = -model x (model -x on viewer left)
     quads = []
+    hidden = set(getattr(model, 'hidden', ()))
     for name in model.order:
+        if model.bones[name].parent in hidden:
+            hidden.add(name)
+    for name in model.order:
+        if name in hidden:
+            continue
         b = model.bones[name]
         M = mats[name]
         for c in b.cubes:

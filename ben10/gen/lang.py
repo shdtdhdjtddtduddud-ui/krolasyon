@@ -59,6 +59,7 @@ def build(tr):
         L[f'key.krolben10.ability{i + 1}'] = (f'Yetenek {i + 1}' if tr else f'Ability {i + 1}')
     L['msg.krolben10.recharging'] = 'Omnitrix şarj oluyor... %ss' if tr else 'Omnitrix recharging... %ss'
     L['msg.krolben10.timeout'] = 'Omnitrix süresi doldu!' if tr else 'The Omnitrix timed out!'
+    L['msg.krolben10.notarget'] = 'Yakında hedef yok!' if tr else 'No target nearby!'
     L['hud.krolben10.recharging'] = 'Şarj oluyor' if tr else 'Recharging'
     L['gui.krolben10.dial'] = 'Omnitrix'
     L['gui.krolben10.hint'] = ('Kaydır / tıkla: seç  -  Tekrar tıkla veya Enter: DÖNÜŞ!' if tr else 'Scroll / click: select  -  click again or Enter: TRANSFORM!')

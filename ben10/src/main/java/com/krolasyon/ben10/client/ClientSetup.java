@@ -124,6 +124,11 @@ public final class ClientSetup {
             OmniData d = OmniData.get(p);
             if (d.alien == null) return;
             e.setCanceled(true);
+            if (d.alien.has(com.krolasyon.ben10.Alien.Flag.FIRE_IMMUNE)) {
+                // Heatblast is made of fire: never draw the vanilla "burning" overlay on him
+                p.clearFire();
+                p.setSharedFlagOnFire(false);
+            }
             AlienRenderer.render(p, d, e.getPartialTick(), e.getPoseStack(), e.getMultiBufferSource(), e.getPackedLight());
         }
 
@@ -133,6 +138,13 @@ public final class ClientSetup {
             if (d.alien == null) return;
             e.setCanceled(true);
             AlienRenderer.renderArm(e.getPlayer(), d, e.getArm(), e.getPoseStack(), e.getMultiBufferSource(), e.getPackedLight());
+        }
+
+        @SubscribeEvent
+        public static void screenFire(net.minecraftforge.client.event.RenderBlockScreenEffectEvent e) {
+            if (e.getOverlayType() != net.minecraftforge.client.event.RenderBlockScreenEffectEvent.OverlayType.FIRE) return;
+            OmniData d = OmniData.get(e.getPlayer());
+            if (d.alien != null && d.alien.has(com.krolasyon.ben10.Alien.Flag.FIRE_IMMUNE)) e.setCanceled(true);
         }
 
         @SubscribeEvent

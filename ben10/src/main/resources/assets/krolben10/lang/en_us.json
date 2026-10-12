@@ -17,6 +17,7 @@
   "key.krolben10.ability4": "Ability 4",
   "msg.krolben10.recharging": "Omnitrix recharging... %ss",
   "msg.krolben10.timeout": "The Omnitrix timed out!",
+  "msg.krolben10.notarget": "No target nearby!",
   "hud.krolben10.recharging": "Recharging",
   "gui.krolben10.dial": "Omnitrix",
   "gui.krolben10.hint": "Scroll / click: select  -  click again or Enter: TRANSFORM!",

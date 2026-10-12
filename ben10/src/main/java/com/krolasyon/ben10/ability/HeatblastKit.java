@@ -154,8 +154,8 @@ public class HeatblastKit extends Kit {
         }
         if (p.tickCount % 10 == 0) {
             BlockPos feet = p.blockPosition();
-            Fx.heat(l, feet, false);
-            if (l.getBlockState(feet.below()).is(net.minecraft.world.level.block.Blocks.ICE)) Fx.heat(l, feet.below(), false);
+            Fx.melt(l, feet);
+            Fx.melt(l, feet.below());
         }
         if (p.isInWaterRainOrBubble()) {
             if (p.tickCount % 4 == 0) l.sendParticles(ParticleTypes.CLOUD, p.getX(), p.getY() + 1, p.getZ(), 3, 0.3, 0.6, 0.3, 0.02);

@@ -13,6 +13,7 @@ ts = [float(x) for x in sys.argv[3:]] or [0]
 yaws = (0, 35, 90, 180)
 S = 420
 fit = getattr(mod, 'FIT', 80)
+mod.M.hidden = [n for n in mod.M.order if n in ('shield', 'disc_wall', 'chest_eye', 'blade') or (n == 'ball' and 'stand' in mod.M.bones and os.environ.get('BALL') is None) or (n == 'stand' and os.environ.get('BALL'))]
 ref = Image.open(os.path.join(os.path.dirname(__file__), 'ref', getattr(mod, 'REF', name) + '.jpg')).convert('RGB')
 ref.thumbnail((S, S))
 out = Image.new('RGB', (S * (len(yaws) + 1), S * len(ts)), (60, 64, 70))

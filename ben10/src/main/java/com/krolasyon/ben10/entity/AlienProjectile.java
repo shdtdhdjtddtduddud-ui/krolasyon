@@ -85,6 +85,12 @@ public class AlienProjectile extends ThrowableProjectile {
 
     public float scale() { return entityData.get(SCALE); }
 
+    /** freeze in mid-air as a planted disc */
+    public void plant() {
+        setDeltaMovement(Vec3.ZERO);
+        entityData.set(STUCK, -1);
+    }
+
     public void setScale(float s) { entityData.set(SCALE, s); }
 
     /** -2 flying, -1 stuck in a block, >= 0 stuck to an entity id */

@@ -54,10 +54,10 @@ public final class AutoTest {
     private static final String TARGETS = "summon minecraft:husk 0 -60 7 {NoAI:1b,PersistenceRequired:1b,Silent:1b,Health:1000f,Attributes:[{Name:\"generic.max_health\",Base:1000d}],Rotation:[180f,0f]}";
 
     private AutoTest() {
-        cmd(0, null, "gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false",
+        cmd(0, null, "gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false", "gamerule doFireTick false",
                 "time set 6000", "weather clear", "difficulty normal", "gamemode creative @a", "tp @a 0 -60 0 0 0",
-                "kill @e[type=!player]", "give @a krolben10:omnitrix", "summon minecraft:armor_stand -8 -59.4 4 {Invisible:1b,NoGravity:1b,Marker:1b,Tags:[\"cam\"],Rotation:[-90f,8f]}",
-                "fill -6 -61 10 6 -61 14 minecraft:sand", "fill 3 -60 4 5 -58 4 minecraft:glass", "fill -5 -60 9 -2 -59 9 minecraft:water");
+                "kill @e[type=!player]", "give @a krolben10:omnitrix", "summon minecraft:armor_stand -6.5 -58.9 3.2 {Invisible:1b,NoGravity:1b,Marker:1b,Tags:[\"cam\"],Rotation:[-90f,10f]}",
+                "fill -6 -61 10 6 -61 14 minecraft:sand", "fill 3 -60 4 5 -58 4 minecraft:glass", "fill -5 -61 9 -2 -61 9 minecraft:water");
         client(10, "human_front", () -> cam(0));
         for (Alien a : Alien.values()) {
             server(4, null, s -> {

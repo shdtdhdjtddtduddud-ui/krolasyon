@@ -314,6 +314,14 @@ public final class Fx {
         }
     }
 
+    /** gentle body heat: only melts snow and ice (never ignites) */
+    public static void melt(ServerLevel l, BlockPos bp) {
+        if (!grief()) return;
+        BlockState s = l.getBlockState(bp);
+        if (s.is(Blocks.ICE) || s.is(Blocks.FROSTED_ICE) || s.is(ModRegistry.FROST.get())) l.setBlockAndUpdate(bp, Blocks.WATER.defaultBlockState());
+        else if (s.is(Blocks.SNOW) || s.is(Blocks.POWDER_SNOW)) l.removeBlock(bp, false);
+    }
+
     /** Big Chill frost: freeze water, lava -> obsidian, extinguish fire, place snow */
     public static void frost(ServerLevel l, BlockPos bp, boolean snow) {
         if (!grief()) return;

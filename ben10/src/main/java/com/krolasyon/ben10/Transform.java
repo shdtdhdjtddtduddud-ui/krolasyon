@@ -85,7 +85,7 @@ public final class Transform {
         p.refreshDimensions();
         // green Omnitrix flash
         Fx.sound(p.serverLevel(), p.position(), ModRegistry.S_TRANSFORM.get(), 1.2F, 1.0F);
-        Fx.particles(p.serverLevel(), new DustParticleOptions(new Vector3f(0.35F, 1F, 0.2F), 2.2F), p.getX(), p.getY() + a.height / 2, p.getZ(), 80, a.width, a.height / 2, a.width, 0.02);
+        Fx.particles(p.serverLevel(), new DustParticleOptions(new Vector3f(0.35F, 1F, 0.2F), 1.3F), p.getX(), p.getY() + a.height / 2, p.getZ(), 50, a.width, a.height / 2, a.width, 0.02);
         Fx.particles(p.serverLevel(), ParticleTypes.END_ROD, p.getX(), p.getY() + a.height / 2, p.getZ(), 30, 0.4, a.height / 2, 0.4, 0.15);
         FxEntity.spawn(p.serverLevel(), p.position().add(0, a.height / 2, 0), FxEntity.FLASH, 14, 3.0F, 0x55FF33, p);
         Net.sync(p);
@@ -185,7 +185,7 @@ public final class Transform {
         add(p, Attributes.ARMOR, ARMOR, a.armor, AttributeModifier.Operation.ADDITION);
         add(p, Attributes.ARMOR_TOUGHNESS, TOUGH, a.armor / 3.0, AttributeModifier.Operation.ADDITION);
         add(p, Attributes.KNOCKBACK_RESISTANCE, KNOCK, a.knockbackRes, AttributeModifier.Operation.ADDITION);
-        add(p, ForgeMod.STEP_HEIGHT_ADDITION.get(), STEP, a.height > 2.05F || a == Alien.XLR8 ? 0.6 : 0.0, AttributeModifier.Operation.ADDITION);
+        add(p, ForgeMod.STEP_HEIGHT_ADDITION.get(), STEP, a.height > 2.05F || a == Alien.XLR8 || a == Alien.CANNONBOLT ? 0.6 : 0.0, AttributeModifier.Operation.ADDITION);
         add(p, ForgeMod.ENTITY_REACH.get(), REACH, a.height > 2.05F ? 1.0 : 0.0, AttributeModifier.Operation.ADDITION);
         add(p, ForgeMod.SWIM_SPEED.get(), SWIM, a == Alien.XLR8 ? 1.0 : 0.0, AttributeModifier.Operation.MULTIPLY_TOTAL);
     }
