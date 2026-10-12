@@ -202,7 +202,7 @@ UPP = {'right_arm': (-170, 0, -15), 'left_arm': (-170, 0, 15), 'right_fore': (-1
 a = Anim('storm', 2.5)
 pose_seq(a, [(0, {}), (0.4, UPP), (1.2, {**UPP, 'body': (-18, 0, 0)}), (2.2, UPP), (2.5, {})], B)
 A['ab4'] = a
-G = {'right_arm': (-80, 0, -25), 'right_fore': (-55, 25, 0), 'left_arm': (15, 0, -10), 'body': (6, -10, 0)}
+G = {'right_arm': (-60, -28, 0), 'right_fore': (-70, 0, 0), 'left_arm': (-30, 20, 0), 'left_fore': (-40, 0, 0), 'body': (6, 10, 0)}
 a = Anim('block', 1.0, loop=True)
 pose_seq(a, [(0, G), (1.0, G)], B)
 A['block'] = a

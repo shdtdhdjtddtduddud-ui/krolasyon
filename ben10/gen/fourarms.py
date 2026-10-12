@@ -252,8 +252,8 @@ THROW = {'right_arm': (-60, 0, 10), 'left_arm': (-60, 0, -10), 'right_arm2': (-4
 a = Anim('grab', 2.0)
 pose_seq(a, [(0, {}), (0.22, REACH), (0.3, REACH), (0.8, HOLD), (1.35, HOLD), (1.5, {**HOLD, 'body': (-25, 0, 0)}), (1.62, THROW), (1.8, THROW), (2.0, {})], B)
 A['ab4'] = a
-GUARD = {'right_arm': (-100, 0, -42), 'left_arm': (-100, 0, 42), 'right_fore': (-55, 0, 0), 'left_fore': (-55, 0, 0),
-         'right_arm2': (-75, 0, -40), 'left_arm2': (-75, 0, 40), 'right_fore2': (-45, 0, 0), 'left_fore2': (-45, 0, 0), 'body': (12, 0, 0),
+GUARD = {'right_arm': (-75, -38, 10), 'left_arm': (-75, 38, -10), 'right_fore': (-75, 0, 0), 'left_fore': (-75, 0, 0),
+         'right_arm2': (-45, -40, 0), 'left_arm2': (-45, 40, 0), 'right_fore2': (-55, 0, 0), 'left_fore2': (-55, 0, 0), 'body': (12, 0, 0),
          'head': (12, 0, 0)}
 a = Anim('block', 1.0, loop=True)
 pose_seq(a, [(0, GUARD), (0.5, {**GUARD, 'body': (14, 0, 0)}), (1.0, GUARD)], B)

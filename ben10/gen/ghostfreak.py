@@ -147,7 +147,7 @@ PH = {'right_arm': (-40, 0, 40), 'left_arm': (-40, 0, -40), 'body': (10, 0, 0)}
 a = Anim('phase', 5.0)
 pose_seq(a, [(0, {}), (0.3, PH), (4.7, PH), (5.0, {})], B)
 A['ab4'] = a
-GU = {'right_arm': (-90, 0, -40), 'left_arm': (-90, 0, 40), 'right_fore': (-50, 0, 0), 'left_fore': (-50, 0, 0), 'body': (15, 0, 0)}
+GU = {'right_arm': (-70, -38, 0), 'left_arm': (-70, 38, 0), 'right_fore': (-70, 0, 0), 'left_fore': (-70, 0, 0), 'body': (15, 0, 0)}
 a = Anim('block', 1.0, loop=True)
 pose_seq(a, [(0, GU), (1.0, GU)], B)
 A['block'] = a

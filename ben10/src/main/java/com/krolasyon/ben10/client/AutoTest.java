@@ -65,17 +65,15 @@ public final class AutoTest {
                     "kill @e[type=minecraft:item]", "kill @e[type=krolben10:fx]", "kill @e[type=krolben10:alien_projectile]", "kill @e[type=krolben10:debris]");
             server(4, null, s -> {
                 ServerPlayer p = sp(s);
-                p.teleportTo(0.5, -60, 0.5);
-                p.setYRot(0);
-                p.setXRot(0);
+                p.connection.teleport(0.5, -60, 0.5, 0, 0);
                 p.getAbilities().flying = false;
                 Transform.transform(p, a);
             });
             client(2, null, () -> cam(0));
             wait(14, a.id + "_front");
-            server(1, null, s -> sp(s).setYRot(150));
+            server(1, null, s -> sp(s).connection.teleport(0.5, -60, 0.5, 150, 0));
             wait(6, a.id + "_back34");
-            server(1, null, s -> sp(s).setYRot(0));
+            server(1, null, s -> sp(s).connection.teleport(0.5, -60, 0.5, 0, 0));
             client(2, null, () -> cam(1));
             cmd(2, null, "kill @e[type=minecraft:husk]", TARGETS);
             wait(4, a.id + "_side");
@@ -88,8 +86,7 @@ public final class AutoTest {
                     OmniData d = OmniData.get(p);
                     d.cooldown[slot] = 0;
                     d.sinceTransform = 100;
-                    p.setYRot(0);
-                    p.setXRot(5);
+                    p.connection.teleport(0.5, -60, 0.5, 0, 5);
                     Powers.use(p, slot);
                     LOG.info("[AUTOTEST] {} ability {} started={}", a.id, slot, d.ability);
                 });
@@ -101,7 +98,7 @@ public final class AutoTest {
                     ServerPlayer p = sp(s);
                     OmniData d = OmniData.get(p);
                     if (d.ability >= 0) Powers.finish(p, d);
-                    p.teleportTo(0.5, -60, 0.5);
+                    p.connection.teleport(0.5, -60, 0.5, 0, 0);
                     p.setDeltaMovement(0, 0, 0);
                     p.getAbilities().flying = false;
                     p.onUpdateAbilities();

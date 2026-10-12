@@ -159,6 +159,6 @@ pose_seq(a, [(0, {}), (0.3, {'right_arm': (-170, 0, 10), 'left_arm': (-170, 0, -
 A['ab4'] = a
 # block: arms crossed in front of the face
 a = Anim('block', 1.0, loop=True)
-pose_seq(a, [(0, {'right_arm': (-95, 0, -40), 'left_arm': (-95, 0, 40), 'right_fore': (-40, 0, 0), 'left_fore': (-40, 0, 0), 'body': (8, 0, 0)}),
-             (1.0, {'right_arm': (-95, 0, -40), 'left_arm': (-95, 0, 40), 'right_fore': (-40, 0, 0), 'left_fore': (-40, 0, 0), 'body': (8, 0, 0)})], B)
+GB = {'right_arm': (-70, -38, 0), 'left_arm': (-70, 38, 0), 'right_fore': (-75, 0, 0), 'left_fore': (-75, 0, 0), 'body': (8, 0, 0), 'head': (10, 0, 0)}
+pose_seq(a, [(0, GB), (1.0, GB)], B)
 A['block'] = a

@@ -205,7 +205,7 @@ OD = {'body': (25, 0, 0), 'head': (-20, 0, 0), 'right_arm': (35, 0, 12), 'left_a
 pose_seq(a, [(0, {}), (0.3, {**OD, 'body': (-15, 0, 0), 'head': (-40, 0, 0), 'right_arm': (-30, 0, 40), 'left_arm': (-30, 0, -40)}),
              (0.6, OD), (5.8, OD), (6.0, {})], B)
 A['ab4'] = a
-G = {'body': (25, 0, 0), 'right_arm': (-70, 0, -30), 'left_arm': (-70, 0, 30), 'right_fore': (-60, 0, 0), 'left_fore': (-60, 0, 0),
+G = {'body': (25, 0, 0), 'right_arm': (-60, -35, 0), 'left_arm': (-60, 35, 0), 'right_fore': (-70, 0, 0), 'left_fore': (-70, 0, 0),
      'right_leg': (-30, 0, 0), 'right_shin': (20, 0, 0), 'left_leg': (25, 0, 0)}
 a = Anim('block', 0.4, loop=True)
 pose_seq(a, [(0, G), (0.2, {**G, 'base': (0, 0, 0)}), (0.4, G)], B)
