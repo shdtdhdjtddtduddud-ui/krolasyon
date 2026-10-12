@@ -121,7 +121,7 @@ public class CannonboltKit extends Kit {
             }
             case 2 -> {
                 if (t == 4 || (d.counter > 0 && d.counter < 3 && d.vec.x == -1)) {
-                    double up = t == 4 ? 1.25 : 1.0 - d.counter * 0.15;
+                    double up = t == 4 ? 0.95 : 0.8 - d.counter * 0.12;
                     Fx.push(p, Fx.flatLook(p).scale(0.55).add(0, up, 0));
                     d.vec = new Vec3(t, 0, 0);
                     Fx.sound(l, p.position(), SoundEvents.SLIME_JUMP, 1.2F, 0.5F);
