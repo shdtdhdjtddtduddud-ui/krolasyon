@@ -4,6 +4,7 @@ on:
     paths-ignore:
       - 'ben10/**'
       - '.github/workflows/ben10-build.yml'
+      - 'modsite/**'
   workflow_dispatch:
 permissions:
   contents: write

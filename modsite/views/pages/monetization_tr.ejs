@@ -1,0 +1,15 @@
+<h1>Gelir paylaşımı</h1>
+<p><%= site.name %>, sitedeki reklamlardan elde edilen gelirin <b>%<%= settings.creator_share_percent %>'ını</b> mod yapımcılarına dağıtır. Geri kalanı sunucu, bant genişliği ve bakım masraflarını karşılar.</p>
+<h2>Nasıl hesaplanır?</h2>
+<ol>
+<li>Onaylanmış her mod, ay boyunca puan toplar: her <b>tekil görüntülenme <%= settings.view_weight %> puan</b>, her <b>tekil indirme <%= settings.download_weight %> puan</b>. Aynı ziyaretçi bir modu gün içinde kaç kez açarsa açsın bir kez sayılır. Kendi modlarını ziyaret etmen ve botlar sayılmaz.</li>
+<li>Ay bitince sitenin o ayki reklam geliri belli olur. Yapımcı havuzu = gelir × %<%= settings.creator_share_percent %>.</li>
+<li>Her modun payı = modun puanı ÷ tüm modların toplam puanı. Örnek: havuz 1000 <%= settings.currency %>, toplam puan 100.000 ve senin modun 5.000 puan topladıysa 50 <%= settings.currency %> kazanırsın.</li>
+</ol>
+<h2>Ödemeler</h2>
+<ul>
+<li>Kazancın her ay sonunda bakiyene eklenir. Panelim → Kazançlar sayfasından en az <b><%= settings.min_payout %> <%= settings.currency %></b> çekim talebi oluşturabilirsin.</li>
+<li>Ödemeler PayPal, Papara veya banka havalesiyle yapılır. Ödeme bilgilerini Ayarlar sayfasından gir.</li>
+<li>Sahte etkileşim tespit edilirse ilgili kazanç iptal edilir.</li>
+<li>Kazançlarının vergisel yükümlülükleri sana aittir.</li>
+</ul>

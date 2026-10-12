@@ -1,0 +1,16 @@
+<%- include('../partials/head', { title: t('nav.register') }) %>
+<div class="card auth">
+  <h1><%= t('nav.register') %></h1>
+  <% if (typeof errors !== 'undefined') for (const e of errors) { %><div class="flash error"><%= e %></div><% } %>
+  <form method="post" action="/register">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <label><%= t('auth.username') %></label><input type="text" name="username" required maxlength="24" pattern="[A-Za-z0-9_\-]{3,24}" value="<%= form.username || '' %>">
+    <div class="help"><%= t('auth.username_help') %></div>
+    <label><%= t('auth.email') %></label><input type="email" name="email" required value="<%= form.email || '' %>">
+    <label><%= t('auth.password') %></label><input type="password" name="password" required minlength="8">
+    <label class="inline"><input type="checkbox" name="accept" value="1" required> <span><%- t('auth.accept_html') %></span></label>
+    <div style="margin-top:14px"><button class="btn primary" style="width:100%;justify-content:center"><%= t('nav.register') %></button></div>
+  </form>
+  <p class="muted small" style="margin-top:14px"><%= t('auth.have_account') %> <a href="/login"><%= t('nav.login') %></a></p>
+</div>
+<%- include('../partials/foot') %>

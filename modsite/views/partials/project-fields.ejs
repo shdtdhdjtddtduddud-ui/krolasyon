@@ -1,0 +1,29 @@
+<% const f = form || {}; const sel = (k, v) => u.split(f[k]).includes(v); %>
+<label><%= t('project.name') %></label>
+<input type="text" name="name" maxlength="64" required value="<%= f.name || '' %>">
+<% if (!p) { %>
+<label><%= t('project.slug') %></label>
+<input type="text" name="slug" maxlength="48" value="<%= f.slug || '' %>" placeholder="my-awesome-mod">
+<div class="help"><%= site.url %>/mod/&lt;slug&gt; · <%= t('project.slug_help') %></div>
+<% } %>
+<label><%= t('project.summary') %></label>
+<input type="text" name="summary" maxlength="256" required value="<%= f.summary || '' %>">
+<div class="help"><%= t('project.summary_help') %></div>
+<label><%= t('project.icon') %></label>
+<input type="file" name="icon" accept="image/png,image/jpeg,image/webp,image/gif">
+<div class="help"><%= t('project.icon_help') %></div>
+<label><%= t('project.description') %></label>
+<textarea class="big" name="description" maxlength="65000"><%= f.description || '' %></textarea>
+<div class="help"><%= t('project.markdown_help') %></div>
+<label><%= t('project.categories') %> <span class="muted small">(<%= t('project.max4') %>)</span></label>
+<div class="checks"><% for (const c of u.CATEGORIES) { %><label class="inline"><input type="checkbox" name="categories" value="<%= c %>" <%= sel('categories', c) ? 'checked' : '' %>> <%= t('cat.' + c) %></label><% } %></div>
+<div class="grid3">
+  <div><label><%= t('project.license') %></label><select name="license"><% for (const l of u.LICENSES) { %><option <%= (f.license || 'ARR') === l ? 'selected' : '' %>><%= l %></option><% } %></select></div>
+  <div><label><%= t('project.client') %></label><select name="client_side"><% for (const s of u.SIDES) { %><option value="<%= s %>" <%= (f.client_side || 'required') === s ? 'selected' : '' %>><%= t('side.' + s) %></option><% } %></select></div>
+  <div><label><%= t('project.server') %></label><select name="server_side"><% for (const s of u.SIDES) { %><option value="<%= s %>" <%= (f.server_side || 'required') === s ? 'selected' : '' %>><%= t('side.' + s) %></option><% } %></select></div>
+</div>
+<div class="grid3">
+  <div><label><%= t('project.source') %></label><input type="url" name="source_url" value="<%= f.source_url || '' %>" placeholder="https://github.com/..."></div>
+  <div><label><%= t('project.issues') %></label><input type="url" name="issues_url" value="<%= f.issues_url || '' %>"></div>
+  <div><label>Discord</label><input type="url" name="discord_url" value="<%= f.discord_url || '' %>"></div>
+</div>

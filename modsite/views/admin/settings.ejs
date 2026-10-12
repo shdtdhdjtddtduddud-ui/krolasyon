@@ -1,0 +1,30 @@
+<%- include('../partials/head', { title: t('admin.settings') }) %>
+<div class="layout-side"><%- include('_nav') %><div>
+  <h1><%= t('admin.settings') %></h1>
+  <form method="post" action="/admin/settings">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <div class="card"><h2>💰 <%= t('admin.monetization') %></h2>
+      <div class="grid3">
+        <div><label><%= t('admin.share') %></label><input type="number" name="creator_share_percent" min="0" max="100" step="1" value="<%= settings.creator_share_percent %>"></div>
+        <div><label><%= t('admin.view_weight') %></label><input type="number" name="view_weight" min="0" step="0.1" value="<%= settings.view_weight %>"></div>
+        <div><label><%= t('admin.download_weight') %></label><input type="number" name="download_weight" min="0" step="0.1" value="<%= settings.download_weight %>"></div>
+        <div><label><%= t('admin.currency') %></label><input type="text" name="currency" maxlength="5" value="<%= settings.currency %>"></div>
+        <div><label><%= t('admin.min_payout') %></label><input type="number" name="min_payout" min="0" step="0.01" value="<%= settings.min_payout %>"></div>
+      </div>
+    </div>
+    <div class="card"><h2>📢 <%= t('admin.ads') %></h2>
+      <p class="muted small"><%= t('admin.ads_help') %></p>
+      <label><%= t('admin.ad_head') %></label><textarea name="ad_head" placeholder="&lt;script async src=&quot;https://pagead2.googlesyndication.com/...&quot;&gt;&lt;/script&gt;"><%= settings.ad_head %></textarea>
+      <label><%= t('admin.ad_top') %></label><textarea name="ad_top"><%= settings.ad_top %></textarea>
+      <label><%= t('admin.ad_sidebar') %></label><textarea name="ad_sidebar"><%= settings.ad_sidebar %></textarea>
+      <label><%= t('admin.ad_project') %></label><textarea name="ad_project"><%= settings.ad_project %></textarea>
+      <label>ads.txt</label><textarea name="ads_txt" placeholder="google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0"><%= settings.ads_txt %></textarea>
+    </div>
+    <div class="card"><h2>⚙ <%= t('admin.general') %></h2>
+      <label><%= t('admin.announcement') %></label><input type="text" name="announcement" maxlength="300" value="<%= settings.announcement %>">
+      <label class="inline"><input type="checkbox" name="registrations_open" value="1" <%= settings.registrations_open === '1' ? 'checked' : '' %>> <%= t('admin.registrations') %></label>
+    </div>
+    <button class="btn primary"><%= t('common.save') %></button>
+  </form>
+</div></div>
+<%- include('../partials/foot') %>

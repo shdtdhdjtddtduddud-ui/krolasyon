@@ -1,0 +1,15 @@
+<h1>Revenue sharing</h1>
+<p><%= site.name %> shares <b><%= settings.creator_share_percent %>%</b> of the site's ad revenue with mod creators. The rest pays for servers, bandwidth and maintenance.</p>
+<h2>How it works</h2>
+<ol>
+<li>Every approved mod collects points during the month: each <b>unique view = <%= settings.view_weight %> point(s)</b>, each <b>unique download = <%= settings.download_weight %> points</b>. A visitor is counted once per mod per day. Your own visits and bots never count.</li>
+<li>When the month ends, the site's ad revenue for that month is known. Creator pool = revenue × <%= settings.creator_share_percent %>%.</li>
+<li>Each mod gets pool × (its points ÷ all points). Example: pool 1000 <%= settings.currency %>, 100,000 total points, your mod earned 5,000 points → you get 50 <%= settings.currency %>.</li>
+</ol>
+<h2>Payouts</h2>
+<ul>
+<li>Earnings are added to your balance at the end of each month. Request a payout of at least <b><%= settings.min_payout %> <%= settings.currency %></b> from Dashboard → Earnings.</li>
+<li>Payouts are sent via PayPal, Papara or bank transfer. Enter your details on the Settings page.</li>
+<li>Earnings from fake engagement are voided.</li>
+<li>You are responsible for taxes on your earnings.</li>
+</ul>

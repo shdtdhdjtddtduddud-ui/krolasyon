@@ -1,0 +1,28 @@
+<%- include('../partials/head', { title: t('nav.settings') }) %>
+<h1 style="margin-top:26px"><%= t('nav.settings') %></h1>
+<div class="grid3" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
+  <div class="card"><h2><%= t('settings.profile') %></h2>
+    <form method="post" action="/settings/profile"><input type="hidden" name="_csrf" value="<%= csrf %>">
+      <div class="muted small"><%= user.username %> · <%= user.email %></div>
+      <label><%= t('settings.bio') %></label><textarea name="bio" maxlength="500"><%= user.bio %></textarea>
+      <div style="margin-top:12px"><button class="btn primary"><%= t('common.save') %></button></div>
+    </form>
+  </div>
+  <div class="card"><h2><%= t('settings.payout') %></h2>
+    <p class="muted small"><%= t('settings.payout_help') %></p>
+    <form method="post" action="/settings/payout"><input type="hidden" name="_csrf" value="<%= csrf %>">
+      <label><%= t('settings.method') %></label>
+      <select name="payout_method"><option value=""><%= t('common.none') %></option><% for (const m of ['paypal', 'papara', 'iban']) { %><option value="<%= m %>" <%= user.payout_method === m ? 'selected' : '' %>><%= t('pay.' + m) %></option><% } %></select>
+      <label><%= t('settings.details') %></label><input type="text" name="payout_details" maxlength="300" value="<%= user.payout_details %>" placeholder="<%= t('settings.details_ph') %>">
+      <div style="margin-top:12px"><button class="btn primary"><%= t('common.save') %></button></div>
+    </form>
+  </div>
+  <div class="card"><h2><%= t('settings.password') %></h2>
+    <form method="post" action="/settings/password"><input type="hidden" name="_csrf" value="<%= csrf %>">
+      <label><%= t('settings.current') %></label><input type="password" name="current" required>
+      <label><%= t('settings.new') %></label><input type="password" name="password" minlength="8" required>
+      <div style="margin-top:12px"><button class="btn primary"><%= t('common.save') %></button></div>
+    </form>
+  </div>
+</div>
+<%- include('../partials/foot') %>

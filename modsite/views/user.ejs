@@ -1,0 +1,14 @@
+<%- include('partials/head', { title: profile.username }) %>
+<div class="grid2" style="margin-top:26px">
+  <div>
+    <h2><%= t('user.projects') %></h2>
+    <% if (!projects.length) { %><div class="card empty"><%= t('user.no_projects') %></div><% } %>
+    <% for (const p of projects) { %><%- include('partials/card', { p }) %><% } %>
+  </div>
+  <aside class="card">
+    <div class="row"><span class="avatar" style="width:64px;height:64px;font-size:28px"><%= profile.username[0].toUpperCase() %></span><div><h2 style="margin:0" class="role-<%= profile.role %>"><%= profile.username %></h2><% if (profile.role !== 'user') { %><span class="tag"><%= t('role.' + profile.role) %></span><% } %></div></div>
+    <% if (profile.bio) { %><p style="white-space:pre-wrap"><%= profile.bio %></p><% } %>
+    <dl class="side"><dt><%= t('common.downloads') %></dt><dd><b><%= u.formatNumber(downloads) %></b></dd><dt><%= t('user.joined') %></dt><dd><%= new Date(profile.created_at * 1000).toLocaleDateString(lang) %></dd></dl>
+  </aside>
+</div>
+<%- include('partials/foot') %>

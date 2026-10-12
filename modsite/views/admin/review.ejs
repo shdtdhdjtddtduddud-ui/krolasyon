@@ -1,0 +1,19 @@
+<%- include('../partials/head', { title: t('admin.review') }) %>
+<div class="layout-side"><%- include('_nav') %><div>
+  <h1><%= t('admin.review') %></h1>
+  <% if (!items.length) { %><div class="card empty"><%= t('admin.queue_empty') %></div><% } %>
+  <% for (const p of items) { %>
+  <div class="card">
+    <div class="row"><img src="<%= p.icon || '/static/img/logo.svg' %>" alt="" style="width:56px;height:56px;border-radius:12px;object-fit:cover">
+      <div><h2 style="margin:0"><a href="/mod/<%= p.slug %>" target="_blank"><%= p.name %></a></h2><div class="muted small"><%= t('common.by') %> <%= p.owner %> · <%= p.nversions %> <%= t('tab.versions') %> · <%= u.split(p.game_versions).join(', ') %></div></div></div>
+    <p><%= p.summary %></p>
+    <details><summary><%= t('project.description') %></summary><div class="md"><%- u.markdown(p.description) %></div></details>
+    <form method="post" action="/admin/review/<%= p.id %>" style="margin-top:12px">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <textarea name="note" placeholder="<%= t('admin.note_ph') %>" style="min-height:70px"></textarea>
+      <div class="row" style="margin-top:8px"><button class="btn primary" name="action" value="approve">✔ <%= t('admin.approve') %></button><button class="btn danger" name="action" value="reject">✖ <%= t('admin.reject') %></button></div>
+    </form>
+  </div>
+  <% } %>
+</div></div>
+<%- include('../partials/foot') %>

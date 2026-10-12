@@ -1,0 +1,27 @@
+<%- include('partials/head', { title: '' }) %>
+<section class="hero">
+  <h1><%- t('home.title_html') %></h1>
+  <p><%= t('home.subtitle') %></p>
+  <form action="/mods" method="get"><input type="search" name="q" placeholder="<%= t('nav.search') %>"><button class="btn primary"><%= t('common.search') %></button></form>
+  <div class="counters">
+    <div><b><%= u.formatNumber(stats.projects) %></b><span><%= t('home.projects') %></span></div>
+    <div><b><%= u.formatNumber(stats.downloads) %></b><span><%= t('common.downloads') %></span></div>
+    <div><b><%= u.formatNumber(stats.users) %></b><span><%= t('home.creators') %></span></div>
+  </div>
+</section>
+<%- include('partials/ad', { slot: settings.ad_top }) %>
+<div class="section-title"><h2><%= t('home.popular') %></h2><span class="spacer"></span><a href="/mods?sort=downloads"><%= t('common.see_all') %> →</a></div>
+<% if (!popular.length) { %><div class="card empty"><%= t('home.empty') %> <a href="/new"><%= t('nav.publish') %></a></div><% } %>
+<div class="tiles"><% for (const p of popular) { %><%- include('partials/tile', { p }) %><% } %></div>
+<% if (fresh.length) { %>
+<div class="section-title"><h2><%= t('home.new') %></h2><span class="spacer"></span><a href="/mods?sort=newest"><%= t('common.see_all') %> →</a></div>
+<div class="tiles"><% for (const p of fresh) { %><%- include('partials/tile', { p }) %><% } %></div>
+<% } %>
+<div class="card" style="margin-top:34px">
+  <div class="grid3">
+    <div><h3>📦 <%= t('home.f1') %></h3><div class="muted"><%= t('home.f1d') %></div></div>
+    <div><h3>💬 <%= t('home.f2') %></h3><div class="muted"><%= t('home.f2d') %></div></div>
+    <div><h3>💰 <%= t('home.f3') %></h3><div class="muted"><%= t('home.f3d') %> <a href="/monetization"><%= t('common.more') %></a></div></div>
+  </div>
+</div>
+<%- include('partials/foot') %>

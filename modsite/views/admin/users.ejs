@@ -1,0 +1,14 @@
+<%- include('../partials/head', { title: t('admin.users') }) %>
+<div class="layout-side"><%- include('_nav') %><div>
+  <h1><%= t('admin.users') %></h1>
+  <form class="row" method="get"><input type="search" name="q" value="<%= q %>" placeholder="<%= t('nav.search') %>" style="max-width:340px"><button class="btn"><%= t('common.search') %></button></form>
+  <div class="card tablewrap" style="margin-top:12px"><table class="list"><thead><tr><th><%= t('auth.username') %></th><th><%= t('auth.email') %></th><th><%= t('admin.role') %></th><th></th></tr></thead><tbody>
+  <% for (const x of items) { %><tr>
+    <td><a href="/user/<%= x.username %>"><b><%= x.username %></b></a><% if (x.banned) { %> <span class="status rejected"><%= t('admin.banned') %></span><% } %><div class="small muted"><%= new Date(x.created_at * 1000).toLocaleDateString(lang) %></div></td>
+    <td class="small"><%= x.email %></td>
+    <td><form method="post" action="/admin/users/<%= x.id %>"><input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="action" value="role"><select name="role" onchange="this.form.submit()"><% for (const r of ['user', 'moderator', 'admin']) { %><option value="<%= r %>" <%= x.role === r ? 'selected' : '' %>><%= t('role.' + r) %></option><% } %></select></form></td>
+    <td class="row"><form method="post" action="/admin/users/<%= x.id %>" data-confirm="<%= t('common.sure') %>"><input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn small <%= x.banned ? '' : 'danger' %>" name="action" value="<%= x.banned ? 'unban' : 'ban' %>"><%= x.banned ? t('admin.unban') : t('admin.ban') %></button></form>
+      <form method="post" action="/admin/users/<%= x.id %>" data-confirm="<%= t('common.sure') %>"><input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn small" name="action" value="reset"><%= t('admin.reset_pw') %></button></form></td>
+  </tr><% } %></tbody></table></div>
+</div></div>
+<%- include('../partials/foot') %>

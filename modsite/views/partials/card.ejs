@@ -1,0 +1,16 @@
+<div class="pcard">
+  <a href="/mod/<%= p.slug %>"><img class="ic" src="<%= p.icon || '/static/img/logo.svg' %>" alt="" loading="lazy"></a>
+  <div class="body">
+    <h3><a href="/mod/<%= p.slug %>"><%= p.name %></a> <span class="by"><%= t('common.by') %> <a href="/user/<%= p.owner %>"><%= p.owner %></a></span></h3>
+    <p><%= p.summary %></p>
+    <div>
+      <% for (const c of u.split(p.categories)) { %><span class="tag"><%= t('cat.' + c) %></span><% } %>
+      <% for (const l of u.split(p.loaders)) { %><span class="tag green"><%= t('loader.' + l) %></span><% } %>
+    </div>
+  </div>
+  <div class="stats">
+    <div><b><%= u.formatNumber(p.downloads) %></b> <%= t('common.downloads') %></div>
+    <div><b><%= u.formatNumber(p.follows) %></b> <%= t('common.follows') %></div>
+    <div class="small"><%= t('common.updated') %> <%= new Date(p.updated_at * 1000).toLocaleDateString(lang) %></div>
+  </div>
+</div>

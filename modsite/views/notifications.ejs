@@ -1,0 +1,13 @@
+<%- include('partials/head', { title: t('nav.notifications') }) %>
+<h1 style="margin-top:26px"><%= t('nav.notifications') %></h1>
+<div class="card">
+<% if (!items.length) { %><div class="empty"><%= t('notif.none') %></div><% } %>
+<% for (const n of items) { %>
+  <div class="row" style="padding:10px 0;border-bottom:1px solid var(--line)">
+    <% if (!n.read) { %><span class="badge"><%= t('notif.new') %></span><% } %>
+    <% if (n.link) { %><a href="<%= n.link %>"><%= n.body %></a><% } else { %><span><%= n.body %></span><% } %>
+    <span class="spacer"></span><span class="muted small"><%= new Date(n.created_at * 1000).toLocaleString(lang) %></span>
+  </div>
+<% } %>
+</div>
+<%- include('partials/foot') %>

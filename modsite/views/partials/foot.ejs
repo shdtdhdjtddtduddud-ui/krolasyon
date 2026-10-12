@@ -1,0 +1,16 @@
+</main>
+<footer>
+  <div class="wrap cols">
+    <div style="max-width:320px">
+      <div class="brand" style="margin-bottom:8px"><img src="/static/img/logo.svg" alt="" width="26" height="26"><%= site.name %></div>
+      <div><%= t('footer.tagline') %></div>
+    </div>
+    <div><h4><%= t('footer.site') %></h4><a href="/mods"><%= t('nav.mods') %></a><a href="/new"><%= t('nav.publish') %></a><a href="/monetization"><%= t('footer.monetization') %></a></div>
+    <div><h4><%= t('footer.legal') %></h4><a href="/terms"><%= t('footer.terms') %></a><a href="/privacy"><%= t('footer.privacy') %></a><a href="/rules"><%= t('footer.rules') %></a></div>
+    <div><h4><%= t('footer.contact') %></h4><a href="mailto:<%= site.contact %>"><%= site.contact %></a></div>
+  </div>
+  <div class="wrap small" style="margin-top:20px"><%= t('footer.notaffiliated') %></div>
+</footer>
+<script src="/static/js/app.js"></script>
+</body>
+</html>

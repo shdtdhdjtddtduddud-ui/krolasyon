@@ -1,0 +1,39 @@
+<%- include('../partials/head', { title: t('nav.earnings') }) %>
+<div class="layout-side">
+  <%- include('_nav') %>
+  <div>
+    <div class="kpis">
+      <div class="kpi"><span><%= t('earn.available') %></span><b><%= u.money(bal.available, settings.currency) %></b></div>
+      <div class="kpi"><span><%= t('earn.total') %></span><b><%= u.money(bal.earned, settings.currency) %></b></div>
+      <div class="kpi"><span><%= t('earn.withdrawn') %></span><b><%= u.money(bal.withdrawn, settings.currency) %></b></div>
+      <div class="kpi"><span><%= t('earn.this_month', current.month) %></span><b><%= (current.share * 100).toFixed(2) %>%</b><span class="small"><%= t('earn.share_help') %></span></div>
+    </div>
+    <div class="card">
+      <h2><%= t('earn.how') %></h2>
+      <p class="muted"><%= t('earn.how_text', settings.creator_share_percent, settings.view_weight, settings.download_weight) %> <a href="/monetization"><%= t('common.more') %></a></p>
+    </div>
+    <div class="card">
+      <h2><%= t('earn.request') %></h2>
+      <% if (!user.payout_method) { %><div class="flash info"><%= t('earn.need_method') %> <a href="/settings"><%= t('nav.settings') %></a></div><% } %>
+      <form method="post" action="/dashboard/payout" class="row" style="align-items:end">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <div><label><%= t('earn.amount') %> (<%= settings.currency %>)</label><input type="number" name="amount" step="0.01" min="<%= settings.min_payout %>" max="<%= bal.available %>" value="<%= bal.available %>"></div>
+        <button class="btn primary" <%= bal.available < parseFloat(settings.min_payout) ? 'disabled' : '' %>><%= t('earn.request_btn') %></button>
+        <span class="muted small"><%= t('earn.min', settings.min_payout, settings.currency) %></span>
+      </form>
+    </div>
+    <div class="card tablewrap"><h2><%= t('earn.payouts') %></h2>
+      <% if (!payouts.length) { %><div class="muted"><%= t('common.nothing') %></div><% } else { %>
+      <table class="list"><thead><tr><th><%= t('version.date') %></th><th><%= t('earn.amount') %></th><th><%= t('settings.method') %></th><th><%= t('common.status') %></th><th><%= t('common.note') %></th></tr></thead><tbody>
+      <% for (const p of payouts) { %><tr><td><%= new Date(p.created_at * 1000).toLocaleDateString(lang) %></td><td><%= u.money(p.amount, settings.currency) %></td><td><%= t('pay.' + p.method) %></td><td><span class="status <%= p.status %>"><%= t('payst.' + p.status) %></span></td><td class="small"><%= p.note %></td></tr><% } %>
+      </tbody></table><% } %>
+    </div>
+    <div class="card tablewrap"><h2><%= t('earn.history') %></h2>
+      <% if (!earnings.length) { %><div class="muted"><%= t('earn.none') %></div><% } else { %>
+      <table class="list"><thead><tr><th><%= t('earn.month') %></th><th><%= t('project.name') %></th><th><%= t('dash.views') %></th><th><%= t('common.downloads') %></th><th><%= t('earn.amount') %></th></tr></thead><tbody>
+      <% for (const e of earnings) { %><tr><td><%= e.month %></td><td><%= e.name || '-' %></td><td><%= e.views %></td><td><%= e.downloads %></td><td><b><%= u.money(e.amount, settings.currency) %></b></td></tr><% } %>
+      </tbody></table><% } %>
+    </div>
+  </div>
+</div>
+<%- include('../partials/foot') %>

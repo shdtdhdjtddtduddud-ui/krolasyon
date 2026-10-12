@@ -1,0 +1,123 @@
+<%- include('partials/head', { title: p.name, metaDesc: p.summary, ogImage: p.icon }) %>
+<% const latest = versions[0]; const featured = gallery.find(g => g.featured) || gallery[0]; %>
+<% if (p.status !== 'approved') { %>
+  <div class="flash info"><%= t('project.status_note') %> <span class="status <%= p.status %>"><%= t('status.' + p.status) %></span>
+  <% if (p.moderation_note) { %><div class="small" style="margin-top:6px"><b><%= t('project.mod_note') %>:</b> <%= p.moderation_note %></div><% } %></div>
+<% } %>
+<div class="phead">
+  <img class="ic" src="<%= p.icon || '/static/img/logo.svg' %>" alt="">
+  <div>
+    <h1><%= p.name %></h1>
+    <div class="muted"><%= p.summary %></div>
+    <div class="row small muted" style="margin-top:8px;gap:16px">
+      <span>⬇ <b><%= u.formatNumber(p.downloads) %></b> <%= t('common.downloads') %></span>
+      <span>♥ <b><%= u.formatNumber(p.follows) %></b> <%= t('common.follows') %></span>
+      <span><%= t('common.by') %> <a href="/user/<%= p.owner %>"><%= p.owner %></a></span>
+    </div>
+  </div>
+  <div class="actions">
+    <% if (latest) { %><a class="btn primary" href="/download/<%= latest.id %>">⬇ <%= t('project.download') %></a><% } %>
+    <% if (user) { %>
+      <form method="post" action="/mod/<%= p.slug %>/follow"><input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn"><%= following ? '♥ ' + t('project.unfollow') : '♡ ' + t('project.follow') %></button></form>
+    <% } %>
+    <% if (editable) { %><a class="btn" href="/mod/<%= p.slug %>/edit">⚙ <%= t('project.edit') %></a><% } %>
+  </div>
+</div>
+<nav class="tabs">
+  <% for (const tb of ['description', 'gallery', 'changelog', 'versions', 'comments']) { %>
+    <a href="/mod/<%= p.slug %>?tab=<%= tb %>" class="<%= tab === tb ? 'on' : '' %>"><%= t('tab.' + tb) %><% if (tb === 'comments') { %> (<%= comments.filter(c => !c.deleted).length %>)<% } %><% if (tb === 'versions') { %> (<%= versions.length %>)<% } %></a>
+  <% } %>
+</nav>
+<div class="grid2">
+  <div>
+    <% if (tab === 'description') { %>
+      <% if (featured) { %><div class="gallery" style="grid-template-columns:1fr;margin-bottom:14px"><figure><img src="<%= featured.path %>" alt="<%= featured.title %>"></figure></div><% } %>
+      <div class="card md"><%- descriptionHtml || '<p class="muted">' + t('project.no_description') + '</p>' %></div>
+      <%- include('partials/ad', { slot: settings.ad_project }) %>
+    <% } else if (tab === 'gallery') { %>
+      <% if (!gallery.length) { %><div class="card empty"><%= t('project.no_gallery') %></div><% } %>
+      <div class="gallery"><% for (const g of gallery) { %><figure><img src="<%= g.path %>" alt="<%= g.title %>" loading="lazy"><% if (g.title) { %><figcaption><%= g.title %></figcaption><% } %></figure><% } %></div>
+      <div class="lightbox"><img alt=""></div>
+    <% } else if (tab === 'changelog') { %>
+      <% if (!versions.length) { %><div class="card empty"><%= t('project.no_versions') %></div><% } %>
+      <% for (const v of versions) { %><div class="card"><h3><%= v.name %> <span class="tag"><%= t('channel.' + v.channel) %></span> <span class="muted small"><%= new Date(v.created_at * 1000).toLocaleDateString(lang) %></span></h3><div class="md"><%- u.markdown(v.changelog) || '<span class="muted">-</span>' %></div></div><% } %>
+    <% } else if (tab === 'versions') { %>
+      <div class="card tablewrap">
+      <% if (!versions.length) { %><div class="empty"><%= t('project.no_versions') %></div><% } else { %>
+        <table class="list"><thead><tr><th></th><th><%= t('version.name') %></th><th><%= t('project.game_versions') %></th><th><%= t('project.loaders') %></th><th><%= t('common.downloads') %></th><th><%= t('version.date') %></th></tr></thead><tbody>
+        <% for (const v of versions) { %><tr>
+          <td><a class="btn small primary" href="/download/<%= v.id %>" title="<%= v.file_name %>">⬇</a></td>
+          <td><b><%= v.name %></b><div class="small muted"><%= v.version_number %> · <span class="tag"><%= t('channel.' + v.channel) %></span> · <%= u.formatBytes(v.file_size) %></div><div class="small muted" title="SHA-1">sha1: <code><%= v.sha1.slice(0, 12) %>…</code></div></td>
+          <td><%= u.split(v.game_versions).join(', ') %></td>
+          <td><%= u.split(v.loaders).map(l => t('loader.' + l)).join(', ') %></td>
+          <td><%= u.formatNumber(v.downloads) %></td>
+          <td class="small"><%= new Date(v.created_at * 1000).toLocaleDateString(lang) %></td>
+        </tr><% } %></tbody></table>
+      <% } %>
+      </div>
+    <% } else if (tab === 'comments') { %>
+      <div class="card">
+        <% if (user && p.status === 'approved') { %>
+          <form method="post" action="/mod/<%= p.slug %>/comment" id="comment-form">
+            <input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="parent_id" value="">
+            <div class="reply-info small muted" style="display:none;margin-bottom:6px"><%= t('comment.replying') %> <b class="replying"></b> · <a href="javascript:void 0" class="reply-cancel"><%= t('common.cancel') %></a></div>
+            <textarea name="body" maxlength="2000" required placeholder="<%= t('comment.placeholder') %>"></textarea>
+            <div class="row" style="margin-top:8px"><span class="spacer"></span><button class="btn primary"><%= t('comment.send') %></button></div>
+          </form>
+        <% } else if (!user) { %><div class="muted"><a href="/login?next=<%= encodeURIComponent('/mod/' + p.slug + '?tab=comments') %>"><%= t('nav.login') %></a> <%= t('comment.login_to') %></div><% } %>
+      </div>
+      <div class="card">
+        <% const roots = comments.filter(c => !c.parent_id); if (!roots.length) { %><div class="empty"><%= t('comment.none') %></div><% } %>
+        <% const render = (c, reply) => { %>
+          <div class="comment <%= reply ? 'reply' : '' %>" id="c<%= c.id %>">
+            <span class="avatar"><%= c.username[0].toUpperCase() %></span>
+            <div class="content">
+              <div class="meta"><a href="/user/<%= c.username %>"><b class="role-<%= c.role %>"><%= c.username %></b></a><% if (c.user_id === p.owner_id) { %> <span class="tag green"><%= t('comment.author') %></span><% } %> · <%= new Date(c.created_at * 1000).toLocaleString(lang) %></div>
+              <% if (c.deleted) { %><div class="text muted"><i><%= t('comment.deleted') %></i></div><% } else { %>
+                <div class="text"><%= c.body %></div>
+                <div class="tools">
+                  <% if (user && !reply) { %><button type="button" data-reply="<%= c.id %>" data-name="<%= c.username %>"><%= t('comment.reply') %></button><% } %>
+                  <% if (user && (user.id === c.user_id || user.id === p.owner_id || isStaff)) { %><form class="inline" method="post" action="/comment/<%= c.id %>/delete" data-confirm="<%= t('common.sure') %>"><input type="hidden" name="_csrf" value="<%= csrf %>"><button><%= t('common.delete') %></button></form><% } %>
+                  <% if (user && user.id !== c.user_id) { %><form class="inline" method="post" action="/report"><input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="target_type" value="comment"><input type="hidden" name="target_id" value="<%= c.id %>"><input type="hidden" name="reason" value="inappropriate"><input type="hidden" name="back" value="/mod/<%= p.slug %>?tab=comments"><button><%= t('report.report') %></button></form><% } %>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        <% }; for (const c of roots) { render(c, false); for (const r of comments.filter(x => x.parent_id === c.id)) render(r, true); } %>
+      </div>
+    <% } %>
+  </div>
+  <aside class="side">
+    <div class="card">
+      <h3><%= t('project.compat') %></h3>
+      <dl>
+        <dt><%= t('project.game_versions') %></dt><dd><% for (const v of u.split(p.game_versions)) { %><span class="tag"><%= v %></span><% } %><% if (!p.game_versions) { %>-<% } %></dd>
+        <dt><%= t('project.loaders') %></dt><dd><% for (const l of u.split(p.loaders)) { %><span class="tag green"><%= t('loader.' + l) %></span><% } %><% if (!p.loaders) { %>-<% } %></dd>
+        <dt><%= t('project.env') %></dt><dd class="small"><%= t('project.client') %>: <%= t('side.' + p.client_side) %> · <%= t('project.server') %>: <%= t('side.' + p.server_side) %></dd>
+      </dl>
+    </div>
+    <% if (p.categories) { %><div class="card"><h3><%= t('project.categories') %></h3><% for (const c of u.split(p.categories)) { %><a class="tag" href="/mods?c=<%= c %>"><%= t('cat.' + c) %></a><% } %></div><% } %>
+    <% if (p.source_url || p.issues_url || p.discord_url) { %><div class="card"><h3><%= t('project.links') %></h3>
+      <% if (p.source_url) { %><div><a href="<%= p.source_url %>" rel="nofollow noopener" target="_blank"><%= t('project.source') %></a></div><% } %>
+      <% if (p.issues_url) { %><div><a href="<%= p.issues_url %>" rel="nofollow noopener" target="_blank"><%= t('project.issues') %></a></div><% } %>
+      <% if (p.discord_url) { %><div><a href="<%= p.discord_url %>" rel="nofollow noopener" target="_blank">Discord</a></div><% } %>
+    </div><% } %>
+    <div class="card"><h3><%= t('project.details') %></h3>
+      <dl>
+        <dt><%= t('project.license') %></dt><dd><%= p.license %></dd>
+        <% if (p.published_at) { %><dt><%= t('project.published') %></dt><dd><%= new Date(p.published_at * 1000).toLocaleDateString(lang) %></dd><% } %>
+        <dt><%= t('common.updated') %></dt><dd><%= new Date(p.updated_at * 1000).toLocaleDateString(lang) %></dd>
+      </dl>
+      <% if (user && user.id !== p.owner_id) { %>
+        <form method="post" action="/report" style="margin-top:12px">
+          <input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="target_type" value="project"><input type="hidden" name="target_id" value="<%= p.id %>"><input type="hidden" name="back" value="/mod/<%= p.slug %>">
+          <select name="reason"><% for (const r of ['spam', 'malware', 'copyright', 'inappropriate', 'other']) { %><option value="<%= r %>"><%= t('report.' + r) %></option><% } %></select>
+          <input type="text" name="details" maxlength="1000" placeholder="<%= t('report.details') %>" style="margin-top:6px">
+          <button class="btn small danger" style="margin-top:6px">⚑ <%= t('report.report') %></button>
+        </form>
+      <% } %>
+    </div>
+    <%- include('partials/ad', { slot: settings.ad_sidebar }) %>
+  </aside>
+</div>
+<%- include('partials/foot') %>

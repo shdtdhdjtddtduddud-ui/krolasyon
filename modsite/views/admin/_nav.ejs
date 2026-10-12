@@ -1,0 +1,12 @@
+<nav class="card side-nav">
+  <a href="/admin" class="<%= path === '/admin' ? 'on' : '' %>">🏠 <%= t('admin.overview') %></a>
+  <a href="/admin/review" class="<%= path === '/admin/review' ? 'on' : '' %>">🛡 <%= t('admin.review') %></a>
+  <a href="/admin/projects" class="<%= path === '/admin/projects' ? 'on' : '' %>">📦 <%= t('admin.projects') %></a>
+  <a href="/admin/reports" class="<%= path === '/admin/reports' ? 'on' : '' %>">⚑ <%= t('admin.reports') %></a>
+  <% if (isAdmin) { %>
+  <a href="/admin/users" class="<%= path === '/admin/users' ? 'on' : '' %>">👥 <%= t('admin.users') %></a>
+  <a href="/admin/revenue" class="<%= path === '/admin/revenue' ? 'on' : '' %>">💰 <%= t('admin.revenue') %></a>
+  <a href="/admin/payouts" class="<%= path === '/admin/payouts' ? 'on' : '' %>">💸 <%= t('admin.payouts') %></a>
+  <a href="/admin/settings" class="<%= path === '/admin/settings' ? 'on' : '' %>">⚙ <%= t('admin.settings') %></a>
+  <% } %>
+</nav>

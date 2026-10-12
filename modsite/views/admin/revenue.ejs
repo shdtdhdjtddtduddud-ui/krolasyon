@@ -1,0 +1,28 @@
+<%- include('../partials/head', { title: t('admin.revenue') }) %>
+<div class="layout-side"><%- include('_nav') %><div>
+  <h1><%= t('admin.revenue') %></h1>
+  <div class="card"><p class="muted"><%= t('rev.explain', settings.creator_share_percent) %></p>
+    <form method="get" class="row"><label style="margin:0"><%= t('earn.month') %></label><input type="month" name="month" value="<%= month %>" style="max-width:200px"><button class="btn small"><%= t('common.show') %></button></form>
+  </div>
+  <div class="card">
+    <h2><%= month %> · <%= t('rev.preview') %></h2>
+    <div class="muted small"><%= t('rev.total_points') %>: <b><%= preview.total %></b> · <%= t('rev.weights', settings.view_weight, settings.download_weight) %></div>
+    <div class="tablewrap"><table class="list" style="margin-top:10px"><thead><tr><th><%= t('project.name') %></th><th><%= t('dash.views') %></th><th><%= t('common.downloads') %></th><th><%= t('rev.points') %></th><th><%= t('rev.share') %></th></tr></thead><tbody>
+    <% for (const r of preview.rows) { %><tr><td><a href="/mod/<%= r.slug %>"><%= r.name %></a></td><td><%= r.views %></td><td><%= r.downloads %></td><td><%= r.points %></td><td><%= preview.total ? (r.points / preview.total * 100).toFixed(2) : 0 %>%</td></tr><% } %>
+    </tbody></table></div>
+    <% if (done) { %><div class="flash success"><%= t('rev.already') %> · <%= u.money(done.gross, settings.currency) %> → <%= u.money(done.pool, settings.currency) %></div>
+    <% } else { %>
+    <form method="post" action="/admin/revenue" class="row" style="align-items:end;margin-top:12px" data-confirm="<%= t('rev.confirm') %>">
+      <input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="month" value="<%= month %>">
+      <div><label><%= t('rev.gross') %> (<%= settings.currency %>)</label><input type="text" name="gross" required placeholder="123.45"></div>
+      <div style="flex:1;min-width:200px"><label><%= t('common.note') %></label><input type="text" name="note" maxlength="300" placeholder="AdSense <%= month %>"></div>
+      <button class="btn primary"><%= t('rev.distribute') %></button>
+    </form><% } %>
+  </div>
+  <div class="card tablewrap"><h2><%= t('rev.history') %></h2>
+    <table class="list"><thead><tr><th><%= t('earn.month') %></th><th><%= t('rev.gross') %></th><th>%</th><th><%= t('rev.pool') %></th><th><%= t('rev.total_points') %></th><th><%= t('common.note') %></th></tr></thead><tbody>
+    <% for (const h of history) { %><tr><td><a href="?month=<%= h.month %>"><%= h.month %></a></td><td><%= u.money(h.gross, settings.currency) %></td><td><%= h.share_percent %></td><td><%= u.money(h.pool, settings.currency) %></td><td><%= h.total_points %></td><td class="small"><%= h.note %></td></tr><% } %>
+    </tbody></table>
+  </div>
+</div></div>
+<%- include('../partials/foot') %>

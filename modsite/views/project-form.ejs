@@ -1,0 +1,12 @@
+<%- include('partials/head', { title: t('project.create') }) %>
+<div class="card" style="margin-top:26px;max-width:900px">
+  <h1><%= t('project.create') %></h1>
+  <p class="muted"><%= t('project.create_help') %></p>
+  <% if (typeof errors !== 'undefined') for (const e of errors) { %><div class="flash error"><%= e %></div><% } %>
+  <form method="post" action="/new" enctype="multipart/form-data">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <%- include('partials/project-fields', { p: null, form }) %>
+    <div style="margin-top:18px"><button class="btn primary"><%= t('project.create_btn') %></button></div>
+  </form>
+</div>
+<%- include('partials/foot') %>

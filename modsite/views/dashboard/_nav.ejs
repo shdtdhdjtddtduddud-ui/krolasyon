@@ -1,0 +1,7 @@
+<nav class="card side-nav">
+  <a href="/dashboard" class="<%= path === '/dashboard' ? 'on' : '' %>">📊 <%= t('dash.overview') %></a>
+  <a href="/dashboard/earnings" class="<%= path === '/dashboard/earnings' ? 'on' : '' %>">💰 <%= t('nav.earnings') %></a>
+  <a href="/notifications">🔔 <%= t('nav.notifications') %></a>
+  <a href="/settings">⚙ <%= t('nav.settings') %></a>
+  <a href="/new">＋ <%= t('nav.publish') %></a>
+</nav>

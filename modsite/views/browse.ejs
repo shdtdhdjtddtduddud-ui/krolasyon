@@ -1,0 +1,37 @@
+<%- include('partials/head', { title: t('nav.mods') }) %>
+<% const qs = (extra) => { const o = new URLSearchParams(); for (const [k, v] of Object.entries(q)) { if (k === 'page') continue; (Array.isArray(v) ? v : [v]).forEach(x => o.append(k, x)); } for (const [k, v] of Object.entries(extra)) o.set(k, v); return '/mods?' + o.toString(); }; const has = (k, v) => (Array.isArray(q[k]) ? q[k] : q[k] ? [q[k]] : []).includes(v); %>
+<div class="grid2" style="margin-top:24px">
+  <div>
+    <form class="row" method="get" action="/mods" style="margin-bottom:14px">
+      <input type="search" name="q" value="<%= q.q || '' %>" placeholder="<%= t('nav.search') %>" style="flex:1;min-width:200px">
+      <% for (const k of ['c', 'l', 'v']) { for (const x of (Array.isArray(q[k]) ? q[k] : q[k] ? [q[k]] : [])) { %><input type="hidden" name="<%= k %>" value="<%= x %>"><% } } %>
+      <select name="sort" style="width:auto" onchange="this.form.submit()">
+        <% for (const s of ['relevance', 'downloads', 'follows', 'newest', 'updated']) { %><option value="<%= s %>" <%= (q.sort || 'relevance') === s ? 'selected' : '' %>><%= t('sort.' + s) %></option><% } %>
+      </select>
+      <button class="btn primary"><%= t('common.search') %></button>
+    </form>
+    <div class="muted small" style="margin-bottom:10px"><%= t('browse.results', total) %></div>
+    <% if (!rows.length) { %><div class="card empty"><%= t('browse.none') %></div><% } %>
+    <% rows.forEach((p, i) => { %><%- include('partials/card', { p }) %><% if (i === 4) { %><%- include('partials/ad', { slot: settings.ad_top }) %><% } %><% }) %>
+    <% if (pages > 1) { %><div class="pager">
+      <% for (let i = Math.max(1, page - 3); i <= Math.min(pages, page + 3); i++) { %><% if (i === page) { %><span class="cur"><%= i %></span><% } else { %><a href="<%= qs({ page: i }) %>"><%= i %></a><% } %><% } %>
+    </div><% } %>
+  </div>
+  <aside class="card filters">
+    <form method="get" action="/mods">
+      <input type="hidden" name="q" value="<%= q.q || '' %>"><input type="hidden" name="sort" value="<%= q.sort || '' %>">
+      <h3><%= t('project.categories') %></h3>
+      <% for (const c of u.CATEGORIES) { %><label class="inline"><input type="checkbox" name="c" value="<%= c %>" <%= has('c', c) ? 'checked' : '' %> onchange="this.form.submit()"> <%= t('cat.' + c) %></label><% } %>
+      <h3><%= t('project.loaders') %></h3>
+      <% for (const l of u.LOADERS) { %><label class="inline"><input type="checkbox" name="l" value="<%= l %>" <%= has('l', l) ? 'checked' : '' %> onchange="this.form.submit()"> <%= t('loader.' + l) %></label><% } %>
+      <h3><%= t('project.game_versions') %></h3>
+      <select name="v" onchange="this.form.submit()"><option value=""><%= t('browse.all_versions') %></option>
+        <% for (const v of u.GAME_VERSIONS) { %><option value="<%= v %>" <%= has('v', v) ? 'selected' : '' %>><%= v %></option><% } %>
+      </select>
+      <noscript><button class="btn small" style="margin-top:10px"><%= t('common.apply') %></button></noscript>
+      <div style="margin-top:12px"><a href="/mods" class="small"><%= t('browse.clear') %></a></div>
+    </form>
+    <%- include('partials/ad', { slot: settings.ad_sidebar }) %>
+  </aside>
+</div>
+<%- include('partials/foot') %>

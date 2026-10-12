@@ -1,0 +1,17 @@
+<%- include('../partials/head', { title: t('admin.reports') }) %>
+<div class="layout-side"><%- include('_nav') %><div>
+  <h1><%= t('admin.reports') %></h1>
+  <% if (!items.length) { %><div class="card empty"><%= t('common.nothing') %></div><% } %>
+  <% for (const r of items) { %>
+  <div class="card" style="<%= r.status === 'closed' ? 'opacity:.55' : '' %>">
+    <div class="row"><span class="tag"><%= t('report.' + r.reason) %></span><b><%= r.target_type %></b>
+      <% if (r.target) { %><% if (r.target.slug) { %><a href="/mod/<%= r.target.slug %><%= r.target_type === 'comment' ? '?tab=comments' : '' %>"><%= String(r.target.label).slice(0, 120) %></a><% } else { %><span><%= r.target.label %></span><% } %><% } else { %><span class="muted">(<%= t('admin.gone') %>)</span><% } %>
+      <span class="spacer"></span><span class="muted small"><%= r.reporter || '?' %> · <%= new Date(r.created_at * 1000).toLocaleString(lang) %></span></div>
+    <% if (r.details) { %><p class="muted"><%= r.details %></p><% } %>
+    <% if (r.status === 'open') { %><form method="post" action="/admin/reports/<%= r.id %>" class="row"><input type="hidden" name="_csrf" value="<%= csrf %>">
+      <% if (r.target_type !== 'user') { %><button class="btn small danger" name="action" value="remove"><%= r.target_type === 'project' ? t('admin.unlist') : t('common.delete') %></button><% } %>
+      <button class="btn small" name="action" value="close"><%= t('admin.close') %></button></form><% } %>
+  </div>
+  <% } %>
+</div></div>
+<%- include('../partials/foot') %>

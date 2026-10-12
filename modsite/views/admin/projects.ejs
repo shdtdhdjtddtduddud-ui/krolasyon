@@ -1,0 +1,11 @@
+<%- include('../partials/head', { title: t('admin.projects') }) %>
+<div class="layout-side"><%- include('_nav') %><div>
+  <h1><%= t('admin.projects') %></h1>
+  <div class="card tablewrap"><table class="list"><thead><tr><th><%= t('project.name') %></th><th><%= t('common.downloads') %></th><th><%= t('common.status') %></th><th><%= t('admin.monetized') %></th></tr></thead><tbody>
+  <% for (const p of items) { %><tr>
+    <td><a href="/mod/<%= p.slug %>"><b><%= p.name %></b></a><div class="small muted"><%= p.owner %></div></td><td><%= p.downloads %></td>
+    <td><form method="post" action="/admin/projects/<%= p.id %>"><input type="hidden" name="_csrf" value="<%= csrf %>"><select name="status" onchange="this.form.submit()"><% for (const s of ['draft', 'review', 'approved', 'unlisted', 'rejected']) { %><option value="<%= s %>" <%= p.status === s ? 'selected' : '' %>><%= t('status.' + s) %></option><% } %></select><noscript><button class="btn small">OK</button></noscript></form></td>
+    <td><form method="post" action="/admin/projects/<%= p.id %>"><input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="monetized" value="<%= p.monetized ? '0' : '1' %>"><button class="btn small"><%= p.monetized ? '✔ ' + t('common.yes') : '✖ ' + t('common.no') %></button></form></td>
+  </tr><% } %></tbody></table></div>
+</div></div>
+<%- include('../partials/foot') %>

@@ -1,0 +1,73 @@
+<%- include('partials/head', { title: t('project.edit') + ': ' + p.name }) %>
+<div class="row" style="margin:26px 0 10px">
+  <h1 style="margin:0"><%= p.name %></h1><span class="status <%= p.status %>"><%= t('status.' + p.status) %></span>
+  <span class="spacer"></span><a class="btn" href="/mod/<%= p.slug %>"><%= t('project.view_page') %></a>
+</div>
+<% if (p.moderation_note && p.status !== 'approved') { %><div class="flash error"><b><%= t('project.mod_note') %>:</b> <%= p.moderation_note %></div><% } %>
+<% if (p.status === 'draft' || p.status === 'rejected') { %>
+  <div class="card" style="border-color:var(--accent-d)">
+    <h2>🚀 <%= t('project.publish_title') %></h2>
+    <ol class="muted">
+      <li><%= versions.length ? '✅' : '⬜' %> <%= t('project.check_version') %></li>
+      <li><%= p.description.trim().length >= 100 ? '✅' : '⬜' %> <%= t('project.check_description') %></li>
+      <li><%= p.icon ? '✅' : '⬜' %> <%= t('project.check_icon') %> <span class="small">(<%= t('common.optional') %>)</span></li>
+      <li><%= gallery.length ? '✅' : '⬜' %> <%= t('project.check_gallery') %> <span class="small">(<%= t('common.optional') %>)</span></li>
+    </ol>
+    <form method="post" action="/mod/<%= p.slug %>/submit"><input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn primary"><%= t('project.submit_review') %></button></form>
+  </div>
+<% } else if (p.status === 'review') { %><div class="flash info"><%= t('project.in_review') %></div><% } %>
+
+<div class="card">
+  <h2><%= t('project.info') %></h2>
+  <form method="post" action="/mod/<%= p.slug %>/edit" enctype="multipart/form-data">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <% if (p.icon) { %><img src="<%= p.icon %>" alt="" style="width:72px;height:72px;border-radius:14px;object-fit:cover"><% } %>
+    <%- include('partials/project-fields', { p, form }) %>
+    <div style="margin-top:18px"><button class="btn primary"><%= t('common.save') %></button></div>
+  </form>
+</div>
+
+<div class="card" id="versions">
+  <h2><%= t('tab.versions') %></h2>
+  <% if (versions.length) { %><div class="tablewrap"><table class="list"><thead><tr><th><%= t('version.name') %></th><th><%= t('project.game_versions') %></th><th><%= t('common.downloads') %></th><th></th></tr></thead><tbody>
+    <% for (const v of versions) { %><tr><td><b><%= v.name %></b><div class="small muted"><%= v.version_number %> · <%= v.file_name %> · <%= u.formatBytes(v.file_size) %></div></td><td class="small"><%= u.split(v.game_versions).join(', ') %> · <%= u.split(v.loaders).join(', ') %></td><td><%= v.downloads %></td>
+      <td><form method="post" action="/version/<%= v.id %>/delete" data-confirm="<%= t('common.sure') %>"><input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn small danger"><%= t('common.delete') %></button></form></td></tr><% } %>
+  </tbody></table></div><% } %>
+  <h3 style="margin-top:18px"><%= t('version.upload') %></h3>
+  <form method="post" action="/mod/<%= p.slug %>/versions" enctype="multipart/form-data">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <label><%= t('version.file') %></label><input type="file" name="file" accept=".jar,.zip" required>
+    <div class="help"><%= t('version.file_help', site.name) %></div>
+    <div class="grid3">
+      <div><label><%= t('version.number') %></label><input type="text" name="version_number" maxlength="32" required placeholder="1.0.0"></div>
+      <div><label><%= t('version.name') %></label><input type="text" name="name" maxlength="64" placeholder="<%= p.name %> 1.0.0"></div>
+      <div><label><%= t('version.channel') %></label><select name="channel"><% for (const c of u.CHANNELS) { %><option value="<%= c %>"><%= t('channel.' + c) %></option><% } %></select></div>
+    </div>
+    <label><%= t('project.loaders') %></label>
+    <div class="checks"><% for (const l of u.LOADERS) { %><label class="inline"><input type="checkbox" name="loaders" value="<%= l %>"> <%= t('loader.' + l) %></label><% } %></div>
+    <label><%= t('project.game_versions') %></label>
+    <div class="checks"><% for (const v of u.GAME_VERSIONS) { %><label class="inline"><input type="checkbox" name="game_versions" value="<%= v %>"> <%= v %></label><% } %></div>
+    <label><%= t('version.changelog') %></label><textarea name="changelog" maxlength="20000"></textarea>
+    <div style="margin-top:14px"><button class="btn primary">⬆ <%= t('version.upload') %></button></div>
+  </form>
+</div>
+
+<div class="card" id="gallery">
+  <h2><%= t('tab.gallery') %></h2>
+  <div class="gallery"><% for (const g of gallery) { %><figure><img src="<%= g.path %>" alt=""><figcaption><%= g.featured ? '★ ' : '' %><%= g.title %>
+    <form class="inline" method="post" action="/gallery/<%= g.id %>/delete" data-confirm="<%= t('common.sure') %>"><input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn small danger" style="float:right"><%= t('common.delete') %></button></form></figcaption></figure><% } %></div>
+  <form method="post" action="/mod/<%= p.slug %>/gallery" enctype="multipart/form-data" class="row" style="margin-top:14px;align-items:end">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <div><label><%= t('gallery.image') %></label><input type="file" name="image" accept="image/png,image/jpeg,image/webp,image/gif" required></div>
+    <div style="flex:1;min-width:200px"><label><%= t('gallery.title') %></label><input type="text" name="title" maxlength="100"></div>
+    <label class="inline"><input type="checkbox" name="featured" value="1"> <%= t('gallery.featured') %></label>
+    <button class="btn primary"><%= t('gallery.add') %></button>
+  </form>
+</div>
+
+<div class="card danger-zone">
+  <h2><%= t('project.delete') %></h2>
+  <p class="muted"><%= t('project.delete_help', p.slug) %></p>
+  <form method="post" action="/mod/<%= p.slug %>/delete" class="row"><input type="hidden" name="_csrf" value="<%= csrf %>"><input type="text" name="confirm" placeholder="<%= p.slug %>" style="max-width:260px"><button class="btn danger"><%= t('project.delete') %></button></form>
+</div>
+<%- include('partials/foot') %>

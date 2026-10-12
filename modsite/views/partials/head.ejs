@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="<%= lang %>">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><%= typeof title !== 'undefined' && title ? title + ' - ' : '' %><%= site.name %></title>
+<meta name="description" content="<%= typeof metaDesc !== 'undefined' ? metaDesc : t('meta.description') %>">
+<meta property="og:site_name" content="<%= site.name %>">
+<meta property="og:title" content="<%= typeof title !== 'undefined' && title ? title : site.name %>">
+<% if (typeof ogImage !== 'undefined' && ogImage) { %><meta property="og:image" content="<%= site.url + ogImage %>"><% } %>
+<link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/static/css/style.css">
+<script>try{var th=localStorage.getItem('theme');if(th)document.documentElement.setAttribute('data-theme',th)}catch(e){}</script>
+<%- settings.ad_head %>
+</head>
+<body>
+<% if (settings.announcement) { %><div class="announce"><%= settings.announcement %></div><% } %>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/"><img src="/static/img/logo.svg" alt="" width="30" height="30"><%= site.name %></a>
+    <nav class="nav">
+      <a href="/mods" class="<%= path.startsWith('/mods') ? 'on' : '' %>"><%= t('nav.mods') %></a>
+      <% if (user) { %><a href="/dashboard" class="<%= path.startsWith('/dashboard') ? 'on' : '' %>"><%= t('nav.dashboard') %></a><% } %>
+      <% if (isStaff) { %><a href="/admin" class="<%= path.startsWith('/admin') ? 'on' : '' %>"><%= t('nav.admin') %></a><% } %>
+    </nav>
+    <form class="search-top" action="/mods" method="get"><input type="search" name="q" placeholder="<%= t('nav.search') %>" value="<%= path === '/mods' && query.q ? query.q : '' %>"></form>
+    <span class="spacer"></span>
+    <button class="btn small ghost burger" type="button" aria-label="menu">☰</button>
+    <% if (user) { %>
+      <a class="btn primary small" href="/new">+ <%= t('nav.publish') %></a>
+      <div class="menu">
+        <button type="button"><span class="avatar"><%= user.username[0].toUpperCase() %></span><% if (unread) { %><span class="badge"><%= unread %></span><% } %></button>
+        <div class="dd">
+          <a href="/user/<%= user.username %>"><b><%= user.username %></b></a>
+          <a href="/notifications"><%= t('nav.notifications') %><% if (unread) { %> (<%= unread %>)<% } %></a>
+          <a href="/dashboard"><%= t('nav.dashboard') %></a>
+          <a href="/dashboard/earnings"><%= t('nav.earnings') %></a>
+          <a href="/settings"><%= t('nav.settings') %></a>
+          <% if (isStaff) { %><a href="/admin"><%= t('nav.admin') %></a><% } %>
+          <button type="button" id="theme-toggle"><%= t('nav.theme') %></button>
+          <a href="/lang/<%= lang === 'tr' ? 'en' : 'tr' %>?back=<%= encodeURIComponent(path) %>"><%= lang === 'tr' ? 'English' : 'Türkçe' %></a>
+          <form method="post" action="/logout"><input type="hidden" name="_csrf" value="<%= csrf %>"><button type="submit"><%= t('nav.logout') %></button></form>
+        </div>
+      </div>
+    <% } else { %>
+      <a class="btn small ghost" href="/lang/<%= lang === 'tr' ? 'en' : 'tr' %>?back=<%= encodeURIComponent(path) %>"><%= lang === 'tr' ? 'EN' : 'TR' %></a>
+      <a class="btn small" href="/login"><%= t('nav.login') %></a>
+      <a class="btn primary small" href="/register"><%= t('nav.register') %></a>
+    <% } %>
+  </div>
+</header>
+<main class="wrap">
+<% for (const f of flash) { %><div class="flash <%= f.type %>"><%= f.msg %></div><% } %>

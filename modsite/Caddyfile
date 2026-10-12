@@ -1,0 +1,11 @@
+# Caddy gets a free HTTPS certificate for your domain automatically
+{$DOMAIN} {
+	encode gzip
+	request_body {
+		max_size 120MB
+	}
+	reverse_proxy app:3000
+}
+www.{$DOMAIN} {
+	redir https://{$DOMAIN}{uri} permanent
+}

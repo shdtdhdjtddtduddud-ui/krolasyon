@@ -1,0 +1,14 @@
+<%- include('../partials/head', { title: t('nav.admin') }) %>
+<div class="layout-side"><%- include('_nav') %><div>
+  <h1><%= t('admin.overview') %></h1>
+  <div class="kpis">
+    <a class="kpi" href="/admin/review"><span><%= t('admin.review') %></span><b><%= stats.review %></b></a>
+    <a class="kpi" href="/admin/reports"><span><%= t('admin.open_reports') %></span><b><%= stats.reports %></b></a>
+    <a class="kpi" href="/admin/payouts"><span><%= t('admin.pending_payouts') %></span><b><%= stats.payouts %></b></a>
+    <div class="kpi"><span><%= t('home.projects') %></span><b><%= stats.projects %></b></div>
+    <div class="kpi"><span><%= t('admin.users') %></span><b><%= stats.users %></b></div>
+    <div class="kpi"><span><%= t('common.downloads') %></span><b><%= u.formatNumber(stats.downloads) %></b></div>
+  </div>
+  <div class="card"><h2><%= t('admin.checklist') %></h2><ol class="muted"><li><%= t('admin.c1') %></li><li><%= t('admin.c2') %></li><li><%= t('admin.c3') %></li><li><%= t('admin.c4') %></li></ol></div>
+</div></div>
+<%- include('../partials/foot') %>

@@ -1,0 +1,15 @@
+<%- include('../partials/head', { title: t('nav.login') }) %>
+<div class="card auth">
+  <h1><%= t('nav.login') %></h1>
+  <% if (typeof errors !== 'undefined') for (const e of errors) { %><div class="flash error"><%= e %></div><% } %>
+  <form method="post" action="/login">
+    <input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="next" value="<%= next %>">
+    <label><%= t('auth.login_id') %></label><input type="text" name="login" required autofocus value="<%= typeof login !== 'undefined' ? login : '' %>">
+    <label><%= t('auth.password') %></label><input type="password" name="password" required>
+    <label class="inline"><input type="checkbox" name="remember" value="1"> <%= t('auth.remember') %></label>
+    <div style="margin-top:14px"><button class="btn primary" style="width:100%;justify-content:center"><%= t('nav.login') %></button></div>
+  </form>
+  <p class="muted small" style="margin-top:14px"><%= t('auth.no_account') %> <a href="/register"><%= t('nav.register') %></a></p>
+  <p class="muted small"><%= t('auth.forgot', site.contact) %></p>
+</div>
+<%- include('../partials/foot') %>

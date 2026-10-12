@@ -1,0 +1,18 @@
+<%- include('../partials/head', { title: t('admin.payouts') }) %>
+<div class="layout-side"><%- include('_nav') %><div>
+  <h1><%= t('admin.payouts') %></h1>
+  <% if (!items.length) { %><div class="card empty"><%= t('common.nothing') %></div><% } %>
+  <% for (const p of items) { %>
+  <div class="card" style="<%= p.status !== 'pending' ? 'opacity:.6' : '' %>">
+    <div class="row"><b><%= p.username %></b><span class="muted small"><%= p.email %></span><span class="spacer"></span><span class="status <%= p.status %>"><%= t('payst.' + p.status) %></span></div>
+    <div style="font-size:22px;font-weight:800;margin:6px 0"><%= u.money(p.amount, settings.currency) %></div>
+    <div class="small"><%= t('pay.' + p.method) %>: <code><%= p.details %></code></div>
+    <div class="small muted"><%= new Date(p.created_at * 1000).toLocaleString(lang) %></div>
+    <% if (p.status === 'pending') { %><form method="post" action="/admin/payouts/<%= p.id %>" class="row" style="margin-top:10px"><input type="hidden" name="_csrf" value="<%= csrf %>">
+      <input type="text" name="note" placeholder="<%= t('admin.payout_note_ph') %>" style="flex:1;min-width:200px">
+      <button class="btn primary" name="action" value="paid">✔ <%= t('admin.mark_paid') %></button><button class="btn danger" name="action" value="rejected">✖ <%= t('admin.reject') %></button></form>
+    <% } else if (p.note) { %><div class="small muted"><%= p.note %></div><% } %>
+  </div>
+  <% } %>
+</div></div>
+<%- include('../partials/foot') %>

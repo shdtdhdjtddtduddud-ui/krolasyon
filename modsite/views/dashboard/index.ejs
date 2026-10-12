@@ -1,0 +1,25 @@
+<%- include('../partials/head', { title: t('nav.dashboard') }) %>
+<div class="layout-side">
+  <%- include('_nav') %>
+  <div>
+    <div class="kpis">
+      <div class="kpi"><span><%= t('common.downloads') %></span><b><%= u.formatNumber(totals.downloads) %></b></div>
+      <div class="kpi"><span><%= t('dash.views') %></span><b><%= u.formatNumber(totals.views) %></b></div>
+      <div class="kpi"><span><%= t('common.follows') %></span><b><%= u.formatNumber(totals.follows) %></b></div>
+      <div class="kpi"><span><%= t('earn.available') %></span><b><%= u.money(bal.available, settings.currency) %></b></div>
+    </div>
+    <div class="card">
+      <div class="row"><h2 style="margin:0"><%= t('dash.last30') %></h2><span class="spacer"></span><div class="legend"><span><i style="background:var(--info)"></i><%= t('dash.views') %></span><span><i style="background:var(--accent)"></i><%= t('common.downloads') %></span></div></div>
+      <% const max = Math.max(1, ...daily.map(d => d.views + d.downloads)); %>
+      <div class="chart"><% for (const d of daily) { %><div title="<%= d.day %>: <%= d.views %> / <%= d.downloads %>"><i class="v" style="height:<%= d.views / max * 100 %>%"></i><i class="d" style="height:<%= d.downloads / max * 100 %>%"></i></div><% } %></div>
+    </div>
+    <div class="card">
+      <div class="row"><h2 style="margin:0"><%= t('user.projects') %></h2><span class="spacer"></span><a class="btn primary small" href="/new">+ <%= t('nav.publish') %></a></div>
+      <% if (!projects.length) { %><div class="empty"><%= t('dash.no_projects') %></div><% } else { %>
+      <div class="tablewrap"><table class="list" style="margin-top:10px"><thead><tr><th><%= t('project.name') %></th><th><%= t('common.status') %></th><th><%= t('common.downloads') %></th><th><%= t('dash.views') %></th><th></th></tr></thead><tbody>
+        <% for (const p of projects) { %><tr><td><a href="/mod/<%= p.slug %>"><b><%= p.name %></b></a></td><td><span class="status <%= p.status %>"><%= t('status.' + p.status) %></span></td><td><%= p.downloads %></td><td><%= p.views %></td><td><a class="btn small" href="/mod/<%= p.slug %>/edit"><%= t('project.edit') %></a></td></tr><% } %>
+      </tbody></table></div><% } %>
+    </div>
+  </div>
+</div>
+<%- include('../partials/foot') %>
