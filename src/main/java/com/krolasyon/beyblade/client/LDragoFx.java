@@ -34,7 +34,7 @@ public final class LDragoFx {
         float a = Mth.clamp(strength, 0F, 1F);
         if (a <= 0.01F || size <= 0.01F) return;
         VertexConsumer vc = Fx.bufT(buf, DRAGON, 0.9F * a);
-        Fx.billboard(vc, pose, cam, x, y, z, size, 0F, new float[]{0.95F, 0.12F, 0.38F});
+        Fx.billboard(vc, pose, cam, x, y, z, size, 0F, new float[]{0.9F, 0.06F, 0.3F});
         Fx.alpha = 1F;
         vc = Fx.buf(buf, DRAGON);
         Fx.billboard(vc, pose, cam, x, y, z, size * 1.04F, 0F, k(MAGENTA, 0.35F * a));

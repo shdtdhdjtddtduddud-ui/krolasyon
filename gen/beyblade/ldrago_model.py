@@ -383,7 +383,9 @@ def textures():
     halo = core.filter(ImageFilter.GaussianBlur(6))
     a = np.clip(np.asarray(core).astype(np.float32) / 255 + np.asarray(halo).astype(np.float32) / 255 * 0.9, 0, 1)
     os.makedirs(os.path.join(ASSETS, 'textures/fx'), exist_ok=True)
-    Image.fromarray((np.dstack([a, a, a, a]) * 255).astype(np.uint8), 'RGBA').save(os.path.join(ASSETS, 'textures/fx/dragon.png'))
+    sharp = np.asarray(core).astype(np.float32) / 255
+    # rgb = core + halo (additive glow pass), alpha = sharp silhouette only (translucent pass keeps the detail)
+    Image.fromarray((np.dstack([a, a, a, sharp]) * 255).astype(np.uint8), 'RGBA').save(os.path.join(ASSETS, 'textures/fx/dragon.png'))
 
     # item / HUD icon
     icon = face.resize((64, 64), Image.LANCZOS)
