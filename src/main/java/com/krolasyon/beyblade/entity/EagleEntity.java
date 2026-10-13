@@ -155,8 +155,10 @@ public class EagleEntity extends BeybladeEntity {
                     setNoGravity(true);
                     Vec3 d = target.position().add(0, 0.5, 0).subtract(position());
                     double len = d.length();
-                    setDeltaMovement(d.scale(Math.min(1.3, len) / Math.max(1.0E-3, len)));
-                    if (len < 1.4) {
+                    // ease in so the swoop ends right above the target instead of bouncing off it
+                    setDeltaMovement(d.scale(Math.min(1.2, Math.max(0.0, len - 0.9)) / Math.max(1.0E-3, len)));
+                    if (len < 2.2) {
+                        setDeltaMovement(Vec3.ZERO);
                         grabTick = t;
                         play(ModSounds.CLASH_HEAVY.get(), 1.4F, 1.2F);
                         this.level().broadcastEntityEvent(this, EV_GRAB);

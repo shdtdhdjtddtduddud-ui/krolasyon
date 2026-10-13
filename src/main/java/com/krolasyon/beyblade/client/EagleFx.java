@@ -44,10 +44,10 @@ public final class EagleFx {
         pose.mulPose(cam);
         pose.scale(1F + 0.12F * flap, 1F - 0.18F * flap, 1F);
         VertexConsumer vc = Fx.bufT(buf, EAGLE, 0.88F * a);
-        Fx.billboard(vc, pose, new Quaternionf(), 0, 0, 0, size, 0F, new float[]{0.55F, 0.25F, 0.95F});
+        Fx.billboard(vc, pose, new Quaternionf(), 0, 0, 0, size, 0F, new float[]{0.36F, 0.12F, 0.78F});
         Fx.alpha = 1F;
         vc = Fx.buf(buf, EAGLE);
-        Fx.billboard(vc, pose, new Quaternionf(), 0, 0, 0, size * 1.05F, 0F, k(GOLD, 0.45F * a));
+        Fx.billboard(vc, pose, new Quaternionf(), 0, 0, 0, size * 1.05F, 0F, k(new float[]{0.55F, 0.35F, 1F}, 0.3F * a));
         pose.popPose();
     }
 

@@ -58,7 +58,7 @@ public final class AutoTest {
                 "time set 6000", "weather clear", "difficulty peaceful", "gamemode spectator @a", "kill @e[type=!player]",
                 "fill -2 -60 -2 2 -60 2 minecraft:smooth_stone");
         // ---- Earth Eagle model close-ups
-        cmd(4, null, "summon librabeyblade:eagle 0 -59 0 {Spin:3000f,MaxSpin:3000f,Frozen:1b}", "tp @a 0.5 -57.3 1.6 180 42");
+        cmd(4, null, "summon librabeyblade:eagle 0 -59 0 {Spin:3000f,MaxSpin:3000f,Frozen:1b}", "tp @a 0.5 -57.6 1.4 180 50");
         wait(30, "eagle_close");
         cmd(10, "eagle_side", "tp @a 0.5 -58.2 2.6 180 18");
         cmd(10, "eagle_far", "tp @a 2.2 -57.5 2.2 135 30");
