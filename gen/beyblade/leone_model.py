@@ -80,7 +80,7 @@ def classes():
     dx, dy = XX - HEX_CX, YY - HEX_CY
     rr = np.hypot(dx, dy)
     inhex = rr < HEX_R * 0.8
-    emblem = inhex & (sat > 0.3)
+    emblem = inhex & (g > r * 1.35) & (g > b * 1.2) & (sat > 0.35) & (YY < HEX_CY + 6)   # green lion head only
     return green, yellow, navy, white, dark, grey, emblem
 
 
