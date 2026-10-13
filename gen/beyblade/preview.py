@@ -4,6 +4,7 @@ import numpy as np
 from PIL import Image
 
 NAME = sys.argv[2] if len(sys.argv) > 2 else 'libra'
+TEXNAME = sys.argv[3] if len(sys.argv) > 3 else NAME
 HERE = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.join(HERE, '..', '..', 'src/main/resources/assets/librabeyblade')
 
@@ -24,9 +25,9 @@ def load():
 
 def render(yaw, pitch, size=700, glow=0.0, out=None):
     g = load()
-    face = np.asarray(Image.open(os.path.join(ASSETS, 'textures/entity/{}_face.png'.format(NAME))).convert('RGBA')).astype(np.float32)
-    parts = np.asarray(Image.open(os.path.join(ASSETS, 'textures/entity/{}_parts.png'.format(NAME))).convert('RGBA')).astype(np.float32)
-    gl = np.asarray(Image.open(os.path.join(ASSETS, 'textures/entity/{}_glow.png'.format(NAME))).convert('RGBA')).astype(np.float32)
+    face = np.asarray(Image.open(os.path.join(ASSETS, 'textures/entity/{}_face.png'.format(TEXNAME))).convert('RGBA')).astype(np.float32)
+    parts = np.asarray(Image.open(os.path.join(ASSETS, 'textures/entity/{}_parts.png'.format(TEXNAME))).convert('RGBA')).astype(np.float32)
+    gl = np.asarray(Image.open(os.path.join(ASSETS, 'textures/entity/{}_glow.png'.format(TEXNAME))).convert('RGBA')).astype(np.float32)
     ya, pa = math.radians(yaw), math.radians(pitch)
     Ry = np.array([[math.cos(ya), 0, math.sin(ya)], [0, 1, 0], [-math.sin(ya), 0, math.cos(ya)]])
     Rx = np.array([[1, 0, 0], [0, math.cos(pa), -math.sin(pa)], [0, math.sin(pa), math.cos(pa)]])

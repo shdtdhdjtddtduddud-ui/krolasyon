@@ -2,6 +2,7 @@ package com.krolasyon.beyblade.registry;
 
 import com.krolasyon.beyblade.LibraBeyblade;
 import com.krolasyon.beyblade.entity.BeybladeEntity;
+import com.krolasyon.beyblade.entity.CommonBeybladeEntity;
 import com.krolasyon.beyblade.entity.LDragoEntity;
 import com.krolasyon.beyblade.entity.LeoneEntity;
 import com.krolasyon.beyblade.entity.EagleEntity;
@@ -53,4 +54,10 @@ public final class ModEntities {
                     .sized(BeybladeEntity.WIDTH, BeybladeEntity.HEIGHT).fireImmune()
                     .clientTrackingRange(10).updateInterval(1).setShouldReceiveVelocityUpdates(true)
                     .build("pegasus"));
+
+    public static final RegistryObject<EntityType<CommonBeybladeEntity>> COMMON = ENTITIES.register("common",
+            () -> EntityType.Builder.<CommonBeybladeEntity>of(CommonBeybladeEntity::new, MobCategory.MISC)
+                    .sized(BeybladeEntity.WIDTH, BeybladeEntity.HEIGHT).fireImmune()
+                    .clientTrackingRange(10).updateInterval(1).setShouldReceiveVelocityUpdates(true)
+                    .build("common"));
 }

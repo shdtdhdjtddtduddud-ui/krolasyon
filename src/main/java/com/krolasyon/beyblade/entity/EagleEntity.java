@@ -64,6 +64,7 @@ public class EagleEntity extends BeybladeEntity {
     }
 
     // ---------------- hooks ----------------
+    @Override public int nativeMode() { return MODE_STAMINA; }
     @Override public String kindId() { return "eagle"; }
     @Override public String abilityKey(int id) { return "ability.librabeyblade.eagle." + id; }
     @Override public int duration(int id) { return EA_DURATION[id]; }
@@ -87,7 +88,7 @@ public class EagleEntity extends BeybladeEntity {
     @Override
     protected void onBuffStart(@Nullable Player owner) {
         play(ModSounds.EAGLE_SCREECH.get(), 1.6F, 1.1F);
-        ((ServerLevel) this.level()).sendParticles(VIOLET, getX(), getY() + 0.6, getZ(), 30, 0.6, 0.4, 0.6, 0);
+        Px.send((ServerLevel) this.level(), VIOLET, getX(), getY() + 0.6, getZ(), 30, 0.6, 0.4, 0.6, 0);
     }
 
     @Override
@@ -131,7 +132,7 @@ public class EagleEntity extends BeybladeEntity {
                             l.hurt(damageSources().indirectMagic(this, owner), 3F);
                             l.knockback(0.5, -out.x, -out.z);
                         }
-                        sl.sendParticles(SILVER, e.getX(), e.getY() + 0.5, e.getZ(), 6, 0.2, 0.2, 0.2, 0);
+                        Px.send(sl, SILVER, e.getX(), e.getY() + 0.5, e.getZ(), 6, 0.2, 0.2, 0.2, 0);
                     }
                 }
                 return true;
@@ -178,7 +179,7 @@ public class EagleEntity extends BeybladeEntity {
                     target.hurtMarked = true;
                     target.fallDistance = 0;
                     if (target instanceof BeybladeEntity b) b.damageSpin(2.5F, this);
-                    if (carry % 4 == 0) sl.sendParticles(VIOLET, getX(), getY() - 0.3, getZ(), 4, 0.3, 0.2, 0.3, 0);
+                    if (carry % 4 == 0) Px.send(sl, VIOLET, getX(), getY() - 0.3, getZ(), 4, 0.3, 0.2, 0.3, 0);
                     return true;
                 }
                 if (carry == T_CARRY) {
@@ -225,8 +226,8 @@ public class EagleEntity extends BeybladeEntity {
                             l.hurt(damageSources().indirectMagic(this, owner), 6F);
                             l.knockback(0.9, -out.x, -out.z);
                         }
-                        sl.sendParticles(ParticleTypes.SWEEP_ATTACK, e.getX(), e.getY() + 0.5, e.getZ(), 1, 0, 0, 0, 0);
-                        sl.sendParticles(ParticleTypes.ELECTRIC_SPARK, e.getX(), e.getY() + 0.5, e.getZ(), 10, 0.2, 0.2, 0.2, 0.3);
+                        Px.send(sl, ParticleTypes.SWEEP_ATTACK, e.getX(), e.getY() + 0.5, e.getZ(), 1, 0, 0, 0, 0);
+                        Px.send(sl, ParticleTypes.ELECTRIC_SPARK, e.getX(), e.getY() + 0.5, e.getZ(), 10, 0.2, 0.2, 0.2, 0.3);
                         play(ModSounds.CLASH.get(), 1.0F, 1.3F);
                     }
                 }
@@ -247,7 +248,7 @@ public class EagleEntity extends BeybladeEntity {
                             l.invulnerableTime = 0;
                             l.hurt(damageSources().indirectMagic(this, owner), 4F);
                         }
-                        sl.sendParticles(ParticleTypes.END_ROD, tgt.getX(), tgt.getY() + 0.3, tgt.getZ(), 8, 0.2, 0.1, 0.2, 0.15);
+                        Px.send(sl, ParticleTypes.END_ROD, tgt.getX(), tgt.getY() + 0.3, tgt.getZ(), 8, 0.2, 0.1, 0.2, 0.15);
                     }
                 }
                 if (t == S_SCREECH) {
@@ -292,7 +293,7 @@ public class EagleEntity extends BeybladeEntity {
                 dodgeY = getY();
                 dodgeZ = getZ();
                 for (int i = 0; i < 14; i++)
-                    this.level().addParticle(i % 2 == 0 ? VIOLET : SILVER, getX(), getY() + 0.4, getZ(), this.random.nextGaussian() * 0.15, 0.08, this.random.nextGaussian() * 0.15);
+                    Px.add(this.level(), i % 2 == 0 ? VIOLET : SILVER, getX(), getY() + 0.4, getZ(), this.random.nextGaussian() * 0.15, 0.08, this.random.nextGaussian() * 0.15);
             }
             case EV_GRAB -> grabTime = this.tickCount;
             case EV_SLAM -> slamTime = this.tickCount;
@@ -305,7 +306,7 @@ public class EagleEntity extends BeybladeEntity {
     protected void clientBuffParticles(Level lv) {
         if (this.random.nextInt(2) == 0) {
             double a = this.random.nextDouble() * Math.PI * 2;
-            lv.addParticle(VIOLET, getX() + Math.cos(a) * 0.5, getY() + 0.5, getZ() + Math.sin(a) * 0.5, -getDeltaMovement().x * 0.3, 0.02, -getDeltaMovement().z * 0.3);
+            Px.add(lv, VIOLET, getX() + Math.cos(a) * 0.5, getY() + 0.5, getZ() + Math.sin(a) * 0.5, -getDeltaMovement().x * 0.3, 0.02, -getDeltaMovement().z * 0.3);
         }
     }
 
@@ -315,19 +316,19 @@ public class EagleEntity extends BeybladeEntity {
             case EA_FEATHER -> {
                 if (at < F_GATHER) {
                     double a = this.random.nextDouble() * Math.PI * 2;
-                    lv.addParticle(SILVER, getX() + Math.cos(a) * 2.5, getY() + 0.6, getZ() + Math.sin(a) * 2.5, -Math.cos(a) * 0.2, 0, -Math.sin(a) * 0.2);
+                    Px.add(lv, SILVER, getX() + Math.cos(a) * 2.5, getY() + 0.6, getZ() + Math.sin(a) * 2.5, -Math.cos(a) * 0.2, 0, -Math.sin(a) * 0.2);
                 }
             }
-            case EA_TALON -> lv.addParticle(VIOLET, getX(), getY() + 0.3, getZ(), 0, -0.05, 0);
+            case EA_TALON -> Px.add(lv, VIOLET, getX(), getY() + 0.3, getZ(), 0, -0.05, 0);
             case EA_WING -> {
                 if (at > W_OPEN && at < W_CLOSE) {
                     double a = this.random.nextDouble() * Math.PI * 2;
-                    lv.addParticle(ParticleTypes.ELECTRIC_SPARK, getX() + Math.cos(a) * W_RADIUS, getY() + 0.4, getZ() + Math.sin(a) * W_RADIUS, 0, 0.05, 0);
+                    Px.add(lv, ParticleTypes.ELECTRIC_SPARK, getX() + Math.cos(a) * W_RADIUS, getY() + 0.4, getZ() + Math.sin(a) * W_RADIUS, 0, 0.05, 0);
                 }
             }
             case EA_SKY -> {
                 double a = this.random.nextDouble() * Math.PI * 2, r = this.random.nextDouble() * S_RANGE;
-                lv.addParticle(VIOLET, abilityX + Math.cos(a) * r, abilityY + 6 + this.random.nextDouble() * 6, abilityZ + Math.sin(a) * r, 0, -0.1, 0);
+                Px.add(lv, VIOLET, abilityX + Math.cos(a) * r, abilityY + 6 + this.random.nextDouble() * 6, abilityZ + Math.sin(a) * r, 0, -0.1, 0);
             }
             default -> {}
         }

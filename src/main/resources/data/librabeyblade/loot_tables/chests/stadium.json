@@ -1,0 +1,207 @@
+{
+ "type": "minecraft:chest",
+ "pools": [
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:common_iron_bull",
+     "weight": 1
+    },
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:common_frost_wolf",
+     "weight": 1
+    },
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:common_jade_turtle",
+     "weight": 1
+    },
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:common_thunder_viper",
+     "weight": 1
+    },
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:common_shadow_bat",
+     "weight": 1
+    },
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:common_sky_falcon",
+     "weight": 1
+    },
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:common_crimson_scorpion",
+     "weight": 1
+    },
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:common_golden_phoenix",
+     "weight": 1
+    },
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:common_ocean_shark",
+     "weight": 1
+    },
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:common_storm_fox",
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:standard_launcher",
+     "weight": 3
+    },
+    {
+     "type": "minecraft:empty",
+     "weight": 2
+    }
+   ]
+  },
+  {
+   "rolls": 1,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:flame_libra",
+     "weight": 1
+    },
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:ldrago_destruction",
+     "weight": 1
+    },
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:rock_leone",
+     "weight": 1
+    },
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:earth_eagle",
+     "weight": 1
+    },
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:storm_pegasus",
+     "weight": 1
+    },
+    {
+     "type": "minecraft:empty",
+     "weight": 45
+    }
+   ]
+  },
+  {
+   "rolls": {
+    "type": "minecraft:uniform",
+    "min": 2,
+    "max": 4
+   },
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:iron_ingot",
+     "weight": 10,
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "type": "minecraft:uniform",
+        "min": 1,
+        "max": 4
+       }
+      }
+     ]
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:redstone",
+     "weight": 8,
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "type": "minecraft:uniform",
+        "min": 2,
+        "max": 6
+       }
+      }
+     ]
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:diamond",
+     "weight": 2,
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "type": "minecraft:uniform",
+        "min": 1,
+        "max": 2
+       }
+      }
+     ]
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:emerald",
+     "weight": 4,
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "type": "minecraft:uniform",
+        "min": 1,
+        "max": 3
+       }
+      }
+     ]
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:string",
+     "weight": 8,
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "type": "minecraft:uniform",
+        "min": 2,
+        "max": 5
+       }
+      }
+     ]
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:bread",
+     "weight": 6,
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "type": "minecraft:uniform",
+        "min": 1,
+        "max": 3
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

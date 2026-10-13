@@ -55,6 +55,20 @@ public final class ModItems {
     public static final RegistryObject<Item> RIVAL_PEGASUS = ITEMS.register("rival_pegasus",
             () -> new RivalLibraItem(new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON), ModEntities.PEGASUS));
 
+    /** the ten ordinary beyblades, in {@link com.krolasyon.beyblade.entity.CommonBeybladeEntity#VARIANTS} order */
+    public static final java.util.List<RegistryObject<Item>> COMMONS = new java.util.ArrayList<>();
+
+    static {
+        for (int i = 0; i < com.krolasyon.beyblade.entity.CommonBeybladeEntity.VARIANTS.length; i++) {
+            final int v = i;
+            COMMONS.add(ITEMS.register("common_" + com.krolasyon.beyblade.entity.CommonBeybladeEntity.VARIANTS[i].id(),
+                    () -> new LibraItem(new Item.Properties().stacksTo(1).rarity(Rarity.COMMON), "common_" + v)));
+        }
+    }
+
+    public static final RegistryObject<Item> STANDARD_LAUNCHER = ITEMS.register("standard_launcher",
+            () -> new LauncherItem(new Item.Properties().stacksTo(1), null, null));
+
     public static final RegistryObject<Item> STADIUM = ITEMS.register("stadium",
             () -> new com.krolasyon.beyblade.item.StadiumItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE)));
 
@@ -62,6 +76,8 @@ public final class ModItems {
             .title(Component.translatable("itemGroup.librabeyblade"))
             .icon(() -> new ItemStack(LIBRA.get()))
             .displayItems((params, output) -> {
+                output.accept(STANDARD_LAUNCHER.get());
+                for (RegistryObject<Item> c : COMMONS) output.accept(c.get());
                 output.accept(LIBRA.get());
                 output.accept(LAUNCHER.get());
                 output.accept(RIVAL.get());

@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
@@ -24,8 +25,7 @@ import static com.krolasyon.beyblade.entity.StadiumEntity.*;
  */
 public class StadiumRenderer extends EntityRenderer<StadiumEntity> {
     private static final ResourceLocation TEX = new ResourceLocation(LibraBeyblade.MODID, "textures/entity/stadium.png");
-    private static final int SEGS = 96;
-    private static final float TIER2_Y = 0.85F, TIER1_Y = 0.45F, APOTHEM2 = 8.9F, APOTHEM1 = 9.6F, SLOPE_R = 8.6F;
+    private static final int SEGS = 128;
     private static float[] mesh;
 
     public StadiumRenderer(EntityRendererProvider.Context ctx) {
@@ -44,7 +44,27 @@ public class StadiumRenderer extends EntityRenderer<StadiumEntity> {
             vc.vertex(m, d[i], d[i + 1], d[i + 2]).color(1F, 1F, 1F, 1F).uv(d[i + 3], d[i + 4]).overlayCoords(OverlayTexture.NO_OVERLAY)
                     .uv2(light).normal(n, d[i + 5], d[i + 6], d[i + 7]).endVertex();
         }
+        renderPads(e, partial, pose, buf);
         super.render(e, yaw, partial, pose, buf, light);
+    }
+
+    /** glowing launch pads at both ends: blue (side A, +z) and red (side B, -z) */
+    private void renderPads(StadiumEntity e, float partial, PoseStack pose, MultiBufferSource buf) {
+        float t = e.tickCount + partial;
+        boolean live = e.matchState() != StadiumEntity.M_IDLE;
+        for (int side = 0; side < 2; side++) {
+            float[] c = side == 0 ? new float[]{0.25F, 0.55F, 1F} : new float[]{1F, 0.25F, 0.2F};
+            float pulse = 0.65F + 0.35F * Mth.sin(t * (live ? 0.3F : 0.1F) + side * 3F);
+            pose.pushPose();
+            pose.translate(0, 0.03, side == 0 ? PAD_R : -PAD_R);
+            Matrix4f m = pose.last().pose();
+            VertexConsumer vc = Fx.buf(buf, Fx.SIGIL);
+            Fx.groundQuad(vc, m, 0.02F, PAD_HALF, Fx.c(c[0], c[1], c[2], 0.9F * pulse));
+            vc = Fx.buf(buf, Fx.SOFT);
+            Fx.ring(vc, m, 0.03F, PAD_HALF * 0.95F, PAD_HALF * 1.15F, 32, Fx.c(c[0], c[1], c[2], pulse), 1F, 0F);
+            Fx.band(vc, m, PAD_HALF * 1.05F, 0F, PAD_HALF * 1.05F, 1.4F * pulse, 32, Fx.c(c[0], c[1], c[2], 0.5F * pulse), new float[]{0, 0, 0}, 1F, 0F, 1F, 0F);
+            pose.popPose();
+        }
     }
 
     @Override
@@ -94,7 +114,7 @@ public class StadiumRenderer extends EntityRenderer<StadiumEntity> {
     private static float[] build() {
         V.clear();
         // ---- bowl floor (planar uv into the 256x256 floor region)
-        int RINGS = 24;
+        int RINGS = 32;
         for (int j = 0; j < RINGS; j++) {
             double r0 = BOWL_R * j / RINGS, r1 = BOWL_R * (j + 1) / RINGS;
             for (int i = 0; i < SEGS; i++) {
@@ -135,7 +155,7 @@ public class StadiumRenderer extends EntityRenderer<StadiumEntity> {
             vert(Math.cos(a1) * r1, 0, Math.sin(a1) * r1, u1, v0, nx, 0, nz);
         }
         // ---- four striped walls
-        int WS = 24;
+        int WS = 40;
         for (int w = 0; w < 4; w++) {
             double c = Math.toRadians(45 + 90 * w), h = Math.toRadians(WALL_HALF_DEG);
             for (int i = 0; i < WS; i++) {

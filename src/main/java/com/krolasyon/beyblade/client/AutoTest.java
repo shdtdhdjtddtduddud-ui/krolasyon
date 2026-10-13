@@ -42,7 +42,11 @@ public final class AutoTest {
     private int stepStart;
     private boolean showGui;
 
-    record Step(int delay, String shot, Consumer<MinecraftServer> action, Boolean gui) {}
+    record Step(int delay, String shot, Consumer<MinecraftServer> action, Boolean gui, Consumer<Minecraft> clientAction) {
+        Step(int delay, String shot, Consumer<MinecraftServer> action, Boolean gui) { this(delay, shot, action, gui, null); }
+    }
+
+    private boolean allowScreen;
 
     public static void init() {
         LOG.info("[AUTOTEST] enabled");
@@ -50,76 +54,67 @@ public final class AutoTest {
         MinecraftForge.EVENT_BUS.register(new AutoTest());
     }
 
-    private static final String A = "summon librabeyblade:pegasus 0 -60 -6 {Spin:3000f,MaxSpin:3000f,Frozen:1b,Tags:[\"a\"]}";
+    private static final String A = "summon librabeyblade:leone 0 -60 -6 {Spin:3000f,MaxSpin:3000f,Tags:[\"a\"]}";
     private static final String B = "summon librabeyblade:eagle 3.5 -60 -9 {Spin:3000f,MaxSpin:3000f,Frozen:1b,Tags:[\"b\"]}";
 
     private AutoTest() {
         cmd(0, null, "gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false",
                 "time set 6000", "weather clear", "difficulty peaceful", "gamemode spectator @a", "kill @e[type=!player]",
-                "fill -2 -60 -2 2 -60 2 minecraft:smooth_stone");
-        // ---- Earth Eagle model close-ups
-        cmd(4, null, "summon librabeyblade:pegasus 0 -59 0 {Spin:3000f,MaxSpin:3000f,Frozen:1b}", "tp @a 0.5 -57.6 1.4 180 50");
-        wait(30, "pegasus_close");
-        cmd(10, "pegasus_side", "tp @a 0.5 -58.2 2.6 180 18");
-        cmd(10, "pegasus_far", "tp @a 2.2 -57.5 2.2 135 30");
-        // ---- four-way battle in the stadium
-        cmd(10, null, "kill @e[type=!player]", "fill -2 -60 -2 2 -60 2 minecraft:air", "summon librabeyblade:stadium 0.5 -60 -9.5", "tp @a 0.5 -53 3 180 35",
-                "summon librabeyblade:pegasus -3 -57 -9.5 {Spin:3000f,MaxSpin:3000f}", "summon librabeyblade:eagle 4 -57 -9.5 {Spin:3000f,MaxSpin:3000f}",
-                "summon librabeyblade:ldrago 0.5 -57 -13 {Spin:3000f,MaxSpin:3000f}", "summon librabeyblade:libra 0.5 -57 -6 {Spin:3000f,MaxSpin:3000f}");
-        wait(30, "stadium_battle_a");
-        wait(30, "stadium_battle_b");
-        wait(40, "stadium_battle_c");
-        // ---- Storm Pegasus abilities on an Earth Eagle target
-        cmd(10, null, "kill @e[type=!player]", "tp @a 1.5 -58.4 2 180 18", A, B);
-        wait(20, null);
-        force(1);
-        wait(14, "pegasus_wings");
-        wait(30, null);
-        cmd(4, null, "tp @a 1.5 -55 9 180 -10", "kill @e[type=!player]", A, B,
-                "summon librabeyblade:leone -3 -60 -4 {Spin:3000f,MaxSpin:3000f,Frozen:1b}");
-        wait(15, null);
-        force(2);
-        wait(16, "storm_cloud");
-        wait(14, "storm_strike_a");
-        wait(11, "storm_strike_b");
-        wait(70, null);
-        cmd(4, null, "tp @a 1.5 -54 6 180 30", "kill @e[type=!player]", A, B);
-        wait(15, null);
-        force(3);
-        wait(18, "star_points");
-        wait(12, "star_lines");
-        wait(18, "star_collapse");
-        wait(4, "star_nova");
-        wait(40, null);
-        cmd(4, null, "tp @a 1.5 -54 6 180 30", "kill @e[type=!player]", A, B,
-                "summon librabeyblade:leone -3 -60 -4 {Spin:3000f,MaxSpin:3000f,Frozen:1b}");
-        wait(15, null);
-        force(4);
-        wait(10, "rico_a");
-        wait(14, "rico_b");
-        wait(60, null);
-        cmd(4, null, "tp @a 1.5 -51 8 180 40", "kill @e[type=!player]", A, B,
-                "summon librabeyblade:leone -3 -60 -4 {Spin:3000f,MaxSpin:3000f,Frozen:1b}");
+                "fill -6 -60 -2 6 -60 2 minecraft:smooth_stone");
+        // ---- the ten common beyblades in a row
+        cmd(4, null, "summon librabeyblade:common -4 -59 0 {Variant:0,Spin:3000f,MaxSpin:3000f,Frozen:1b}",
+                "summon librabeyblade:common -3 -59 0 {Variant:1,Spin:3000f,MaxSpin:3000f,Frozen:1b}",
+                "summon librabeyblade:common -2 -59 0 {Variant:2,Spin:3000f,MaxSpin:3000f,Frozen:1b}",
+                "summon librabeyblade:common -1 -59 0 {Variant:3,Spin:3000f,MaxSpin:3000f,Frozen:1b}",
+                "summon librabeyblade:common 0 -59 0 {Variant:4,Spin:3000f,MaxSpin:3000f,Frozen:1b}",
+                "summon librabeyblade:common 1 -59 0 {Variant:5,Spin:3000f,MaxSpin:3000f,Frozen:1b}",
+                "summon librabeyblade:common 2 -59 0 {Variant:6,Spin:3000f,MaxSpin:3000f,Frozen:1b}",
+                "summon librabeyblade:common 3 -59 0 {Variant:7,Spin:3000f,MaxSpin:3000f,Frozen:1b}",
+                "summon librabeyblade:common 4 -59 0 {Variant:8,Spin:3000f,MaxSpin:3000f,Frozen:1b}",
+                "summon librabeyblade:common 5 -59 0 {Variant:9,Spin:3000f,MaxSpin:3000f,Frozen:1b}",
+                "tp @a 0.5 -56.6 3.2 180 45");
+        wait(30, "commons_row");
+        cmd(6, "commons_close", "tp @a -1.5 -57.8 1.6 180 40");
+        // ---- contact battle on flat ground: Leone rams Eagle with the storm cage
+        cmd(10, null, "kill @e[type=!player]", "fill -6 -60 -2 6 -60 2 minecraft:air", "tp @a 1.5 -55 6 180 22", A, B);
         wait(15, null);
         force(5);
-        wait(30, "gallop_a");
-        wait(25, "gallop_b");
-        wait(42, "gallop_nova");
+        wait(20, "cage_ram");
+        wait(25, "cage_tornado_a");
+        wait(30, "cage_tornado_b");
+        wait(60, null);
+        // ---- big stadium, free battle with commons and legends touching and grinding
+        cmd(10, null, "kill @e[type=!player]", "summon librabeyblade:stadium 0.5 -60 -14.5", "tp @a 0.5 -47 9 180 40",
+                "summon librabeyblade:pegasus -4 -57 -14.5 {Spin:3000f,MaxSpin:3000f}", "summon librabeyblade:common 5 -57 -14.5 {Variant:0,Spin:3000f,MaxSpin:3000f}",
+                "summon librabeyblade:ldrago 0.5 -57 -19 {Spin:3000f,MaxSpin:3000f}", "summon librabeyblade:common 0.5 -57 -10 {Variant:7,Spin:3000f,MaxSpin:3000f}");
+        wait(40, "stadium_big");
+        cmd(4, null, "tp @a 0.5 -56 -6 180 35");
+        wait(16, "stadium_contact_a");
+        wait(12, "stadium_contact_b");
         wait(30, null);
-        // ---- owned Pegasus + HUD + item
-        cmd(4, null, "kill @e[type=!player]", "gamemode creative @a", "tp @a 0.5 -60 3 180 20");
+        // ---- match vs AI with the scoreboard and the owned HUD
+        cmd(4, null, "kill @e[type=librabeyblade:common]", "kill @e[type=librabeyblade:pegasus]", "kill @e[type=librabeyblade:ldrago]",
+                "gamemode creative @a", "tp @a 0.5 -60 2.7 180 25");
         server(10, null, s -> {
             ServerPlayer p = s.getPlayerList().getPlayers().get(0);
-            BeybladeEntity.launch(com.krolasyon.beyblade.registry.ModEntities.PEGASUS.get(), p.level(), p, new ItemStack(ModItems.PEGASUS.get()),
-                    p.getEyePosition().add(0, -0.5, -1), new Vec3(0, 0.1, -0.6), 1F);
+            for (com.krolasyon.beyblade.entity.StadiumEntity st : p.level().getEntitiesOfClass(com.krolasyon.beyblade.entity.StadiumEntity.class, p.getBoundingBox().inflate(40)))
+                st.debugStartVsAI(p);
         });
-        cmd(2, null, "summon librabeyblade:leone 1 -60 -7 {Spin:3000f,MaxSpin:3000f,Frozen:1b}");
-        steps.add(new Step(30, "owned_hud", null, true));
-        cmd(4, null, "item replace entity @a weapon.mainhand with librabeyblade:storm_pegasus", "item replace entity @a hotbar.1 with librabeyblade:pegasus_launcher",
-                "item replace entity @a hotbar.2 with librabeyblade:rival_pegasus");
+        steps.add(new Step(90, null, null, true));
+        server(4, null, s -> {
+            ServerPlayer p = s.getPlayerList().getPlayers().get(0);
+            ItemStack st = new ItemStack(ModItems.COMMONS.get(3).get());
+            st.getOrCreateTag().putInt("BeyLevel", 7);
+            BeybladeEntity.launch(com.krolasyon.beyblade.registry.ModEntities.COMMON.get(), p.level(), p, st,
+                    p.getEyePosition().add(0, 0.5, -1), new Vec3(0, 0.45, -0.5), 1F);
+        });
+        wait(50, "match_hud");
+        cmd(4, null, "tp @a 0.5 -52 -2 180 40");
+        wait(40, "match_battle");
+        client(4, "command_screen", mc -> mc.setScreen(new CommandScreen()));
+        client(4, null, mc -> mc.setScreen(null));
+        cmd(4, null, "item replace entity @a weapon.mainhand with librabeyblade:common_thunder_viper", "item replace entity @a hotbar.1 with librabeyblade:standard_launcher");
         wait(16, "item_hand");
-        cmd(4, null, "item replace entity @a weapon.mainhand with librabeyblade:pegasus_launcher");
-        wait(10, "launcher_hand");
         steps.add(new Step(2, null, null, false));
         wait(20, "END");
     }
@@ -133,6 +128,8 @@ public final class AutoTest {
     private void wait(int ticks, String shot) { steps.add(new Step(ticks, shot, null, null)); }
 
     private void server(int wait, String shot, Consumer<MinecraftServer> action) { steps.add(new Step(wait, shot, action, null)); }
+
+    private void client(int wait, String shot, Consumer<Minecraft> action) { steps.add(new Step(wait, shot, null, null, action)); }
 
     private void force(int ability) {
         server(1, null, s -> each(s, "a", b -> {
@@ -164,7 +161,7 @@ public final class AutoTest {
             return;
         }
         if (mc.level == null || mc.player == null || mc.getSingleplayerServer() == null) return;
-        if (mc.screen != null) mc.setScreen(null);
+        if (mc.screen != null && !(mc.screen instanceof CommandScreen)) mc.setScreen(null);
         mc.options.hideGui = !showGui;
         if (inWorld < 0) {
             inWorld = tick;
@@ -175,6 +172,7 @@ public final class AutoTest {
         Step st = steps.get(stepIndex);
         if (tick == stepStart) {
             if (st.gui() != null) showGui = st.gui();
+            if (st.clientAction() != null) st.clientAction().accept(mc);
             if (st.action() != null) {
                 MinecraftServer s = mc.getSingleplayerServer();
                 s.execute(() -> {

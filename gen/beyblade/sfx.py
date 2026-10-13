@@ -612,11 +612,117 @@ def gallop():
     return reverb(mix(out, wind, pegasus_neigh()[:n] * 0.6), 0.35, 1.4)
 
 
+# ======================= REALISTIC BASE SOUNDS (v1.6) =======================
+# Real beyblades: a hissing tip on plastic + faint rotor hum, short bright metal "clinks" on contact, plastic "tok"
+# from the stadium wall, a ratchet ripcord on launch and a scraping grind when two tops press together.
+
+def clink(f, decay=0.05, bright=1.0):
+    """short inharmonic metal transient"""
+    d = decay * 6
+    t = T(d)
+    parts = (1, 1.52, 2.17, 2.93, 3.81)
+    x = sum(np.sin(2 * np.pi * f * p * t + R.random() * 6) * np.exp(-t / (decay / (1 + i * 0.6))) / (1 + i * 0.5 / bright)
+            for i, p in enumerate(parts))
+    return x
+
+
+def tick_noise(d, lo, hi, decay):
+    n = int(d * SR)
+    return bp(noise(d), lo, hi) * env(n, 0.0005, decay, 1.0)
+
+
+def spin_loop():
+    d = 2.2
+    n = int(d * SR)
+    t = T(d)
+    rot = 42.0                          # rotation rate (Hz): faint flutter
+    # tip friction hiss on plastic
+    hiss = bp(noise(d), 1700, 7500, 2)
+    hiss *= 0.85 + 0.15 * np.sin(2 * np.pi * rot * t) + 0.05 * np.sin(2 * np.pi * 3.0 * t)
+    # contact roughness: fine grains
+    grains = np.zeros(n)
+    for p in R.integers(0, n - 200, int(380 * d)):
+        L = int(R.integers(20, 90))
+        grains[p:p + L] += R.standard_normal(L) * np.exp(-np.arange(L) / (L / 4)) * (0.3 + R.random())
+    grains = hp(grains, 3000) * 0.18
+    # rotor hum (very low in the mix)
+    hum = (np.sin(2 * np.pi * 126 * t) * 0.5 + np.sin(2 * np.pi * 252 * t) * 0.25) * (0.7 + 0.3 * np.sin(2 * np.pi * rot * t))
+    hum = lp(hum, 600) * 0.12
+    x = hiss * 0.55 + grains + hum
+    m = int(0.2 * SR)
+    x[:m] = x[:m] * np.linspace(0, 1, m) + x[-m:] * np.linspace(1, 0, m)
+    return x[:n - m]
+
+
+def clash(heavy=False):
+    f = 2600 + R.random() * 1400
+    hit = mix(clink(f, 0.035 if not heavy else 0.06) * 0.8, clink(f * 0.71, 0.03) * 0.45)
+    click = tick_noise(0.02, 3500, 12000, 0.004) * 1.4
+    knock = tick_noise(0.06, 500, 1600, 0.018) * 0.7
+    y = mix(hit, click, knock)
+    if heavy:
+        # a rattle of 2-3 quick impacts, a short scrape and a dull thump
+        for k, off in enumerate((0.018, 0.041)):
+            p = int(off * SR)
+            z = clink(f * (1.08 + 0.1 * k), 0.03) * (0.6 - 0.2 * k)
+            y = mix(y, np.concatenate([np.zeros(p), z]))
+        sc_d = 0.22
+        scrape = bp(noise(sc_d), 2200, 6500) * env(int(sc_d * SR), 0.005, 0.07, 1.0) * rattle(int(sc_d * SR), 90, 0.6) * 0.5
+        thump = boom(0.2, 140, 60, 0.05) * 0.5
+        y = mix(y, np.concatenate([np.zeros(int(0.02 * SR)), scrape]), thump)
+    return reverb(pad(y, 0.4), 0.1, 0.35)
+
+
+def wall_hit():
+    d = 0.25
+    t = T(d)
+    tok = np.sin(2 * np.pi * 720 * t) * np.exp(-t / 0.035) + np.sin(2 * np.pi * 1180 * t) * np.exp(-t / 0.02) * 0.5
+    return mix(tok * 0.8, tick_noise(d, 300, 1400, 0.03) * 0.8, tick_noise(0.02, 3000, 9000, 0.003) * 0.6, clink(3200, 0.02) * 0.2)
+
+
+def land():
+    d = 0.3
+    t = T(d)
+    clack = np.sin(2 * np.pi * 900 * t) * np.exp(-t / 0.025) + np.sin(2 * np.pi * 1500 * t) * np.exp(-t / 0.015) * 0.4
+    return mix(clack * 0.7, tick_noise(d, 400, 2000, 0.025) * 0.7, clink(3400, 0.03) * 0.35)
+
+
+def launch():
+    d = 1.1
+    # ripcord ratchet: accelerating plastic teeth
+    rd = 0.38
+    t = T(rd)
+    rate = 60 + 900 * (t / rd) ** 1.4
+    ph = np.cumsum(rate / SR)
+    teeth = (np.diff(np.floor(ph), prepend=0) > 0).astype(float)
+    tooth = tick_noise(0.006, 1500, 6000, 0.0015)
+    rat = np.convolve(teeth, tooth)[:len(t)] * np.linspace(0.5, 1, len(t))
+    zipn = bp(noise(rd), 2500, 8000) * np.linspace(0.1, 0.5, len(t))
+    # release: whoosh + the top hitting the floor and starting to hiss
+    wd = 0.35
+    whoosh = sweep_bp(noise(wd), 3000, 800, 1.6) * env(int(wd * SR), 0.03, 0.12, 1.0) * 0.6
+    tail = spin_loop()[:int(0.5 * SR)] * np.linspace(1, 0, int(0.5 * SR)) * 0.6
+    out = mix(rat, zipn, np.concatenate([np.zeros(int(rd * SR)), whoosh]),
+              np.concatenate([np.zeros(int((rd + 0.12) * SR)), land() * 0.9]),
+              np.concatenate([np.zeros(int((rd + 0.14) * SR)), tail]))
+    return pad(out, d)
+
+
+def grind():
+    d = 0.45
+    n = int(d * SR)
+    t = T(d)
+    rub = bp(noise(d), 1800, 6000) * (0.6 + 0.4 * np.abs(np.sin(2 * np.pi * 38 * t + np.cumsum(R.standard_normal(n)) / SR * 30)))
+    squeal = np.sin(2 * np.pi * (2900 + 120 * np.sin(2 * np.pi * 7 * t)) * t) * 0.12
+    sparks = crackle(d, 160) * 0.5
+    return mix(rub * 0.7, squeal, sparks) * env(n, 0.02, 0.2, 1.0)
+
+
 if __name__ == '__main__':
     jobs = {
         'launch': launch, 'land': land, 'charge': charge, 'spin_loop': spin_loop,
         'clash1': lambda: clash(), 'clash2': lambda: clash(), 'clash3': lambda: clash(), 'clash_heavy': lambda: clash(True),
-        'wall_hit': wall_hit, 'sonic_wave': sonic_wave, 'shield_up': shield_up, 'shield_hit': shield_hit,
+        'wall_hit': wall_hit, 'grind': grind, 'sonic_wave': sonic_wave, 'shield_up': shield_up, 'shield_hit': shield_hit,
         'inferno_drill': inferno_drill, 'inferno_tornado': inferno_tornado, 'inferno_impact': inferno_impact,
         'buster_charge': buster_charge, 'buster_fire': buster_fire,
         'judgment_start': judgment_start, 'judgment_strike': judgment_strike, 'drain': drain,
@@ -632,7 +738,7 @@ if __name__ == '__main__':
     import sys
     if len(sys.argv) > 1:
         jobs = {k: v for k, v in jobs.items() if k in sys.argv[1:]}
-    quiet = {'spin_loop': -4, 'charge': -4, 'land': -3, 'wall_hit': -4}
+    quiet = {'spin_loop': -4, 'charge': -4, 'land': -3, 'wall_hit': -3, 'grind': -4}
     for name, fn in jobs.items():
         save(name, fn(), quiet.get(name, -1.0), name != 'spin_loop')
     print(len(jobs), 'sounds')

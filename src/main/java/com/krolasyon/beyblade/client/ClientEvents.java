@@ -18,6 +18,8 @@ public final class ClientEvents {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return;
         while (ClientSetup.RECALL_KEY.consumeClick()) ModNetwork.sendCommand(ModNetwork.CMD_RECALL);
+        while (ClientSetup.MODE_KEY.consumeClick()) ModNetwork.sendCommand(ModNetwork.CMD_MODE_CYCLE);
+        while (ClientSetup.COMMAND_KEY.consumeClick()) if (mc.screen == null) mc.setScreen(new CommandScreen());
         for (int i = 0; i < ClientSetup.ABILITY_KEYS.length; i++) {
             while (ClientSetup.ABILITY_KEYS[i].consumeClick()) ModNetwork.sendCommand(i + 1);
         }

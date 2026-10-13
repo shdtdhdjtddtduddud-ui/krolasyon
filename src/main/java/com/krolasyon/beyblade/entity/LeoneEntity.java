@@ -41,7 +41,7 @@ public class LeoneEntity extends BeybladeEntity {
     public static final float Q_SPEED = 0.48F;
     public static final double Q_RADIUS = 9;
     public static final int C_FORM = 10, C_BLAST = 92;
-    public static final double C_PILLAR_DIST = 3.6, C_HOLD_HEIGHT = 2.4;
+    public static final double C_PILLAR_DIST = 4.6, C_HOLD_HEIGHT = 2.4;
 
     public static final byte EV_QUAKE = 80, EV_CAGE = 81, EV_CAGE_BLAST = 82, EV_WALL_HIT = 83;
 
@@ -65,6 +65,7 @@ public class LeoneEntity extends BeybladeEntity {
     }
 
     // ---------------- hooks ----------------
+    @Override public int nativeMode() { return MODE_DEFENSE; }
     @Override public String kindId() { return "leone"; }
     @Override public String abilityKey(int id) { return "ability.librabeyblade.leone." + id; }
     @Override public int duration(int id) { return LE_DURATION[id]; }
@@ -106,7 +107,7 @@ public class LeoneEntity extends BeybladeEntity {
                 else if (e instanceof LivingEntity l && l.hurtTime == 0) l.hurt(damageSources().indirectMagic(this, getOwner()), 2F);
                 if (this.tickCount % 3 == 0) {
                     this.level().broadcastEntityEvent(this, EV_WALL_HIT);
-                    sl.sendParticles(ParticleTypes.CLOUD, e.getX(), e.getY() + 0.4, e.getZ(), 4, 0.2, 0.2, 0.2, 0.05);
+                    Px.send(sl, ParticleTypes.CLOUD, e.getX(), e.getY() + 0.4, e.getZ(), 4, 0.2, 0.2, 0.2, 0.05);
                 }
             }
         }
@@ -145,7 +146,7 @@ public class LeoneEntity extends BeybladeEntity {
                         l.hurt(damageSources().indirectMagic(this, owner), 1.5F);
                         l.knockback(0.15, -push.x, -push.z);
                     }
-                    sl.sendParticles(LEAF, target.getX(), target.getY() + 0.5, target.getZ(), 4, 0.2, 0.2, 0.2, 0);
+                    Px.send(sl, LEAF, target.getX(), target.getY() + 0.5, target.getZ(), 4, 0.2, 0.2, 0.2, 0);
                 }
                 return true;
             }
@@ -182,8 +183,8 @@ public class LeoneEntity extends BeybladeEntity {
                             l.knockback(1.2, -side.x, -side.z);
                             l.setDeltaMovement(l.getDeltaMovement().add(0, 0.5, 0));
                         }
-                        sl.sendParticles(ParticleTypes.SWEEP_ATTACK, e.getX(), e.getY() + 0.5, e.getZ(), 1, 0, 0, 0, 0);
-                        sl.sendParticles(ParticleTypes.CLOUD, e.getX(), e.getY() + 0.5, e.getZ(), 8, 0.3, 0.3, 0.3, 0.1);
+                        Px.send(sl, ParticleTypes.SWEEP_ATTACK, e.getX(), e.getY() + 0.5, e.getZ(), 1, 0, 0, 0, 0);
+                        Px.send(sl, ParticleTypes.CLOUD, e.getX(), e.getY() + 0.5, e.getZ(), 8, 0.3, 0.3, 0.3, 0.1);
                         play(ModSounds.CLASH_HEAVY.get(), 1.2F, 0.8F);
                     }
                     return true;
@@ -216,7 +217,7 @@ public class LeoneEntity extends BeybladeEntity {
                     play(ModSounds.QUAKE.get(), 2.4F, 1.0F);
                     this.level().broadcastEntityEvent(this, EV_QUAKE);
                     BlockState ground = this.level().getBlockState(BlockPos.containing(getX(), getY() - 0.2, getZ()));
-                    if (!ground.isAir()) sl.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, ground), getX(), getY() + 0.1, getZ(), 60, 1.5, 0.1, 1.5, 0.3);
+                    if (!ground.isAir()) Px.send(sl, new BlockParticleOption(ParticleTypes.BLOCK, ground), getX(), getY() + 0.1, getZ(), 60, 1.5, 0.1, 1.5, 0.3);
                 }
                 if (quakeStart >= 0) {
                     setDeltaMovement(getDeltaMovement().multiply(0.3, 1, 0.3));
@@ -238,7 +239,7 @@ public class LeoneEntity extends BeybladeEntity {
                                 l.setDeltaMovement(l.getDeltaMovement().add(0, 0.55, 0));
                                 l.hurtMarked = true;
                             }
-                            sl.sendParticles(DUST, e.getX(), e.getY() + 0.2, e.getZ(), 10, 0.4, 0.2, 0.4, 0);
+                            Px.send(sl, DUST, e.getX(), e.getY() + 0.2, e.getZ(), 10, 0.4, 0.2, 0.4, 0);
                         }
                     }
                 }
@@ -271,21 +272,37 @@ public class LeoneEntity extends BeybladeEntity {
                             l.hurt(damageSources().indirectMagic(this, owner), 1.5F);
                         }
                     }
-                    // others are kept out of the cage
+                    // everything else is sucked toward the nearest of the four twisting tornadoes and whirled around it
                     for (Entity e : enemiesWithin(16)) {
                         if (e == target) continue;
-                        Vec3 rel = flat(e.position().subtract(cageCenter));
-                        double d = rel.length();
-                        if (d < C_PILLAR_DIST + 0.8 && d > 1.0E-3) {
-                            e.setDeltaMovement(e.getDeltaMovement().add(rel.scale(0.25 / d)));
-                            e.hurtMarked = true;
+                        Vec3 best = null;
+                        double bd = 1.0E9;
+                        for (int i = 0; i < 4; i++) {
+                            Vec3 p = pillar(cageCenter.x, cageCenter.y, cageCenter.z, i, t);
+                            double d = flat(p.subtract(e.position())).lengthSqr();
+                            if (d < bd) { bd = d; best = p; }
                         }
+                        Vec3 to = flat(best.subtract(e.position()));
+                        double d = Math.sqrt(bd);
+                        if (d < 1.0E-3) continue;
+                        Vec3 dir = to.scale(1 / d);
+                        Vec3 swirl = new Vec3(-dir.z, 0, dir.x);
+                        double pull = d < 1.6 ? 0.02 : Math.min(0.16, 0.6 / (d + 1.5));
+                        Vec3 v = e.getDeltaMovement().add(dir.scale(pull)).add(swirl.scale(d < 2.5 ? 0.16 : 0.05));
+                        if (d < 2.2) {
+                            v = new Vec3(v.x, Math.min(0.28, v.y + 0.09), v.z);
+                            e.fallDistance = 0;
+                            if (e instanceof BeybladeEntity b) b.damageSpin(3F, this);
+                            else if (e instanceof LivingEntity l && t % 8 == 0) l.hurt(damageSources().indirectMagic(this, owner), 1.5F);
+                        }
+                        e.setDeltaMovement(v);
+                        e.hurtMarked = true;
                     }
                 }
                 if (t == C_BLAST) {
                     play(ModSounds.CAGE_BLAST.get(), 2.6F, 1.0F);
                     this.level().broadcastEntityEvent(this, EV_CAGE_BLAST);
-                    sl.sendParticles(ParticleTypes.CLOUD, cageCenter.x, cageCenter.y + 2, cageCenter.z, 50, 1.5, 1.5, 1.5, 0.3);
+                    Px.send(sl, ParticleTypes.CLOUD, cageCenter.x, cageCenter.y + 2, cageCenter.z, 50, 1.5, 1.5, 1.5, 0.3);
                     for (Entity e : this.level().getEntities(this, new net.minecraft.world.phys.AABB(cageCenter, cageCenter).inflate(5))) {
                         boolean enemy = e instanceof BeybladeEntity b ? isEnemy(b) : (e instanceof LivingEntity l && isHostileLiving(l));
                         if (!enemy && e != target) continue;
@@ -309,9 +326,10 @@ public class LeoneEntity extends BeybladeEntity {
     }
 
     /** the 4 tornado pillars of the storm cage, around its centre */
-    public static Vec3 pillar(double cx, double cy, double cz, int i) {
-        double a = Math.PI / 4 + i * Math.PI / 2;
-        return new Vec3(cx + Math.cos(a) * C_PILLAR_DIST, cy, cz + Math.sin(a) * C_PILLAR_DIST);
+    public static Vec3 pillar(double cx, double cy, double cz, int i, float t) {
+        double a = Math.PI / 4 + i * Math.PI / 2 + t * 0.035;
+        double r = C_PILLAR_DIST + Math.sin(t * 0.09 + i * 1.7) * 0.6;
+        return new Vec3(cx + Math.cos(a) * r, cy, cz + Math.sin(a) * r);
     }
 
     // ---------------- client ----------------
@@ -338,7 +356,7 @@ public class LeoneEntity extends BeybladeEntity {
         for (int i = 0; i < 2; i++) {
             double a = this.random.nextDouble() * Math.PI * 2, h = this.random.nextDouble() * 2.0;
             double r = WALL_RADIUS;
-            lv.addParticle(i == 0 ? ParticleTypes.CLOUD : LEAF, getX() + Math.cos(a) * r, getY() + h, getZ() + Math.sin(a) * r,
+            Px.add(lv, i == 0 ? ParticleTypes.CLOUD : LEAF, getX() + Math.cos(a) * r, getY() + h, getZ() + Math.sin(a) * r,
                     -Math.sin(a) * 0.35, 0.04, Math.cos(a) * 0.35);
         }
     }
@@ -349,27 +367,27 @@ public class LeoneEntity extends BeybladeEntity {
             case LE_POUNCE -> {
                 if (at < P_LEAP) {
                     double a = this.random.nextDouble() * Math.PI * 2;
-                    lv.addParticle(LEAF, getX() + Math.cos(a) * 1.5, getY() + 0.2, getZ() + Math.sin(a) * 1.5, -Math.cos(a) * 0.15, 0.05, -Math.sin(a) * 0.15);
+                    Px.add(lv, LEAF, getX() + Math.cos(a) * 1.5, getY() + 0.2, getZ() + Math.sin(a) * 1.5, -Math.cos(a) * 0.15, 0.05, -Math.sin(a) * 0.15);
                 } else if (at >= P_DASH && at < P_DASH + P_DASH_TICKS) {
                     for (int i = 0; i < 3; i++)
-                        lv.addParticle(ParticleTypes.CLOUD, getX() + this.random.nextGaussian() * 0.3, getY() + 0.4, getZ() + this.random.nextGaussian() * 0.3, 0, 0.02, 0);
+                        Px.add(lv, ParticleTypes.CLOUD, getX() + this.random.nextGaussian() * 0.3, getY() + 0.4, getZ() + this.random.nextGaussian() * 0.3, 0, 0.02, 0);
                 }
             }
             case LE_QUAKE -> {
-                if (at < Q_SLAM) lv.addParticle(DUST, getX() + this.random.nextGaussian() * 0.5, getY() - 0.3, getZ() + this.random.nextGaussian() * 0.5, 0, -0.05, 0);
+                if (at < Q_SLAM) Px.add(lv, DUST, getX() + this.random.nextGaussian() * 0.5, getY() - 0.3, getZ() + this.random.nextGaussian() * 0.5, 0, -0.05, 0);
             }
             case LE_CAGE -> {
                 if (at >= C_FORM && at < C_BLAST) {
                     for (int i = 0; i < 4; i++) {
-                        Vec3 p = pillar(cageX, cageY, cageZ, i);
+                        Vec3 p = pillar(cageX, cageY, cageZ, i, at);
                         double a = this.random.nextDouble() * Math.PI * 2, h = this.random.nextDouble() * 6;
-                        lv.addParticle(i % 2 == 0 ? ParticleTypes.CLOUD : LEAF, p.x + Math.cos(a) * 0.8, p.y + h, p.z + Math.sin(a) * 0.8,
+                        Px.add(lv, i % 2 == 0 ? ParticleTypes.CLOUD : LEAF, p.x + Math.cos(a) * 0.8, p.y + h, p.z + Math.sin(a) * 0.8,
                                 -Math.sin(a) * 0.3, 0.1, Math.cos(a) * 0.3);
                     }
                 }
             }
             case LE_FANG -> {
-                if (this.random.nextInt(2) == 0) lv.addParticle(LEAF, getX(), getY() + 0.5, getZ(), this.random.nextGaussian() * 0.1, 0.05, this.random.nextGaussian() * 0.1);
+                if (this.random.nextInt(2) == 0) Px.add(lv, LEAF, getX(), getY() + 0.5, getZ(), this.random.nextGaussian() * 0.1, 0.05, this.random.nextGaussian() * 0.1);
             }
             default -> {}
         }

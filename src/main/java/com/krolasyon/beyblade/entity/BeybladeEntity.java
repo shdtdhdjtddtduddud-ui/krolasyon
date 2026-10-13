@@ -78,7 +78,17 @@ public class BeybladeEntity extends Entity {
     public static final int JUD_LINK = 22, JUD_STRIKE = 86;
     public static final double JUD_RANGE = 14;
 
-    public static final byte EV_HIT = 60, EV_HEAVY_HIT = 61, EV_LAND = 62, EV_SHIELD_HIT = 63, EV_WALL = 64, EV_IMPACT = 65, EV_STRIKE = 66;
+    /** battle modes (anime types): each changes damage dealt/taken, speed and spin decay */
+    public static final int MODE_ATTACK = 0, MODE_DEFENSE = 1, MODE_STAMINA = 2, MODE_BALANCE = 3, MODE_COUNT = 4;
+    public static final String[] MODE_IDS = {"attack", "defense", "stamina", "balance"};
+    /** player orders (GUI): how the beyblade moves and fights */
+    public static final int OR_AUTO = 0, OR_ATTACK = 1, OR_RETREAT = 2, OR_CIRCLE = 3, OR_CENTER = 4, OR_FOLLOW = 5, OR_GUARD = 6,
+            OR_RUSH = 7, OR_DEFEND = 8, OR_ZIGZAG = 9, OR_BERSERK = 10, OR_CONSERVE = 11, OR_FLANK = 12, OR_UPPER = 13, ORDER_COUNT = 14;
+    public static final String[] ORDER_IDS = {"auto", "attack", "retreat", "circle", "center", "follow", "guard", "rush", "defend",
+            "zigzag", "berserk", "conserve", "flank", "upper"};
+    public static final int MAX_LEVEL = 30;
+
+    public static final byte EV_HIT = 60, EV_HEAVY_HIT = 61, EV_LAND = 62, EV_SHIELD_HIT = 63, EV_WALL = 64, EV_IMPACT = 65, EV_STRIKE = 66, EV_GRIND = 67;
 
     private static final EntityDataAccessor<Optional<UUID>> DATA_OWNER = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.OPTIONAL_UUID);
     private static final EntityDataAccessor<Float> DATA_SPIN = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.FLOAT);
@@ -87,6 +97,10 @@ public class BeybladeEntity extends Entity {
     private static final EntityDataAccessor<Integer> DATA_ABILITY = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_TARGET = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_SHIELD_END = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_MODE = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_ORDER = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_LEVEL = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_XP = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.INT);
     @SuppressWarnings("unchecked")
     private static final EntityDataAccessor<Integer>[] DATA_COOLDOWN = new EntityDataAccessor[ABILITY_COUNT];
 
@@ -100,12 +114,20 @@ public class BeybladeEntity extends Entity {
     protected double abilityBaseY, abilityBaseX, abilityBaseZ;
     protected boolean diving;
     private int dashCooldown = 20, dashTicks;
+    /** ability waiting for contact: the beyblade charges into its target and the move starts on impact */
+    private int pendingAbility, ramTicks;
+    private int rushPhase, trainTicks;
+    /** who last hurt us and when an enemy special move last hit us (match scoring: ability finish) */
+    @Nullable private BeybladeEntity lastAttacker;
+    private long lastAttackTick = -1000, lastAbilityHitTick = -1000;
+    private int lerpSteps;
+    private double lerpX, lerpY, lerpZ;
     private int ownerMissing;
     private int stateTicks;
     private int targetRefresh;
     private int wallSoundCooldown, clashCooldown;
     @Nullable private StadiumEntity stadium;
-    private boolean inBowl;
+    private boolean inBowl, contained;
     @Nullable protected Entity target;
     @Nullable private Vec3 home;
     /** test/display flag: keeps spinning in place (still collides and can be knocked around) */
@@ -119,6 +141,7 @@ public class BeybladeEntity extends Entity {
     public float spinAngle, spinAngleO, precess, precessO;
     public int clientAbility, clientAbilityStart = -1000, clientStateStart;
     public double abilityX, abilityY, abilityZ;
+    public int grindTime = -1000;
     public int hitTime = -1000, heavyHitTime = -1000, landTime = -1000, shieldHitTime = -1000, impactTime = -1000, strikeTime = -1000;
     public final double[] trailX = new double[8], trailY = new double[8], trailZ = new double[8];
     private boolean soundStarted, trailInit;
@@ -141,8 +164,15 @@ public class BeybladeEntity extends Entity {
         b.setDeltaMovement(velocity);
         if (owner != null) b.entityData.set(DATA_OWNER, Optional.of(owner.getUUID()));
         b.stored = stack.copy();
-        b.entityData.set(DATA_MAX_SPIN, MAX_SPIN);
-        b.entityData.set(DATA_SPIN, MAX_SPIN * Mth.clamp(power, 0.35F, 1F));
+        b.initFromItem(stack);
+        CompoundTag t = stack.getTag();
+        int lvl = t != null && t.contains("BeyLevel") ? Mth.clamp(t.getInt("BeyLevel"), 1, MAX_LEVEL) : 1;
+        b.entityData.set(DATA_LEVEL, lvl);
+        b.entityData.set(DATA_XP, t != null ? t.getInt("BeyXp") : 0);
+        if (t != null && t.contains("BeyMode")) b.entityData.set(DATA_MODE, Mth.clamp(t.getInt("BeyMode"), 0, MODE_COUNT - 1));
+        float max = maxSpinFor(lvl);
+        b.entityData.set(DATA_MAX_SPIN, max);
+        b.entityData.set(DATA_SPIN, max * Mth.clamp(power, 0.35F, 1F));
         b.home = pos;
         level.addFreshEntity(b);
         return b;
@@ -157,6 +187,10 @@ public class BeybladeEntity extends Entity {
         this.entityData.define(DATA_ABILITY, AB_NONE);
         this.entityData.define(DATA_TARGET, -1);
         this.entityData.define(DATA_SHIELD_END, 0);
+        this.entityData.define(DATA_MODE, -1);
+        this.entityData.define(DATA_ORDER, OR_AUTO);
+        this.entityData.define(DATA_LEVEL, 1);
+        this.entityData.define(DATA_XP, 0);
         for (EntityDataAccessor<Integer> a : DATA_COOLDOWN) this.entityData.define(a, 0);
     }
 
@@ -182,6 +216,96 @@ public class BeybladeEntity extends Entity {
         return (int) Math.max(0, this.entityData.get(DATA_COOLDOWN[ability - 1]) - this.level().getGameTime());
     }
 
+    // ---------------- modes / orders / level ----------------
+    /** the anime type of this beyblade; it fights best in this mode */
+    public int nativeMode() { return MODE_STAMINA; }
+    public int getMode() { int m = this.entityData.get(DATA_MODE); return m < 0 ? nativeMode() : m; }
+    public void setMode(int m) {
+        this.entityData.set(DATA_MODE, Math.floorMod(m, MODE_COUNT));
+        Player owner = getOwner();
+        if (owner != null) owner.displayClientMessage(Component.translatable("msg.librabeyblade.mode", Component.translatable("mode.librabeyblade." + MODE_IDS[getMode()])), true);
+        play(ModSounds.CHARGE.get(), 0.7F, 1.4F + getMode() * 0.1F);
+    }
+    public int getOrder() { return Mth.clamp(this.entityData.get(DATA_ORDER), 0, ORDER_COUNT - 1); }
+    public void setOrder(int o) {
+        this.entityData.set(DATA_ORDER, Mth.clamp(o, 0, ORDER_COUNT - 1));
+        rushPhase = 0;
+        Player owner = getOwner();
+        if (owner != null) owner.displayClientMessage(Component.translatable("msg.librabeyblade.order", Component.translatable("order.librabeyblade." + ORDER_IDS[getOrder()])), true);
+    }
+    public int getLevel() { return this.entityData.get(DATA_LEVEL); }
+    public int getXp() { return this.entityData.get(DATA_XP); }
+    public static int xpNeeded(int level) { return 60 + 40 * level; }
+    public static float maxSpinFor(int level) { return MAX_SPIN * (1F + 0.04F * (level - 1)); }
+    public void setLevel(int lvl) {
+        lvl = Mth.clamp(lvl, 1, MAX_LEVEL);
+        this.entityData.set(DATA_LEVEL, lvl);
+        float old = getMaxSpin();
+        this.entityData.set(DATA_MAX_SPIN, maxSpinFor(lvl));
+        setSpin(getSpin() + (getMaxSpin() - old));
+    }
+
+    /** experience from battles, matches and training; levels raise max spin, power and speed */
+    public void addXp(int amount) {
+        if (amount <= 0 || isRival() || getLevel() >= MAX_LEVEL) return;
+        int xp = getXp() + amount, lvl = getLevel();
+        boolean up = false;
+        while (lvl < MAX_LEVEL && xp >= xpNeeded(lvl)) {
+            xp -= xpNeeded(lvl);
+            lvl++;
+            up = true;
+        }
+        this.entityData.set(DATA_XP, lvl >= MAX_LEVEL ? 0 : xp);
+        if (up) {
+            setLevel(lvl);
+            healSpin(getMaxSpin() * 0.15F);
+            Player owner = getOwner();
+            if (owner != null) {
+                owner.displayClientMessage(Component.translatable("msg.librabeyblade.level_up", Component.translatable(titleKey()), lvl)
+                        .withStyle(net.minecraft.ChatFormatting.GOLD), false);
+                this.level().playSound(null, owner.getX(), owner.getY(), owner.getZ(), net.minecraft.sounds.SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.9F, 1.2F);
+            }
+        }
+    }
+
+    private boolean nativeBonus() { return getMode() == nativeMode(); }
+    /** multiplier on spin damage this beyblade deals */
+    public float powerMul() {
+        float m = switch (getMode()) { case MODE_ATTACK -> 1.3F; case MODE_DEFENSE -> 0.85F; case MODE_STAMINA -> 0.8F; default -> 1.05F; };
+        if (nativeBonus()) m *= 1.1F;
+        if (getOrder() == OR_BERSERK) m *= 1.15F;
+        if (getOrder() == OR_UPPER) m *= 0.9F;
+        return m * (1F + 0.03F * (getLevel() - 1));
+    }
+    /** multiplier on spin damage taken */
+    public float guardMul() {
+        float m = switch (getMode()) { case MODE_ATTACK -> 1.15F; case MODE_DEFENSE -> 0.65F; case MODE_STAMINA -> 0.95F; default -> 0.9F; };
+        if (nativeBonus()) m *= 0.92F;
+        if (getOrder() == OR_DEFEND) m *= 0.7F;
+        if (getOrder() == OR_BERSERK) m *= 1.15F;
+        return m;
+    }
+    public double modeSpeed() {
+        double m = switch (getMode()) { case MODE_ATTACK -> 1.25; case MODE_DEFENSE -> 0.85; case MODE_STAMINA -> 0.9; default -> 1.05; };
+        return m * (1.0 + 0.008 * (getLevel() - 1));
+    }
+    public float modeDecay() {
+        float m = switch (getMode()) { case MODE_ATTACK -> 1.25F; case MODE_DEFENSE -> 0.95F; case MODE_STAMINA -> 0.55F; default -> 0.85F; };
+        if (getMode() == MODE_STAMINA && nativeBonus()) m *= 0.85F;
+        if (getOrder() == OR_CONSERVE) m *= 0.6F;
+        if (getOrder() == OR_BERSERK) m *= 1.3F;
+        return m;
+    }
+    /** how much of a collision knock this beyblade takes */
+    public double knockMul() {
+        double m = switch (getMode()) { case MODE_ATTACK -> 1.1; case MODE_DEFENSE -> 0.45; case MODE_STAMINA -> 1.0; default -> 0.8; };
+        return getOrder() == OR_DEFEND ? m * 0.5 : m;
+    }
+    public boolean isRamming() { return pendingAbility != 0; }
+    /** true when the last enemy special move hit us within the last 3 seconds (ability finish) */
+    public boolean finishedByAbility() { return this.level().getGameTime() - lastAbilityHitTick < 60; }
+    @Nullable public BeybladeEntity lastAttacker() { return this.level().getGameTime() - lastAttackTick < 200 ? lastAttacker : null; }
+
     public boolean isEnemy(BeybladeEntity o) {
         if (o == this || !o.isAlive() || o.getState() != STATE_BATTLE) return false;
         UUID a = getOwnerId();
@@ -205,6 +329,8 @@ public class BeybladeEntity extends Entity {
     /** +1 = right spin (clockwise from above), -1 = left spin */
     public int spinDir() { return 1; }
     public String kindId() { return "libra"; }
+    /** translation key of this beyblade's display name */
+    public String titleKey() { return "hud.librabeyblade.title." + kindId(); }
     public String abilityKey(int id) { return "ability.librabeyblade." + id; }
     public int duration(int id) { return DURATION[id]; }
     public int cooldown(int id) { return COOLDOWN[id]; }
@@ -276,7 +402,12 @@ public class BeybladeEntity extends Entity {
     }
 
     private void tickBattle(@Nullable Player owner) {
-        float decay = 0.2F * (isInWater() ? 4F : 1F) * (isShielded() ? 1.15F : 1F);
+        float decay = 0.2F * modeDecay() * (isInWater() ? 4F : 1F) * (isShielded() ? 1.15F : 1F);
+        // training: every 5 seconds spent spinning gives experience
+        if (!isRival() && ++trainTicks >= 100) {
+            trainTicks = 0;
+            addXp(target != null ? 2 : 1);
+        }
         setSpin(getSpin() - decay);
         if (getSpin() <= 0F) {
             defeat();
@@ -295,12 +426,19 @@ public class BeybladeEntity extends Entity {
         if (tid != getTargetId()) this.entityData.set(DATA_TARGET, tid);
 
         boolean controlled = false;
-        if (ab != AB_NONE) {
+        if (pendingAbility != 0) {
+            controlled = tickRam(owner);
+        } else if (ab != AB_NONE) {
             abilityTicks++;
             controlled = tickAbility(ab, abilityTicks, owner);
             if (abilityTicks >= duration(ab)) endAbility();
         } else if (isRival() && rivalAbilities) {
             rivalUseAbilities();
+        } else if (getOrder() == OR_BERSERK && target != null && this.tickCount % 25 == 0) {
+            for (int k = 0; k < 3; k++) {
+                int id = 1 + this.random.nextInt(ABILITY_COUNT);
+                if (cooldownRemaining(id) == 0 && abilityAvailable(id) && tryAbility(id, false)) break;
+            }
         }
         if (isShielded()) tickBuff();
         if (stunTicks > 0) {
@@ -337,43 +475,153 @@ public class BeybladeEntity extends Entity {
     private void steer(@Nullable Player owner) {
         Vec3 v = getDeltaMovement();
         double ratio = spinRatio();
-        double mul = (0.55 + 0.45 * ratio) * (onGround() ? 1.0 : 0.25) * buffSpeedMul();
-        Vec3 center;
-        double orbit;
-        if (target != null) {
-            center = target.position();
-            orbit = 2.4;
-            if (--dashCooldown <= 0 && onGround()) {
-                Vec3 d = flat(center.subtract(position()));
-                if (d.lengthSqr() > 1.0E-4) {
-                    v = v.add(d.normalize().scale(0.66 * (0.6 + 0.4 * ratio) * buffSpeedMul()));
-                    dashTicks = 9;
+        double mul = (0.55 + 0.45 * ratio) * (onGround() ? 1.0 : 0.25) * buffSpeedMul() * modeSpeed();
+        boolean arena = stadium != null && inBowl;
+        Vec3 base = arena ? stadium.position() : (owner != null ? owner.position() : (home != null ? home : position()));
+        int order = getOrder();
+        Entity tg = target;
+        if (order == OR_FOLLOW) tg = null;
+        if (order == OR_GUARD && tg != null && owner != null && tg.distanceToSqr(owner) > 7 * 7) tg = null;
+        int mode = getMode();
+        if (order == OR_DEFEND) {
+            setDeltaMovement(v.multiply(0.86, 1, 0.86));
+            return;
+        }
+        if (tg == null || order == OR_CIRCLE || order == OR_CENTER || order == OR_CONSERVE) {
+            Vec3 c = order == OR_FOLLOW || order == OR_GUARD ? (owner != null ? owner.position() : base) : base;
+            double r, tan;
+            switch (order) {
+                case OR_CIRCLE -> { r = arena ? StadiumEntity.BOWL_R * 0.78 : 5.0; tan = 0.42; }
+                case OR_CENTER -> { r = 0.25; tan = 0.04; }
+                case OR_CONSERVE -> { r = arena ? 1.2 : 1.5; tan = 0.1; }
+                case OR_FOLLOW -> { r = 1.8; tan = 0.18; }
+                case OR_GUARD -> { r = 2.2; tan = 0.22; }
+                default -> { r = arena ? 3.4 : 2.8; tan = 0.25; }
+            }
+            setDeltaMovement(orbit(v, c, r, tan, mul, order == OR_CIRCLE ? 0.18 : 0.12));
+            return;
+        }
+        Vec3 to = flat(tg.position().subtract(position()));
+        double dist = to.length();
+        Vec3 dir = dist > 1.0E-3 ? to.scale(1 / dist) : new Vec3(1, 0, 0);
+        switch (order) {
+            case OR_RETREAT -> {
+                Vec3 away = dir.scale(-0.3).add(new Vec3(dir.z, 0, -dir.x).scale(0.14));
+                if (arena) {
+                    Vec3 fromC = flat(position().subtract(base));
+                    if (fromC.length() > StadiumEntity.BOWL_R * 0.8) away = away.add(fromC.normalize().scale(-0.25));
                 }
-                dashCooldown = (int) ((16 + this.random.nextInt(24)) / buffSpeedMul());
+                Vec3 d = away.scale(mul);
+                setDeltaMovement(v.add((d.x - v.x) * 0.14, 0, (d.z - v.z) * 0.14));
+                return;
             }
-        } else {
-            center = owner != null ? owner.position() : (home != null ? home : position());
-            orbit = 2.8;
-            if (stadium != null && inBowl) {
-                // inside a stadium: circle its centre instead of trying to climb out to the owner
-                center = stadium.position();
-                orbit = 3.2;
+            case OR_RUSH -> {
+                // back off, then charge straight through the target
+                if (rushPhase > 0) {
+                    rushPhase--;
+                    Vec3 d = dir.scale(-0.3 * mul);
+                    setDeltaMovement(v.add((d.x - v.x) * 0.2, 0, (d.z - v.z) * 0.2));
+                    if (rushPhase == 0 && onGround()) {
+                        setDeltaMovement(getDeltaMovement().add(dir.scale(0.85 * (0.6 + 0.4 * ratio) * buffSpeedMul())));
+                        dashTicks = 12;
+                    }
+                    return;
+                }
+                if (dashTicks > 0) { dashTicks--; return; }
+                if (dist < 1.4) rushPhase = 12;
+                else setDeltaMovement(orbit(v, tg.position(), 0.2, 0.05, mul * 1.2, 0.15));
+                return;
             }
+            case OR_ZIGZAG -> {
+                Vec3 side = new Vec3(dir.z, 0, -dir.x).scale(Math.sin(this.tickCount * 0.38) * 0.42);
+                Vec3 d = dir.scale(0.3).add(side).scale(mul);
+                setDeltaMovement(v.add((d.x - v.x) * 0.2, 0, (d.z - v.z) * 0.2));
+                return;
+            }
+            case OR_FLANK -> {
+                Vec3 tv = flat(tg.getDeltaMovement());
+                boolean behind = tv.lengthSqr() > 1.0E-3 && tv.normalize().dot(dir) > 0.3;
+                if (behind && --dashCooldown <= 0 && onGround()) {
+                    setDeltaMovement(v.add(dir.scale(0.75 * (0.6 + 0.4 * ratio))));
+                    dashTicks = 8;
+                    dashCooldown = 14;
+                    return;
+                }
+                if (dashTicks > 0) { dashTicks--; return; }
+                setDeltaMovement(orbit(v, tg.position(), 2.0, 0.4, mul, 0.15));
+                return;
+            }
+            default -> {}
         }
-        if (dashTicks > 0) {
-            dashTicks--;
-        } else {
-            Vec3 to = flat(center.subtract(position()));
-            double dist = to.length();
-            if (dist > 1.0E-3) {
-                Vec3 dir = to.scale(1.0 / dist);
-                Vec3 tangent = new Vec3(dir.z, 0, -dir.x);
-                double radial = Mth.clamp((dist - orbit) * 0.09, -0.14, dist > 12 ? 0.55 : 0.28);
-                Vec3 desired = tangent.scale(0.25).add(dir.scale(radial)).scale(mul);
-                v = v.add((desired.x - v.x) * 0.12, 0, (desired.z - v.z) * 0.12);
-            }
+        // AUTO / ATTACK / BERSERK / UPPER / GUARD: close in, grind against the target and dash into it
+        double r = 0.55;
+        int dashMin = 12, dashRand = 16;
+        double dashPow = 0.55;
+        if (order == OR_ATTACK || order == OR_BERSERK || order == OR_UPPER) { r = 0.2; dashMin = 6; dashRand = 8; dashPow = 0.66; }
+        else if (mode == MODE_ATTACK) { r = 0.3; dashMin = 8; dashRand = 12; dashPow = 0.62; }
+        else if (mode == MODE_DEFENSE) { r = 1.0; dashMin = 22; dashRand = 20; dashPow = 0.45; }
+        else if (mode == MODE_STAMINA) { r = 1.4; dashMin = 26; dashRand = 24; dashPow = 0.42; }
+        if (--dashCooldown <= 0 && onGround()) {
+            setDeltaMovement(v.add(dir.scale(dashPow * (0.6 + 0.4 * ratio) * buffSpeedMul())));
+            dashTicks = 7;
+            dashCooldown = (int) ((dashMin + this.random.nextInt(dashRand)) / buffSpeedMul());
+            return;
         }
-        setDeltaMovement(v);
+        if (dashTicks > 0) { dashTicks--; return; }
+        setDeltaMovement(orbit(v, tg.position(), r, 0.22, mul, 0.14));
+    }
+
+    /** steer toward a circle of radius r around c, moving along it with the given tangential speed */
+    private Vec3 orbit(Vec3 v, Vec3 c, double r, double tan, double mul, double gain) {
+        Vec3 to = flat(c.subtract(position()));
+        double dist = to.length();
+        if (dist < 1.0E-3) return v;
+        Vec3 dir = to.scale(1.0 / dist);
+        Vec3 tangent = new Vec3(dir.z, 0, -dir.x).scale(spinDir());
+        double radial = Mth.clamp((dist - r) * 0.12, -0.18, dist > 12 ? 0.55 : 0.32);
+        Vec3 desired = tangent.scale(tan).add(dir.scale(radial)).scale(mul);
+        return v.add((desired.x - v.x) * gain, 0, (desired.z - v.z) * gain);
+    }
+
+    /** charge into the target; the pending special move starts the moment they touch */
+    private boolean tickRam(@Nullable Player owner) {
+        ramTicks++;
+        Entity tg = target;
+        int id = pendingAbility;
+        if (tg == null || !tg.isAlive() || ramTicks > 50 || (tg instanceof BeybladeEntity b && b.getState() != STATE_BATTLE)) {
+            pendingAbility = 0;
+            beginAbility(id, owner);
+            return true;
+        }
+        Vec3 to = flat(tg.position().subtract(position()));
+        double dist = to.length();
+        if (dist <= RADIUS * 2 + 0.3 && Math.abs(tg.getY() - getY()) < 1.2) {
+            pendingAbility = 0;
+            ramImpact(tg);
+            beginAbility(id, owner);
+            return true;
+        }
+        Vec3 dir = to.scale(1 / Math.max(1.0E-3, dist));
+        double sp = 0.62 * (0.7 + 0.3 * spinRatio()) * modeSpeed();
+        Vec3 v = getDeltaMovement();
+        setDeltaMovement(v.x + (dir.x * sp - v.x) * 0.45, v.y, v.z + (dir.z * sp - v.z) * 0.45);
+        return true;
+    }
+
+    private void ramImpact(Entity tg) {
+        Vec3 dir = flat(tg.position().subtract(position()));
+        dir = dir.lengthSqr() < 1.0E-4 ? new Vec3(1, 0, 0) : dir.normalize();
+        if (tg instanceof BeybladeEntity b) {
+            if (!b.tryDodge(this)) b.damageSpin(45F * powerMul(), this);
+            b.setDeltaMovement(b.getDeltaMovement().add(dir.scale(0.45 * b.knockMul())).add(0, 0.08, 0));
+            this.level().broadcastEntityEvent(b, EV_HEAVY_HIT);
+        } else if (tg instanceof LivingEntity l && isHostileLiving(l)) {
+            l.hurt(damageSources().thrown(this, getOwner()), 6F);
+            l.knockback(0.8, -dir.x, -dir.z);
+        }
+        setDeltaMovement(getDeltaMovement().scale(0.2));
+        this.level().broadcastEntityEvent(this, EV_HEAVY_HIT);
+        this.level().playSound(null, getX(), getY(), getZ(), ModSounds.CLASH_HEAVY.get(), SoundSource.NEUTRAL, 1.4F, 0.8F + this.random.nextFloat() * 0.2F);
     }
 
     protected static Vec3 flat(Vec3 v) { return new Vec3(v.x, 0, v.z); }
@@ -395,7 +643,7 @@ public class BeybladeEntity extends Entity {
             if (speed > 0.14 && wallSoundCooldown == 0) {
                 wallSoundCooldown = 6;
                 play(ModSounds.WALL_HIT.get(), 0.7F, 0.9F + this.random.nextFloat() * 0.3F);
-                ((ServerLevel) this.level()).sendParticles(ParticleTypes.ELECTRIC_SPARK, getX() + before.x * 3, getY() + 0.3, getZ() + before.z * 3, 8, 0.1, 0.1, 0.1, 0.3);
+                Px.send((ServerLevel) this.level(), ParticleTypes.ELECTRIC_SPARK, getX() + before.x * 3, getY() + 0.3, getZ() + before.z * 3, 8, 0.1, 0.1, 0.1, 0.3);
                 setSpin(getSpin() - 4F);
                 this.level().broadcastEntityEvent(this, EV_WALL);
             }
@@ -447,17 +695,34 @@ public class BeybladeEntity extends Entity {
         Vec3 va = getDeltaMovement(), vb = o.getDeltaMovement();
         double rel = (vb.x - va.x) * nx + (vb.z - va.z) * nz;
         boolean fight = isEnemy(o) && getState() == STATE_BATTLE && o.getState() == STATE_BATTLE;
-        if (fight && (clashCooldown > 0 || o.clashCooldown > 0) && rel >= 0) return;
+        boolean opposite = spinDir() != o.spinDir();
+        if (fight && (clashCooldown > 0 || o.clashCooldown > 0) && rel >= -0.05) {
+            // still pressed together: the rims grind against each other
+            o.damageSpin(0.7F * powerMul(), this);
+            damageSpin(0.7F * o.powerMul(), o);
+            double tx = -nz, tz = nx, s = opposite ? 0.0 : 0.012 * spinDir();
+            setDeltaMovement(getDeltaMovement().add(-nx * 0.012 + tx * s, 0, -nz * 0.012 + tz * s));
+            o.setDeltaMovement(o.getDeltaMovement().add(nx * 0.012 - tx * s, 0, nz * 0.012 - tz * s));
+            if (this.tickCount % 5 == 0) {
+                this.level().playSound(null, getX() + nx * RADIUS, getY() + 0.3, getZ() + nz * RADIUS, ModSounds.GRIND.get(), SoundSource.NEUTRAL,
+                        0.55F, 0.9F + this.random.nextFloat() * 0.25F);
+                this.level().broadcastEntityEvent(this, EV_GRIND);
+            }
+            return;
+        }
         if (rel >= 0 && !fight) return;
         if (rel > -0.02 && fight) rel = -0.02;
-        double e = fight ? 0.95 : 0.4;
+        // fairly soft rubber-on-metal contact: they hit, stay close and fight it out instead of flying apart
+        double e = fight ? 0.55 : 0.3;
         double j = -(1 + e) * rel * 0.5;
-        boolean opposite = spinDir() != o.spinDir();
-        double kick = fight ? (opposite ? 0.08 : 0.13) : 0.0;
+        double kick = fight ? (opposite ? 0.035 : 0.06) : 0.0;
         // same-direction tops deflect sideways at contact; opposite spins grind into each other (spin steal)
-        double tx = -nz, tz = nx, side = fight && !opposite ? 0.07 * spinDir() : 0.0;
-        va = va.add(-nx * (j + kick) + tx * side, fight ? 0.05 : 0, -nz * (j + kick) + tz * side);
-        vb = vb.add(nx * (j + kick) - tx * side, fight ? 0.05 : 0, nz * (j + kick) - tz * side);
+        double tx = -nz, tz = nx, side = fight && !opposite ? 0.05 * spinDir() : 0.0;
+        double ka = knockMul(), kb = o.knockMul();
+        va = va.add((-nx * (j + kick) + tx * side) * ka, fight ? 0.02 : 0, (-nz * (j + kick) + tz * side) * ka);
+        vb = vb.add((nx * (j + kick) - tx * side) * kb, fight ? 0.02 : 0, (nz * (j + kick) - tz * side) * kb);
+        if (fight && getOrder() == OR_UPPER) vb = vb.add(0, 0.34, 0);
+        if (fight && o.getOrder() == OR_UPPER) va = va.add(0, 0.34, 0);
         setDeltaMovement(va);
         o.setDeltaMovement(vb);
         if (!fight || clashCooldown > 0 || o.clashCooldown > 0) return;
@@ -466,8 +731,10 @@ public class BeybladeEntity extends Entity {
         double impact = -rel;
         boolean heavy = impact > 0.5;
         float base = (float) (10 + 150 * impact);
-        float toO = base * (0.6F + 0.6F * spinRatio()) * buffAttackMul();
-        float toMe = base * (0.6F + 0.6F * o.spinRatio()) * o.buffAttackMul();
+        float toO = base * (0.6F + 0.6F * spinRatio()) * buffAttackMul() * powerMul();
+        float toMe = base * (0.6F + 0.6F * o.spinRatio()) * o.buffAttackMul() * o.powerMul();
+        if (toO >= 15F) addXp(1);
+        if (toMe >= 15F) o.addXp(1);
         if (o.tryDodge(this)) toO = 0F;
         if (tryDodge(o)) toMe = 0F;
         if (o.isShielded() && o.buffReflects()) {
@@ -489,14 +756,14 @@ public class BeybladeEntity extends Entity {
             // the left-spinning top absorbs part of the right-spinner's rotation
             BeybladeEntity thief = spinDir() < 0 ? this : o;
             thief.healSpin((thief == this ? toO : toMe) * 0.4F);
-            sl.sendParticles(STEAL, thief.getX(), thief.getY() + 0.4, thief.getZ(), 10, 0.35, 0.2, 0.35, 0);
+            Px.send(sl, STEAL, thief.getX(), thief.getY() + 0.4, thief.getZ(), 10, 0.35, 0.2, 0.35, 0);
         }
         double cx = getX() + nx * RADIUS, cy = getY() + 0.38, cz = getZ() + nz * RADIUS;
-        sl.sendParticles(ParticleTypes.ELECTRIC_SPARK, cx, cy, cz, heavy ? 28 : 12, 0.08, 0.08, 0.08, heavy ? 0.7 : 0.45);
-        sl.sendParticles(ParticleTypes.CRIT, cx, cy, cz, heavy ? 14 : 6, 0.05, 0.05, 0.05, 0.6);
+        Px.send(sl, ParticleTypes.ELECTRIC_SPARK, cx, cy, cz, heavy ? 28 : 12, 0.08, 0.08, 0.08, heavy ? 0.7 : 0.45);
+        Px.send(sl, ParticleTypes.CRIT, cx, cy, cz, heavy ? 14 : 6, 0.05, 0.05, 0.05, 0.6);
         if (heavy) {
-            sl.sendParticles(ParticleTypes.END_ROD, cx, cy, cz, 14, 0.1, 0.1, 0.1, 0.25);
-            sl.sendParticles(ParticleTypes.FIREWORK, cx, cy, cz, 10, 0.05, 0.05, 0.05, 0.25);
+            Px.send(sl, ParticleTypes.END_ROD, cx, cy, cz, 14, 0.1, 0.1, 0.1, 0.25);
+            Px.send(sl, ParticleTypes.FIREWORK, cx, cy, cz, 10, 0.05, 0.05, 0.05, 0.25);
         }
         this.level().playSound(null, cx, cy, cz, heavy ? ModSounds.CLASH_HEAVY.get() : ModSounds.CLASH.get(), SoundSource.NEUTRAL,
                 heavy ? 1.2F : 0.9F, 0.85F + this.random.nextFloat() * 0.35F);
@@ -532,7 +799,7 @@ public class BeybladeEntity extends Entity {
                 e.hurt(damageSources().thrown(this, owner), 3F + (float) (sp * 16) * (0.6F + 0.4F * spinRatio()));
                 e.knockback(0.5 + sp, -nx, -nz);
                 setDeltaMovement(v.add(-nx * (sp * 1.3 + 0.1), 0.05, -nz * (sp * 1.3 + 0.1)));
-                ((ServerLevel) this.level()).sendParticles(ParticleTypes.ELECTRIC_SPARK, getX() + nx * RADIUS, getY() + 0.35, getZ() + nz * RADIUS, 10, 0.1, 0.1, 0.1, 0.4);
+                Px.send((ServerLevel) this.level(), ParticleTypes.ELECTRIC_SPARK, getX() + nx * RADIUS, getY() + 0.35, getZ() + nz * RADIUS, 10, 0.1, 0.1, 0.1, 0.4);
                 play(ModSounds.CLASH.get(), 0.7F, 1.2F);
                 setSpin(getSpin() - 6F);
                 this.level().broadcastEntityEvent(this, EV_HIT);
@@ -546,7 +813,12 @@ public class BeybladeEntity extends Entity {
 
     public void damageSpin(float amount, @Nullable Entity source) {
         if (getState() != STATE_BATTLE || amount <= 0) return;
-        setSpin(getSpin() - amount * incomingMul());
+        setSpin(getSpin() - amount * incomingMul() * guardMul());
+        if (source instanceof BeybladeEntity b && b != this) {
+            lastAttacker = b;
+            lastAttackTick = this.level().getGameTime();
+            if (b.getAbility() != AB_NONE || b.isBuffActive()) lastAbilityHitTick = lastAttackTick;
+        }
         if (source != null && target == null && (!(source instanceof BeybladeEntity b) || isEnemy(b))) target = source;
     }
 
@@ -576,7 +848,11 @@ public class BeybladeEntity extends Entity {
             announce(owner, id);
             return true;
         }
-        if (getAbility() != AB_NONE) {
+        if (!abilityAvailable(id)) {
+            if (fromPlayer && owner != null) owner.displayClientMessage(Component.translatable("msg.librabeyblade.locked", Component.translatable(abilityKey(id))), true);
+            return false;
+        }
+        if (getAbility() != AB_NONE || pendingAbility != 0) {
             if (fromPlayer && owner != null) owner.displayClientMessage(Component.translatable("msg.librabeyblade.busy"), true);
             return false;
         }
@@ -589,6 +865,24 @@ public class BeybladeEntity extends Entity {
             this.entityData.set(DATA_TARGET, target.getId());
         }
         startCooldown(id);
+        addXp(4);
+        // special moves are delivered by crashing into the opponent: charge first, the move starts on contact
+        Entity tg = target != null ? target : findTarget(owner);
+        if (ramsInto(id) && tg instanceof BeybladeEntity b && b.getState() == STATE_BATTLE && !frozen && stunTicks == 0
+                && flat(tg.position().subtract(position())).length() > RADIUS * 2 + 0.3) {
+            target = tg;
+            this.entityData.set(DATA_TARGET, tg.getId());
+            pendingAbility = id;
+            ramTicks = 0;
+            if (owner != null) owner.displayClientMessage(Component.translatable("msg.librabeyblade.ram", Component.translatable(abilityKey(id))), true);
+            play(ModSounds.CHARGE.get(), 1.0F, 1.5F);
+            return true;
+        }
+        beginAbility(id, owner);
+        return true;
+    }
+
+    private void beginAbility(int id, @Nullable Player owner) {
         abilityTicks = 0;
         abilityBaseY = getY();
         abilityBaseX = getX();
@@ -597,8 +891,16 @@ public class BeybladeEntity extends Entity {
         for (Set<Integer> s : waveHits) s.clear();
         this.entityData.set(DATA_ABILITY, id);
         announce(owner, id);
-        return true;
     }
+
+    /** whether this move is delivered by charging into the target first (all action moves by default) */
+    protected boolean ramsInto(int id) { return id != buffAbility(); }
+
+    /** read extra data (common beyblade variant) from the launched item */
+    protected void initFromItem(ItemStack stack) {}
+
+    /** some beyblades (common ones) unlock their stronger moves only at higher levels */
+    public boolean abilityAvailable(int id) { return true; }
 
     private void announce(@Nullable Player owner, int id) {
         if (owner != null) owner.displayClientMessage(Component.translatable("msg.librabeyblade.ability." + kindId(), Component.translatable(abilityKey(id))), true);
@@ -609,6 +911,7 @@ public class BeybladeEntity extends Entity {
     }
 
     protected void endAbility() {
+        pendingAbility = 0;
         if (getAbility() != AB_NONE) this.entityData.set(DATA_ABILITY, AB_NONE);
         setNoGravity(false);
         diving = false;
@@ -649,7 +952,7 @@ public class BeybladeEntity extends Entity {
                     if (age == 0) {
                         waveHits[i].clear();
                         play(ModSounds.SONIC_WAVE.get(), 1.6F, 0.9F + i * 0.1F);
-                        sl.sendParticles(ParticleTypes.SONIC_BOOM, getX(), getY() + 0.4, getZ(), 1, 0, 0, 0, 0);
+                        Px.send(sl, ParticleTypes.SONIC_BOOM, getX(), getY() + 0.4, getZ(), 1, 0, 0, 0, 0);
                     }
                     if (age < 0 || age >= WAVE_LIFE) continue;
                     double front = 0.6 + age * WAVE_SPEED;
@@ -661,7 +964,7 @@ public class BeybladeEntity extends Entity {
                         if (e instanceof BeybladeEntity b) {
                             b.damageSpin(60F, this);
                             b.setDeltaMovement(b.getDeltaMovement().add(out.scale(0.6)).add(0, 0.18, 0));
-                            sl.sendParticles(ParticleTypes.ELECTRIC_SPARK, b.getX(), b.getY() + 0.4, b.getZ(), 8, 0.2, 0.2, 0.2, 0.3);
+                            Px.send(sl, ParticleTypes.ELECTRIC_SPARK, b.getX(), b.getY() + 0.4, b.getZ(), 8, 0.2, 0.2, 0.2, 0.3);
                         } else if (e instanceof LivingEntity l) {
                             l.hurt(damageSources().indirectMagic(this, owner), 5F);
                             l.knockback(0.9, -out.x, -out.z);
@@ -683,13 +986,13 @@ public class BeybladeEntity extends Entity {
                     }
                     BlockState ground = this.level().getBlockState(below);
                     if (!ground.isAir() && t % 2 == 0)
-                        sl.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, ground), getX(), getY() + 0.1, getZ(), 10, 0.5, 0.05, 0.5, 0.2);
+                        Px.send(sl, new BlockParticleOption(ParticleTypes.BLOCK, ground), getX(), getY() + 0.1, getZ(), 10, 0.5, 0.05, 0.5, 0.2);
                     return true;
                 }
                 if (t < INF_DIVE) {
                     if (t == INF_TORNADO) {
                         play(ModSounds.INFERNO_TORNADO.get(), 2.0F, 1.0F);
-                        sl.sendParticles(ParticleTypes.LAVA, getX(), getY() + 0.3, getZ(), 10, 0.8, 0.2, 0.8, 0);
+                        Px.send(sl, ParticleTypes.LAVA, getX(), getY() + 0.3, getZ(), 10, 0.8, 0.2, 0.8, 0);
                     }
                     hover(6.0, 0.12);
                     for (Entity e : enemiesWithin(INF_HEIGHT)) {
@@ -752,8 +1055,8 @@ public class BeybladeEntity extends Entity {
                             l.knockback(0.3, -dir.x, -dir.z);
                         }
                     }
-                    if (t % 5 == 0) sl.sendParticles(ParticleTypes.SONIC_BOOM, to.x, to.y, to.z, 1, 0, 0, 0, 0);
-                    sl.sendParticles(ParticleTypes.ELECTRIC_SPARK, to.x, to.y, to.z, 6, 0.3, 0.3, 0.3, 0.4);
+                    if (t % 5 == 0) Px.send(sl, ParticleTypes.SONIC_BOOM, to.x, to.y, to.z, 1, 0, 0, 0, 0);
+                    Px.send(sl, ParticleTypes.ELECTRIC_SPARK, to.x, to.y, to.z, 6, 0.3, 0.3, 0.3, 0.4);
                 }
                 return true;
             }
@@ -785,8 +1088,8 @@ public class BeybladeEntity extends Entity {
                         } else if (e instanceof LivingEntity l) {
                             l.hurt(damageSources().indirectMagic(this, owner), 12F);
                         }
-                        sl.sendParticles(ParticleTypes.END_ROD, e.getX(), e.getY() + 1, e.getZ(), 30, 0.3, 1.5, 0.3, 0.08);
-                        sl.sendParticles(ParticleTypes.END_ROD, e.getX(), e.getY() + 0.5, e.getZ(), 14, 0.1, 0.1, 0.1, 0.25);
+                        Px.send(sl, ParticleTypes.END_ROD, e.getX(), e.getY() + 1, e.getZ(), 30, 0.3, 1.5, 0.3, 0.08);
+                        Px.send(sl, ParticleTypes.END_ROD, e.getX(), e.getY() + 0.5, e.getZ(), 14, 0.1, 0.1, 0.1, 0.25);
                     }
                 }
                 return true;
@@ -808,11 +1111,11 @@ public class BeybladeEntity extends Entity {
         ServerLevel sl = (ServerLevel) this.level();
         play(ModSounds.INFERNO_IMPACT.get(), 2.5F, 1.0F);
         this.level().broadcastEntityEvent(this, EV_IMPACT);
-        sl.sendParticles(ParticleTypes.END_ROD, getX(), getY() + 0.5, getZ(), 14, 0.1, 0.1, 0.1, 0.25);
-        sl.sendParticles(ParticleTypes.LAVA, getX(), getY() + 0.3, getZ(), 20, 1.5, 0.2, 1.5, 0);
+        Px.send(sl, ParticleTypes.END_ROD, getX(), getY() + 0.5, getZ(), 14, 0.1, 0.1, 0.1, 0.25);
+        Px.send(sl, ParticleTypes.LAVA, getX(), getY() + 0.3, getZ(), 20, 1.5, 0.2, 1.5, 0);
         for (int i = 0; i < 48; i++) {
             double a = i / 48.0 * Math.PI * 2;
-            sl.sendParticles(ParticleTypes.FLAME, getX() + Math.cos(a) * 0.8, getY() + 0.15, getZ() + Math.sin(a) * 0.8, 0,
+            Px.send(sl, ParticleTypes.FLAME, getX() + Math.cos(a) * 0.8, getY() + 0.15, getZ() + Math.sin(a) * 0.8, 0,
                     Math.cos(a), 0.05, Math.sin(a), 0.45);
         }
         for (Entity e : enemiesWithin(INF_IMPACT_RADIUS)) {
@@ -877,55 +1180,46 @@ public class BeybladeEntity extends Entity {
         setPos(getX() + v.x, getY() + v.y, getZ() + v.z);
     }
 
-    /** curved bowl floor, walls and pockets of a nearby {@link StadiumEntity} */
+    /** curved bowl floor and the all-round wall of a nearby {@link StadiumEntity}; once inside, a beyblade can never leave */
     private void stadiumPhysics() {
-        List<StadiumEntity> list = this.level().getEntitiesOfClass(StadiumEntity.class, getBoundingBox().inflate(11, 4, 11));
+        List<StadiumEntity> list = this.level().getEntitiesOfClass(StadiumEntity.class, getBoundingBox().inflate(18, 6, 18));
         if (list.isEmpty()) {
             stadium = null;
             inBowl = false;
+            contained = false;
             return;
         }
         StadiumEntity st = list.get(0);
         double dx = getX() - st.getX(), dz = getZ() - st.getZ();
         double r = Math.sqrt(dx * dx + dz * dz);
         double rel = getY() - st.getY();
-        if (r > StadiumEntity.LEDGE_R + 1.5 || rel < -1.5 || rel > 7) {
+        if (r > StadiumEntity.APOTHEM1 + 1.5 || rel < -1.5 || rel > 14) {
             stadium = null;
             inBowl = false;
+            contained = false;
             return;
         }
         stadium = st;
         double nx = r < 1.0E-4 ? 1 : dx / r, nz = r < 1.0E-4 ? 0 : dz / r;
         Vec3 v = getDeltaMovement();
-        boolean gap = StadiumEntity.isGap(Math.atan2(dz, dx));
         double wallR = StadiumEntity.WALL_IN - RADIUS;
-        // only a hard knock carries a top out through a pocket; slower ones roll back off the pocket's rim
-        double vrOut = v.x * nx + v.z * nz;
-        boolean blocked = !gap || (inBowl && vrOut < 0.5);
-        // striped walls
-        if (blocked && rel < StadiumEntity.WALL_TOP && r > wallR && r < StadiumEntity.WALL_OUT + RADIUS) {
+        if (r < wallR && rel > -1.0) contained = true;
+        if (contained && getState() != STATE_RECALL && r > wallR) {
+            // the wall runs all the way round, and an invisible cylinder above it keeps flying tops in too
+            setPos(st.getX() + nx * wallR, getY(), st.getZ() + nz * wallR);
+            r = wallR;
             double vr = v.x * nx + v.z * nz;
-            if (inBowl) {
-                setPos(st.getX() + nx * wallR, getY(), st.getZ() + nz * wallR);
-                r = wallR;
-                if (vr > 0) {
-                    v = v.subtract(nx * vr * 1.75, 0, nz * vr * 1.75);
-                    if (vr > 0.12 && wallSoundCooldown == 0 && !gap) {
-                        wallSoundCooldown = 6;
-                        play(ModSounds.WALL_HIT.get(), 0.9F, 0.9F + this.random.nextFloat() * 0.3F);
-                        ((ServerLevel) this.level()).sendParticles(ParticleTypes.ELECTRIC_SPARK, getX() + nx * RADIUS, getY() + 0.35, getZ() + nz * RADIUS, 10, 0.1, 0.1, 0.1, 0.35);
-                        setSpin(getSpin() - 3F);
-                        this.level().broadcastEntityEvent(this, EV_WALL);
-                    }
+            if (vr > 0) {
+                v = v.subtract(nx * vr * 1.7, 0, nz * vr * 1.7);
+                if (vr > 0.12 && wallSoundCooldown == 0 && rel < StadiumEntity.WALL_TOP + 0.5) {
+                    wallSoundCooldown = 6;
+                    play(ModSounds.WALL_HIT.get(), 0.9F, 0.9F + this.random.nextFloat() * 0.3F);
+                    setSpin(getSpin() - 3F);
+                    this.level().broadcastEntityEvent(this, EV_WALL);
                 }
-            } else {
-                double outR = StadiumEntity.WALL_OUT + RADIUS;
-                setPos(st.getX() + nx * outR, getY(), st.getZ() + nz * outR);
-                r = outR;
-                if (vr < 0) v = v.subtract(nx * vr * 1.6, 0, nz * vr * 1.6);
             }
         }
-        // the bowl surface
+        // the bowl surface and the base tiers
         double surf = StadiumEntity.surface(r);
         if (surf >= 0 && getState() != STATE_RECALL) {
             double fy = st.getY() + surf;
@@ -938,18 +1232,7 @@ public class BeybladeEntity extends Entity {
                 v = new Vec3((v.x - nx * sl * 0.045) * 0.965, v.y, (v.z - nz * sl * 0.045) * 0.965);
             }
         }
-        boolean nowIn = r < StadiumEntity.WALL_IN;
-        // flew out through a pocket: over finish
-        if (inBowl && !nowIn && gap && getState() == STATE_BATTLE) {
-            Player owner = getOwner();
-            if (owner != null) owner.displayClientMessage(Component.translatable("msg.librabeyblade.over_finish"), true);
-            play(ModSounds.CLASH_HEAVY.get(), 1.0F, 0.6F);
-            setDeltaMovement(v);
-            defeat();
-            inBowl = false;
-            return;
-        }
-        inBowl = nowIn && rel < StadiumEntity.WALL_TOP + 0.5;
+        inBowl = r < StadiumEntity.WALL_IN && (contained || rel < StadiumEntity.WALL_TOP + 0.5);
         setDeltaMovement(v);
     }
 
@@ -960,6 +1243,12 @@ public class BeybladeEntity extends Entity {
         play(ModSounds.DEFEAT.get(), 1.2F, 1.0F);
         Player owner = getOwner();
         if (owner != null) owner.displayClientMessage(Component.translatable("msg.librabeyblade.defeated"), true);
+        BeybladeEntity winner = lastAttacker();
+        if (winner != null && winner.isAlive() && winner.getState() == STATE_BATTLE) {
+            winner.addXp(isRival() ? 30 : 50);
+            Player wo = winner.getOwner();
+            if (wo != null) wo.displayClientMessage(Component.translatable(finishedByAbility() ? "msg.librabeyblade.ko_ability" : "msg.librabeyblade.ko"), true);
+        }
     }
 
     private void tickDefeated(@Nullable Player owner) {
@@ -973,21 +1262,63 @@ public class BeybladeEntity extends Entity {
             return;
         }
         if (stateTicks > 90 && owner == null) {
-            ((ServerLevel) this.level()).sendParticles(ParticleTypes.POOF, getX(), getY() + 0.3, getZ(), 12, 0.3, 0.2, 0.3, 0.02);
+            Px.send((ServerLevel) this.level(), ParticleTypes.POOF, getX(), getY() + 0.3, getZ(), 12, 0.3, 0.2, 0.3, 0.02);
             discard();
         }
     }
 
+    /** level of the best beyblade item a player carries (for matching AI opponents) */
+    public static int heldLevel(Player p) {
+        int best = 1;
+        for (ItemStack st : p.getInventory().items) {
+            if (st.getItem() instanceof com.krolasyon.beyblade.item.LibraItem && st.hasTag()) best = Math.max(best, st.getTag().getInt("BeyLevel"));
+        }
+        return best;
+    }
+
+    /** gives experience to the player's active beyblade, or else to the beyblade item in hand / inventory */
+    public static void grantXp(Player p, int amount) {
+        BeybladeEntity active = findActive(p);
+        if (active != null) {
+            active.addXp(amount);
+            return;
+        }
+        ItemStack target = p.getMainHandItem().getItem() instanceof com.krolasyon.beyblade.item.LibraItem ? p.getMainHandItem() : ItemStack.EMPTY;
+        if (target.isEmpty()) {
+            for (ItemStack st : p.getInventory().items) {
+                if (st.getItem() instanceof com.krolasyon.beyblade.item.LibraItem) { target = st; break; }
+            }
+        }
+        if (target.isEmpty()) return;
+        CompoundTag t = target.getOrCreateTag();
+        int lvl = Math.max(1, t.getInt("BeyLevel")), xp = t.getInt("BeyXp") + amount;
+        int before = lvl;
+        while (lvl < MAX_LEVEL && xp >= xpNeeded(lvl)) { xp -= xpNeeded(lvl); lvl++; }
+        t.putInt("BeyLevel", lvl);
+        t.putInt("BeyXp", lvl >= MAX_LEVEL ? 0 : xp);
+        if (lvl > before) p.displayClientMessage(Component.translatable("msg.librabeyblade.level_up", target.getHoverName(), lvl).withStyle(net.minecraft.ChatFormatting.GOLD), false);
+    }
+
+    /** the launched item with this beyblade's level, experience and mode written back */
+    public ItemStack itemWithProgress() {
+        ItemStack s = stored.isEmpty() ? defaultItem() : stored.copy();
+        CompoundTag t = s.getOrCreateTag();
+        t.putInt("BeyLevel", getLevel());
+        t.putInt("BeyXp", getXp());
+        t.putInt("BeyMode", getMode());
+        return s;
+    }
+
     private void giveTo(Player p) {
         if (isRival()) return;
-        ItemStack s = stored.isEmpty() ? defaultItem() : stored.copy();
+        ItemStack s = itemWithProgress();
         stored = ItemStack.EMPTY;
         if (!p.getInventory().add(s)) p.drop(s, false);
     }
 
     private void dropStored() {
         if (isRival()) return;
-        ItemStack s = stored.isEmpty() ? defaultItem() : stored.copy();
+        ItemStack s = itemWithProgress();
         stored = ItemStack.EMPTY;
         spawnAtLocation(s, 0.3F);
     }
@@ -1063,12 +1394,13 @@ public class BeybladeEntity extends Entity {
     public void handleEntityEvent(byte id) {
         switch (id) {
             case EV_HIT, EV_WALL -> hitTime = this.tickCount;
+            case EV_GRIND -> grindTime = this.tickCount;
             case EV_HEAVY_HIT -> { hitTime = this.tickCount; heavyHitTime = this.tickCount; }
             case EV_LAND -> {
                 landTime = this.tickCount;
                 for (int i = 0; i < 20; i++) {
                     double a = i / 20.0 * Math.PI * 2;
-                    this.level().addParticle(ParticleTypes.CLOUD, getX() + Math.cos(a) * 0.4, getY() + 0.05, getZ() + Math.sin(a) * 0.4,
+                    Px.add(this.level(), ParticleTypes.CLOUD, getX() + Math.cos(a) * 0.4, getY() + 0.05, getZ() + Math.sin(a) * 0.4,
                             Math.cos(a) * 0.12, 0.01, Math.sin(a) * 0.12);
                 }
             }
@@ -1078,6 +1410,9 @@ public class BeybladeEntity extends Entity {
             default -> super.handleEntityEvent(id);
         }
     }
+
+    /** degrees per tick of the spin animation at a given spin ratio */
+    public static float spinSpeedFor(float ratio) { return 44F + 100F * ratio; }
 
     public float abilityAge(float partial) {
         return clientAbility == AB_NONE ? -1F : this.tickCount - clientAbilityStart + partial;
@@ -1089,7 +1424,23 @@ public class BeybladeEntity extends Entity {
     private static final DustParticleOptions STEAL = new DustParticleOptions(new Vector3f(0.9F, 0.05F, 0.2F), 1.3F);
     private static final DustParticleOptions RED = new DustParticleOptions(new Vector3f(1.0F, 0.15F, 0.1F), 0.9F);
 
+    @Override
+    public void lerpTo(double x, double y, double z, float yRot, float xRot, int steps, boolean teleport) {
+        lerpX = x;
+        lerpY = y;
+        lerpZ = z;
+        lerpSteps = 2;
+        if (position().distanceToSqr(x, y, z) > 64) {
+            setPos(x, y, z);
+            lerpSteps = 0;
+        }
+    }
+
     private void clientTick() {
+        if (lerpSteps > 0) {
+            setPos(getX() + (lerpX - getX()) / lerpSteps, getY() + (lerpY - getY()) / lerpSteps, getZ() + (lerpZ - getZ()) / lerpSteps);
+            lerpSteps--;
+        }
         if (!soundStarted) {
             soundStarted = true;
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> com.krolasyon.beyblade.client.ClientHooks.startSpinSound(this));
@@ -1101,10 +1452,11 @@ public class BeybladeEntity extends Entity {
         float speed;
         if (state == STATE_DEFEATED) speed = Math.max(0F, 34F * (1F - (this.tickCount - clientStateStart) / 40F));
         else if (state == STATE_RECALL) speed = 70F;
-        else speed = 30F + 62F * ratio;
+        else speed = spinSpeedFor(ratio);
         int ab = getAbility();
         float at = abilityAge(0);
-        speed = clientSpinSpeed(ab, at, speed);
+        float s2 = clientSpinSpeed(ab, at, speed);
+        if (s2 != speed) speed = Math.max(speed, s2 * 1.45F);
         spinAngle += speed;
         precess += state == STATE_DEFEATED ? Math.max(0F, 22F * (1F - (this.tickCount - clientStateStart) / 50F)) : 10F + (1F - ratio) * 22F;
         if (spinAngle > 36000F) { spinAngle -= 36000F; spinAngleO -= 36000F; }
@@ -1121,18 +1473,18 @@ public class BeybladeEntity extends Entity {
         double vx = getX() - this.xo, vz = getZ() - this.zo;
         double sp = Math.sqrt(vx * vx + vz * vz);
         if (state == STATE_BATTLE && onGround() && sp > 0.2 && this.random.nextInt(2) == 0) {
-            lv.addParticle(ParticleTypes.ELECTRIC_SPARK, getX() - vx * 2, getY() + 0.03, getZ() - vz * 2, -vx * 0.5, 0.05, -vz * 0.5);
+            Px.add(lv, ParticleTypes.ELECTRIC_SPARK, getX() - vx * 2, getY() + 0.03, getZ() - vz * 2, -vx * 0.5, 0.05, -vz * 0.5);
         }
         if (state == STATE_BATTLE && ratio < 0.2F && this.random.nextInt(6) == 0) {
-            lv.addParticle(ParticleTypes.SMOKE, getX(), getY() + 0.5, getZ(), 0, 0.02, 0);
+            Px.add(lv, ParticleTypes.SMOKE, getX(), getY() + 0.5, getZ(), 0, 0.02, 0);
         }
         if (isRival() && state == STATE_BATTLE && this.random.nextInt(3) == 0) {
             double a = this.random.nextDouble() * Math.PI * 2;
-            lv.addParticle(RED, getX() + Math.cos(a) * 0.5, getY() + 0.5, getZ() + Math.sin(a) * 0.5, 0, 0.02, 0);
+            Px.add(lv, RED, getX() + Math.cos(a) * 0.5, getY() + 0.5, getZ() + Math.sin(a) * 0.5, 0, 0.02, 0);
         }
         if (state == STATE_RECALL) {
-            lv.addParticle(LIME, getX(), getY() + 0.3, getZ(), 0, 0, 0);
-            lv.addParticle(ParticleTypes.END_ROD, getX(), getY() + 0.3, getZ(), 0, 0, 0);
+            Px.add(lv, LIME, getX(), getY() + 0.3, getZ(), 0, 0, 0);
+            Px.add(lv, ParticleTypes.END_ROD, getX(), getY() + 0.3, getZ(), 0, 0, 0);
         }
         if (isShielded()) clientBuffParticles(lv);
         if (ab == AB_NONE) return;
@@ -1142,7 +1494,7 @@ public class BeybladeEntity extends Entity {
     protected void clientBuffParticles(Level lv) {
         if (this.random.nextInt(3) == 0) {
             double a = this.random.nextDouble() * Math.PI * 2, b = this.random.nextDouble() * Math.PI * 0.5;
-            lv.addParticle(ParticleTypes.END_ROD, getX() + Math.cos(a) * Math.cos(b) * 1.3, getY() + 0.3 + Math.sin(b) * 1.3,
+            Px.add(lv, ParticleTypes.END_ROD, getX() + Math.cos(a) * Math.cos(b) * 1.3, getY() + 0.3 + Math.sin(b) * 1.3,
                     getZ() + Math.sin(a) * Math.cos(b) * 1.3, 0, 0, 0);
         }
     }
@@ -1151,7 +1503,7 @@ public class BeybladeEntity extends Entity {
         switch (ab) {
             case AB_SONIC_WAVE -> {
                 if (this.random.nextInt(2) == 0)
-                    lv.addParticle(ParticleTypes.NOTE, getX() + (this.random.nextDouble() - 0.5) * 2, getY() + 0.6 + this.random.nextDouble(),
+                    Px.add(lv, ParticleTypes.NOTE, getX() + (this.random.nextDouble() - 0.5) * 2, getY() + 0.6 + this.random.nextDouble(),
                             getZ() + (this.random.nextDouble() - 0.5) * 2, 0.25 + this.random.nextDouble() * 0.2, 0, 0);
             }
             case AB_INFERNO -> {
@@ -1159,16 +1511,16 @@ public class BeybladeEntity extends Entity {
                     for (int i = 0; i < 4; i++) {
                         double a = this.random.nextDouble() * Math.PI * 2, r = 1.0 + this.random.nextDouble() * 3.0;
                         double x = getX() + Math.cos(a) * r, z = getZ() + Math.sin(a) * r;
-                        lv.addParticle(SAND, x, getY() + 0.1, z, -Math.cos(a) * 0.25 - Math.sin(a) * 0.2, 0.05, -Math.sin(a) * 0.25 + Math.cos(a) * 0.2);
+                        Px.add(lv, SAND, x, getY() + 0.1, z, -Math.cos(a) * 0.25 - Math.sin(a) * 0.2, 0.05, -Math.sin(a) * 0.25 + Math.cos(a) * 0.2);
                     }
-                    lv.addParticle(ParticleTypes.FLAME, getX(), getY() + 0.1, getZ(), (this.random.nextDouble() - 0.5) * 0.2, 0.05, (this.random.nextDouble() - 0.5) * 0.2);
+                    Px.add(lv, ParticleTypes.FLAME, getX(), getY() + 0.1, getZ(), (this.random.nextDouble() - 0.5) * 0.2, 0.05, (this.random.nextDouble() - 0.5) * 0.2);
                 } else if (at < INF_DIVE + 2) {
                     for (int i = 0; i < 6; i++) {
                         double a = this.random.nextDouble() * Math.PI * 2, h = this.random.nextDouble() * INF_HEIGHT;
                         double r = 1.4 + h * 0.13;
                         double x = abilityX + Math.cos(a) * r, z = abilityZ + Math.sin(a) * r;
                         ParticleOptions p = i % 3 == 0 ? ParticleTypes.FLAME : (i % 3 == 1 ? SAND : ParticleTypes.SMALL_FLAME);
-                        lv.addParticle(p, x, abilityY + h, z, Math.sin(a) * 0.35, 0.12, -Math.cos(a) * 0.35);
+                        Px.add(lv, p, x, abilityY + h, z, Math.sin(a) * 0.35, 0.12, -Math.cos(a) * 0.35);
                     }
                 }
             }
@@ -1178,20 +1530,20 @@ public class BeybladeEntity extends Entity {
                         double a = this.random.nextDouble() * Math.PI * 2, b = (this.random.nextDouble() - 0.5) * Math.PI;
                         double r = 2.2;
                         double ox = Math.cos(a) * Math.cos(b) * r, oy = Math.sin(b) * r, oz = Math.sin(a) * Math.cos(b) * r;
-                        lv.addParticle(ParticleTypes.END_ROD, getX() + ox, getY() + 0.4 + oy, getZ() + oz, -ox * 0.1, -oy * 0.1, -oz * 0.1);
+                        Px.add(lv, ParticleTypes.END_ROD, getX() + ox, getY() + 0.4 + oy, getZ() + oz, -ox * 0.1, -oy * 0.1, -oz * 0.1);
                     }
                 }
             }
             case AB_JUDGMENT -> {
                 for (int i = 0; i < 2; i++) {
                     double a = this.random.nextDouble() * Math.PI * 2, r = this.random.nextDouble() * 6;
-                    lv.addParticle(GOLD, abilityX + Math.cos(a) * r, abilityY + 0.1, abilityZ + Math.sin(a) * r, 0, 0.06, 0);
+                    Px.add(lv, GOLD, abilityX + Math.cos(a) * r, abilityY + 0.1, abilityZ + Math.sin(a) * r, 0, 0.06, 0);
                 }
                 if (at >= JUD_LINK && at < JUD_STRIKE && this.tickCount % 2 == 0) {
                     for (Entity e : enemiesWithin(JUD_RANGE)) {
                         double f = this.random.nextDouble();
                         double x = Mth.lerp(f, e.getX(), getX()), y = Mth.lerp(f, e.getY() + e.getBbHeight() * 0.5, getY() + 0.4), z = Mth.lerp(f, e.getZ(), getZ());
-                        lv.addParticle(GOLD, x, y, z, (getX() - e.getX()) * 0.03, (getY() - e.getY()) * 0.03, (getZ() - e.getZ()) * 0.03);
+                        Px.add(lv, GOLD, x, y, z, (getX() - e.getX()) * 0.03, (getY() - e.getY()) * 0.03, (getZ() - e.getZ()) * 0.03);
                     }
                 }
             }
@@ -1209,6 +1561,11 @@ public class BeybladeEntity extends Entity {
         this.entityData.set(DATA_STATE, st == STATE_RECALL ? STATE_RECALL : (st == STATE_DEFEATED ? STATE_DEFEATED : STATE_BATTLE));
         if (st == STATE_RECALL) { this.noPhysics = true; setNoGravity(true); }
         frozen = tag.getBoolean("Frozen");
+        if (tag.contains("Level")) this.entityData.set(DATA_LEVEL, Mth.clamp(tag.getInt("Level"), 1, MAX_LEVEL));
+        this.entityData.set(DATA_XP, tag.getInt("Xp"));
+        if (tag.contains("Mode")) this.entityData.set(DATA_MODE, Mth.clamp(tag.getInt("Mode"), 0, MODE_COUNT - 1));
+        this.entityData.set(DATA_ORDER, Mth.clamp(tag.getInt("Order"), 0, ORDER_COUNT - 1));
+        if (tag.contains("Level") && !tag.contains("MaxSpin")) this.entityData.set(DATA_MAX_SPIN, maxSpinFor(getLevel()));
         if (tag.contains("Item")) stored = ItemStack.of(tag.getCompound("Item"));
         if (tag.contains("HomeX")) home = new Vec3(tag.getDouble("HomeX"), tag.getDouble("HomeY"), tag.getDouble("HomeZ"));
         long now = this.level() == null ? 0 : this.level().getGameTime();
@@ -1226,6 +1583,10 @@ public class BeybladeEntity extends Entity {
         tag.putFloat("MaxSpin", getMaxSpin());
         tag.putInt("State", getState());
         if (frozen) tag.putBoolean("Frozen", true);
+        tag.putInt("Level", getLevel());
+        tag.putInt("Xp", getXp());
+        tag.putInt("Mode", getMode());
+        tag.putInt("Order", getOrder());
         if (!stored.isEmpty()) tag.put("Item", stored.save(new CompoundTag()));
         if (home != null) {
             tag.putDouble("HomeX", home.x);
@@ -1243,6 +1604,7 @@ public class BeybladeEntity extends Entity {
     /** test hook: force an ability regardless of cooldown */
     public void debugForceAbility(int id) {
         this.entityData.set(DATA_COOLDOWN[id - 1], 0);
+        pendingAbility = 0;
         if (id != buffAbility() && getAbility() != AB_NONE) endAbility();
         tryAbility(id, false);
     }

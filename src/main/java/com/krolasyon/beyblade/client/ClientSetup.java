@@ -18,6 +18,8 @@ public final class ClientSetup {
 
     public static final String CATEGORY = "key.categories.librabeyblade";
     public static final KeyMapping RECALL_KEY = new KeyMapping("key.librabeyblade.recall", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, CATEGORY);
+    public static final KeyMapping COMMAND_KEY = new KeyMapping("key.librabeyblade.commands", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_B, CATEGORY);
+    public static final KeyMapping MODE_KEY = new KeyMapping("key.librabeyblade.mode", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_M, CATEGORY);
     public static final KeyMapping[] ABILITY_KEYS = {
             new KeyMapping("key.librabeyblade.ability1", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_G, CATEGORY),
             new KeyMapping("key.librabeyblade.ability2", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_H, CATEGORY),
@@ -34,16 +36,20 @@ public final class ClientSetup {
         event.registerEntityRenderer(ModEntities.EAGLE.get(), BeybladeRenderer::new);
         event.registerEntityRenderer(ModEntities.PEGASUS.get(), BeybladeRenderer::new);
         event.registerEntityRenderer(ModEntities.STADIUM.get(), StadiumRenderer::new);
+        event.registerEntityRenderer(ModEntities.COMMON.get(), BeybladeRenderer::new);
     }
 
     @SubscribeEvent
     public static void registerKeys(RegisterKeyMappingsEvent event) {
         event.register(RECALL_KEY);
+        event.register(COMMAND_KEY);
+        event.register(MODE_KEY);
         for (KeyMapping k : ABILITY_KEYS) event.register(k);
     }
 
     @SubscribeEvent
     public static void registerOverlays(RegisterGuiOverlaysEvent event) {
         event.registerAboveAll("libra_hud", new LibraHud());
+        event.registerAboveAll("match_hud", new MatchHud());
     }
 }

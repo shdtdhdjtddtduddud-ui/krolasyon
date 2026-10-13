@@ -1,0 +1,6 @@
+{
+ "parent": "builtin/entity",
+ "textures": {
+  "particle": "librabeyblade:item/common_2_icon"
+ }
+}

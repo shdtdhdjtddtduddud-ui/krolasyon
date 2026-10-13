@@ -35,7 +35,22 @@ public final class BeyMesh {
     /** Storm Pegasus: radius 227 px, texture window half size 238 px */
     public static final BeyMesh PEGASUS = new BeyMesh("pegasus", 1.03F, 1.24F, 238F / 227F);
 
+    /** the ten common beyblades share one mesh (common_mesh.bin) with their own textures */
+    private static final BeyMesh[] COMMON = new BeyMesh[10];
+
+    public static BeyMesh common(int variant) {
+        int v = Math.floorMod(variant, COMMON.length);
+        if (COMMON[v] == null) COMMON[v] = new BeyMesh("common_" + v, "common", 1.07F, 1.26F, 1.04F);
+        return COMMON[v];
+    }
+
+    public static BeyMesh of(com.krolasyon.beyblade.entity.BeybladeEntity e) {
+        if (e instanceof com.krolasyon.beyblade.entity.CommonBeybladeEntity c) return common(c.getVariant());
+        return of(e.kindId());
+    }
+
     public static BeyMesh of(String kind) {
+        if (kind.startsWith("common_")) return common(Integer.parseInt(kind.substring(7)));
         return switch (kind) {
             case "pegasus" -> PEGASUS;
             case "eagle" -> EAGLE;
@@ -51,7 +66,11 @@ public final class BeyMesh {
     private final float ghostHalf;
 
     private BeyMesh(String name, float topY, float height, float ghostHalf) {
-        this.name = name;
+        this(name, name, topY, height, ghostHalf);
+    }
+
+    private BeyMesh(String name, String meshName, float topY, float height, float ghostHalf) {
+        this.name = meshName;
         this.FACE = new ResourceLocation(LibraBeyblade.MODID, "textures/entity/" + name + "_face.png");
         this.GLOW = new ResourceLocation(LibraBeyblade.MODID, "textures/entity/" + name + "_glow.png");
         this.PARTS = new ResourceLocation(LibraBeyblade.MODID, "textures/entity/" + name + "_parts.png");

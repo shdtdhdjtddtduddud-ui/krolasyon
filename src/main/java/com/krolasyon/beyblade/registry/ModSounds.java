@@ -23,6 +23,7 @@ public final class ModSounds {
     public static final RegistryObject<SoundEvent> CLASH = reg("clash");
     public static final RegistryObject<SoundEvent> CLASH_HEAVY = reg("clash_heavy");
     public static final RegistryObject<SoundEvent> WALL_HIT = reg("wall_hit");
+    public static final RegistryObject<SoundEvent> GRIND = reg("grind");
     public static final RegistryObject<SoundEvent> SONIC_WAVE = reg("sonic_wave");
     public static final RegistryObject<SoundEvent> SHIELD_UP = reg("shield_up");
     public static final RegistryObject<SoundEvent> SHIELD_HIT = reg("shield_hit");

@@ -1,6 +1,8 @@
 package com.krolasyon.beyblade.item;
 
 import com.krolasyon.beyblade.entity.BeybladeEntity;
+import com.krolasyon.beyblade.entity.Px;
+import com.krolasyon.beyblade.entity.StadiumEntity;
 import com.krolasyon.beyblade.registry.ModSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -38,9 +40,16 @@ public class LauncherItem extends Item {
         this.beyType = beyType;
     }
 
+    /** the Standard Launcher (no fixed beyblade) launches any beyblade: the one in the off hand first */
+    public boolean isStandard() { return beyItem == null; }
+
     public int findLibra(Player p) {
-        for (int i = 0; i < p.getInventory().getContainerSize(); i++)
-            if (p.getInventory().getItem(i).is(beyItem.get())) return i;
+        int off = p.getInventory().getContainerSize() - 1;
+        if (isStandard() && p.getInventory().getItem(off).getItem() instanceof LibraItem) return off;
+        for (int i = 0; i < p.getInventory().getContainerSize(); i++) {
+            ItemStack s = p.getInventory().getItem(i);
+            if (isStandard() ? s.getItem() instanceof LibraItem : s.is(beyItem.get())) return i;
+        }
         return -1;
     }
 
@@ -56,7 +65,8 @@ public class LauncherItem extends Item {
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
         }
         if (findLibra(player) < 0) {
-            if (!level.isClientSide()) player.displayClientMessage(Component.translatable("msg.librabeyblade.no_bey", beyItem.get().getDescription()), true);
+            if (!level.isClientSide()) player.displayClientMessage(isStandard() ? Component.translatable("msg.librabeyblade.no_bey_any")
+                    : Component.translatable("msg.librabeyblade.no_bey", beyItem.get().getDescription()), true);
             return InteractionResultHolder.fail(stack);
         }
         player.startUsingItem(hand);
@@ -77,7 +87,7 @@ public class LauncherItem extends Item {
             }
             if (used == FULL_CHARGE) {
                 level.playSound(null, p.getX(), p.getY(), p.getZ(), ModSounds.LAND.get(), SoundSource.PLAYERS, 0.8F, 1.6F);
-                ((ServerLevel) level).sendParticles(ParticleTypes.ELECTRIC_SPARK, p.getX(), p.getEyeY() - 0.3, p.getZ(), 10, 0.3, 0.2, 0.3, 0.1);
+                Px.send((ServerLevel) level, ParticleTypes.ELECTRIC_SPARK, p.getX(), p.getEyeY() - 0.3, p.getZ(), 10, 0.3, 0.2, 0.3, 0.1);
             }
         }
     }
@@ -91,6 +101,7 @@ public class LauncherItem extends Item {
         if (slot < 0 || BeybladeEntity.findActive(player) != null) return;
         float power = Mth.clamp(used / (float) FULL_CHARGE, 0.25F, 1F);
         ItemStack libra = player.getInventory().getItem(slot);
+        ItemStack libraType = libra.copy();
         ItemStack launched = libra.copy();
         launched.setCount(1);
         libra.shrink(1);
@@ -100,7 +111,23 @@ public class LauncherItem extends Item {
         flat = flat.normalize();
         Vec3 pos = player.getEyePosition().add(flat.scale(1.0)).add(0, -0.5, 0);
         Vec3 vel = flat.scale(0.35 + 0.55 * power).add(0, 0.12, 0);
-        BeybladeEntity.launch(beyType.get(), level, player, launched, pos, vel, 0.55F + 0.45F * power);
+        // standing outside a stadium: a higher arc so the beyblade clears the wall and lands in the bowl
+        for (StadiumEntity st : level.getEntitiesOfClass(StadiumEntity.class, player.getBoundingBox().inflate(24))) {
+            double r = Math.hypot(player.getX() - st.getX(), player.getZ() - st.getZ());
+            if (r > StadiumEntity.WALL_IN - 1) {
+                Vec3 toC = new Vec3(st.getX() - pos.x, 0, st.getZ() - pos.z);
+                double d = toC.length();
+                if (d < 1.0E-3 || toC.scale(1 / d).dot(flat) < 0.5) continue;
+                double h = Math.max(0.5, StadiumEntity.WALL_TOP + 1.2 - (pos.y - st.getY()));
+                double vy = Math.sqrt(2 * 0.06 * h) + 0.05;
+                double ticks = vy / 0.06 * 2;
+                double vh = Math.min(0.95, Math.max(0.3, (d - 3.0) / ticks)) * (0.85 + 0.15 * power);
+                vel = flat.scale(vh).add(0, vy, 0);
+                break;
+            }
+        }
+        EntityType<? extends BeybladeEntity> type = isStandard() && libraType.getItem() instanceof LibraItem li ? li.spawnType() : beyType.get();
+        BeybladeEntity.launch(type, level, player, launched, pos, vel, 0.55F + 0.45F * power);
         level.playSound(null, player.getX(), player.getY(), player.getZ(), ModSounds.LAUNCH.get(), SoundSource.PLAYERS, 1.2F, 0.95F + power * 0.1F);
         player.displayClientMessage(Component.translatable("msg.librabeyblade.launch", Math.round(power * 100)), true);
         player.getCooldowns().addCooldown(this, 10);

@@ -58,6 +58,7 @@ public class PegasusEntity extends BeybladeEntity {
     }
 
     // ---------------- hooks ----------------
+    @Override public int nativeMode() { return MODE_ATTACK; }
     @Override public String kindId() { return "pegasus"; }
     @Override public String abilityKey(int id) { return "ability.librabeyblade.pegasus." + id; }
     @Override public int duration(int id) { return PG_DURATION[id]; }
@@ -80,13 +81,13 @@ public class PegasusEntity extends BeybladeEntity {
     @Override
     protected void onBuffStart(@Nullable Player owner) {
         play(ModSounds.PEGASUS_NEIGH.get(), 1.8F, 1.0F);
-        ((ServerLevel) this.level()).sendParticles(SKY, getX(), getY() + 0.6, getZ(), 30, 0.7, 0.4, 0.7, 0);
+        Px.send((ServerLevel) this.level(), SKY, getX(), getY() + 0.6, getZ(), 30, 0.7, 0.4, 0.7, 0);
     }
 
     @Override
     protected void tickBuff() {
         if (this.tickCount % 3 == 0)
-            ((ServerLevel) this.level()).sendParticles(ParticleTypes.END_ROD, getX(), getY() + 0.4, getZ(), 1, 0.2, 0.1, 0.2, 0.01);
+            Px.send((ServerLevel) this.level(), ParticleTypes.END_ROD, getX(), getY() + 0.4, getZ(), 1, 0.2, 0.1, 0.2, 0.01);
     }
 
     // ---------------- abilities ----------------
@@ -103,7 +104,7 @@ public class PegasusEntity extends BeybladeEntity {
                     Entity tgt = strikeTarget(k);
                     Vec3 p = tgt != null ? tgt.position() : strikePoint(k, getX(), getY(), getZ());
                     this.level().playSound(null, p.x, p.y, p.z, ModSounds.THUNDER_STRIKE.get(), net.minecraft.sounds.SoundSource.NEUTRAL, 1.6F, 0.9F + this.random.nextFloat() * 0.3F);
-                    sl.sendParticles(ParticleTypes.ELECTRIC_SPARK, p.x, p.y + 0.3, p.z, 20, 0.3, 0.3, 0.3, 0.5);
+                    Px.send(sl, ParticleTypes.ELECTRIC_SPARK, p.x, p.y + 0.3, p.z, 20, 0.3, 0.3, 0.3, 0.5);
                     if (tgt instanceof BeybladeEntity b) {
                         b.damageSpin(28F, this);
                         b.stun(6);
@@ -142,7 +143,7 @@ public class PegasusEntity extends BeybladeEntity {
                     play(ModSounds.THUNDER_STRIKE.get(), 2.0F, 1.4F);
                     play(ModSounds.STAR_CHIME.get(), 2.0F, 0.7F);
                     this.level().broadcastEntityEvent(this, EV_NOVA);
-                    sl.sendParticles(ParticleTypes.END_ROD, starCenter.x, starCenter.y + 0.5, starCenter.z, 60, 1.5, 1.0, 1.5, 0.25);
+                    Px.send(sl, ParticleTypes.END_ROD, starCenter.x, starCenter.y + 0.5, starCenter.z, 60, 1.5, 1.0, 1.5, 0.25);
                     for (Entity e : enemiesWithin(30)) {
                         Vec3 d = flat(e.position().subtract(starCenter));
                         double dist = d.length();
@@ -197,7 +198,7 @@ public class PegasusEntity extends BeybladeEntity {
                             l.hurt(damageSources().indirectMagic(this, owner), 7F);
                             l.knockback(0.9, -side.x, -side.z);
                         }
-                        sl.sendParticles(ParticleTypes.SWEEP_ATTACK, e.getX(), e.getY() + 0.5, e.getZ(), 1, 0, 0, 0, 0);
+                        Px.send(sl, ParticleTypes.SWEEP_ATTACK, e.getX(), e.getY() + 0.5, e.getZ(), 1, 0, 0, 0, 0);
                         play(ModSounds.CLASH_HEAVY.get(), 1.1F, 1.3F);
                     }
                 } else {
@@ -237,7 +238,7 @@ public class PegasusEntity extends BeybladeEntity {
                                 l.hurt(damageSources().indirectMagic(this, owner), 10F);
                                 l.setDeltaMovement(l.getDeltaMovement().add(0, 0.7, 0));
                             }
-                            sl.sendParticles(ParticleTypes.CLOUD, e.getX(), e.getY() + 0.3, e.getZ(), 10, 0.3, 0.2, 0.3, 0.05);
+                            Px.send(sl, ParticleTypes.CLOUD, e.getX(), e.getY() + 0.3, e.getZ(), 10, 0.3, 0.2, 0.3, 0.05);
                             play(ModSounds.CLASH_HEAVY.get(), 1.2F, 0.8F);
                         }
                     }
@@ -313,7 +314,7 @@ public class PegasusEntity extends BeybladeEntity {
 
     @Override
     protected void clientBuffParticles(Level lv) {
-        lv.addParticle(SKY, getX() + this.random.nextGaussian() * 0.3, getY() + 0.5, getZ() + this.random.nextGaussian() * 0.3, 0, 0.03, 0);
+        Px.add(lv, SKY, getX() + this.random.nextGaussian() * 0.3, getY() + 0.5, getZ() + this.random.nextGaussian() * 0.3, 0, 0.03, 0);
     }
 
     @Override
@@ -322,10 +323,10 @@ public class PegasusEntity extends BeybladeEntity {
             case PG_STORM -> {
                 for (int i = 0; i < 3; i++) {
                     double a = this.random.nextDouble() * Math.PI * 2, r = this.random.nextDouble() * S_RANGE * 0.8;
-                    lv.addParticle(ParticleTypes.FALLING_WATER, abilityX + Math.cos(a) * r, abilityY + S_CLOUD_Y - 0.5, abilityZ + Math.sin(a) * r, 0, -0.5, 0);
+                    Px.add(lv, ParticleTypes.FALLING_WATER, abilityX + Math.cos(a) * r, abilityY + S_CLOUD_Y - 0.5, abilityZ + Math.sin(a) * r, 0, -0.5, 0);
                 }
             }
-            case PG_RICO, PG_GALLOP -> lv.addParticle(SKY, getX(), getY() + 0.4, getZ(), 0, 0.02, 0);
+            case PG_RICO, PG_GALLOP -> Px.add(lv, SKY, getX(), getY() + 0.4, getZ(), 0, 0.02, 0);
             default -> {}
         }
     }

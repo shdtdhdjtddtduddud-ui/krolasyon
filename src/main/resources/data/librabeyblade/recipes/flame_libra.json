@@ -1,25 +1,19 @@
 {
  "type": "minecraft:crafting_shaped",
  "pattern": [
-  "IDI",
-  "LGL",
-  "IBI"
+  "EDE",
+  "DXD",
+  "EDE"
  ],
  "key": {
-  "I": {
-   "item": "minecraft:iron_ingot"
+  "E": {
+   "item": "minecraft:emerald_block"
   },
   "D": {
    "item": "minecraft:diamond"
   },
-  "L": {
-   "item": "minecraft:lime_dye"
-  },
-  "G": {
-   "item": "minecraft:gold_block"
-  },
-  "B": {
-   "item": "minecraft:blue_dye"
+  "X": {
+   "item": "minecraft:echo_shard"
   }
  },
  "result": {

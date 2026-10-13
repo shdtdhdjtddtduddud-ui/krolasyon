@@ -17,6 +17,7 @@ public class LibraBeyblade {
 
     public LibraBeyblade() {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+        com.krolasyon.beyblade.registry.ModBlocks.BLOCKS.register(bus);
         ModEntities.ENTITIES.register(bus);
         ModItems.ITEMS.register(bus);
         ModItems.TABS.register(bus);

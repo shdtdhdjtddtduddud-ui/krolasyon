@@ -21,7 +21,7 @@ public final class Fx {
     private Fx() {}
 
     public static final ResourceLocation SOFT = tex("soft"), WAVE = tex("wave"), HEX = tex("hex"), WISP = tex("wisp"),
-            FLARE = tex("flare"), SIGIL = tex("sigil"), BOLT = tex("bolt");
+            FLARE = tex("flare"), SIGIL = tex("sigil"), BOLT = tex("bolt"), SMOKE = tex("smoke");
 
     private static ResourceLocation tex(String n) {
         return new ResourceLocation(LibraBeyblade.MODID, "textures/fx/" + n + ".png");

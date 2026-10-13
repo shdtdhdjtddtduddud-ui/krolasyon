@@ -1,0 +1,22 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  " X ",
+  "IRI",
+  " I "
+ ],
+ "key": {
+  "X": {
+   "item": "minecraft:yellow_dye"
+  },
+  "I": {
+   "item": "minecraft:iron_ingot"
+  },
+  "R": {
+   "item": "minecraft:redstone"
+  }
+ },
+ "result": {
+  "item": "librabeyblade:common_thunder_viper"
+ }
+}

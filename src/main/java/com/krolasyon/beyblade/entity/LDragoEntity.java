@@ -56,6 +56,7 @@ public class LDragoEntity extends BeybladeEntity {
 
     // ---------------- hooks ----------------
     @Override public int spinDir() { return -1; }
+    @Override public int nativeMode() { return MODE_ATTACK; }
     @Override public String kindId() { return "ldrago"; }
     @Override public String abilityKey(int id) { return "ability.librabeyblade.ldrago." + id; }
     @Override public int duration(int id) { return DR_DURATION[id]; }
@@ -81,8 +82,8 @@ public class LDragoEntity extends BeybladeEntity {
         play(ModSounds.DRAGON_ROAR.get(), 2.0F, 1.0F);
         this.level().broadcastEntityEvent(this, EV_AWAKEN);
         ServerLevel sl = (ServerLevel) this.level();
-        sl.sendParticles(ParticleTypes.FLAME, getX(), getY() + 0.4, getZ(), 40, 0.4, 0.3, 0.4, 0.25);
-        sl.sendParticles(CRIMSON, getX(), getY() + 0.6, getZ(), 30, 0.8, 0.6, 0.8, 0);
+        Px.send(sl, ParticleTypes.FLAME, getX(), getY() + 0.4, getZ(), 40, 0.4, 0.3, 0.4, 0.25);
+        Px.send(sl, CRIMSON, getX(), getY() + 0.6, getZ(), 30, 0.8, 0.6, 0.8, 0);
         for (Entity e : enemiesWithin(4.5)) {
             Vec3 out = flat(e.position().subtract(position()));
             out = out.lengthSqr() < 1.0E-4 ? new Vec3(1, 0, 0) : out.normalize();
@@ -99,7 +100,7 @@ public class LDragoEntity extends BeybladeEntity {
     @Override
     protected void tickBuff() {
         if (this.tickCount % 4 == 0)
-            ((ServerLevel) this.level()).sendParticles(ParticleTypes.FLAME, getX(), getY() + 0.3, getZ(), 2, 0.3, 0.1, 0.3, 0.02);
+            Px.send((ServerLevel) this.level(), ParticleTypes.FLAME, getX(), getY() + 0.3, getZ(), 2, 0.3, 0.1, 0.3, 0.02);
     }
 
     // ---------------- abilities ----------------
@@ -138,7 +139,7 @@ public class LDragoEntity extends BeybladeEntity {
                 }
                 if (t == M_RISE) {
                     play(ModSounds.DRAGON_RISE.get(), 2.0F, 1.0F);
-                    sl.sendParticles(ParticleTypes.LAVA, getX(), getY() + 0.2, getZ(), 12, 0.5, 0.1, 0.5, 0);
+                    Px.send(sl, ParticleTypes.LAVA, getX(), getY() + 0.2, getZ(), 12, 0.5, 0.1, 0.5, 0);
                 }
                 if (t < M_DIVE) {
                     if (t == M_HANG) play(ModSounds.METEOR_CHARGE.get(), 2.0F, 1.0F);
@@ -221,7 +222,7 @@ public class LDragoEntity extends BeybladeEntity {
                     }
                     if (t % 3 == 0) {
                         Vec3 p = from.add(dir.scale(R_LENGTH * 0.7));
-                        sl.sendParticles(ParticleTypes.LAVA, p.x, p.y, p.z, 2, 1.0, 0.6, 1.0, 0);
+                        Px.send(sl, ParticleTypes.LAVA, p.x, p.y, p.z, 2, 1.0, 0.6, 1.0, 0);
                     }
                 }
                 return true;
@@ -255,9 +256,9 @@ public class LDragoEntity extends BeybladeEntity {
             if (upper) l.setDeltaMovement(l.getDeltaMovement().add(0, 0.6, 0));
         }
         ServerLevel sl = (ServerLevel) this.level();
-        sl.sendParticles(ParticleTypes.SWEEP_ATTACK, target.getX(), target.getY() + 0.5, target.getZ(), 1, 0, 0, 0, 0);
-        sl.sendParticles(ParticleTypes.CRIT, target.getX(), target.getY() + 0.5, target.getZ(), 12, 0.2, 0.2, 0.2, 0.5);
-        sl.sendParticles(CRIMSON, target.getX(), target.getY() + 0.5, target.getZ(), 10, 0.3, 0.3, 0.3, 0);
+        Px.send(sl, ParticleTypes.SWEEP_ATTACK, target.getX(), target.getY() + 0.5, target.getZ(), 1, 0, 0, 0, 0);
+        Px.send(sl, ParticleTypes.CRIT, target.getX(), target.getY() + 0.5, target.getZ(), 12, 0.2, 0.2, 0.2, 0.5);
+        Px.send(sl, CRIMSON, target.getX(), target.getY() + 0.5, target.getZ(), 10, 0.3, 0.3, 0.3, 0);
         this.level().broadcastEntityEvent(this, upper ? EV_UPPER : EV_CLAW);
     }
 
@@ -265,11 +266,11 @@ public class LDragoEntity extends BeybladeEntity {
         ServerLevel sl = (ServerLevel) this.level();
         play(ModSounds.METEOR_IMPACT.get(), 3.0F, 1.0F);
         this.level().broadcastEntityEvent(this, EV_IMPACT);
-        sl.sendParticles(ParticleTypes.LAVA, getX(), getY() + 0.3, getZ(), 30, 2.0, 0.3, 2.0, 0);
-        sl.sendParticles(CRIMSON, getX(), getY() + 0.5, getZ(), 40, 2.5, 0.5, 2.5, 0);
+        Px.send(sl, ParticleTypes.LAVA, getX(), getY() + 0.3, getZ(), 30, 2.0, 0.3, 2.0, 0);
+        Px.send(sl, CRIMSON, getX(), getY() + 0.5, getZ(), 40, 2.5, 0.5, 2.5, 0);
         for (int i = 0; i < 60; i++) {
             double a = i / 60.0 * Math.PI * 2;
-            sl.sendParticles(ParticleTypes.FLAME, getX() + Math.cos(a), getY() + 0.15, getZ() + Math.sin(a), 0, Math.cos(a), 0.08, Math.sin(a), 0.6);
+            Px.send(sl, ParticleTypes.FLAME, getX() + Math.cos(a), getY() + 0.15, getZ() + Math.sin(a), 0, Math.cos(a), 0.08, Math.sin(a), 0.6);
         }
         for (Entity e : enemiesWithin(M_RADIUS)) {
             Vec3 out = flat(e.position().subtract(position()));
@@ -301,7 +302,7 @@ public class LDragoEntity extends BeybladeEntity {
                 clawPos[i][2] = at.getZ();
                 clawRot[i] = id == EV_UPPER ? 90F : this.random.nextFloat() * 360F;
                 for (int k = 0; k < 12; k++)
-                    this.level().addParticle(EMBER, at.getX(), at.getY() + 0.5, at.getZ(), (this.random.nextDouble() - 0.5) * 0.6, this.random.nextDouble() * 0.4, (this.random.nextDouble() - 0.5) * 0.6);
+                    Px.add(this.level(), EMBER, at.getX(), at.getY() + 0.5, at.getZ(), (this.random.nextDouble() - 0.5) * 0.6, this.random.nextDouble() * 0.4, (this.random.nextDouble() - 0.5) * 0.6);
             }
             default -> super.handleEntityEvent(id);
         }
@@ -310,9 +311,9 @@ public class LDragoEntity extends BeybladeEntity {
     @Override
     protected void clientBuffParticles(Level lv) {
         double a = this.random.nextDouble() * Math.PI * 2;
-        lv.addParticle(ParticleTypes.FLAME, getX() + Math.cos(a) * 0.45, getY() + 0.25, getZ() + Math.sin(a) * 0.45, 0, 0.05, 0);
+        Px.add(lv, ParticleTypes.FLAME, getX() + Math.cos(a) * 0.45, getY() + 0.25, getZ() + Math.sin(a) * 0.45, 0, 0.05, 0);
         if (this.random.nextInt(2) == 0)
-            lv.addParticle(CRIMSON, getX() + Math.cos(a + 1) * 0.6, getY() + 0.5, getZ() + Math.sin(a + 1) * 0.6, 0, 0.04, 0);
+            Px.add(lv, CRIMSON, getX() + Math.cos(a + 1) * 0.6, getY() + 0.5, getZ() + Math.sin(a + 1) * 0.6, 0, 0.04, 0);
     }
 
     @Override
@@ -323,12 +324,12 @@ public class LDragoEntity extends BeybladeEntity {
                     double a = this.random.nextDouble() * Math.PI * 2, r = 1 + this.random.nextDouble() * (VORTEX_RADIUS - 1);
                     double x = getX() + Math.cos(a) * r, z = getZ() + Math.sin(a) * r;
                     // particles swirl counter-clockwise and inward
-                    lv.addParticle(i % 2 == 0 ? SHADOW : CRIMSON, x, getY() + 0.1, z, -Math.sin(a) * -0.3 - Math.cos(a) * 0.1, 0.02, Math.cos(a) * -0.3 - Math.sin(a) * 0.1);
+                    Px.add(lv, i % 2 == 0 ? SHADOW : CRIMSON, x, getY() + 0.1, z, -Math.sin(a) * -0.3 - Math.cos(a) * 0.1, 0.02, Math.cos(a) * -0.3 - Math.sin(a) * 0.1);
                 }
                 if (this.tickCount % 2 == 0) {
                     for (Entity e : enemiesWithin(VORTEX_RADIUS)) {
                         double f = this.random.nextDouble();
-                        lv.addParticle(CRIMSON, Mth.lerp(f, e.getX(), getX()), Mth.lerp(f, e.getY() + 0.5, getY() + 0.4), Mth.lerp(f, e.getZ(), getZ()),
+                        Px.add(lv, CRIMSON, Mth.lerp(f, e.getX(), getX()), Mth.lerp(f, e.getY() + 0.5, getY() + 0.4), Mth.lerp(f, e.getZ(), getZ()),
                                 (getX() - e.getX()) * 0.05, 0.02, (getZ() - e.getZ()) * 0.05);
                     }
                 }
@@ -336,16 +337,16 @@ public class LDragoEntity extends BeybladeEntity {
             case DR_METEOR -> {
                 if (at >= M_RISE) {
                     for (int i = 0; i < 4; i++)
-                        lv.addParticle(i % 2 == 0 ? ParticleTypes.FLAME : EMBER, getX() + (this.random.nextDouble() - 0.5) * 0.6, getY() + this.random.nextDouble() * 0.6,
+                        Px.add(lv, i % 2 == 0 ? ParticleTypes.FLAME : EMBER, getX() + (this.random.nextDouble() - 0.5) * 0.6, getY() + this.random.nextDouble() * 0.6,
                                 getZ() + (this.random.nextDouble() - 0.5) * 0.6, 0, at < M_DIVE ? -0.15 : 0.1, 0);
-                    if (at >= M_DIVE) lv.addParticle(ParticleTypes.LAVA, getX(), getY() + 0.4, getZ(), 0, 0, 0);
+                    if (at >= M_DIVE) Px.add(lv, ParticleTypes.LAVA, getX(), getY() + 0.4, getZ(), 0, 0, 0);
                 }
             }
             case DR_ROAR -> {
                 Entity t = this.level().getEntity(getTargetId());
                 if (t == null) return;
                 if (at < R_BREATH) {
-                    lv.addParticle(EMBER, getX() + (this.random.nextDouble() - 0.5) * 2, getY() + 0.4 + this.random.nextDouble(), getZ() + (this.random.nextDouble() - 0.5) * 2, 0, 0.02, 0);
+                    Px.add(lv, EMBER, getX() + (this.random.nextDouble() - 0.5) * 2, getY() + 0.4 + this.random.nextDouble(), getZ() + (this.random.nextDouble() - 0.5) * 2, 0, 0.02, 0);
                 } else if (at < R_END) {
                     Vec3 from = position().add(0, 0.4, 0);
                     Vec3 dir = breathDir(at, from, t.position().add(0, t.getBbHeight() * 0.5, 0));
@@ -353,7 +354,7 @@ public class LDragoEntity extends BeybladeEntity {
                         double sp = 0.55 + this.random.nextDouble() * 0.5;
                         Vec3 j = new Vec3(this.random.nextGaussian(), this.random.nextGaussian(), this.random.nextGaussian()).scale(0.12);
                         Vec3 v = dir.add(j).scale(sp);
-                        lv.addParticle(i % 3 == 0 ? ParticleTypes.SMALL_FLAME : ParticleTypes.FLAME, from.x + dir.x * 0.8, from.y + dir.y * 0.8, from.z + dir.z * 0.8, v.x, v.y, v.z);
+                        Px.add(lv, i % 3 == 0 ? ParticleTypes.SMALL_FLAME : ParticleTypes.FLAME, from.x + dir.x * 0.8, from.y + dir.y * 0.8, from.z + dir.z * 0.8, v.x, v.y, v.z);
                     }
                 }
             }

@@ -1,25 +1,19 @@
 {
  "type": "minecraft:crafting_shaped",
  "pattern": [
-  "IDI",
-  "BGB",
-  "IFI"
+  "LDL",
+  "DXD",
+  "LDL"
  ],
  "key": {
-  "I": {
-   "item": "minecraft:iron_ingot"
+  "L": {
+   "item": "minecraft:lapis_block"
   },
   "D": {
    "item": "minecraft:diamond"
   },
-  "B": {
-   "item": "minecraft:light_blue_dye"
-  },
-  "G": {
-   "item": "minecraft:gold_block"
-  },
-  "F": {
-   "item": "minecraft:phantom_membrane"
+  "X": {
+   "item": "minecraft:trident"
   }
  },
  "result": {

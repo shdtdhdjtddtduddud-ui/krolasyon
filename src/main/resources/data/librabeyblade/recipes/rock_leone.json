@@ -1,25 +1,19 @@
 {
  "type": "minecraft:crafting_shaped",
  "pattern": [
-  "IDI",
-  "EGE",
-  "ISI"
+  "EDE",
+  "DXD",
+  "EDE"
  ],
  "key": {
-  "I": {
-   "item": "minecraft:iron_ingot"
+  "E": {
+   "item": "minecraft:emerald_block"
   },
   "D": {
    "item": "minecraft:diamond"
   },
-  "E": {
-   "item": "minecraft:emerald"
-  },
-  "G": {
-   "item": "minecraft:gold_block"
-  },
-  "S": {
-   "item": "minecraft:stone"
+  "X": {
+   "item": "minecraft:heart_of_the_sea"
   }
  },
  "result": {
