@@ -48,6 +48,13 @@ public final class ModItems {
     public static final RegistryObject<Item> RIVAL_EAGLE = ITEMS.register("rival_eagle",
             () -> new RivalLibraItem(new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON), ModEntities.EAGLE));
 
+    public static final RegistryObject<Item> PEGASUS = ITEMS.register("storm_pegasus",
+            () -> new LibraItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC).fireResistant(), "pegasus"));
+    public static final RegistryObject<Item> PEGASUS_LAUNCHER = ITEMS.register("pegasus_launcher",
+            () -> new LauncherItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE), PEGASUS, ModEntities.PEGASUS));
+    public static final RegistryObject<Item> RIVAL_PEGASUS = ITEMS.register("rival_pegasus",
+            () -> new RivalLibraItem(new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON), ModEntities.PEGASUS));
+
     public static final RegistryObject<Item> STADIUM = ITEMS.register("stadium",
             () -> new com.krolasyon.beyblade.item.StadiumItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE)));
 
@@ -67,6 +74,9 @@ public final class ModItems {
                 output.accept(EAGLE.get());
                 output.accept(EAGLE_LAUNCHER.get());
                 output.accept(RIVAL_EAGLE.get());
+                output.accept(PEGASUS.get());
+                output.accept(PEGASUS_LAUNCHER.get());
+                output.accept(RIVAL_PEGASUS.get());
                 output.accept(STADIUM.get());
             })
             .build());

@@ -32,6 +32,7 @@ public final class ClientSetup {
         event.registerEntityRenderer(ModEntities.LDRAGO.get(), BeybladeRenderer::new);
         event.registerEntityRenderer(ModEntities.LEONE.get(), BeybladeRenderer::new);
         event.registerEntityRenderer(ModEntities.EAGLE.get(), BeybladeRenderer::new);
+        event.registerEntityRenderer(ModEntities.PEGASUS.get(), BeybladeRenderer::new);
         event.registerEntityRenderer(ModEntities.STADIUM.get(), StadiumRenderer::new);
     }
 

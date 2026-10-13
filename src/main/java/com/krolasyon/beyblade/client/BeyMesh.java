@@ -32,8 +32,12 @@ public final class BeyMesh {
     /** Earth Eagle: radius 207 px, texture window half size 216 px */
     public static final BeyMesh EAGLE = new BeyMesh("eagle", 1.27F, 1.48F, 216F / 207F);
 
+    /** Storm Pegasus: radius 227 px, texture window half size 238 px */
+    public static final BeyMesh PEGASUS = new BeyMesh("pegasus", 1.03F, 1.24F, 238F / 227F);
+
     public static BeyMesh of(String kind) {
         return switch (kind) {
+            case "pegasus" -> PEGASUS;
             case "eagle" -> EAGLE;
             case "ldrago" -> LDRAGO;
             case "leone" -> LEONE;

@@ -52,7 +52,7 @@ public final class EagleFx {
     }
 
     /** a blade feather lying along dir (crossed horizontal + vertical planes so it reads from every angle) */
-    private static void feather(VertexConsumer vc, Matrix4f m, Vec3 c, Vec3 dir, float len, float w, float[] col) {
+    static void feather(VertexConsumer vc, Matrix4f m, Vec3 c, Vec3 dir, float len, float w, float[] col) {
         Vec3 d = dir.normalize();
         Vec3 up = new Vec3(0, 1, 0);
         Vec3 side = d.cross(up);

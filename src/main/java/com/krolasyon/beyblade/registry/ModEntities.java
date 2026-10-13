@@ -5,6 +5,7 @@ import com.krolasyon.beyblade.entity.BeybladeEntity;
 import com.krolasyon.beyblade.entity.LDragoEntity;
 import com.krolasyon.beyblade.entity.LeoneEntity;
 import com.krolasyon.beyblade.entity.EagleEntity;
+import com.krolasyon.beyblade.entity.PegasusEntity;
 import com.krolasyon.beyblade.entity.StadiumEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -46,4 +47,10 @@ public final class ModEntities {
                     .sized(BeybladeEntity.WIDTH, BeybladeEntity.HEIGHT).fireImmune()
                     .clientTrackingRange(10).updateInterval(1).setShouldReceiveVelocityUpdates(true)
                     .build("eagle"));
+
+    public static final RegistryObject<EntityType<PegasusEntity>> PEGASUS = ENTITIES.register("pegasus",
+            () -> EntityType.Builder.<PegasusEntity>of(PegasusEntity::new, MobCategory.MISC)
+                    .sized(BeybladeEntity.WIDTH, BeybladeEntity.HEIGHT).fireImmune()
+                    .clientTrackingRange(10).updateInterval(1).setShouldReceiveVelocityUpdates(true)
+                    .build("pegasus"));
 }

@@ -22,6 +22,8 @@ public class LibraHud implements IGuiOverlay {
     private static final int[] LE_COLORS = {0xFF9CFFB0, 0xFF6CFF6A, 0xFF40E080, 0xFFE0C070, 0xFFB0FFD0};
     private static final ResourceLocation ICON_EAGLE = new ResourceLocation(LibraBeyblade.MODID, "textures/item/eagle_icon.png");
     private static final int[] EA_COLORS = {0xFFE0C0FF, 0xFFC0A0FF, 0xFFFF7070, 0xFFD0D0E0, 0xFFFFD060};
+    private static final ResourceLocation ICON_PEGASUS = new ResourceLocation(LibraBeyblade.MODID, "textures/item/pegasus_icon.png");
+    private static final int[] PG_COLORS = {0xFFA0D8FF, 0xFF70B0FF, 0xFFFFF080, 0xFF60C0FF, 0xFFFFFFFF};
     private static final int[] DR_COLORS = {0xFFFF4060, 0xFFE040A0, 0xFFFF8A2A, 0xFFFF3050, 0xFFFFB040};
     private static final int[] AB_COLORS = {0xFF6CFF9A, 0xFF5CFFB0, 0xFFFF8A2A, 0xFF7AFFF0, 0xFFFFD25A};
 
@@ -37,9 +39,9 @@ public class LibraHud implements IGuiOverlay {
         Font font = mc.font;
         int x = 8, y = height / 2 - 52;
         g.fill(x - 4, y - 4, x + 168, y + 106, 0x88000000);
-        boolean drago = bey.kindId().equals("ldrago"), leone = bey.kindId().equals("leone"), eagle = bey.kindId().equals("eagle");
-        g.blit(drago ? ICON_LDRAGO : (leone ? ICON_LEONE : (eagle ? ICON_EAGLE : ICON)), x, y, 0, 0, 24, 24, 24, 24);
-        g.drawString(font, Component.translatable("hud.librabeyblade.title." + bey.kindId()), x + 29, y + 2, drago ? 0xFFFF5070 : (leone ? 0xFF60FF90 : (eagle ? 0xFFC890FF : 0xFFB6FF6A)), true);
+        boolean drago = bey.kindId().equals("ldrago"), leone = bey.kindId().equals("leone"), eagle = bey.kindId().equals("eagle"), pegasus = bey.kindId().equals("pegasus");
+        g.blit(drago ? ICON_LDRAGO : (leone ? ICON_LEONE : (eagle ? ICON_EAGLE : (pegasus ? ICON_PEGASUS : ICON))), x, y, 0, 0, 24, 24, 24, 24);
+        g.drawString(font, Component.translatable("hud.librabeyblade.title." + bey.kindId()), x + 29, y + 2, drago ? 0xFFFF5070 : (leone ? 0xFF60FF90 : (eagle ? 0xFFC890FF : (pegasus ? 0xFF70B8FF : 0xFFB6FF6A))), true);
         String state = switch (bey.getState()) {
             case BeybladeEntity.STATE_DEFEATED -> "hud.librabeyblade.state.defeated";
             case BeybladeEntity.STATE_RECALL -> "hud.librabeyblade.state.recall";
@@ -59,7 +61,7 @@ public class LibraHud implements IGuiOverlay {
             KeyMapping key = ClientSetup.ABILITY_KEYS[i - 1];
             int cd = bey.cooldownRemaining(i);
             boolean active = bey.getAbility() == i || (i == bey.buffAbility() && bey.isShielded());
-            int c = active ? 0xFFFFFFFF : (cd > 0 ? 0xFF808080 : (drago ? DR_COLORS : (leone ? LE_COLORS : (eagle ? EA_COLORS : AB_COLORS)))[i - 1]);
+            int c = active ? 0xFFFFFFFF : (cd > 0 ? 0xFF808080 : (drago ? DR_COLORS : (leone ? LE_COLORS : (eagle ? EA_COLORS : (pegasus ? PG_COLORS : AB_COLORS))))[i - 1]);
             String keyName = key.getTranslatedKeyMessage().getString();
             g.drawString(font, "[" + keyName + "]", x, ay, 0xFFFFE070, true);
             g.drawString(font, Component.translatable(bey.abilityKey(i)), x + 22, ay, c, true);

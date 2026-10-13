@@ -358,5 +358,59 @@
         "stream": true
       }
     ]
+  },
+  "pegasus_neigh": {
+    "subtitle": "subtitles.librabeyblade.pegasus_neigh",
+    "sounds": [
+      {
+        "name": "librabeyblade:pegasus_neigh",
+        "stream": false
+      }
+    ]
+  },
+  "storm_cloud": {
+    "subtitle": "subtitles.librabeyblade.storm_cloud",
+    "sounds": [
+      {
+        "name": "librabeyblade:storm_cloud",
+        "stream": true
+      }
+    ]
+  },
+  "thunder_strike": {
+    "subtitle": "subtitles.librabeyblade.thunder_strike",
+    "sounds": [
+      {
+        "name": "librabeyblade:thunder_strike",
+        "stream": false
+      }
+    ]
+  },
+  "star_chime": {
+    "subtitle": "subtitles.librabeyblade.star_chime",
+    "sounds": [
+      {
+        "name": "librabeyblade:star_chime",
+        "stream": false
+      }
+    ]
+  },
+  "ricochet": {
+    "subtitle": "subtitles.librabeyblade.ricochet",
+    "sounds": [
+      {
+        "name": "librabeyblade:ricochet",
+        "stream": false
+      }
+    ]
+  },
+  "gallop": {
+    "subtitle": "subtitles.librabeyblade.gallop",
+    "sounds": [
+      {
+        "name": "librabeyblade:gallop",
+        "stream": true
+      }
+    ]
   }
 }

@@ -47,6 +47,14 @@ public final class ModSounds {
     public static final RegistryObject<SoundEvent> CLAW_SLASH = reg("claw_slash");
     public static final RegistryObject<SoundEvent> FIRE_BREATH = reg("fire_breath");
 
+    // Storm Pegasus
+    public static final RegistryObject<SoundEvent> PEGASUS_NEIGH = reg("pegasus_neigh");
+    public static final RegistryObject<SoundEvent> STORM_CLOUD = reg("storm_cloud");
+    public static final RegistryObject<SoundEvent> THUNDER_STRIKE = reg("thunder_strike");
+    public static final RegistryObject<SoundEvent> STAR_CHIME = reg("star_chime");
+    public static final RegistryObject<SoundEvent> RICOCHET = reg("ricochet");
+    public static final RegistryObject<SoundEvent> GALLOP = reg("gallop");
+
     // Earth Eagle
     public static final RegistryObject<SoundEvent> EAGLE_SCREECH = reg("eagle_screech");
     public static final RegistryObject<SoundEvent> FEATHER_WHIRL = reg("feather_whirl");

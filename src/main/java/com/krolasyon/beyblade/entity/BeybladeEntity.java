@@ -97,7 +97,7 @@ public class BeybladeEntity extends Entity {
     // ---------------- server state ----------------
     private ItemStack stored = ItemStack.EMPTY;
     protected int abilityTicks;
-    protected double abilityBaseY;
+    protected double abilityBaseY, abilityBaseX, abilityBaseZ;
     protected boolean diving;
     private int dashCooldown = 20, dashTicks;
     private int ownerMissing;
@@ -591,6 +591,8 @@ public class BeybladeEntity extends Entity {
         startCooldown(id);
         abilityTicks = 0;
         abilityBaseY = getY();
+        abilityBaseX = getX();
+        abilityBaseZ = getZ();
         diving = false;
         for (Set<Integer> s : waveHits) s.clear();
         this.entityData.set(DATA_ABILITY, id);

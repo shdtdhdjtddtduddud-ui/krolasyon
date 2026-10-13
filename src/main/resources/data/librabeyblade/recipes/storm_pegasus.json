@@ -1,0 +1,28 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "IDI",
+  "BGB",
+  "IFI"
+ ],
+ "key": {
+  "I": {
+   "item": "minecraft:iron_ingot"
+  },
+  "D": {
+   "item": "minecraft:diamond"
+  },
+  "B": {
+   "item": "minecraft:light_blue_dye"
+  },
+  "G": {
+   "item": "minecraft:gold_block"
+  },
+  "F": {
+   "item": "minecraft:phantom_membrane"
+  }
+ },
+ "result": {
+  "item": "librabeyblade:storm_pegasus"
+ }
+}

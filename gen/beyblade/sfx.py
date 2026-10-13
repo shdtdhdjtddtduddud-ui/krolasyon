@@ -556,6 +556,62 @@ def lance_rain():
     return reverb(mix(out, choir), 0.45, 1.6)
 
 
+# ======================= STORM PEGASUS =======================
+def pegasus_neigh():
+    d = 1.8
+    n = int(d * SR)
+    t = T(d)
+    f = 600 + 500 * np.exp(-t * 3) * (1 + 0.25 * np.sin(2 * np.pi * 11 * t))
+    v = formant(osc(f, 'saw'), 'e') * (0.6 + 0.4 * np.sin(2 * np.pi * 14 * t))
+    e = np.minimum(1, t / 0.05) * np.exp(-np.maximum(0, t - 0.7) * 3)
+    return reverb(mix(np.tanh(v * 2) * e, bp(noise(d), 1500, 5000) * e * 0.2), 0.45, 1.6)
+
+
+def storm_cloud():
+    d = 3.0
+    n = int(d * SR)
+    t = T(d)
+    rumble = lp(brown(d), 120) * (0.6 + 0.4 * np.sin(2 * np.pi * 0.7 * t)) * 1.5
+    wind = sweep_bp(noise(d), 300, 900, 1.5) * 0.5
+    rain = hp(noise(d), 3000) * 0.15
+    e = np.minimum(1, t / 0.6) * np.exp(-np.maximum(0, t - 2.4) * 3)
+    return reverb(mix(rumble * e, wind * e, rain * e), 0.5, 2.0)
+
+
+def thunder_strike():
+    d = 2.2
+    n = int(d * SR)
+    crack = hp(noise(0.12), 2000) * env(int(0.12 * SR), 0.0005, 0.04) * 1.6
+    zap = sweep_bp(noise(0.3), 8000, 1500, 3.0) * env(int(0.3 * SR), 0.001, 0.1) * 0.8
+    roll = lp(brown(d), 200) * env(n, 0.02, 1.0, 1.2) * 1.4
+    return reverb(mix(crack, zap, roll, boom(d, 80, 25, 0.8)), 0.5, 2.2)
+
+
+def star_chime():
+    d = 2.0
+    return reverb(mix(*[np.concatenate([np.zeros(int(i * 0.08 * SR)), bell(d, f, decay=0.9) * 0.25]) for i, f in enumerate((1047, 1319, 1568, 2093, 2637))]), 0.55, 2.0)
+
+
+def ricochet():
+    d = 0.6
+    n = int(d * SR)
+    return mix(sweep_bp(noise(d), 800, 6000, 2.0) * env(n, 0.01, 0.15, 1.0) * 1.2, metal_ring(d, 2400, 0.08) * 0.4)
+
+
+def gallop():
+    d = 2.6
+    n = int(d * SR)
+    out = np.zeros(n)
+    hoof = boom(0.12, 220, 80, 0.04) + hp(noise(0.12), 2000) * env(int(0.12 * SR), 0.001, 0.02) * 0.4
+    for k in range(int(d / 0.28)):
+        for j, off in enumerate((0, 0.06, 0.13)):
+            p = int((k * 0.28 + off) * SR)
+            if p + len(hoof) < n:
+                out[p:p + len(hoof)] += hoof * (0.8 - j * 0.15)
+    wind = sweep_bp(noise(d), 400, 2500, 1.4) * 0.4
+    return reverb(mix(out, wind, pegasus_neigh()[:n] * 0.6), 0.35, 1.4)
+
+
 if __name__ == '__main__':
     jobs = {
         'launch': launch, 'land': land, 'charge': charge, 'spin_loop': spin_loop,
@@ -567,6 +623,8 @@ if __name__ == '__main__':
         'recall': recall, 'catch': catch, 'defeat': defeat,
         'dragon_roar': dragon_roar, 'vortex': vortex, 'dragon_rise': dragon_rise, 'meteor_charge': meteor_charge,
         'meteor_impact': meteor_impact, 'claw_slash': claw_slash, 'fire_breath': fire_breath,
+        'pegasus_neigh': pegasus_neigh, 'storm_cloud': storm_cloud, 'thunder_strike': thunder_strike, 'star_chime': star_chime,
+        'ricochet': ricochet, 'gallop': gallop,
         'eagle_screech': eagle_screech, 'feather_whirl': feather_whirl, 'feather_burst': feather_burst, 'wing_blade': wing_blade,
         'sky_dive': sky_dive, 'lance_rain': lance_rain,
         'lion_roar': lion_roar, 'wind_wall': wind_wall, 'fang_shot': fang_shot, 'quake': quake, 'cage_wind': cage_wind, 'cage_blast': cage_blast,

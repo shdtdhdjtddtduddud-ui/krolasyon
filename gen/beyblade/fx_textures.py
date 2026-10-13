@@ -255,6 +255,66 @@ def feather():
     return np.dstack([rgb, rgb, rgb, np.maximum(sharp, glow * 0.6)])
 
 
+def pegasus():
+    """galloping winged horse, side view facing left; rgb = glow, alpha = silhouette"""
+    n = 512
+    img = Image.new('L', (n, n), 0)
+    d = ImageDraw.Draw(img)
+    # body
+    d.ellipse((150, 250, 360, 340), fill=255)
+    # chest + neck + head
+    d.polygon([(170, 270), (130, 200), (110, 150), (125, 120), (150, 110), (180, 150), (215, 260)], fill=255)
+    d.polygon([(110, 150), (60, 175), (48, 192), (62, 205), (95, 196), (128, 175)], fill=255)      # muzzle
+    d.polygon([(140, 112), (150, 82), (160, 115)], fill=255)                                        # ear
+    d.ellipse((108, 140, 118, 150), fill=0)                                                        # eye
+    # mane flowing back
+    for k in range(6):
+        d.polygon([(150 + k * 10, 110 + k * 22), (210 + k * 14, 95 + k * 22), (172 + k * 10, 128 + k * 22)], fill=255)
+    # legs: galloping, front pair reaching forward, back pair pushing back
+    def leg(pts, w):
+        d.line(pts, fill=255, width=w, joint='curve')
+    leg([(185, 320), (150, 360), (110, 350), (95, 375)], 18)
+    leg([(205, 325), (190, 385), (165, 410)], 18)
+    leg([(320, 320), (350, 375), (395, 395)], 18)
+    leg([(335, 315), (385, 345), (425, 330)], 18)
+    # tail
+    d.polygon([(355, 275), (420, 250), (470, 265), (440, 285), (470, 310), (410, 300), (360, 300)], fill=255)
+    # great wing: a fan of long flight feathers rising from the shoulders, swept back
+    sx, sy = 250, 262
+    for k in range(9):
+        ang = math.radians(-82 + k * 8.5)
+        L = 235 - k * 11
+        tx, ty = sx + math.cos(ang) * L, sy + math.sin(ang) * L
+        px, py = -math.sin(ang), math.cos(ang)
+        w = 15 + k * 1.5
+        d.polygon([(sx + px * w * 0.4, sy + py * w * 0.4), (sx + math.cos(ang) * L * 0.55 + px * w, sy + math.sin(ang) * L * 0.55 + py * w),
+                   (tx, ty), (sx + math.cos(ang) * L * 0.55 - px * w, sy + math.sin(ang) * L * 0.55 - py * w), (sx - px * w * 0.4, sy - py * w * 0.4)], fill=255)
+    d.ellipse((205, 220, 285, 290), fill=255)            # wing root / coverts
+    sharp = np.asarray(img).astype(np.float32) / 255
+    glow = np.asarray(img.filter(ImageFilter.GaussianBlur(10))).astype(np.float32) / 255
+    rgb = np.clip(sharp * 0.85 + glow * 0.9, 0, 1)
+    out = np.dstack([rgb, rgb, rgb, sharp])
+    return np.asarray(Image.fromarray((out * 255).astype(np.uint8), 'RGBA').resize((256, 256), Image.LANCZOS)).astype(np.float32) / 255
+
+
+def star():
+    """five-pointed star with a soft halo"""
+    n = 256
+    img = Image.new('L', (n, n), 0)
+    d = ImageDraw.Draw(img)
+    c = n / 2
+    pts = []
+    for k in range(10):
+        a = math.radians(-90 + k * 36)
+        r = 110 if k % 2 == 0 else 44
+        pts.append((c + math.cos(a) * r, c + math.sin(a) * r))
+    d.polygon(pts, fill=255)
+    sharp = np.asarray(img).astype(np.float32) / 255
+    glow = np.asarray(img.filter(ImageFilter.GaussianBlur(12))).astype(np.float32) / 255
+    rgb = np.clip(sharp + glow * 1.1, 0, 1)
+    return np.dstack([rgb, rgb, rgb, np.maximum(sharp, glow * 0.7)])
+
+
 def launcher_tex():
     """64x64 palette sheet for the launcher JSON model"""
     P = np.zeros((32, 32, 4), np.float32)
@@ -320,6 +380,19 @@ def eagle_launcher_tex():
     return P
 
 
+def pegasus_launcher_tex():
+    """launcher in Storm Pegasus colours"""
+    P = launcher_tex()
+    swap = {(0, 0): (215, 218, 226), (16, 0): (40, 110, 230), (0, 16): (30, 40, 70), (16, 16): (220, 50, 50), (24, 16): (240, 200, 60), (16, 24): (170, 175, 185)}
+    for (x0, y0), col in swap.items():
+        w = 16 if (x0, y0) in ((0, 0), (16, 0), (0, 16), (16, 24)) else 8
+        h = 16 if (x0, y0) in ((0, 0), (16, 0), (0, 16)) else 8
+        blk = P[y0:y0 + h, x0:x0 + w, :3]
+        lum = blk.mean(axis=2, keepdims=True)
+        P[y0:y0 + h, x0:x0 + w, :3] = np.clip(np.array(col) / 255.0 * (lum / max(1e-3, lum.mean())), 0, 1)
+    return P
+
+
 if __name__ == '__main__':
     save(soft(), 'soft')
     save(wave(), 'wave')
@@ -331,6 +404,9 @@ if __name__ == '__main__':
     save(claw(), 'claw')
     save(fang(), 'fang')
     save(eagle(), 'eagle')
+    save(pegasus(), 'pegasus')
+    save(star(), 'star')
+    save(pegasus_launcher_tex(), 'pegasus_launcher', 'item')
     save(feather(), 'feather')
     save(eagle_launcher_tex(), 'eagle_launcher', 'item')
     save(leone_launcher_tex(), 'leone_launcher', 'item')

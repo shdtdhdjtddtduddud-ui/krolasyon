@@ -33,6 +33,7 @@ public class LibraItem extends Item {
         ChatFormatting col = switch (kind) {
             case "ldrago" -> ChatFormatting.RED;
             case "eagle" -> ChatFormatting.LIGHT_PURPLE;
+            case "pegasus" -> ChatFormatting.AQUA;
             default -> ChatFormatting.GREEN;
         };
         tip.add(Component.translatable(base + ".desc").withStyle(col));

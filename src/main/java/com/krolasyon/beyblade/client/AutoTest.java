@@ -50,76 +50,75 @@ public final class AutoTest {
         MinecraftForge.EVENT_BUS.register(new AutoTest());
     }
 
-    private static final String A = "summon librabeyblade:eagle 0 -60 -6 {Spin:3000f,MaxSpin:3000f,Frozen:1b,Tags:[\"a\"]}";
-    private static final String B = "summon librabeyblade:leone 3.5 -60 -9 {Spin:3000f,MaxSpin:3000f,Frozen:1b,Tags:[\"b\"]}";
+    private static final String A = "summon librabeyblade:pegasus 0 -60 -6 {Spin:3000f,MaxSpin:3000f,Frozen:1b,Tags:[\"a\"]}";
+    private static final String B = "summon librabeyblade:eagle 3.5 -60 -9 {Spin:3000f,MaxSpin:3000f,Frozen:1b,Tags:[\"b\"]}";
 
     private AutoTest() {
         cmd(0, null, "gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false",
                 "time set 6000", "weather clear", "difficulty peaceful", "gamemode spectator @a", "kill @e[type=!player]",
                 "fill -2 -60 -2 2 -60 2 minecraft:smooth_stone");
         // ---- Earth Eagle model close-ups
-        cmd(4, null, "summon librabeyblade:eagle 0 -59 0 {Spin:3000f,MaxSpin:3000f,Frozen:1b}", "tp @a 0.5 -57.6 1.4 180 50");
-        wait(30, "eagle_close");
-        cmd(10, "eagle_side", "tp @a 0.5 -58.2 2.6 180 18");
-        cmd(10, "eagle_far", "tp @a 2.2 -57.5 2.2 135 30");
+        cmd(4, null, "summon librabeyblade:pegasus 0 -59 0 {Spin:3000f,MaxSpin:3000f,Frozen:1b}", "tp @a 0.5 -57.6 1.4 180 50");
+        wait(30, "pegasus_close");
+        cmd(10, "pegasus_side", "tp @a 0.5 -58.2 2.6 180 18");
+        cmd(10, "pegasus_far", "tp @a 2.2 -57.5 2.2 135 30");
         // ---- four-way battle in the stadium
         cmd(10, null, "kill @e[type=!player]", "fill -2 -60 -2 2 -60 2 minecraft:air", "summon librabeyblade:stadium 0.5 -60 -9.5", "tp @a 0.5 -53 3 180 35",
-                "summon librabeyblade:eagle -3 -57 -9.5 {Spin:3000f,MaxSpin:3000f}", "summon librabeyblade:leone 4 -57 -9.5 {Spin:3000f,MaxSpin:3000f}",
+                "summon librabeyblade:pegasus -3 -57 -9.5 {Spin:3000f,MaxSpin:3000f}", "summon librabeyblade:eagle 4 -57 -9.5 {Spin:3000f,MaxSpin:3000f}",
                 "summon librabeyblade:ldrago 0.5 -57 -13 {Spin:3000f,MaxSpin:3000f}", "summon librabeyblade:libra 0.5 -57 -6 {Spin:3000f,MaxSpin:3000f}");
         wait(30, "stadium_battle_a");
         wait(30, "stadium_battle_b");
         wait(40, "stadium_battle_c");
-        // ---- Earth Eagle abilities on a Rock Leone target
+        // ---- Storm Pegasus abilities on an Earth Eagle target
         cmd(10, null, "kill @e[type=!player]", "tp @a 1.5 -58.4 2 180 18", A, B);
         wait(20, null);
         force(1);
-        wait(12, "eagle_eye");
-        server(1, null, s -> each(s, "b", b -> b.setDeltaMovement(new Vec3(-0.9, 0.1, 0.6))));
-        wait(4, "eagle_eye_dodge");
+        wait(14, "pegasus_wings");
         wait(30, null);
-        cmd(4, null, "tp @a 1.5 -56 3 180 30", "kill @e[type=!player]", A, B,
-                "summon librabeyblade:ldrago -3 -60 -4 {Spin:3000f,MaxSpin:3000f,Frozen:1b}");
+        cmd(4, null, "tp @a 1.5 -55 9 180 -10", "kill @e[type=!player]", A, B,
+                "summon librabeyblade:leone -3 -60 -4 {Spin:3000f,MaxSpin:3000f,Frozen:1b}");
         wait(15, null);
         force(2);
-        wait(14, "feather_gather");
-        wait(10, "feather_burst");
-        wait(14, "feather_burst_b");
-        wait(40, null);
-        cmd(4, null, "tp @a 1.5 -57 7 180 -5", "kill @e[type=!player]", A, B);
+        wait(16, "storm_cloud");
+        wait(14, "storm_strike_a");
+        wait(11, "storm_strike_b");
+        wait(70, null);
+        cmd(4, null, "tp @a 1.5 -54 6 180 30", "kill @e[type=!player]", A, B);
         wait(15, null);
         force(3);
-        wait(16, "talon_swoop");
-        wait(14, "talon_carry");
-        wait(26, "talon_slam");
+        wait(18, "star_points");
+        wait(12, "star_lines");
+        wait(18, "star_collapse");
+        wait(4, "star_nova");
         wait(40, null);
-        cmd(4, null, "tp @a 1.5 -56 4 180 30", "kill @e[type=!player]", A, B);
+        cmd(4, null, "tp @a 1.5 -54 6 180 30", "kill @e[type=!player]", A, B,
+                "summon librabeyblade:leone -3 -60 -4 {Spin:3000f,MaxSpin:3000f,Frozen:1b}");
         wait(15, null);
         force(4);
-        wait(16, "wing_smash");
-        wait(20, "wing_smash_b");
-        wait(50, null);
-        cmd(4, null, "tp @a 1.5 -57 9 180 -20", "kill @e[type=!player]", A, B,
-                "summon librabeyblade:ldrago -3 -60 -4 {Spin:3000f,MaxSpin:3000f,Frozen:1b}");
+        wait(10, "rico_a");
+        wait(14, "rico_b");
+        wait(60, null);
+        cmd(4, null, "tp @a 1.5 -51 8 180 40", "kill @e[type=!player]", A, B,
+                "summon librabeyblade:leone -3 -60 -4 {Spin:3000f,MaxSpin:3000f,Frozen:1b}");
         wait(15, null);
         force(5);
-        wait(16, "sky_descend");
-        wait(26, "sky_lances");
-        wait(30, "sky_lances_b");
-        wait(36, "sky_screech");
+        wait(30, "gallop_a");
+        wait(25, "gallop_b");
+        wait(42, "gallop_nova");
         wait(30, null);
-        // ---- owned Eagle + HUD + item
+        // ---- owned Pegasus + HUD + item
         cmd(4, null, "kill @e[type=!player]", "gamemode creative @a", "tp @a 0.5 -60 3 180 20");
         server(10, null, s -> {
             ServerPlayer p = s.getPlayerList().getPlayers().get(0);
-            BeybladeEntity.launch(com.krolasyon.beyblade.registry.ModEntities.EAGLE.get(), p.level(), p, new ItemStack(ModItems.EAGLE.get()),
+            BeybladeEntity.launch(com.krolasyon.beyblade.registry.ModEntities.PEGASUS.get(), p.level(), p, new ItemStack(ModItems.PEGASUS.get()),
                     p.getEyePosition().add(0, -0.5, -1), new Vec3(0, 0.1, -0.6), 1F);
         });
         cmd(2, null, "summon librabeyblade:leone 1 -60 -7 {Spin:3000f,MaxSpin:3000f,Frozen:1b}");
         steps.add(new Step(30, "owned_hud", null, true));
-        cmd(4, null, "item replace entity @a weapon.mainhand with librabeyblade:earth_eagle", "item replace entity @a hotbar.1 with librabeyblade:eagle_launcher",
-                "item replace entity @a hotbar.2 with librabeyblade:rival_eagle");
+        cmd(4, null, "item replace entity @a weapon.mainhand with librabeyblade:storm_pegasus", "item replace entity @a hotbar.1 with librabeyblade:pegasus_launcher",
+                "item replace entity @a hotbar.2 with librabeyblade:rival_pegasus");
         wait(16, "item_hand");
-        cmd(4, null, "item replace entity @a weapon.mainhand with librabeyblade:eagle_launcher");
+        cmd(4, null, "item replace entity @a weapon.mainhand with librabeyblade:pegasus_launcher");
         wait(10, "launcher_hand");
         steps.add(new Step(2, null, null, false));
         wait(20, "END");
