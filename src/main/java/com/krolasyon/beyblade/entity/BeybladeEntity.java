@@ -435,7 +435,7 @@ public class BeybladeEntity extends Entity {
         sl.sendParticles(ParticleTypes.ELECTRIC_SPARK, cx, cy, cz, heavy ? 28 : 12, 0.08, 0.08, 0.08, heavy ? 0.7 : 0.45);
         sl.sendParticles(ParticleTypes.CRIT, cx, cy, cz, heavy ? 14 : 6, 0.05, 0.05, 0.05, 0.6);
         if (heavy) {
-            sl.sendParticles(ParticleTypes.FLASH, cx, cy, cz, 1, 0, 0, 0, 0);
+            sl.sendParticles(ParticleTypes.END_ROD, cx, cy, cz, 14, 0.1, 0.1, 0.1, 0.25);
             sl.sendParticles(ParticleTypes.FIREWORK, cx, cy, cz, 10, 0.05, 0.05, 0.05, 0.25);
         }
         this.level().playSound(null, cx, cy, cz, heavy ? ModSounds.CLASH_HEAVY.get() : ModSounds.CLASH.get(), SoundSource.NEUTRAL,
@@ -724,7 +724,7 @@ public class BeybladeEntity extends Entity {
                             l.hurt(damageSources().indirectMagic(this, owner), 12F);
                         }
                         sl.sendParticles(ParticleTypes.END_ROD, e.getX(), e.getY() + 1, e.getZ(), 30, 0.3, 1.5, 0.3, 0.08);
-                        sl.sendParticles(ParticleTypes.FLASH, e.getX(), e.getY() + 0.5, e.getZ(), 1, 0, 0, 0, 0);
+                        sl.sendParticles(ParticleTypes.END_ROD, e.getX(), e.getY() + 0.5, e.getZ(), 14, 0.1, 0.1, 0.1, 0.25);
                     }
                 }
                 return true;
@@ -746,7 +746,7 @@ public class BeybladeEntity extends Entity {
         ServerLevel sl = (ServerLevel) this.level();
         play(ModSounds.INFERNO_IMPACT.get(), 2.5F, 1.0F);
         this.level().broadcastEntityEvent(this, EV_IMPACT);
-        sl.sendParticles(ParticleTypes.FLASH, getX(), getY() + 0.5, getZ(), 1, 0, 0, 0, 0);
+        sl.sendParticles(ParticleTypes.END_ROD, getX(), getY() + 0.5, getZ(), 14, 0.1, 0.1, 0.1, 0.25);
         sl.sendParticles(ParticleTypes.LAVA, getX(), getY() + 0.3, getZ(), 20, 1.5, 0.2, 1.5, 0);
         for (int i = 0; i < 48; i++) {
             double a = i / 48.0 * Math.PI * 2;
