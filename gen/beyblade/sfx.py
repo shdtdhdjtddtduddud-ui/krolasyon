@@ -372,6 +372,72 @@ def defeat():
     return mix(k * 0.9, wind, np.concatenate([np.zeros(int(1.5 * SR)), metal_ring(0.5, 1200, 0.2) * 0.5]))
 
 
+# ======================= L-DRAGO DESTRUCTION =======================
+def dragon_roar():
+    d = 2.6
+    n = int(d * SR)
+    t = T(d)
+    f0 = glide(d, 110, 70)
+    voice = sum(formant(osc(f0 * k * (1 + 0.02 * np.sin(2 * np.pi * (7 + k) * t)), 'saw'), v) for k, v in ((1, 'a'), (1.5, 'o'), (2.02, 'a')))
+    growl = voice * (0.7 + 0.3 * np.sign(np.sin(2 * np.pi * 34 * t)))
+    e = np.minimum(1, t / 0.15) * np.exp(-np.maximum(0, t - 1.2) * 2.2)
+    fire = sweep_bp(noise(d), 300, 2500, 1.5) * 0.6 + crackle(d, 200) * 0.5
+    return reverb(mix(np.tanh(growl * 2.2) * e * 0.8, fire * e, boom(d, 80, 30, 0.7)), 0.45, 2.0)
+
+
+def vortex():
+    d = 2.4
+    n = int(d * SR)
+    t = T(d)
+    wind = sweep_bp(noise(d), 1800, 250, 1.3) * (0.6 + 0.4 * np.sin(2 * np.pi * (2 + 3 * t) * t))
+    hum = osc(glide(d, 300, 90), 'saw') * 0.25
+    e = np.minimum(1, t / 0.3) * np.exp(-np.maximum(0, t - 1.6) * 3)
+    return reverb(mix(wind * e, lp(hum, 1200) * e, lp(brown(d), 200) * e * 0.8), 0.4, 1.6)
+
+
+def dragon_rise():
+    d = 1.8
+    n = int(d * SR)
+    t = T(d)
+    jet = sweep_bp(noise(d), 200, 4000, 1.4) * np.minimum(1, t / 0.05) * np.exp(-t * 1.1)
+    roar = lp(brown(d), 400) * np.exp(-t * 1.5) * 1.3
+    return reverb(mix(jet, roar, boom(d, 140, 40, 0.4), crackle(d, 200) * np.exp(-t * 1.2) * 0.6), 0.35, 1.5)
+
+
+def meteor_charge():
+    d = 1.6
+    n = int(d * SR)
+    t = T(d)
+    tone = osc(glide(d, 60, 240), 'saw') * 0.4 + osc(glide(d, 90, 360)) * 0.4
+    fire = crackle(d, 300) * 0.6 + bp(noise(d), 200, 1500) * 0.5
+    e = np.minimum(1, t / 0.2) * (0.5 + 0.5 * t / d)
+    return mix(lp(tone, 2000) * e, fire * e)
+
+
+def meteor_impact():
+    d = 3.0
+    n = int(d * SR)
+    return reverb(mix(boom(d, 90, 20, 1.2) * 1.8, lp(noise(d), 1200) * env(n, 0.002, 0.7, 1.3), crackle(d, 260) * env(n, 0.01, 1.4) * 0.8,
+                      metal_ring(d, 600, 0.4) * 0.25), 0.5, 2.4)
+
+
+def claw_slash():
+    d = 0.6
+    n = int(d * SR)
+    t = T(d)
+    swish = sweep_bp(noise(d), 6000, 900, 2.0) * env(n, 0.01, 0.12, 1.0)
+    return mix(swish * 1.2, metal_ring(d, 2200, 0.08) * 0.5, boom(d, 200, 70, 0.08) * 0.6)
+
+
+def fire_breath():
+    d = 2.6
+    n = int(d * SR)
+    t = T(d)
+    roar = sweep_bp(noise(d), 300, 900, 1.2) * 0.8 + lp(brown(d), 250) * 1.2
+    e = np.minimum(1, t / 0.12) * np.exp(-np.maximum(0, t - 1.9) * 4)
+    return reverb(mix(roar * e, crackle(d, 320) * e * 0.8), 0.3, 1.2)
+
+
 if __name__ == '__main__':
     jobs = {
         'launch': launch, 'land': land, 'charge': charge, 'spin_loop': spin_loop,
@@ -381,7 +447,12 @@ if __name__ == '__main__':
         'buster_charge': buster_charge, 'buster_fire': buster_fire,
         'judgment_start': judgment_start, 'judgment_strike': judgment_strike, 'drain': drain,
         'recall': recall, 'catch': catch, 'defeat': defeat,
+        'dragon_roar': dragon_roar, 'vortex': vortex, 'dragon_rise': dragon_rise, 'meteor_charge': meteor_charge,
+        'meteor_impact': meteor_impact, 'claw_slash': claw_slash, 'fire_breath': fire_breath,
     }
+    import sys
+    if len(sys.argv) > 1:
+        jobs = {k: v for k, v in jobs.items() if k in sys.argv[1:]}
     quiet = {'spin_loop': -4, 'charge': -4, 'land': -3, 'wall_hit': -4}
     for name, fn in jobs.items():
         save(name, fn(), quiet.get(name, -1.0), name != 'spin_loop')

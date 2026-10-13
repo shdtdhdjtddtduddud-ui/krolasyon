@@ -4,12 +4,12 @@ license="All Rights Reserved"
 
 [[mods]]
 modId="librabeyblade"
-version="1.0.0"
-displayName="Flame Libra Beyblade"
+version="1.1.0"
+displayName="Beyblade: Flame Libra & L-Drago Destruction"
 authors="krolasyon"
 description='''
-Flame Libra T125ES: firlaticiyla firlat, diger beybladelerle kapis, 5 ozel yetenegi (Sonik Dalga, Sonik Kalkan,
-Cehennem Patlamasi, Sonik Yikici, Terazi Hukmu) kendin aktif et ve istedigin zaman geri cagir.
+Flame Libra T125ES ve L-Drago Destruction F:S: firlaticilariyla firlat, birbirleriyle ve diger beybladelerle kapis,
+her birinin 5 ozel yetenegini kendin aktif et ve istedigin zaman geri cagir. L-Drago sola doner ve saga donenlerin donusunu calar.
 '''
 
 [[dependencies.librabeyblade]]

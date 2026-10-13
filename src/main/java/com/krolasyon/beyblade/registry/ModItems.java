@@ -23,9 +23,16 @@ public final class ModItems {
     public static final RegistryObject<Item> LIBRA = ITEMS.register("flame_libra",
             () -> new LibraItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC).fireResistant()));
     public static final RegistryObject<Item> LAUNCHER = ITEMS.register("libra_launcher",
-            () -> new LauncherItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE)));
+            () -> new LauncherItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE), LIBRA, ModEntities.LIBRA));
     public static final RegistryObject<Item> RIVAL = ITEMS.register("rival_libra",
-            () -> new RivalLibraItem(new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON)));
+            () -> new RivalLibraItem(new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON), ModEntities.LIBRA));
+
+    public static final RegistryObject<Item> LDRAGO = ITEMS.register("ldrago_destruction",
+            () -> new LibraItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC).fireResistant(), "ldrago"));
+    public static final RegistryObject<Item> LDRAGO_LAUNCHER = ITEMS.register("ldrago_launcher",
+            () -> new LauncherItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE), LDRAGO, ModEntities.LDRAGO));
+    public static final RegistryObject<Item> RIVAL_LDRAGO = ITEMS.register("rival_ldrago",
+            () -> new RivalLibraItem(new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON), ModEntities.LDRAGO));
 
     public static final RegistryObject<CreativeModeTab> TAB = TABS.register("beyblade", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.librabeyblade"))
@@ -34,6 +41,9 @@ public final class ModItems {
                 output.accept(LIBRA.get());
                 output.accept(LAUNCHER.get());
                 output.accept(RIVAL.get());
+                output.accept(LDRAGO.get());
+                output.accept(LDRAGO_LAUNCHER.get());
+                output.accept(RIVAL_LDRAGO.get());
             })
             .build());
 }

@@ -187,5 +187,68 @@
       "librabeyblade:clash2",
       "librabeyblade:clash3"
     ]
+  },
+  "dragon_roar": {
+    "subtitle": "subtitles.librabeyblade.dragon_roar",
+    "sounds": [
+      {
+        "name": "librabeyblade:dragon_roar",
+        "stream": false
+      }
+    ]
+  },
+  "vortex": {
+    "subtitle": "subtitles.librabeyblade.vortex",
+    "sounds": [
+      {
+        "name": "librabeyblade:vortex",
+        "stream": false
+      }
+    ]
+  },
+  "dragon_rise": {
+    "subtitle": "subtitles.librabeyblade.dragon_rise",
+    "sounds": [
+      {
+        "name": "librabeyblade:dragon_rise",
+        "stream": false
+      }
+    ]
+  },
+  "meteor_charge": {
+    "subtitle": "subtitles.librabeyblade.meteor_charge",
+    "sounds": [
+      {
+        "name": "librabeyblade:meteor_charge",
+        "stream": false
+      }
+    ]
+  },
+  "meteor_impact": {
+    "subtitle": "subtitles.librabeyblade.meteor_impact",
+    "sounds": [
+      {
+        "name": "librabeyblade:meteor_impact",
+        "stream": true
+      }
+    ]
+  },
+  "claw_slash": {
+    "subtitle": "subtitles.librabeyblade.claw_slash",
+    "sounds": [
+      {
+        "name": "librabeyblade:claw_slash",
+        "stream": false
+      }
+    ]
+  },
+  "fire_breath": {
+    "subtitle": "subtitles.librabeyblade.fire_breath",
+    "sounds": [
+      {
+        "name": "librabeyblade:fire_breath",
+        "stream": true
+      }
+    ]
   }
 }

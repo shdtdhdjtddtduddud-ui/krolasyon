@@ -15,8 +15,16 @@ import java.util.function.Consumer;
 
 /** The Flame Libra itself. Rendered as the full 3D model in hand / inventory. Launch it with the launcher. */
 public class LibraItem extends Item {
+    /** "libra" or "ldrago": picks the tooltip, ability names and the 3D item renderer */
+    private final String kind;
+
     public LibraItem(Properties props) {
+        this(props, "libra");
+    }
+
+    public LibraItem(Properties props, String kind) {
         super(props);
+        this.kind = kind;
     }
 
     @Override
@@ -32,7 +40,7 @@ public class LibraItem extends Item {
         consumer.accept(new IClientItemExtensions() {
             @Override
             public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-                return com.krolasyon.beyblade.client.LibraItemRenderer.get();
+                return com.krolasyon.beyblade.client.LibraItemRenderer.get(kind);
             }
         });
     }

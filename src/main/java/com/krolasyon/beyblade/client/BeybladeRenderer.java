@@ -1,6 +1,7 @@
 package com.krolasyon.beyblade.client;
 
 import com.krolasyon.beyblade.entity.BeybladeEntity;
+import com.krolasyon.beyblade.entity.LDragoEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -34,6 +35,9 @@ public class BeybladeRenderer extends EntityRenderer<BeybladeEntity> {
         float prec = Mth.lerp(partial, e.precessO, e.precess) * Mth.DEG_TO_RAD;
         int ab = e.clientAbility;
         float at = e.abilityAge(partial);
+        boolean drago = e instanceof LDragoEntity;
+        BeyMesh mesh = BeyMesh.of(e.kindId());
+        int dir = e.spinDir();
         double ex = Mth.lerp(partial, e.xo, e.getX()), ey = Mth.lerp(partial, e.yo, e.getY()), ez = Mth.lerp(partial, e.zo, e.getZ());
 
         // ---- tilt = precession wobble + motion lean + hit shake + ability pose (axis-angle vector in the XZ plane, degrees)
@@ -63,7 +67,27 @@ public class BeybladeRenderer extends EntityRenderer<BeybladeEntity> {
         }
         float lift = 0F;
         float jitter = 0F;
-        if (ab == AB_SONIC_WAVE) {
+        if (drago) {
+            if (ab == LDragoEntity.DR_VORTEX) {
+                jitter = Mth.sin(t * 12F) * 0.02F;
+                lift = -0.08F;
+            } else if (ab == LDragoEntity.DR_METEOR && at < LDragoEntity.M_RISE) {
+                lift = -0.22F * Mth.clamp(at / 5F, 0F, 1F);
+                jitter = Mth.sin(t * 15F) * 0.025F;
+            } else if (ab == LDragoEntity.DR_ROAR && at > 3 && at < LDragoEntity.R_END) {
+                Entity tgt = e.level().getEntity(e.getTargetId());
+                if (tgt != null) {
+                    double dx = tgt.getX() - e.getX(), dz = tgt.getZ() - e.getZ();
+                    double dl = Math.sqrt(dx * dx + dz * dz);
+                    if (dl > 1.0E-3) {
+                        float k = Mth.clamp((at - 3F) / 10F, 0F, 1F) * 30F;
+                        tx = (float) (dz / dl) * k;
+                        tz = (float) (-dx / dl) * k;
+                    }
+                }
+                if (at > LDragoEntity.R_BREATH) jitter = Mth.sin(t * 19F) * 0.03F;
+            }
+        } else if (ab == AB_SONIC_WAVE) {
             jitter = Mth.sin(t * 11F) * 0.025F;
         } else if (ab == AB_INFERNO && at < INF_TORNADO) {
             lift = -0.24F * Mth.clamp(at / 5F, 0F, 1F);
@@ -84,9 +108,17 @@ public class BeybladeRenderer extends EntityRenderer<BeybladeEntity> {
         float tilt = (float) Math.sqrt(tx * tx + tz * tz);
 
         // ---- glow colour / intensity
-        float[] glowCol = e.isRival() ? new float[]{1F, 0.25F, 0.15F} : new float[]{0.55F, 1F, 0.45F};
+        float[] glowCol = drago ? (e.isRival() ? new float[]{0.65F, 0.2F, 1F} : new float[]{1F, 0.15F, 0.28F})
+                : (e.isRival() ? new float[]{1F, 0.25F, 0.15F} : new float[]{0.55F, 1F, 0.45F});
         float glow = 0.12F;
-        if (ab != AB_NONE) {
+        if (drago) {
+            if (ab != AB_NONE) {
+                glow = 0.8F + 0.2F * Mth.sin(t * 1.1F);
+                if (ab == LDragoEntity.DR_METEOR || ab == LDragoEntity.DR_ROAR) glowCol = new float[]{1F, 0.45F, 0.1F};
+            } else if (e.isShielded()) {
+                glow = 0.7F + 0.3F * Mth.sin(t * 0.8F);
+            }
+        } else if (ab != AB_NONE) {
             glow = 0.75F + 0.25F * Mth.sin(t * 0.9F);
             switch (ab) {
                 case AB_INFERNO -> glowCol = new float[]{1F, 0.55F, 0.15F};
@@ -110,10 +142,10 @@ public class BeybladeRenderer extends EntityRenderer<BeybladeEntity> {
         pose.scale(RADIUS, RADIUS, RADIUS);
 
         pose.pushPose();
-        pose.mulPose(Axis.YP.rotationDegrees(-spin));
-        LibraMesh.render(pose, buf, light, overlay, 1F, 1F, 1F);
+        pose.mulPose(Axis.YP.rotationDegrees(-spin * dir));
+        mesh.render(pose, buf, light, overlay, 1F, 1F, 1F);
         float g = glow + flash * 0.8F;
-        LibraMesh.renderGlow(pose, buf, glowCol[0] * g, glowCol[1] * g, glowCol[2] * g);
+        mesh.renderGlow(pose, buf, glowCol[0] * g, glowCol[1] * g, glowCol[2] * g);
         pose.popPose();
 
         // ---- spin motion blur: translucent copies of the face trailing the rotation
@@ -122,22 +154,24 @@ public class BeybladeRenderer extends EntityRenderer<BeybladeEntity> {
             float a = 0.3F * Math.min(1F, ratio * 1.6F);
             for (int k = 1; k <= 2; k++) {
                 pose.pushPose();
-                pose.mulPose(Axis.YP.rotationDegrees(-spin + speed * 0.3F * k));
-                LibraMesh.renderGhostDisc(pose, buf, light, a / k, LibraMesh.TOP_Y + 0.01F * k);
+                pose.mulPose(Axis.YP.rotationDegrees((-spin + speed * 0.3F * k) * dir));
+                mesh.renderGhostDisc(pose, buf, light, a / k, mesh.TOP_Y + 0.01F * k);
                 pose.popPose();
             }
             // speed streaks around the rim
             VertexConsumer vc = Fx.buf(buf, Fx.SOFT);
             Matrix4f m = pose.last().pose();
             float k = 0.35F * ratio;
+            float[] streak = drago ? new float[]{1F, 0.45F, 0.5F} : new float[]{0.8F, 1F, 0.8F};
             for (int i = 0; i < 3; i++) {
-                float a0 = -spin * Mth.DEG_TO_RAD * 0.5F + i * Mth.TWO_PI / 3F;
-                Fx.helix(vc, m, 1.08F, 1.08F, 1.06F, 1.06F, a0, -0.16F, 0.22F, 8, Fx.c(0.8F, 1F, 0.8F, k), Fx.c(0.8F, 1F, 0.8F, 0F), t * 0.1F);
+                float a0 = -spin * dir * Mth.DEG_TO_RAD * 0.5F + i * Mth.TWO_PI / 3F;
+                Fx.helix(vc, m, 1.08F, 1.08F, 1.06F, 1.06F, a0, -0.16F * dir, 0.22F, 8, Fx.c(streak[0], streak[1], streak[2], k), Fx.c(streak[0], streak[1], streak[2], 0F), t * 0.1F);
             }
         }
         pose.popPose();
 
-        LibraFx.render(e, partial, t, ex, ey, ez, pose, buf, this.entityRenderDispatcher.cameraOrientation());
+        if (drago) LDragoFx.render((LDragoEntity) e, partial, t, ex, ey, ez, pose, buf, this.entityRenderDispatcher.cameraOrientation());
+        else LibraFx.render(e, partial, t, ex, ey, ez, pose, buf, this.entityRenderDispatcher.cameraOrientation());
         super.render(e, yaw, partial, pose, buf, light);
     }
 
@@ -150,13 +184,14 @@ public class BeybladeRenderer extends EntityRenderer<BeybladeEntity> {
             pose.pushPose();
             pose.translate(e.trailX[i] - ex, e.trailY[i] - ey, e.trailZ[i] - ez);
             pose.scale(RADIUS, RADIUS, RADIUS);
-            pose.mulPose(Axis.YP.rotationDegrees(-e.spinAngle + i * 40F));
-            LibraMesh.renderGhostDisc(pose, buf, light, base * k, LibraMesh.TOP_Y - 0.15F);
+            pose.mulPose(Axis.YP.rotationDegrees((-e.spinAngle + i * 40F) * e.spinDir()));
+            BeyMesh mesh = BeyMesh.of(e.kindId());
+            mesh.renderGhostDisc(pose, buf, light, base * k, mesh.TOP_Y - 0.15F);
             pose.popPose();
         }
         VertexConsumer vc = Fx.buf(buf, Fx.SOFT);
         Matrix4f m = pose.last().pose();
-        float[] col = e.isRival() ? new float[]{1F, 0.3F, 0.2F} : new float[]{0.5F, 1F, 0.5F};
+        float[] col = e instanceof LDragoEntity ? new float[]{1F, 0.15F, 0.25F} : (e.isRival() ? new float[]{1F, 0.3F, 0.2F} : new float[]{0.5F, 1F, 0.5F});
         for (int i = 0; i < n; i++) {
             Vec3 a = new Vec3(e.trailX[i] - ex, e.trailY[i] - ey + 0.32, e.trailZ[i] - ez);
             Vec3 b = new Vec3(e.trailX[i + 1] - ex, e.trailY[i + 1] - ey + 0.32, e.trailZ[i + 1] - ez);
@@ -168,6 +203,6 @@ public class BeybladeRenderer extends EntityRenderer<BeybladeEntity> {
 
     @Override
     public ResourceLocation getTextureLocation(BeybladeEntity e) {
-        return LibraMesh.FACE;
+        return BeyMesh.of(e.kindId()).FACE;
     }
 }

@@ -10,15 +10,22 @@ import net.minecraft.world.item.ItemStack;
 
 /** Renders the Flame Libra item as its full 3D model (slowly turning in the inventory). */
 public class LibraItemRenderer extends BlockEntityWithoutLevelRenderer {
-    private static LibraItemRenderer instance;
+    private static LibraItemRenderer libra, ldrago;
 
-    public static LibraItemRenderer get() {
-        if (instance == null) instance = new LibraItemRenderer();
-        return instance;
+    public static LibraItemRenderer get(String kind) {
+        if (kind.equals("ldrago")) {
+            if (ldrago == null) ldrago = new LibraItemRenderer(BeyMesh.LDRAGO);
+            return ldrago;
+        }
+        if (libra == null) libra = new LibraItemRenderer(BeyMesh.LIBRA);
+        return libra;
     }
 
-    private LibraItemRenderer() {
+    private final BeyMesh mesh;
+
+    private LibraItemRenderer(BeyMesh mesh) {
         super(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
+        this.mesh = mesh;
     }
 
     @Override
@@ -57,8 +64,8 @@ public class LibraItemRenderer extends BlockEntityWithoutLevelRenderer {
             default -> s = 0.4F;
         }
         pose.scale(s, s, s);
-        pose.translate(0, -0.73, 0);
-        LibraMesh.render(pose, buf, light, overlay, 1F, 1F, 1F);
+        pose.translate(0, -mesh.HEIGHT * 0.5, 0);
+        mesh.render(pose, buf, light, overlay, 1F, 1F, 1F);
         pose.popPose();
     }
 }

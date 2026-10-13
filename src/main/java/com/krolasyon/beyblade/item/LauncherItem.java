@@ -1,7 +1,6 @@
 package com.krolasyon.beyblade.item;
 
 import com.krolasyon.beyblade.entity.BeybladeEntity;
-import com.krolasyon.beyblade.registry.ModItems;
 import com.krolasyon.beyblade.registry.ModSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -20,20 +19,28 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
+import net.minecraft.world.entity.EntityType;
+
 import javax.annotation.Nullable;
+import java.util.function.Supplier;
 import java.util.List;
 
 /** Hold right click to wind the ripcord (more power = more spin), release to launch Libra. Sneak + use recalls it. */
 public class LauncherItem extends Item {
     public static final int FULL_CHARGE = 40;
 
-    public LauncherItem(Properties props) {
+    private final Supplier<? extends Item> beyItem;
+    private final Supplier<? extends EntityType<? extends BeybladeEntity>> beyType;
+
+    public LauncherItem(Properties props, Supplier<? extends Item> beyItem, Supplier<? extends EntityType<? extends BeybladeEntity>> beyType) {
         super(props);
+        this.beyItem = beyItem;
+        this.beyType = beyType;
     }
 
-    public static int findLibra(Player p) {
+    public int findLibra(Player p) {
         for (int i = 0; i < p.getInventory().getContainerSize(); i++)
-            if (p.getInventory().getItem(i).is(ModItems.LIBRA.get())) return i;
+            if (p.getInventory().getItem(i).is(beyItem.get())) return i;
         return -1;
     }
 
@@ -49,7 +56,7 @@ public class LauncherItem extends Item {
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
         }
         if (findLibra(player) < 0) {
-            if (!level.isClientSide()) player.displayClientMessage(Component.translatable("msg.librabeyblade.no_libra"), true);
+            if (!level.isClientSide()) player.displayClientMessage(Component.translatable("msg.librabeyblade.no_bey", beyItem.get().getDescription()), true);
             return InteractionResultHolder.fail(stack);
         }
         player.startUsingItem(hand);
@@ -93,7 +100,7 @@ public class LauncherItem extends Item {
         flat = flat.normalize();
         Vec3 pos = player.getEyePosition().add(flat.scale(1.0)).add(0, -0.5, 0);
         Vec3 vel = flat.scale(0.35 + 0.55 * power).add(0, 0.12, 0);
-        BeybladeEntity.launch(level, player, launched, pos, vel, 0.55F + 0.45F * power);
+        BeybladeEntity.launch(beyType.get(), level, player, launched, pos, vel, 0.55F + 0.45F * power);
         level.playSound(null, player.getX(), player.getY(), player.getZ(), ModSounds.LAUNCH.get(), SoundSource.PLAYERS, 1.2F, 0.95F + power * 0.1F);
         player.displayClientMessage(Component.translatable("msg.librabeyblade.launch", Math.round(power * 100)), true);
         player.getCooldowns().addCooldown(this, 10);
@@ -107,7 +114,7 @@ public class LauncherItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tip, TooltipFlag flag) {
-        tip.add(Component.translatable("item.librabeyblade.libra_launcher.desc").withStyle(ChatFormatting.GRAY));
+        tip.add(Component.translatable(getDescriptionId() + ".desc").withStyle(ChatFormatting.GRAY));
         tip.add(Component.translatable("item.librabeyblade.libra_launcher.desc2").withStyle(ChatFormatting.DARK_GRAY));
     }
 }

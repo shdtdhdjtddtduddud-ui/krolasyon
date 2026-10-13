@@ -3,12 +3,13 @@ import math, os, struct, sys
 import numpy as np
 from PIL import Image
 
+NAME = sys.argv[2] if len(sys.argv) > 2 else 'libra'
 HERE = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.join(HERE, '..', '..', 'src/main/resources/assets/librabeyblade')
 
 
 def load():
-    data = open(os.path.join(ASSETS, 'models/libra_mesh.bin'), 'rb').read()
+    data = open(os.path.join(ASSETS, 'models/{}_mesh.bin'.format(NAME)), 'rb').read()
     magic, n = struct.unpack_from('>ii', data, 0)
     off = 8
     groups = {}
@@ -23,9 +24,9 @@ def load():
 
 def render(yaw, pitch, size=700, glow=0.0, out=None):
     g = load()
-    face = np.asarray(Image.open(os.path.join(ASSETS, 'textures/entity/libra_face.png')).convert('RGBA')).astype(np.float32)
-    parts = np.asarray(Image.open(os.path.join(ASSETS, 'textures/entity/libra_parts.png')).convert('RGBA')).astype(np.float32)
-    gl = np.asarray(Image.open(os.path.join(ASSETS, 'textures/entity/libra_glow.png')).convert('RGBA')).astype(np.float32)
+    face = np.asarray(Image.open(os.path.join(ASSETS, 'textures/entity/{}_face.png'.format(NAME))).convert('RGBA')).astype(np.float32)
+    parts = np.asarray(Image.open(os.path.join(ASSETS, 'textures/entity/{}_parts.png'.format(NAME))).convert('RGBA')).astype(np.float32)
+    gl = np.asarray(Image.open(os.path.join(ASSETS, 'textures/entity/{}_glow.png'.format(NAME))).convert('RGBA')).astype(np.float32)
     ya, pa = math.radians(yaw), math.radians(pitch)
     Ry = np.array([[math.cos(ya), 0, math.sin(ya)], [0, 1, 0], [-math.sin(ya), 0, math.cos(ya)]])
     Rx = np.array([[1, 0, 0], [0, math.cos(pa), -math.sin(pa)], [0, math.sin(pa), math.cos(pa)]])

@@ -1,1 +1,1 @@
-# Flame Libra Beyblade (Forge 1.20.1)
+# Beyblade: Flame Libra & L-Drago Destruction (Forge 1.20.1)

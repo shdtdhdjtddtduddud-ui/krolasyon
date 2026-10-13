@@ -2,6 +2,7 @@ package com.krolasyon.beyblade.registry;
 
 import com.krolasyon.beyblade.LibraBeyblade;
 import com.krolasyon.beyblade.entity.BeybladeEntity;
+import com.krolasyon.beyblade.entity.LDragoEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.registries.DeferredRegister;
@@ -19,4 +20,10 @@ public final class ModEntities {
                     .sized(BeybladeEntity.WIDTH, BeybladeEntity.HEIGHT).fireImmune()
                     .clientTrackingRange(10).updateInterval(1).setShouldReceiveVelocityUpdates(true)
                     .build("libra"));
+
+    public static final RegistryObject<EntityType<LDragoEntity>> LDRAGO = ENTITIES.register("ldrago",
+            () -> EntityType.Builder.<LDragoEntity>of(LDragoEntity::new, MobCategory.MISC)
+                    .sized(BeybladeEntity.WIDTH, BeybladeEntity.HEIGHT).fireImmune()
+                    .clientTrackingRange(10).updateInterval(1).setShouldReceiveVelocityUpdates(true)
+                    .build("ldrago"));
 }

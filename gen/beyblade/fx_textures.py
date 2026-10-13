@@ -158,6 +158,27 @@ def lightning():
     return np.clip(a, 0, 1)
 
 
+def claw():
+    """three parallel curved claw slashes, pointed ends"""
+    n = 256
+    img = Image.new('L', (n, n), 0)
+    d = ImageDraw.Draw(img)
+    for k in (-1, 0, 1):
+        pts = []
+        for i in range(41):
+            f = i / 40
+            x = 30 + f * 196
+            y = 128 + k * 46 + math.sin(f * math.pi) * -38 + f * 20
+            pts.append((x, y))
+        for i in range(40):
+            f = i / 40
+            w = int(1 + 13 * math.sin(f * math.pi) ** 0.8)
+            d.line([pts[i], pts[i + 1]], fill=255, width=w)
+    a = np.asarray(img).astype(np.float32) / 255
+    glow = np.asarray(img.filter(ImageFilter.GaussianBlur(7))).astype(np.float32) / 255
+    return np.clip(a + glow * 1.2, 0, 1)
+
+
 def launcher_tex():
     """64x64 palette sheet for the launcher JSON model"""
     P = np.zeros((32, 32, 4), np.float32)
@@ -184,6 +205,19 @@ def launcher_tex():
     return P
 
 
+def ldrago_launcher_tex():
+    """same layout as launcher_tex but in L-Drago colours (left-spin launcher)"""
+    P = launcher_tex()
+    swap = {(0, 0): (60, 62, 70), (16, 0): (210, 20, 60), (0, 16): (25, 25, 30), (16, 16): (240, 200, 40), (24, 16): (230, 230, 235), (16, 24): (150, 150, 158)}
+    for (x0, y0), col in swap.items():
+        w = 16 if (x0, y0) in ((0, 0), (16, 0), (0, 16), (16, 24)) else 8
+        h = 16 if (x0, y0) in ((0, 0), (16, 0), (0, 16)) else 8
+        blk = P[y0:y0 + h, x0:x0 + w, :3]
+        lum = blk.mean(axis=2, keepdims=True)
+        P[y0:y0 + h, x0:x0 + w, :3] = np.clip(np.array(col) / 255.0 * (lum / max(1e-3, lum.mean())), 0, 1)
+    return P
+
+
 if __name__ == '__main__':
     save(soft(), 'soft')
     save(wave(), 'wave')
@@ -192,5 +226,7 @@ if __name__ == '__main__':
     save(flare(), 'flare')
     save(sigil(), 'sigil')
     save(lightning(), 'bolt')
+    save(claw(), 'claw')
+    save(ldrago_launcher_tex(), 'ldrago_launcher', 'item')
     save(launcher_tex(), 'launcher', 'item')
     print('fx ok')

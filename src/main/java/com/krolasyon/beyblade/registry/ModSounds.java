@@ -37,4 +37,13 @@ public final class ModSounds {
     public static final RegistryObject<SoundEvent> RECALL = reg("recall");
     public static final RegistryObject<SoundEvent> CATCH = reg("catch");
     public static final RegistryObject<SoundEvent> DEFEAT = reg("defeat");
+
+    // L-Drago Destruction
+    public static final RegistryObject<SoundEvent> DRAGON_ROAR = reg("dragon_roar");
+    public static final RegistryObject<SoundEvent> VORTEX = reg("vortex");
+    public static final RegistryObject<SoundEvent> DRAGON_RISE = reg("dragon_rise");
+    public static final RegistryObject<SoundEvent> METEOR_CHARGE = reg("meteor_charge");
+    public static final RegistryObject<SoundEvent> METEOR_IMPACT = reg("meteor_impact");
+    public static final RegistryObject<SoundEvent> CLAW_SLASH = reg("claw_slash");
+    public static final RegistryObject<SoundEvent> FIRE_BREATH = reg("fire_breath");
 }
