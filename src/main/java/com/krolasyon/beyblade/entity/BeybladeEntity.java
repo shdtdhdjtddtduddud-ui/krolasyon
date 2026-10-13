@@ -104,6 +104,8 @@ public class BeybladeEntity extends Entity {
     private int stateTicks;
     private int targetRefresh;
     private int wallSoundCooldown, clashCooldown;
+    @Nullable private StadiumEntity stadium;
+    private boolean inBowl;
     @Nullable protected Entity target;
     @Nullable private Vec3 home;
     /** test/display flag: keeps spinning in place (still collides and can be knocked around) */
@@ -306,6 +308,7 @@ public class BeybladeEntity extends Entity {
         if (!controlled && !frozen) steer(owner);
         if (frozen && onGround()) setDeltaMovement(getDeltaMovement().multiply(0.7, 1, 0.7));
         physics();
+        stadiumPhysics();
         collideBeyblades();
         collideLiving(owner);
     }
@@ -348,6 +351,11 @@ public class BeybladeEntity extends Entity {
         } else {
             center = owner != null ? owner.position() : (home != null ? home : position());
             orbit = 2.8;
+            if (stadium != null && inBowl) {
+                // inside a stadium: circle its centre instead of trying to climb out to the owner
+                center = stadium.position();
+                orbit = 3.2;
+            }
         }
         if (dashTicks > 0) {
             dashTicks--;
@@ -862,6 +870,79 @@ public class BeybladeEntity extends Entity {
         setPos(getX() + v.x, getY() + v.y, getZ() + v.z);
     }
 
+    /** curved bowl floor, walls and pockets of a nearby {@link StadiumEntity} */
+    private void stadiumPhysics() {
+        List<StadiumEntity> list = this.level().getEntitiesOfClass(StadiumEntity.class, getBoundingBox().inflate(11, 4, 11));
+        if (list.isEmpty()) {
+            stadium = null;
+            inBowl = false;
+            return;
+        }
+        StadiumEntity st = list.get(0);
+        double dx = getX() - st.getX(), dz = getZ() - st.getZ();
+        double r = Math.sqrt(dx * dx + dz * dz);
+        double rel = getY() - st.getY();
+        if (r > StadiumEntity.LEDGE_R + 1.5 || rel < -1.5 || rel > 7) {
+            stadium = null;
+            inBowl = false;
+            return;
+        }
+        stadium = st;
+        double nx = r < 1.0E-4 ? 1 : dx / r, nz = r < 1.0E-4 ? 0 : dz / r;
+        Vec3 v = getDeltaMovement();
+        boolean gap = StadiumEntity.isGap(Math.atan2(dz, dx));
+        double wallR = StadiumEntity.WALL_IN - RADIUS;
+        // striped walls
+        if (!gap && rel < StadiumEntity.WALL_TOP && r > wallR && r < StadiumEntity.WALL_OUT + RADIUS) {
+            double vr = v.x * nx + v.z * nz;
+            if (inBowl) {
+                setPos(st.getX() + nx * wallR, getY(), st.getZ() + nz * wallR);
+                r = wallR;
+                if (vr > 0) {
+                    v = v.subtract(nx * vr * 1.75, 0, nz * vr * 1.75);
+                    if (vr > 0.12 && wallSoundCooldown == 0) {
+                        wallSoundCooldown = 6;
+                        play(ModSounds.WALL_HIT.get(), 0.9F, 0.9F + this.random.nextFloat() * 0.3F);
+                        ((ServerLevel) this.level()).sendParticles(ParticleTypes.ELECTRIC_SPARK, getX() + nx * RADIUS, getY() + 0.35, getZ() + nz * RADIUS, 10, 0.1, 0.1, 0.1, 0.35);
+                        setSpin(getSpin() - 3F);
+                        this.level().broadcastEntityEvent(this, EV_WALL);
+                    }
+                }
+            } else {
+                double outR = StadiumEntity.WALL_OUT + RADIUS;
+                setPos(st.getX() + nx * outR, getY(), st.getZ() + nz * outR);
+                r = outR;
+                if (vr < 0) v = v.subtract(nx * vr * 1.6, 0, nz * vr * 1.6);
+            }
+        }
+        // the bowl surface
+        double surf = StadiumEntity.surface(r);
+        if (surf >= 0 && getState() != STATE_RECALL) {
+            double fy = st.getY() + surf;
+            if (getY() <= fy + 0.06 && rel > -1.2) {
+                setPos(getX(), fy, getZ());
+                if (v.y < 0) v = new Vec3(v.x, v.y < -0.35 ? -v.y * 0.25 : 0, v.z);
+                setOnGround(true);
+                double sl = StadiumEntity.slope(r);
+                // gravity along the curved floor pulls tops toward the centre; same rolling friction as the ground
+                v = new Vec3((v.x - nx * sl * 0.045) * 0.965, v.y, (v.z - nz * sl * 0.045) * 0.965);
+            }
+        }
+        boolean nowIn = r < StadiumEntity.WALL_IN;
+        // flew out through a pocket: over finish
+        if (inBowl && !nowIn && gap && getState() == STATE_BATTLE) {
+            Player owner = getOwner();
+            if (owner != null) owner.displayClientMessage(Component.translatable("msg.librabeyblade.over_finish"), true);
+            play(ModSounds.CLASH_HEAVY.get(), 1.0F, 0.6F);
+            setDeltaMovement(v);
+            defeat();
+            inBowl = false;
+            return;
+        }
+        inBowl = nowIn && rel < StadiumEntity.WALL_TOP + 0.5;
+        setDeltaMovement(v);
+    }
+
     private void defeat() {
         endAbility();
         setSpin(0F);
@@ -875,6 +956,7 @@ public class BeybladeEntity extends Entity {
         Vec3 v = getDeltaMovement();
         setDeltaMovement(v.x * 0.9, v.y, v.z * 0.9);
         physics();
+        stadiumPhysics();
         collideBeyblades();
         if (stateTicks == 70 && owner != null) {
             recall();

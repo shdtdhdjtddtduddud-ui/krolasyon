@@ -1,0 +1,22 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "SRS",
+  "SIS",
+  "SSS"
+ ],
+ "key": {
+  "S": {
+   "item": "minecraft:smooth_stone"
+  },
+  "R": {
+   "item": "minecraft:red_dye"
+  },
+  "I": {
+   "item": "minecraft:iron_ingot"
+  }
+ },
+ "result": {
+  "item": "librabeyblade:stadium"
+ }
+}

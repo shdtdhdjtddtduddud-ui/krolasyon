@@ -101,5 +101,11 @@
  "subtitles.librabeyblade.fang_shot": "Rüzgar dişi",
  "subtitles.librabeyblade.quake": "Deprem",
  "subtitles.librabeyblade.cage_wind": "Fırtına kafesi",
- "subtitles.librabeyblade.cage_blast": "Fırtına patlaması"
+ "subtitles.librabeyblade.cage_blast": "Fırtına patlaması",
+ "item.librabeyblade.stadium": "Beyblade Stadyumu",
+ "entity.librabeyblade.stadium": "Beyblade Stadyumu",
+ "item.librabeyblade.stadium.desc": "Bir bloğa sağ tıkla: büyük beyblade stadyumu kur (yaklaşık 19 blok)",
+ "item.librabeyblade.stadium.desc2": "Kaldırmak için: eğilip stadyumun ortasına sağ tık ya da vur",
+ "msg.librabeyblade.stadium_near": "Yakında zaten bir stadyum var!",
+ "msg.librabeyblade.over_finish": "§6§lOVER FINISH! §r§cBeyblade'in stadyumdan dışarı fırladı!"
 }

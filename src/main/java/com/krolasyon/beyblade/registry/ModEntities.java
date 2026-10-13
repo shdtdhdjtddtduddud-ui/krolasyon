@@ -4,6 +4,7 @@ import com.krolasyon.beyblade.LibraBeyblade;
 import com.krolasyon.beyblade.entity.BeybladeEntity;
 import com.krolasyon.beyblade.entity.LDragoEntity;
 import com.krolasyon.beyblade.entity.LeoneEntity;
+import com.krolasyon.beyblade.entity.StadiumEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.registries.DeferredRegister;
@@ -33,4 +34,9 @@ public final class ModEntities {
                     .sized(BeybladeEntity.WIDTH, BeybladeEntity.HEIGHT).fireImmune()
                     .clientTrackingRange(10).updateInterval(1).setShouldReceiveVelocityUpdates(true)
                     .build("leone"));
+
+    public static final RegistryObject<EntityType<StadiumEntity>> STADIUM = ENTITIES.register("stadium",
+            () -> EntityType.Builder.<StadiumEntity>of(StadiumEntity::new, MobCategory.MISC)
+                    .sized(1.4F, 0.5F).fireImmune().clientTrackingRange(16).updateInterval(40)
+                    .build("stadium"));
 }

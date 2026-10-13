@@ -41,6 +41,9 @@ public final class ModItems {
     public static final RegistryObject<Item> RIVAL_LEONE = ITEMS.register("rival_leone",
             () -> new RivalLibraItem(new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON), ModEntities.LEONE));
 
+    public static final RegistryObject<Item> STADIUM = ITEMS.register("stadium",
+            () -> new com.krolasyon.beyblade.item.StadiumItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE)));
+
     public static final RegistryObject<CreativeModeTab> TAB = TABS.register("beyblade", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.librabeyblade"))
             .icon(() -> new ItemStack(LIBRA.get()))
@@ -54,6 +57,7 @@ public final class ModItems {
                 output.accept(LEONE.get());
                 output.accept(LEONE_LAUNCHER.get());
                 output.accept(RIVAL_LEONE.get());
+                output.accept(STADIUM.get());
             })
             .build());
 }

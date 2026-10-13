@@ -101,5 +101,11 @@
  "subtitles.librabeyblade.fang_shot": "Wind fang",
  "subtitles.librabeyblade.quake": "Quake",
  "subtitles.librabeyblade.cage_wind": "Storm cage",
- "subtitles.librabeyblade.cage_blast": "Storm blast"
+ "subtitles.librabeyblade.cage_blast": "Storm blast",
+ "item.librabeyblade.stadium": "Beyblade Stadium",
+ "entity.librabeyblade.stadium": "Beyblade Stadium",
+ "item.librabeyblade.stadium.desc": "Right click a block to set up a large beyblade stadium (about 19 blocks)",
+ "item.librabeyblade.stadium.desc2": "To remove: sneak + right click its centre, or hit it",
+ "msg.librabeyblade.stadium_near": "There is already a stadium nearby!",
+ "msg.librabeyblade.over_finish": "§6§lOVER FINISH! §r§cYour beyblade flew out of the stadium!"
 }
