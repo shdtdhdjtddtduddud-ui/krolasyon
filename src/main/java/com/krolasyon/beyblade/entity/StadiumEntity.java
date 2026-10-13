@@ -28,9 +28,9 @@ public class StadiumEntity extends Entity {
     /** bowl radius and floor curve: y = FLOOR_Y0 + FLOOR_RISE * (r / BOWL_R)^2 */
     public static final float BOWL_R = 7.0F, FLOOR_Y0 = 0.30F, FLOOR_RISE = 0.85F;
     public static final float LIP_R = 7.45F, LIP_Y = 1.25F, LEDGE_R = 8.3F;
-    public static final float WALL_IN = 7.45F, WALL_OUT = 7.8F, WALL_TOP = 2.05F;
-    /** walls span +-30 degrees around 45 + 90k; the 30-degree gaps between them are the over-finish pockets */
-    public static final float WALL_HALF_DEG = 30F;
+    public static final float WALL_IN = 7.45F, WALL_OUT = 7.7F, WALL_TOP = 1.95F;
+    /** walls span +-25 degrees around 45 + 90k; the 40-degree gaps between them are the over-finish pockets */
+    public static final float WALL_HALF_DEG = 25F;
 
     public StadiumEntity(EntityType<? extends StadiumEntity> type, Level level) {
         super(type, level);

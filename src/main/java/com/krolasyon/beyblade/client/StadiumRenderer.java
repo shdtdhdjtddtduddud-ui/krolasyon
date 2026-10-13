@@ -140,7 +140,7 @@ public class StadiumRenderer extends EntityRenderer<StadiumEntity> {
             double c = Math.toRadians(45 + 90 * w), h = Math.toRadians(WALL_HALF_DEG);
             for (int i = 0; i < WS; i++) {
                 double a0 = c - h + 2 * h * i / WS, a1 = c - h + 2 * h * (i + 1) / WS;
-                double cu0 = 512.0 * (WS - i) / WS, cu1 = 512.0 * (WS - i - 1) / WS;   // reversed so the badge text reads from inside
+                double cu0 = 512.0 * i / WS, cu1 = 512.0 * (i + 1) / WS;
                 double c0 = Math.cos(a0), s0 = Math.sin(a0), c1 = Math.cos(a1), s1 = Math.sin(a1);
                 double am = (a0 + a1) / 2;
                 // inner face (stripes + badge), facing the centre
@@ -150,24 +150,24 @@ public class StadiumRenderer extends EntityRenderer<StadiumEntity> {
                 vert(c1 * WALL_IN, LIP_Y, s1 * WALL_IN, cu1, 318, -Math.cos(am), 0, -Math.sin(am));
                 // top
                 double tu0 = 512.0 * i / WS, tu1 = 512.0 * (i + 1) / WS;
-                vert(c0 * WALL_IN, WALL_TOP, s0 * WALL_IN, tu0, 330, 0, 1, 0);
-                vert(c0 * WALL_OUT, WALL_TOP, s0 * WALL_OUT, tu0, 340, 0, 1, 0);
-                vert(c1 * WALL_OUT, WALL_TOP, s1 * WALL_OUT, tu1, 340, 0, 1, 0);
-                vert(c1 * WALL_IN, WALL_TOP, s1 * WALL_IN, tu1, 330, 0, 1, 0);
+                vert(c0 * WALL_IN, WALL_TOP, s0 * WALL_IN, tu0 * 0.5 + 256, 150, 0, 1, 0);
+                vert(c0 * WALL_OUT, WALL_TOP, s0 * WALL_OUT, tu0 * 0.5 + 256, 160, 0, 1, 0);
+                vert(c1 * WALL_OUT, WALL_TOP, s1 * WALL_OUT, tu1 * 0.5 + 256, 160, 0, 1, 0);
+                vert(c1 * WALL_IN, WALL_TOP, s1 * WALL_IN, tu1 * 0.5 + 256, 150, 0, 1, 0);
                 // outer face
-                vert(c0 * WALL_OUT, LIP_Y, s0 * WALL_OUT, tu0, 380, Math.cos(am), 0, Math.sin(am));
-                vert(c0 * WALL_OUT, WALL_TOP, s0 * WALL_OUT, tu0, 345, Math.cos(am), 0, Math.sin(am));
-                vert(c1 * WALL_OUT, WALL_TOP, s1 * WALL_OUT, tu1, 345, Math.cos(am), 0, Math.sin(am));
-                vert(c1 * WALL_OUT, LIP_Y, s1 * WALL_OUT, tu1, 380, Math.cos(am), 0, Math.sin(am));
+                vert(c0 * WALL_OUT, LIP_Y, s0 * WALL_OUT, tu0 * 0.5 + 256, 240, Math.cos(am), 0, Math.sin(am));
+                vert(c0 * WALL_OUT, WALL_TOP, s0 * WALL_OUT, tu0 * 0.5 + 256, 200, Math.cos(am), 0, Math.sin(am));
+                vert(c1 * WALL_OUT, WALL_TOP, s1 * WALL_OUT, tu1 * 0.5 + 256, 200, Math.cos(am), 0, Math.sin(am));
+                vert(c1 * WALL_OUT, LIP_Y, s1 * WALL_OUT, tu1 * 0.5 + 256, 240, Math.cos(am), 0, Math.sin(am));
             }
             // end caps
             for (double a : new double[]{c - h, c + h}) {
                 double ca = Math.cos(a), sa = Math.sin(a);
                 double tx = -sa * (a < c ? -1 : 1), tz = ca * (a < c ? -1 : 1);
-                vert(ca * WALL_IN, LIP_Y, sa * WALL_IN, 10, 380, tx, 0, tz);
-                vert(ca * WALL_IN, WALL_TOP, sa * WALL_IN, 10, 330, tx, 0, tz);
-                vert(ca * WALL_OUT, WALL_TOP, sa * WALL_OUT, 40, 330, tx, 0, tz);
-                vert(ca * WALL_OUT, LIP_Y, sa * WALL_OUT, 40, 380, tx, 0, tz);
+                vert(ca * WALL_IN, LIP_Y, sa * WALL_IN, 300, 240, tx, 0, tz);
+                vert(ca * WALL_IN, WALL_TOP, sa * WALL_IN, 300, 200, tx, 0, tz);
+                vert(ca * WALL_OUT, WALL_TOP, sa * WALL_OUT, 330, 200, tx, 0, tz);
+                vert(ca * WALL_OUT, LIP_Y, sa * WALL_OUT, 330, 240, tx, 0, tz);
             }
         }
         float[] out = new float[V.size() * 8];

@@ -53,11 +53,7 @@ public final class AutoTest {
     private AutoTest() {
         cmd(0, null, "gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false",
                 "time set 6000", "weather clear", "difficulty peaceful", "gamemode creative @a", "kill @e[type=!player]");
-        server(2, null, s -> {
-            ServerPlayer p = s.getPlayerList().getPlayers().get(0);
-            p.getAbilities().flying = true;
-            p.onUpdateAbilities();
-        });
+        cmd(2, null, "gamemode spectator @a");
         cmd(10, null, "summon librabeyblade:stadium 0.5 -60 -9.5", "tp @a 0.5 -51 4 180 42");
         wait(30, "stadium_top");
         cmd(10, "stadium_side", "tp @a 0.5 -58 5 180 12");
@@ -80,7 +76,7 @@ public final class AutoTest {
         wait(6, "over_finish_a");
         wait(12, "over_finish_b");
         // owned Leone launched into the stadium + HUD
-        cmd(4, null, "kill @e[type=librabeyblade:libra]", "tp @a 0.5 -58 2 180 20");
+        cmd(4, null, "kill @e[type=librabeyblade:libra]", "gamemode creative @a", "tp @a 0.5 -58 2 180 20");
         server(10, null, s -> {
             ServerPlayer p = s.getPlayerList().getPlayers().get(0);
             BeybladeEntity.launch(com.krolasyon.beyblade.registry.ModEntities.LEONE.get(), p.level(), p, new ItemStack(ModItems.LEONE.get()),
