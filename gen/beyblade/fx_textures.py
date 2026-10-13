@@ -179,6 +179,24 @@ def claw():
     return np.clip(a + glow * 1.2, 0, 1)
 
 
+def fang():
+    """single wind fang: sharp crescent with a soft glow"""
+    n = 128
+    img = Image.new('L', (n, n), 0)
+    d = ImageDraw.Draw(img)
+    pts = []
+    for i in range(41):
+        f = i / 40
+        a = math.pi * (0.15 + 0.7 * f)
+        pts.append((64 + math.cos(a) * 46, 84 - math.sin(a) * 46))
+    for i in range(40):
+        f = i / 40
+        d.line([pts[i], pts[i + 1]], fill=255, width=int(1 + 10 * math.sin(f * math.pi) ** 0.7))
+    a = np.asarray(img).astype(np.float32) / 255
+    glow = np.asarray(img.filter(ImageFilter.GaussianBlur(5))).astype(np.float32) / 255
+    return np.clip(a + glow * 1.2, 0, 1)
+
+
 def launcher_tex():
     """64x64 palette sheet for the launcher JSON model"""
     P = np.zeros((32, 32, 4), np.float32)
@@ -218,6 +236,19 @@ def ldrago_launcher_tex():
     return P
 
 
+def leone_launcher_tex():
+    """launcher in Rock Leone colours"""
+    P = launcher_tex()
+    swap = {(0, 0): (225, 228, 232), (16, 0): (30, 150, 60), (0, 16): (40, 60, 45), (16, 16): (220, 190, 90), (24, 16): (120, 80, 40), (16, 24): (140, 142, 150)}
+    for (x0, y0), col in swap.items():
+        w = 16 if (x0, y0) in ((0, 0), (16, 0), (0, 16), (16, 24)) else 8
+        h = 16 if (x0, y0) in ((0, 0), (16, 0), (0, 16)) else 8
+        blk = P[y0:y0 + h, x0:x0 + w, :3]
+        lum = blk.mean(axis=2, keepdims=True)
+        P[y0:y0 + h, x0:x0 + w, :3] = np.clip(np.array(col) / 255.0 * (lum / max(1e-3, lum.mean())), 0, 1)
+    return P
+
+
 if __name__ == '__main__':
     save(soft(), 'soft')
     save(wave(), 'wave')
@@ -227,6 +258,8 @@ if __name__ == '__main__':
     save(sigil(), 'sigil')
     save(lightning(), 'bolt')
     save(claw(), 'claw')
+    save(fang(), 'fang')
+    save(leone_launcher_tex(), 'leone_launcher', 'item')
     save(ldrago_launcher_tex(), 'ldrago_launcher', 'item')
     save(launcher_tex(), 'launcher', 'item')
     print('fx ok')

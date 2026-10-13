@@ -30,6 +30,7 @@ public final class ClientSetup {
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(ModEntities.LIBRA.get(), BeybladeRenderer::new);
         event.registerEntityRenderer(ModEntities.LDRAGO.get(), BeybladeRenderer::new);
+        event.registerEntityRenderer(ModEntities.LEONE.get(), BeybladeRenderer::new);
     }
 
     @SubscribeEvent

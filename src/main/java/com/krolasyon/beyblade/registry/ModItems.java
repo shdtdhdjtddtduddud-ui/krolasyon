@@ -34,6 +34,13 @@ public final class ModItems {
     public static final RegistryObject<Item> RIVAL_LDRAGO = ITEMS.register("rival_ldrago",
             () -> new RivalLibraItem(new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON), ModEntities.LDRAGO));
 
+    public static final RegistryObject<Item> LEONE = ITEMS.register("rock_leone",
+            () -> new LibraItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC).fireResistant(), "leone"));
+    public static final RegistryObject<Item> LEONE_LAUNCHER = ITEMS.register("leone_launcher",
+            () -> new LauncherItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE), LEONE, ModEntities.LEONE));
+    public static final RegistryObject<Item> RIVAL_LEONE = ITEMS.register("rival_leone",
+            () -> new RivalLibraItem(new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON), ModEntities.LEONE));
+
     public static final RegistryObject<CreativeModeTab> TAB = TABS.register("beyblade", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.librabeyblade"))
             .icon(() -> new ItemStack(LIBRA.get()))
@@ -44,6 +51,9 @@ public final class ModItems {
                 output.accept(LDRAGO.get());
                 output.accept(LDRAGO_LAUNCHER.get());
                 output.accept(RIVAL_LDRAGO.get());
+                output.accept(LEONE.get());
+                output.accept(LEONE_LAUNCHER.get());
+                output.accept(RIVAL_LEONE.get());
             })
             .build());
 }

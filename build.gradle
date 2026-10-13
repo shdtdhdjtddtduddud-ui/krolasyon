@@ -3,9 +3,9 @@ plugins {
     id 'net.minecraftforge.gradle' version '[6.0.16,6.2)'
 }
 
-version = '1.1.0'
+version = '1.2.0'
 group = 'com.krolasyon.beyblade'
-base { archivesName = 'beyblade_libra_ldrago-1.20.1-forge' }
+base { archivesName = 'beyblade_libra_ldrago_leone-1.20.1-forge' }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 

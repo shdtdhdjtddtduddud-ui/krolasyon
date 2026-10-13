@@ -250,5 +250,59 @@
         "stream": true
       }
     ]
+  },
+  "lion_roar": {
+    "subtitle": "subtitles.librabeyblade.lion_roar",
+    "sounds": [
+      {
+        "name": "librabeyblade:lion_roar",
+        "stream": false
+      }
+    ]
+  },
+  "wind_wall": {
+    "subtitle": "subtitles.librabeyblade.wind_wall",
+    "sounds": [
+      {
+        "name": "librabeyblade:wind_wall",
+        "stream": false
+      }
+    ]
+  },
+  "fang_shot": {
+    "subtitle": "subtitles.librabeyblade.fang_shot",
+    "sounds": [
+      {
+        "name": "librabeyblade:fang_shot",
+        "stream": false
+      }
+    ]
+  },
+  "quake": {
+    "subtitle": "subtitles.librabeyblade.quake",
+    "sounds": [
+      {
+        "name": "librabeyblade:quake",
+        "stream": true
+      }
+    ]
+  },
+  "cage_wind": {
+    "subtitle": "subtitles.librabeyblade.cage_wind",
+    "sounds": [
+      {
+        "name": "librabeyblade:cage_wind",
+        "stream": true
+      }
+    ]
+  },
+  "cage_blast": {
+    "subtitle": "subtitles.librabeyblade.cage_blast",
+    "sounds": [
+      {
+        "name": "librabeyblade:cage_blast",
+        "stream": false
+      }
+    ]
   }
 }

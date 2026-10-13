@@ -218,6 +218,14 @@ public class BeybladeEntity extends Entity {
     protected void tickBuff() { tickShield(); }
     protected ItemStack defaultItem() { return new ItemStack(ModItems.LIBRA.get()); }
     protected float clientSpinSpeed(int ab, float at, float speed) { return ab == AB_INFERNO && at < INF_TORNADO ? 96F : speed; }
+    /** multiplier on all spin damage taken (defense types take less) */
+    public float incomingMul() { return 1F; }
+
+    /** server: seconds of helpless wobbling (no steering), e.g. from Rock Leone's quake */
+    protected int stunTicks;
+
+    public void stun(int ticks) { stunTicks = Math.max(stunTicks, ticks); }
+
     /** true while the buff is running (alias of isShielded for non-Libra beyblades) */
     public boolean isBuffActive() { return isShielded(); }
 
@@ -290,6 +298,11 @@ public class BeybladeEntity extends Entity {
             rivalUseAbilities();
         }
         if (isShielded()) tickBuff();
+        if (stunTicks > 0) {
+            stunTicks--;
+            controlled = true;
+            setDeltaMovement(getDeltaMovement().multiply(0.6, 1, 0.6));
+        }
         if (!controlled && !frozen) steer(owner);
         if (frozen && onGround()) setDeltaMovement(getDeltaMovement().multiply(0.7, 1, 0.7));
         physics();
@@ -520,7 +533,7 @@ public class BeybladeEntity extends Entity {
 
     public void damageSpin(float amount, @Nullable Entity source) {
         if (getState() != STATE_BATTLE || amount <= 0) return;
-        setSpin(getSpin() - amount);
+        setSpin(getSpin() - amount * incomingMul());
         if (source != null && target == null && (!(source instanceof BeybladeEntity b) || isEnemy(b))) target = source;
     }
 
@@ -528,7 +541,7 @@ public class BeybladeEntity extends Entity {
         if (getState() == STATE_BATTLE) setSpin(getSpin() + amount);
     }
 
-    private void shieldHit() {
+    protected void shieldHit() {
         play(ModSounds.SHIELD_HIT.get(), 1.0F, 0.9F + this.random.nextFloat() * 0.3F);
         this.level().broadcastEntityEvent(this, EV_SHIELD_HIT);
     }

@@ -438,6 +438,62 @@ def fire_breath():
     return reverb(mix(roar * e, crackle(d, 320) * e * 0.8), 0.3, 1.2)
 
 
+# ======================= ROCK LEONE =======================
+def lion_roar():
+    d = 2.4
+    n = int(d * SR)
+    t = T(d)
+    f0 = glide(d, 140, 85)
+    voice = sum(formant(osc(f0 * k * (1 + 0.015 * np.sin(2 * np.pi * (5 + k) * t)), 'saw'), v) for k, v in ((1, 'o'), (1.5, 'a'), (2.0, 'o')))
+    rough = 0.65 + 0.35 * np.sign(np.sin(2 * np.pi * 26 * t))
+    e = np.minimum(1, t / 0.1) * np.exp(-np.maximum(0, t - 1.0) * 2.4)
+    wind = sweep_bp(noise(d), 400, 2200, 1.4) * 0.5
+    return reverb(mix(np.tanh(voice * rough * 2.0) * e * 0.9, wind * e, boom(d, 70, 32, 0.6) * 0.7), 0.45, 1.8)
+
+
+def wind_wall():
+    d = 2.2
+    n = int(d * SR)
+    t = T(d)
+    howl = sweep_bp(noise(d), 300, 1600, 1.8) * (0.6 + 0.4 * np.sin(2 * np.pi * 4 * t))
+    whistle = osc(glide(d, 600, 900)) * 0.12 * (0.5 + 0.5 * np.sin(2 * np.pi * 3 * t))
+    e = np.minimum(1, t / 0.25) * np.exp(-np.maximum(0, t - 1.5) * 3)
+    return reverb(mix(howl * e, whistle * e, lp(brown(d), 200) * e * 0.6), 0.4, 1.4)
+
+
+def fang_shot():
+    d = 0.35
+    n = int(d * SR)
+    swish = sweep_bp(noise(d), 5000, 1200, 2.2) * env(n, 0.005, 0.08, 1.0)
+    return mix(swish * 1.2, osc(glide(d, 1400, 500)) * env(n, 0.003, 0.05) * 0.3)
+
+
+def quake():
+    d = 2.8
+    n = int(d * SR)
+    t = T(d)
+    rumble = lp(brown(d), 120) * 1.6 * np.exp(-np.maximum(0, t - 0.4) * 1.2)
+    crack = hp(noise(0.3), 800) * env(int(0.3 * SR), 0.001, 0.1) * 1.2
+    debris = crackle(d, 160) * env(n, 0.05, 1.2) * 0.8
+    return reverb(mix(rumble, crack, debris, boom(d, 60, 22, 1.0) * 1.4), 0.4, 2.0)
+
+
+def cage_wind():
+    d = 3.0
+    n = int(d * SR)
+    t = T(d)
+    a = sweep_bp(noise(d), 500, 2500, 2.5) * (0.5 + 0.5 * np.sin(2 * np.pi * 1.5 * t))
+    b = sweep_bp(noise(d), 2500, 600, 2.5) * (0.5 + 0.5 * np.cos(2 * np.pi * 1.1 * t))
+    e = np.minimum(1, t / 0.4) * np.exp(-np.maximum(0, t - 2.3) * 4)
+    return reverb(mix(a * e, b * e, lp(brown(d), 180) * e), 0.5, 1.8)
+
+
+def cage_blast():
+    d = 2.4
+    n = int(d * SR)
+    return reverb(mix(boom(d, 110, 28, 0.9) * 1.5, sweep_bp(noise(d), 4000, 300, 1.4) * env(n, 0.002, 0.6, 1.2), crackle(d, 120) * env(n, 0.01, 0.8) * 0.5), 0.45, 2.0)
+
+
 if __name__ == '__main__':
     jobs = {
         'launch': launch, 'land': land, 'charge': charge, 'spin_loop': spin_loop,
@@ -449,6 +505,7 @@ if __name__ == '__main__':
         'recall': recall, 'catch': catch, 'defeat': defeat,
         'dragon_roar': dragon_roar, 'vortex': vortex, 'dragon_rise': dragon_rise, 'meteor_charge': meteor_charge,
         'meteor_impact': meteor_impact, 'claw_slash': claw_slash, 'fire_breath': fire_breath,
+        'lion_roar': lion_roar, 'wind_wall': wind_wall, 'fang_shot': fang_shot, 'quake': quake, 'cage_wind': cage_wind, 'cage_blast': cage_blast,
     }
     import sys
     if len(sys.argv) > 1:

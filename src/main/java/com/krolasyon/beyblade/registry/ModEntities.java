@@ -3,6 +3,7 @@ package com.krolasyon.beyblade.registry;
 import com.krolasyon.beyblade.LibraBeyblade;
 import com.krolasyon.beyblade.entity.BeybladeEntity;
 import com.krolasyon.beyblade.entity.LDragoEntity;
+import com.krolasyon.beyblade.entity.LeoneEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.registries.DeferredRegister;
@@ -26,4 +27,10 @@ public final class ModEntities {
                     .sized(BeybladeEntity.WIDTH, BeybladeEntity.HEIGHT).fireImmune()
                     .clientTrackingRange(10).updateInterval(1).setShouldReceiveVelocityUpdates(true)
                     .build("ldrago"));
+
+    public static final RegistryObject<EntityType<LeoneEntity>> LEONE = ENTITIES.register("leone",
+            () -> EntityType.Builder.<LeoneEntity>of(LeoneEntity::new, MobCategory.MISC)
+                    .sized(BeybladeEntity.WIDTH, BeybladeEntity.HEIGHT).fireImmune()
+                    .clientTrackingRange(10).updateInterval(1).setShouldReceiveVelocityUpdates(true)
+                    .build("leone"));
 }

@@ -18,6 +18,8 @@ import java.util.List;
 public class LibraHud implements IGuiOverlay {
     private static final ResourceLocation ICON = new ResourceLocation(LibraBeyblade.MODID, "textures/item/libra_icon.png");
     private static final ResourceLocation ICON_LDRAGO = new ResourceLocation(LibraBeyblade.MODID, "textures/item/ldrago_icon.png");
+    private static final ResourceLocation ICON_LEONE = new ResourceLocation(LibraBeyblade.MODID, "textures/item/leone_icon.png");
+    private static final int[] LE_COLORS = {0xFF9CFFB0, 0xFF6CFF6A, 0xFF40E080, 0xFFE0C070, 0xFFB0FFD0};
     private static final int[] DR_COLORS = {0xFFFF4060, 0xFFE040A0, 0xFFFF8A2A, 0xFFFF3050, 0xFFFFB040};
     private static final int[] AB_COLORS = {0xFF6CFF9A, 0xFF5CFFB0, 0xFFFF8A2A, 0xFF7AFFF0, 0xFFFFD25A};
 
@@ -33,9 +35,9 @@ public class LibraHud implements IGuiOverlay {
         Font font = mc.font;
         int x = 8, y = height / 2 - 52;
         g.fill(x - 4, y - 4, x + 168, y + 106, 0x88000000);
-        boolean drago = bey.kindId().equals("ldrago");
-        g.blit(drago ? ICON_LDRAGO : ICON, x, y, 0, 0, 24, 24, 24, 24);
-        g.drawString(font, Component.translatable("hud.librabeyblade.title." + bey.kindId()), x + 29, y + 2, drago ? 0xFFFF5070 : 0xFFB6FF6A, true);
+        boolean drago = bey.kindId().equals("ldrago"), leone = bey.kindId().equals("leone");
+        g.blit(drago ? ICON_LDRAGO : (leone ? ICON_LEONE : ICON), x, y, 0, 0, 24, 24, 24, 24);
+        g.drawString(font, Component.translatable("hud.librabeyblade.title." + bey.kindId()), x + 29, y + 2, drago ? 0xFFFF5070 : (leone ? 0xFF60FF90 : 0xFFB6FF6A), true);
         String state = switch (bey.getState()) {
             case BeybladeEntity.STATE_DEFEATED -> "hud.librabeyblade.state.defeated";
             case BeybladeEntity.STATE_RECALL -> "hud.librabeyblade.state.recall";
@@ -55,7 +57,7 @@ public class LibraHud implements IGuiOverlay {
             KeyMapping key = ClientSetup.ABILITY_KEYS[i - 1];
             int cd = bey.cooldownRemaining(i);
             boolean active = bey.getAbility() == i || (i == bey.buffAbility() && bey.isShielded());
-            int c = active ? 0xFFFFFFFF : (cd > 0 ? 0xFF808080 : (drago ? DR_COLORS : AB_COLORS)[i - 1]);
+            int c = active ? 0xFFFFFFFF : (cd > 0 ? 0xFF808080 : (drago ? DR_COLORS : (leone ? LE_COLORS : AB_COLORS))[i - 1]);
             String keyName = key.getTranslatedKeyMessage().getString();
             g.drawString(font, "[" + keyName + "]", x, ay, 0xFFFFE070, true);
             g.drawString(font, Component.translatable(bey.abilityKey(i)), x + 22, ay, c, true);

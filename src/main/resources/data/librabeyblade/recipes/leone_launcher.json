@@ -1,0 +1,22 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "III",
+  "SG ",
+  " I "
+ ],
+ "key": {
+  "I": {
+   "item": "minecraft:iron_ingot"
+  },
+  "S": {
+   "item": "minecraft:string"
+  },
+  "G": {
+   "item": "minecraft:green_dye"
+  }
+ },
+ "result": {
+  "item": "librabeyblade:leone_launcher"
+ }
+}

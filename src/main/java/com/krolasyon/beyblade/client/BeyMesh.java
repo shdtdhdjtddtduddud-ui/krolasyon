@@ -26,7 +26,16 @@ public final class BeyMesh {
     /** L-Drago Destruction: nominal radius 345 px, texture window half size 382 px */
     public static final BeyMesh LDRAGO = new BeyMesh("ldrago", 0.98F, 1.18F, 382F / 345F);
 
-    public static BeyMesh of(String kind) { return kind.equals("ldrago") ? LDRAGO : LIBRA; }
+    /** Rock Leone: radius 163 px, texture window half size 172 px */
+    public static final BeyMesh LEONE = new BeyMesh("leone", 1.27F, 1.48F, 172F / 163F);
+
+    public static BeyMesh of(String kind) {
+        return switch (kind) {
+            case "ldrago" -> LDRAGO;
+            case "leone" -> LEONE;
+            default -> LIBRA;
+        };
+    }
 
     public final ResourceLocation FACE, GLOW, PARTS;
     public final float TOP_Y, HEIGHT;

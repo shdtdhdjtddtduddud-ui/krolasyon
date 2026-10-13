@@ -1,0 +1,28 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "IDI",
+  "EGE",
+  "ISI"
+ ],
+ "key": {
+  "I": {
+   "item": "minecraft:iron_ingot"
+  },
+  "D": {
+   "item": "minecraft:diamond"
+  },
+  "E": {
+   "item": "minecraft:emerald"
+  },
+  "G": {
+   "item": "minecraft:gold_block"
+  },
+  "S": {
+   "item": "minecraft:stone"
+  }
+ },
+ "result": {
+  "item": "librabeyblade:rock_leone"
+ }
+}
