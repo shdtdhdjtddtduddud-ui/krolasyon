@@ -41,6 +41,13 @@ public final class ModItems {
     public static final RegistryObject<Item> RIVAL_LEONE = ITEMS.register("rival_leone",
             () -> new RivalLibraItem(new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON), ModEntities.LEONE));
 
+    public static final RegistryObject<Item> EAGLE = ITEMS.register("earth_eagle",
+            () -> new LibraItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC).fireResistant(), "eagle"));
+    public static final RegistryObject<Item> EAGLE_LAUNCHER = ITEMS.register("eagle_launcher",
+            () -> new LauncherItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE), EAGLE, ModEntities.EAGLE));
+    public static final RegistryObject<Item> RIVAL_EAGLE = ITEMS.register("rival_eagle",
+            () -> new RivalLibraItem(new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON), ModEntities.EAGLE));
+
     public static final RegistryObject<Item> STADIUM = ITEMS.register("stadium",
             () -> new com.krolasyon.beyblade.item.StadiumItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE)));
 
@@ -57,6 +64,9 @@ public final class ModItems {
                 output.accept(LEONE.get());
                 output.accept(LEONE_LAUNCHER.get());
                 output.accept(RIVAL_LEONE.get());
+                output.accept(EAGLE.get());
+                output.accept(EAGLE_LAUNCHER.get());
+                output.accept(RIVAL_EAGLE.get());
                 output.accept(STADIUM.get());
             })
             .build());

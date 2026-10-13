@@ -494,6 +494,68 @@ def cage_blast():
     return reverb(mix(boom(d, 110, 28, 0.9) * 1.5, sweep_bp(noise(d), 4000, 300, 1.4) * env(n, 0.002, 0.6, 1.2), crackle(d, 120) * env(n, 0.01, 0.8) * 0.5), 0.45, 2.0)
 
 
+# ======================= EARTH EAGLE =======================
+def eagle_screech():
+    d = 1.6
+    n = int(d * SR)
+    t = T(d)
+    f = 2200 + 900 * np.exp(-t * 4) - 700 * t
+    tone = osc(f * (1 + 0.03 * np.sin(2 * np.pi * 38 * t)), 'saw') * 0.5 + osc(f * 1.5) * 0.3
+    tone = bp(tone, 900, 7000)
+    rasp = bp(noise(d), 2500, 6000) * 0.5
+    e = np.minimum(1, t / 0.04) * np.exp(-np.maximum(0, t - 0.5) * 3.5)
+    return reverb(mix(np.tanh(tone * 2) * e, rasp * e), 0.5, 1.6)
+
+
+def feather_whirl():
+    d = 1.4
+    n = int(d * SR)
+    t = T(d)
+    whirl = sweep_bp(noise(d), 1500, 5000, 2.5) * (0.6 + 0.4 * np.sin(2 * np.pi * 14 * t))
+    chimes = sum(bell(d, f, decay=0.4) * 0.12 for f in (2637, 3136, 3520, 4186))
+    return reverb(mix(whirl * env(n, 0.15, 0.6, 1.0), chimes), 0.4, 1.2)
+
+
+def feather_burst():
+    d = 1.0
+    n = int(d * SR)
+    return reverb(mix(sweep_bp(noise(d), 6000, 1500, 2.0) * env(n, 0.003, 0.25, 1.2) * 1.3, metal_ring(d, 2800, 0.12) * 0.4,
+                      boom(d, 180, 60, 0.15) * 0.6), 0.3, 1.0)
+
+
+def wing_blade():
+    d = 1.8
+    n = int(d * SR)
+    t = T(d)
+    swish = sweep_bp(noise(d), 600, 3500, 1.6) * (0.5 + 0.5 * np.abs(np.sin(2 * np.pi * 3.5 * t)))
+    ring = metal_ring(d, 1300, 0.6) * 0.3
+    return reverb(mix(swish * env(n, 0.05, 1.0, 1.0), ring, boom(d, 120, 50, 0.3) * 0.5), 0.35, 1.3)
+
+
+def sky_dive():
+    d = 1.8
+    n = int(d * SR)
+    t = T(d)
+    wind = sweep_bp(noise(d), 300, 4500, 1.4) * np.minimum(1, t / 0.6) * np.exp(-np.maximum(0, t - 1.2) * 4)
+    return mix(wind * 1.2, eagle_screech()[:n] * 0.5)
+
+
+def lance_rain():
+    d = 3.0
+    n = int(d * SR)
+    t = T(d)
+    out = np.zeros(n)
+    for k in range(18):
+        p = int((0.2 + k * 0.14 + R.random() * 0.05) * SR)
+        L = int(0.35 * SR)
+        if p + L >= n:
+            break
+        seg = sweep_bp(noise(0.35), 5000, 800, 2.5) * env(L, 0.01, 0.12, 1.0)[:L]
+        out[p:p + L] += seg[:L] * 0.7 + boom(0.35, 150, 60, 0.06)[:L] * 0.4
+    choir = sum(formant(osc(np.full(n, f), 'saw'), 'a') for f in (220, 277, 330)) * 0.12 * np.minimum(1, t / 0.5) * np.exp(-np.maximum(0, t - 2.4) * 3)
+    return reverb(mix(out, choir), 0.45, 1.6)
+
+
 if __name__ == '__main__':
     jobs = {
         'launch': launch, 'land': land, 'charge': charge, 'spin_loop': spin_loop,
@@ -505,6 +567,8 @@ if __name__ == '__main__':
         'recall': recall, 'catch': catch, 'defeat': defeat,
         'dragon_roar': dragon_roar, 'vortex': vortex, 'dragon_rise': dragon_rise, 'meteor_charge': meteor_charge,
         'meteor_impact': meteor_impact, 'claw_slash': claw_slash, 'fire_breath': fire_breath,
+        'eagle_screech': eagle_screech, 'feather_whirl': feather_whirl, 'feather_burst': feather_burst, 'wing_blade': wing_blade,
+        'sky_dive': sky_dive, 'lance_rain': lance_rain,
         'lion_roar': lion_roar, 'wind_wall': wind_wall, 'fang_shot': fang_shot, 'quake': quake, 'cage_wind': cage_wind, 'cage_blast': cage_blast,
     }
     import sys

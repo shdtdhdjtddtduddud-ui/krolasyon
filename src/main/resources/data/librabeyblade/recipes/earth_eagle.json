@@ -1,0 +1,28 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "IDI",
+  "PGP",
+  "IFI"
+ ],
+ "key": {
+  "I": {
+   "item": "minecraft:iron_ingot"
+  },
+  "D": {
+   "item": "minecraft:diamond"
+  },
+  "P": {
+   "item": "minecraft:purple_dye"
+  },
+  "G": {
+   "item": "minecraft:gold_block"
+  },
+  "F": {
+   "item": "minecraft:feather"
+  }
+ },
+ "result": {
+  "item": "librabeyblade:earth_eagle"
+ }
+}

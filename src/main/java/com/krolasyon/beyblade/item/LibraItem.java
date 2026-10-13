@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 
 /** The Flame Libra itself. Rendered as the full 3D model in hand / inventory. Launch it with the launcher. */
 public class LibraItem extends Item {
-    /** "libra" or "ldrago": picks the tooltip, ability names and the 3D item renderer */
+    /** "libra", "ldrago", "leone" or "eagle": picks the tooltip, ability names and the 3D item renderer */
     private final String kind;
 
     public LibraItem(Properties props) {
@@ -29,10 +29,17 @@ public class LibraItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tip, TooltipFlag flag) {
-        tip.add(Component.translatable("item.librabeyblade.flame_libra.desc").withStyle(ChatFormatting.GREEN));
-        tip.add(Component.translatable("item.librabeyblade.flame_libra.desc2").withStyle(ChatFormatting.GRAY));
+        String base = getDescriptionId();
+        ChatFormatting col = switch (kind) {
+            case "ldrago" -> ChatFormatting.RED;
+            case "eagle" -> ChatFormatting.LIGHT_PURPLE;
+            default -> ChatFormatting.GREEN;
+        };
+        tip.add(Component.translatable(base + ".desc").withStyle(col));
+        tip.add(Component.translatable(base + ".desc2").withStyle(ChatFormatting.GRAY));
+        String ab = kind.equals("libra") ? "ability.librabeyblade." : "ability.librabeyblade." + kind + ".";
         for (int i = 1; i <= 5; i++)
-            tip.add(Component.literal(" ◆ ").withStyle(ChatFormatting.GOLD).append(Component.translatable("ability.librabeyblade." + i).withStyle(ChatFormatting.YELLOW)));
+            tip.add(Component.literal(" \u25C6 ").withStyle(ChatFormatting.GOLD).append(Component.translatable(ab + i).withStyle(ChatFormatting.YELLOW)));
     }
 
     @Override

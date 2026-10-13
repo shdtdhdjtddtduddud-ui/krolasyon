@@ -1,0 +1,22 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "III",
+  "SP ",
+  " I "
+ ],
+ "key": {
+  "I": {
+   "item": "minecraft:iron_ingot"
+  },
+  "S": {
+   "item": "minecraft:string"
+  },
+  "P": {
+   "item": "minecraft:purple_dye"
+  }
+ },
+ "result": {
+  "item": "librabeyblade:eagle_launcher"
+ }
+}

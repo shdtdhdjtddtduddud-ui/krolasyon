@@ -304,5 +304,59 @@
         "stream": false
       }
     ]
+  },
+  "eagle_screech": {
+    "subtitle": "subtitles.librabeyblade.eagle_screech",
+    "sounds": [
+      {
+        "name": "librabeyblade:eagle_screech",
+        "stream": false
+      }
+    ]
+  },
+  "feather_whirl": {
+    "subtitle": "subtitles.librabeyblade.feather_whirl",
+    "sounds": [
+      {
+        "name": "librabeyblade:feather_whirl",
+        "stream": false
+      }
+    ]
+  },
+  "feather_burst": {
+    "subtitle": "subtitles.librabeyblade.feather_burst",
+    "sounds": [
+      {
+        "name": "librabeyblade:feather_burst",
+        "stream": false
+      }
+    ]
+  },
+  "wing_blade": {
+    "subtitle": "subtitles.librabeyblade.wing_blade",
+    "sounds": [
+      {
+        "name": "librabeyblade:wing_blade",
+        "stream": false
+      }
+    ]
+  },
+  "sky_dive": {
+    "subtitle": "subtitles.librabeyblade.sky_dive",
+    "sounds": [
+      {
+        "name": "librabeyblade:sky_dive",
+        "stream": false
+      }
+    ]
+  },
+  "lance_rain": {
+    "subtitle": "subtitles.librabeyblade.lance_rain",
+    "sounds": [
+      {
+        "name": "librabeyblade:lance_rain",
+        "stream": true
+      }
+    ]
   }
 }

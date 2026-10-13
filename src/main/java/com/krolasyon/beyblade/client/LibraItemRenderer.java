@@ -10,9 +10,13 @@ import net.minecraft.world.item.ItemStack;
 
 /** Renders the Flame Libra item as its full 3D model (slowly turning in the inventory). */
 public class LibraItemRenderer extends BlockEntityWithoutLevelRenderer {
-    private static LibraItemRenderer libra, ldrago, leone;
+    private static LibraItemRenderer libra, ldrago, leone, eagle;
 
     public static LibraItemRenderer get(String kind) {
+        if (kind.equals("eagle")) {
+            if (eagle == null) eagle = new LibraItemRenderer(BeyMesh.EAGLE);
+            return eagle;
+        }
         if (kind.equals("leone")) {
             if (leone == null) leone = new LibraItemRenderer(BeyMesh.LEONE);
             return leone;

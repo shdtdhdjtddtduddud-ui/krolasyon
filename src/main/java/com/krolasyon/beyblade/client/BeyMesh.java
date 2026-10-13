@@ -29,8 +29,12 @@ public final class BeyMesh {
     /** Rock Leone: radius 163 px, texture window half size 172 px */
     public static final BeyMesh LEONE = new BeyMesh("leone", 1.27F, 1.48F, 172F / 163F);
 
+    /** Earth Eagle: radius 207 px, texture window half size 216 px */
+    public static final BeyMesh EAGLE = new BeyMesh("eagle", 1.27F, 1.48F, 216F / 207F);
+
     public static BeyMesh of(String kind) {
         return switch (kind) {
+            case "eagle" -> EAGLE;
             case "ldrago" -> LDRAGO;
             case "leone" -> LEONE;
             default -> LIBRA;

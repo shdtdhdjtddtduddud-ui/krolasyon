@@ -220,6 +220,9 @@ public class BeybladeEntity extends Entity {
     protected void tickBuff() { tickShield(); }
     protected ItemStack defaultItem() { return new ItemStack(ModItems.LIBRA.get()); }
     protected float clientSpinSpeed(int ab, float at, float speed) { return ab == AB_INFERNO && at < INF_TORNADO ? 96F : speed; }
+    /** chance to evade a collision completely (Earth Eagle's Eagle Eye); return true if this hit was dodged */
+    public boolean tryDodge(BeybladeEntity attacker) { return false; }
+
     /** multiplier on all spin damage taken (defense types take less) */
     public float incomingMul() { return 1F; }
 
@@ -465,6 +468,8 @@ public class BeybladeEntity extends Entity {
         float base = (float) (10 + 150 * impact);
         float toO = base * (0.6F + 0.6F * spinRatio()) * buffAttackMul();
         float toMe = base * (0.6F + 0.6F * o.spinRatio()) * o.buffAttackMul();
+        if (o.tryDodge(this)) toO = 0F;
+        if (tryDodge(o)) toMe = 0F;
         if (o.isShielded() && o.buffReflects()) {
             toMe += toO * 0.6F;
             toO *= 0.2F;
