@@ -179,7 +179,7 @@ public final class Fx {
         pose.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(rot));
         Matrix4f m = pose.last().pose();
         float s = size / 2;
-        quad(vc, m, new float[]{-s, -s, 0}, new float[]{-s, s, 0}, new float[]{s, s, 0}, new float[]{s, -s, 0}, 0F, 1F, 1F, 0F, col, col);
+        quad(vc, m, new float[]{-s, -s, 0}, new float[]{-s, s, 0}, new float[]{s, s, 0}, new float[]{s, -s, 0}, 1F, 1F, 0F, 0F, col, col);
         pose.popPose();
     }
 
