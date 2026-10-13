@@ -76,7 +76,7 @@ public final class LibraFx {
             float front = 0.6F + age * WAVE_SPEED;
             float fade = 1F - age / WAVE_LIFE;
             float h = 1.4F * (1F - age / WAVE_LIFE * 0.5F);
-            Fx.band(vc, m, front, y - 0.5F, front + 0.15F, y + h, 72, k(CYAN, 0.9F * fade), BLACK, 8F, t * 0.05F, 0F, 0.5F);
+            Fx.band(vc, m, front, y - 0.5F, front + 0.15F, y + h, 72, k(CYAN, 0.55F * fade), BLACK, 8F, t * 0.05F, 0F, 0.5F);
         }
         // standing resonance rings hugging Libra
         for (int i = 0; i < 4; i++) {
@@ -139,18 +139,22 @@ public final class LibraFx {
             float fade = at > INF_DIVE ? 1F - (at - INF_DIVE) / 10F : 1F;
             float H = (float) INF_HEIGHT * grow + (1F - fade) * 2F;
             float wide = 1F + (1F - fade) * 0.6F;
-            VertexConsumer vc = Fx.buf(buf, Fx.WISP);
-            Fx.band(vc, m, 1.5F * wide, 0F, 3.0F * wide, H, 36, k(SAND, 0.7F * fade), k(SAND, 0.12F * fade), 3F, t * 0.14F, 2F, -t * 0.09F);
-            Fx.band(vc, m, 1.1F * wide, 0F, 2.3F * wide, H * 0.96F, 32, k(ORANGE, 1.0F * fade), k(RED, 0.35F * fade), 2F, -t * 0.2F, 3F, -t * 0.16F);
+            // sand wall (real colour, translucent) with a fire cone inside and flame ribbons spiralling up
+            VertexConsumer vc = Fx.bufT(buf, Fx.WISP, 0.75F * fade);
+            Fx.band(vc, m, 1.6F * wide, 0F, 3.1F * wide, H, 36, new float[]{0.86F, 0.66F, 0.38F}, new float[]{0.96F, 0.82F, 0.56F}, 3F, t * 0.14F, 2F, -t * 0.09F);
+            vc = Fx.bufT(buf, Fx.WISP, 0.85F * fade);
+            Fx.band(vc, m, 1.1F * wide, 0F, 2.3F * wide, H * 0.96F, 32, new float[]{1F, 0.42F, 0.05F}, new float[]{0.95F, 0.2F, 0.02F}, 2F, -t * 0.2F, 3F, -t * 0.16F);
+            Fx.alpha = 1F;
+            vc = Fx.buf(buf, Fx.WISP);
             for (int i = 0; i < 6; i++) {
                 Fx.helix(vc, m, 0F, H, 0.9F * wide, 2.9F * wide, -t * 0.42F + i * Mth.TWO_PI / 6F, 2.3F, 0.7F, 44,
-                        k(new float[]{1F, 0.62F, 0.18F}, 1.2F * fade), k(RED, 0.3F * fade), -t * 0.2F);
+                        k(new float[]{1F, 0.55F, 0.12F}, 0.7F * fade), k(RED, 0.15F * fade), -t * 0.2F);
             }
             vc = Fx.buf(buf, Fx.SOFT);
-            Fx.band(vc, m, 0.55F, 0F, 0.95F, H, 24, k(new float[]{1F, 0.85F, 0.45F}, 0.9F * fade), k(ORANGE, 0.2F * fade), 3F, t * 0.3F, 0F, 0.5F);
-            Fx.ring(vc, m, 0.05F, 0F, 3.6F * wide, 48, k(ORANGE, 0.9F * fade), BLACK, 2F, 0F);
+            Fx.band(vc, m, 0.55F, 0F, 0.95F, H, 24, k(new float[]{1F, 0.7F, 0.3F}, 0.35F * fade), k(ORANGE, 0.08F * fade), 3F, t * 0.3F, 0F, 0.5F);
+            Fx.ring(vc, m, 0.05F, 0F, 3.6F * wide, 48, k(ORANGE, 0.7F * fade), BLACK, 2F, 0F);
             vc = Fx.buf(buf, Fx.FLARE);
-            Fx.billboard(vc, pose, cam, 0, H, 0, 4F * fade, -t * 3F, k(ORANGE, 0.8F * fade));
+            Fx.billboard(vc, pose, cam, 0, H, 0, 4F * fade, -t * 3F, k(ORANGE, 0.5F * fade));
         }
         pose.popPose();
     }
@@ -162,8 +166,10 @@ public final class LibraFx {
         VertexConsumer vc = Fx.buf(buf, Fx.WAVE);
         Fx.ring(vc, m, 0.08F, front - 2.2F, front, 72, BLACK, k(ORANGE, 1.6F * fade), 6F, 0F);
         Fx.ring(vc, m, 0.1F, front * 0.6F - 1F, front * 0.6F, 72, BLACK, k(SAND, 0.8F * fade), 6F, 0.3F);
+        vc = Fx.bufT(buf, Fx.WISP, 0.9F * fade);
+        Fx.band(vc, m, front, 0F, front + 0.4F, 1.8F * fade, 64, new float[]{1F, 0.45F, 0.06F}, new float[]{1F, 0.75F, 0.3F}, 8F, t * 0.1F, 1F, -t * 0.1F);
+        Fx.alpha = 1F;
         vc = Fx.buf(buf, Fx.WISP);
-        Fx.band(vc, m, front, 0F, front + 0.4F, 1.8F * fade, 64, k(ORANGE, 1.2F * fade), BLACK, 8F, t * 0.1F, 1F, -t * 0.1F);
         Fx.ring(vc, m, 0.06F, 0F, 3.2F, 48, k(ORANGE, 1.2F * fade * fade), k(RED, 0.2F * fade), 3F, t * 0.05F);
         if (ia < 12) {
             vc = Fx.buf(buf, Fx.FLARE);
@@ -260,8 +266,8 @@ public final class LibraFx {
         float tiltDeg = at > JUD_LINK ? Mth.clamp((at - JUD_LINK) / 50F, 0F, 1F) * 16F : 0F;
         float th = tiltDeg * Mth.DEG_TO_RAD;
         Matrix4f m = pose.last().pose();
-        vc = Fx.buf(buf, Fx.SOFT);
-        float[] gold = k(GOLD, kk);
+        vc = Fx.bufT(buf, Fx.SOFT, kk);
+        float[] gold = {1F, 0.74F, 0.18F};
         Fx.beam(vc, m, new Vec3(0, -2.6, 0), new Vec3(0, 1.0, 0), 0.4F, gold, gold, 0.3F, 0F);
         Vec3 L = new Vec3(-3.2 * Math.cos(th), -3.2 * Math.sin(th), 0), Rr = new Vec3(3.2 * Math.cos(th), 3.2 * Math.sin(th), 0);
         Fx.beam(vc, m, L, Rr, 0.32F, gold, gold, 0.3F, t * 0.02F);
@@ -271,7 +277,7 @@ public final class LibraFx {
                 double a = i * Math.PI * 2 / 3;
                 Fx.beam(vc, m, end, pan.add(Math.cos(a) * 0.85, 0, Math.sin(a) * 0.85), 0.07F, gold, gold, 1F, 0F);
             }
-            Fx.beam(vc, m, end.add(-0.25, 0.25, 0), end.add(0.25, -0.25, 0), 0.25F, k(WHITE, kk), k(WHITE, kk), 1F, 0F);
+            Fx.beam(vc, m, end.add(-0.25, 0.25, 0), end.add(0.25, -0.25, 0), 0.25F, new float[]{1F, 0.95F, 0.7F}, new float[]{1F, 0.95F, 0.7F}, 1F, 0F);
         }
         pose.popPose();
         // pans (horizontal discs) - drawn untilted around their own centres
@@ -282,10 +288,11 @@ public final class LibraFx {
             pose.pushPose();
             pose.translate(s * 3.2 * Math.cos(th), s * 3.2 * Math.sin(th) - 2.1, 0);
             Matrix4f pm = pose.last().pose();
-            Fx.ring(vc, pm, 0F, 0F, 0.95F, 32, k(GOLD, 0.5F * kk), k(GOLD, 1.1F * kk), 2F, 0F);
-            Fx.band(vc, pm, 0.95F, 0F, 0.7F, -0.3F, 32, k(GOLD, 0.9F * kk), k(GOLD, 0.2F * kk), 2F, 0F, 0F, 0.5F);
+            Fx.ring(vc, pm, 0F, 0F, 0.95F, 32, new float[]{0.85F, 0.6F, 0.12F}, new float[]{1F, 0.8F, 0.3F}, 2F, 0F);
+            Fx.band(vc, pm, 0.95F, 0F, 0.7F, -0.3F, 32, new float[]{1F, 0.78F, 0.25F}, new float[]{0.75F, 0.5F, 0.1F}, 2F, 0F, 0F, 0.5F);
             pose.popPose();
         }
+        Fx.alpha = 1F;
         vc = Fx.buf(buf, Fx.FLARE);
         Fx.billboard(vc, pose, cam, 0, 2.5F + 3.0F * rise + 1.2F, 0, 2.4F + 0.4F * Mth.sin(t * 0.7F), t * 2F, k(GOLD, kk));
         pose.popPose();
@@ -314,9 +321,11 @@ public final class LibraFx {
         float f = 1F - sa / 18F;
         for (Entity en : e.enemiesWithin(JUD_RANGE + 2)) {
             Vec3 feet = new Vec3(Mth.lerp(partial, en.xo, en.getX()) - ex, Mth.lerp(partial, en.yo, en.getY()) - ey, Mth.lerp(partial, en.zo, en.getZ()) - ez);
-            VertexConsumer vc = Fx.buf(buf, Fx.SOFT);
+            VertexConsumer vc = Fx.bufT(buf, Fx.SOFT, f);
             Matrix4f m = pose.last().pose();
-            Fx.beam(vc, m, feet.add(0, 28, 0), feet.add(0, -0.3, 0), 2.2F * f, k(GOLD, 0.6F * f), k(GOLD, 1.2F * f), 0.15F, -t * 0.3F);
+            Fx.beam(vc, m, feet.add(0, 28, 0), feet.add(0, -0.3, 0), 2.6F * f, new float[]{1F, 0.85F, 0.35F}, new float[]{1F, 0.7F, 0.15F}, 0.15F, -t * 0.3F);
+            Fx.alpha = 1F;
+            vc = Fx.buf(buf, Fx.SOFT);
             Fx.beam(vc, m, feet.add(0, 28, 0), feet.add(0, -0.3, 0), 0.7F * f, k(WHITE, 1.2F * f), k(WHITE, 1.2F * f), 0.15F, -t * 0.6F);
             vc = Fx.buf(buf, Fx.WAVE);
             pose.pushPose();

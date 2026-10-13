@@ -12,7 +12,7 @@ def save(arr, name, sub='fx'):
     os.makedirs(os.path.join(OUT, sub), exist_ok=True)
     a = np.clip(arr, 0, 1)
     if a.ndim == 2:
-        img = np.dstack([a, a, a, np.ones_like(a)])
+        img = np.dstack([a, a, a, a])  # rgb for additive, alpha for translucent use
     else:
         img = a
     Image.fromarray((img * 255).astype(np.uint8), 'RGBA').save(os.path.join(OUT, sub, name + '.png'))

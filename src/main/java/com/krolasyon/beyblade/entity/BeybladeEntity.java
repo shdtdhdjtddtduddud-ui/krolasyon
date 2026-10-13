@@ -627,7 +627,7 @@ public class BeybladeEntity extends Entity {
                 if (t < INF_DIVE) {
                     if (t == INF_TORNADO) {
                         play(ModSounds.INFERNO_TORNADO.get(), 2.0F, 1.0F);
-                        sl.sendParticles(ParticleTypes.EXPLOSION, getX(), getY() + 0.5, getZ(), 3, 0.6, 0.3, 0.6, 0);
+                        sl.sendParticles(ParticleTypes.LAVA, getX(), getY() + 0.3, getZ(), 10, 0.8, 0.2, 0.8, 0);
                     }
                     hover(6.0, 0.12);
                     for (Entity e : enemiesWithin(INF_HEIGHT)) {
@@ -746,7 +746,7 @@ public class BeybladeEntity extends Entity {
         ServerLevel sl = (ServerLevel) this.level();
         play(ModSounds.INFERNO_IMPACT.get(), 2.5F, 1.0F);
         this.level().broadcastEntityEvent(this, EV_IMPACT);
-        sl.sendParticles(ParticleTypes.EXPLOSION_EMITTER, getX(), getY() + 0.3, getZ(), 1, 0, 0, 0, 0);
+        sl.sendParticles(ParticleTypes.FLASH, getX(), getY() + 0.5, getZ(), 1, 0, 0, 0, 0);
         sl.sendParticles(ParticleTypes.LAVA, getX(), getY() + 0.3, getZ(), 20, 1.5, 0.2, 1.5, 0);
         for (int i = 0; i < 48; i++) {
             double a = i / 48.0 * Math.PI * 2;
@@ -1019,7 +1019,7 @@ public class BeybladeEntity extends Entity {
                         double a = this.random.nextDouble() * Math.PI * 2, h = this.random.nextDouble() * INF_HEIGHT;
                         double r = 1.4 + h * 0.13;
                         double x = abilityX + Math.cos(a) * r, z = abilityZ + Math.sin(a) * r;
-                        ParticleOptions p = i % 3 == 0 ? ParticleTypes.FLAME : (i % 3 == 1 ? SAND : ParticleTypes.LARGE_SMOKE);
+                        ParticleOptions p = i % 3 == 0 ? ParticleTypes.FLAME : (i % 3 == 1 ? SAND : ParticleTypes.SMALL_FLAME);
                         lv.addParticle(p, x, abilityY + h, z, Math.sin(a) * 0.35, 0.12, -Math.cos(a) * 0.35);
                     }
                 }

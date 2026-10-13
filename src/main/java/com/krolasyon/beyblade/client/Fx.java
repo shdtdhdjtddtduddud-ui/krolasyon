@@ -27,12 +27,22 @@ public final class Fx {
         return new ResourceLocation(LibraBeyblade.MODID, "textures/fx/" + n + ".png");
     }
 
+    /** vertex alpha, only meaningful for translucent buffers (see {@link #bufT}); reset to 1 after use */
+    public static float alpha = 1F;
+
     public static VertexConsumer buf(MultiBufferSource b, ResourceLocation tex) {
+        alpha = 1F;
         return b.getBuffer(RenderType.eyes(tex));
     }
 
+    /** translucent, full-bright: keeps its real colour against bright sky (additive would wash out to white) */
+    public static VertexConsumer bufT(MultiBufferSource b, ResourceLocation tex, float a) {
+        alpha = Mth.clamp(a, 0F, 1F);
+        return b.getBuffer(RenderType.entityTranslucentEmissive(tex));
+    }
+
     public static void v(VertexConsumer vc, Matrix4f m, float x, float y, float z, float r, float g, float b, float u, float v) {
-        vc.vertex(m, x, y, z).color(clamp(r), clamp(g), clamp(b), 1F).uv(u, v).overlayCoords(OverlayTexture.NO_OVERLAY)
+        vc.vertex(m, x, y, z).color(clamp(r), clamp(g), clamp(b), alpha).uv(u, v).overlayCoords(OverlayTexture.NO_OVERLAY)
                 .uv2(LightTexture.FULL_BRIGHT).normal(0F, 1F, 0F).endVertex();
     }
 

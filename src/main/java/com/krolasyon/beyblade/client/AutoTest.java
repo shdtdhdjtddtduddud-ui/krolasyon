@@ -58,10 +58,10 @@ public final class AutoTest {
                 "time set 6000", "weather clear", "difficulty peaceful", "gamemode creative @a", "kill @e[type=!player]",
                 "fill -2 -60 -2 2 -60 2 minecraft:smooth_stone");
         // ---- model close-ups on a small pedestal
-        cmd(4, null, "summon librabeyblade:libra 0 -59 0 {Spin:3000f,MaxSpin:3000f,Frozen:1b}", "tp @a 0.5 -60 1.9 180 40");
+        cmd(4, null, "summon librabeyblade:libra 0 -59 0 {Spin:3000f,MaxSpin:3000f,Frozen:1b}", "tp @a 0.5 -59 1.6 180 42");
         wait(30, "model_close");
-        cmd(10, "model_side", "tp @a 0.3 -60 1.7 180 8");
-        cmd(10, "model_far", "tp @a 0.5 -60 3.2 180 25");
+        cmd(10, "model_side", "tp @a 0.5 -59 2.6 180 24");
+        cmd(10, "model_far", "tp @a 2.2 -59 2.2 135 30");
         server(10, null, s -> each(s, null, b -> b.damageSpin(2300F, null)));
         wait(20, "model_lowspin_wobble");
         // ---- rival vs rival battle

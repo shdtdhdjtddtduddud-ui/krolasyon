@@ -40,14 +40,15 @@ public class LibraItemRenderer extends BlockEntityWithoutLevelRenderer {
                 s = 0.5F;
             }
             case FIRST_PERSON_RIGHT_HAND, FIRST_PERSON_LEFT_HAND -> {
-                pose.translate(0, 0.1, 0);
-                pose.mulPose(Axis.XP.rotationDegrees(-25F));
-                s = 0.32F;
+                pose.translate(0.05, 0.2, -0.1);
+                pose.mulPose(Axis.XP.rotationDegrees(20F));
+                pose.mulPose(Axis.YP.rotationDegrees(time * 0.8F));
+                s = 0.19F;
             }
             case THIRD_PERSON_RIGHT_HAND, THIRD_PERSON_LEFT_HAND -> {
-                pose.translate(0, 0.05, 0.05);
+                pose.translate(0, 0.12, 0.05);
                 pose.mulPose(Axis.XP.rotationDegrees(-60F));
-                s = 0.28F;
+                s = 0.2F;
             }
             case HEAD -> {
                 pose.translate(0, 0.3, 0);
