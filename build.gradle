@@ -3,9 +3,9 @@ plugins {
     id 'net.minecraftforge.gradle' version '[6.0.16,6.2)'
 }
 
-version = '1.1.0'
-group = 'com.krolasyon.bosses'
-base { archivesName = 'krolasyon_bosses-1.20.1-forge' }
+version = '1.0.0'
+group = 'com.krolasyon.beyblade'
+base { archivesName = 'libra_beyblade-1.20.1-forge' }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
@@ -15,16 +15,20 @@ minecraft {
         client {
             workingDirectory project.file('run')
             property 'forge.logging.console.level', 'info'
-            property 'krolasyon.autotest', 'true'
+            property 'libra.autotest', 'true'
             args '--width', '1280', '--height', '720'
             mods {
-                krolasyonbosses {
+                librabeyblade {
                     source sourceSets.main
                 }
             }
         }
     }
 }
+
+// This branch builds only the Libra beyblade mod; the boss mod lives on the boss-mod branch.
+sourceSets.main.java.exclude 'com/krolasyon/bosses/**'
+sourceSets.main.resources.exclude 'assets/krolasyonbosses/**'
 
 repositories {}
 
@@ -36,7 +40,7 @@ tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
 
 tasks.named('jar', Jar).configure {
     manifest {
-        attributes(["Specification-Title": "krolasyonbosses", "Specification-Vendor": "krolasyon",
+        attributes(["Specification-Title": "librabeyblade", "Specification-Vendor": "krolasyon",
                     "Specification-Version": "1", "Implementation-Title": project.name,
                     "Implementation-Version": project.jar.archiveVersion])
     }

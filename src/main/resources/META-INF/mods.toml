@@ -3,23 +3,23 @@ loaderVersion="[47,)"
 license="All Rights Reserved"
 
 [[mods]]
-modId="krolasyonbosses"
-version="1.1.0"
-displayName="Krolasyon Bosses"
+modId="librabeyblade"
+version="1.0.0"
+displayName="Flame Libra Beyblade"
 authors="krolasyon"
 description='''
-Dort boss: Muhur Bekcisi, Kizil Cehennem Kurdu, Intikam ve Kalp Kirici Iblis.
-Her birinin 5 ozel yetenegi vardir ve etraftaki tum canavarlara saldirirlar.
+Flame Libra T125ES: firlaticiyla firlat, diger beybladelerle kapis, 5 ozel yetenegi (Sonik Dalga, Sonik Kalkan,
+Cehennem Patlamasi, Sonik Yikici, Terazi Hukmu) kendin aktif et ve istedigin zaman geri cagir.
 '''
 
-[[dependencies.krolasyonbosses]]
+[[dependencies.librabeyblade]]
     modId="forge"
     mandatory=true
     versionRange="[47,)"
     ordering="NONE"
     side="BOTH"
 
-[[dependencies.krolasyonbosses]]
+[[dependencies.librabeyblade]]
     modId="minecraft"
     mandatory=true
     versionRange="[1.20.1,1.21)"

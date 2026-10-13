@@ -1,0 +1,191 @@
+{
+  "launch": {
+    "subtitle": "subtitles.librabeyblade.launch",
+    "sounds": [
+      {
+        "name": "librabeyblade:launch",
+        "stream": false
+      }
+    ]
+  },
+  "land": {
+    "subtitle": "subtitles.librabeyblade.land",
+    "sounds": [
+      {
+        "name": "librabeyblade:land",
+        "stream": false
+      }
+    ]
+  },
+  "charge": {
+    "subtitle": "subtitles.librabeyblade.charge",
+    "sounds": [
+      {
+        "name": "librabeyblade:charge",
+        "stream": false
+      }
+    ]
+  },
+  "spin_loop": {
+    "subtitle": "subtitles.librabeyblade.spin_loop",
+    "sounds": [
+      {
+        "name": "librabeyblade:spin_loop",
+        "stream": false,
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "clash_heavy": {
+    "subtitle": "subtitles.librabeyblade.clash_heavy",
+    "sounds": [
+      {
+        "name": "librabeyblade:clash_heavy",
+        "stream": false
+      }
+    ]
+  },
+  "wall_hit": {
+    "subtitle": "subtitles.librabeyblade.wall_hit",
+    "sounds": [
+      {
+        "name": "librabeyblade:wall_hit",
+        "stream": false
+      }
+    ]
+  },
+  "sonic_wave": {
+    "subtitle": "subtitles.librabeyblade.sonic_wave",
+    "sounds": [
+      {
+        "name": "librabeyblade:sonic_wave",
+        "stream": false
+      }
+    ]
+  },
+  "shield_up": {
+    "subtitle": "subtitles.librabeyblade.shield_up",
+    "sounds": [
+      {
+        "name": "librabeyblade:shield_up",
+        "stream": false
+      }
+    ]
+  },
+  "shield_hit": {
+    "subtitle": "subtitles.librabeyblade.shield_hit",
+    "sounds": [
+      {
+        "name": "librabeyblade:shield_hit",
+        "stream": false
+      }
+    ]
+  },
+  "inferno_drill": {
+    "subtitle": "subtitles.librabeyblade.inferno_drill",
+    "sounds": [
+      {
+        "name": "librabeyblade:inferno_drill",
+        "stream": false
+      }
+    ]
+  },
+  "inferno_tornado": {
+    "subtitle": "subtitles.librabeyblade.inferno_tornado",
+    "sounds": [
+      {
+        "name": "librabeyblade:inferno_tornado",
+        "stream": true
+      }
+    ]
+  },
+  "inferno_impact": {
+    "subtitle": "subtitles.librabeyblade.inferno_impact",
+    "sounds": [
+      {
+        "name": "librabeyblade:inferno_impact",
+        "stream": false
+      }
+    ]
+  },
+  "buster_charge": {
+    "subtitle": "subtitles.librabeyblade.buster_charge",
+    "sounds": [
+      {
+        "name": "librabeyblade:buster_charge",
+        "stream": false
+      }
+    ]
+  },
+  "buster_fire": {
+    "subtitle": "subtitles.librabeyblade.buster_fire",
+    "sounds": [
+      {
+        "name": "librabeyblade:buster_fire",
+        "stream": false
+      }
+    ]
+  },
+  "judgment_start": {
+    "subtitle": "subtitles.librabeyblade.judgment_start",
+    "sounds": [
+      {
+        "name": "librabeyblade:judgment_start",
+        "stream": true
+      }
+    ]
+  },
+  "judgment_strike": {
+    "subtitle": "subtitles.librabeyblade.judgment_strike",
+    "sounds": [
+      {
+        "name": "librabeyblade:judgment_strike",
+        "stream": false
+      }
+    ]
+  },
+  "drain": {
+    "subtitle": "subtitles.librabeyblade.drain",
+    "sounds": [
+      {
+        "name": "librabeyblade:drain",
+        "stream": false
+      }
+    ]
+  },
+  "recall": {
+    "subtitle": "subtitles.librabeyblade.recall",
+    "sounds": [
+      {
+        "name": "librabeyblade:recall",
+        "stream": false
+      }
+    ]
+  },
+  "catch": {
+    "subtitle": "subtitles.librabeyblade.catch",
+    "sounds": [
+      {
+        "name": "librabeyblade:catch",
+        "stream": false
+      }
+    ]
+  },
+  "defeat": {
+    "subtitle": "subtitles.librabeyblade.defeat",
+    "sounds": [
+      {
+        "name": "librabeyblade:defeat",
+        "stream": false
+      }
+    ]
+  },
+  "clash": {
+    "subtitle": "subtitles.librabeyblade.clash",
+    "sounds": [
+      "librabeyblade:clash1",
+      "librabeyblade:clash2",
+      "librabeyblade:clash3"
+    ]
+  }
+}
