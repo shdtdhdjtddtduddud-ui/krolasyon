@@ -29,6 +29,17 @@ public final class LDragoFx {
     private static final float[] WHITE = {1F, 1F, 1F};
     private static final float[] BLACK = {0F, 0F, 0F};
 
+    /** the L-Drago dragon emblem: solid crimson-magenta silhouette (translucent, keeps its colour on bright sky) + additive glow */
+    private static void emblem(MultiBufferSource buf, PoseStack pose, Quaternionf cam, double x, double y, double z, float size, float strength) {
+        float a = Mth.clamp(strength, 0F, 1F);
+        if (a <= 0.01F || size <= 0.01F) return;
+        VertexConsumer vc = Fx.bufT(buf, DRAGON, 0.9F * a);
+        Fx.billboard(vc, pose, cam, x, y, z, size, 0F, new float[]{0.95F, 0.12F, 0.38F});
+        Fx.alpha = 1F;
+        vc = Fx.buf(buf, DRAGON);
+        Fx.billboard(vc, pose, cam, x, y, z, size * 1.04F, 0F, k(MAGENTA, 0.35F * a));
+    }
+
     private static float[] k(float[] c, float k) { return new float[]{c[0] * k, c[1] * k, c[2] * k}; }
 
     private static float easeOut(float x) {
@@ -72,9 +83,8 @@ public final class LDragoFx {
                     k(CRIMSON, 1.1F * fade), k(ORANGE, 0.5F * fade), -t * 0.15F);
         }
         Fx.ring(vc, m, 0.04F, 0.35F, 1.35F, 40, k(ORANGE, 0.9F * fade), k(CRIMSON, 0.1F * fade), 3F, t * 0.08F);
-        vc = Fx.buf(buf, DRAGON);
         float pulse = 0.8F + 0.2F * Mth.sin(t * 0.6F);
-        Fx.billboard(vc, pose, cam, 0, 1.55, 0, 1.0F * pulse, 0F, k(MAGENTA, 0.9F * fade));
+        emblem(buf, pose, cam, 0, 1.55, 0, 1.0F * pulse, 0.9F * fade);
     }
 
     private static void awakenBurst(float aw, float t, PoseStack pose, MultiBufferSource buf, Quaternionf cam) {
@@ -83,9 +93,8 @@ public final class LDragoFx {
         VertexConsumer vc = Fx.buf(buf, Fx.WAVE);
         float r = 0.5F + easeOut(aw / 14F) * 5F;
         Fx.ring(vc, m, 0.1F, r - 1.2F, r, 64, BLACK, k(CRIMSON, 1.5F * f), 6F, 0F);
-        vc = Fx.buf(buf, DRAGON);
         float grow = easeOut(aw / 8F);
-        Fx.billboard(vc, pose, cam, 0, 2.6, 0, 5.5F * grow, 0F, k(MAGENTA, 1.2F * f));
+        emblem(buf, pose, cam, 0, 2.6, 0, 5.5F * grow, 1.2F * f);
         vc = Fx.buf(buf, Fx.FLARE);
         Fx.billboard(vc, pose, cam, 0, 0.4, 0, 4F * f, t * 5F, k(CRIMSON, f));
     }
@@ -177,8 +186,7 @@ public final class LDragoFx {
             Fx.sphere(vc, m, 0.35F, 1.1F + 0.15F * Mth.sin(t * 1.4F), Mth.PI, 10, 20, k(ORANGE, 0.9F * f), 2F, 2F, t * 0.05F, -t * 0.08F);
             if (at < M_DIVE + 4) {
                 float g = at < M_DIVE ? f : 1F - (at - M_DIVE) / 4F;
-                vc = Fx.buf(buf, DRAGON);
-                Fx.billboard(vc, pose, cam, 0, 3.5, 0, 8F * easeOut(f), 0F, k(MAGENTA, 1.1F * g));
+                emblem(buf, pose, cam, 0, 3.5, 0, 8F * easeOut(f), 1.1F * g);
                 vc = Fx.buf(buf, Fx.FLARE);
                 Fx.billboard(vc, pose, cam, 0, 0.35, 0, 5F * f, t * 4F, k(ORANGE, 0.9F * g));
             }
@@ -214,14 +222,13 @@ public final class LDragoFx {
             Fx.beamV(vc, m, new Vec3(0, 0.05, 0), b, 0.7F, k(ORANGE, 1.4F * f), 0.4F, i * 0.37F);
         }
         vc = Fx.bufT(buf, Fx.WISP, 0.85F * f);
-        Fx.band(vc, m, r * 0.8F, 0F, r * 0.8F + 0.3F, 2.4F * f, 64, new float[]{1F, 0.35F, 0.05F}, new float[]{0.7F, 0.05F, 0.08F}, 8F, t * 0.1F, 1F, -t * 0.12F);
+        Fx.band(vc, m, r * 0.8F, 0F, r * 0.8F + 0.3F, 1.6F * f, 64, new float[]{1F, 0.35F, 0.05F}, new float[]{0.7F, 0.05F, 0.08F}, 8F, t * 0.1F, 1F, -t * 0.12F);
         Fx.alpha = 1F;
         if (ia < 14) {
             float g = 1F - ia / 14F;
             vc = Fx.buf(buf, Fx.FLARE);
             Fx.billboard(vc, pose, cam, 0, 0.8, 0, 11F * g, t * 2F, k(new float[]{1F, 0.6F, 0.3F}, 1.2F * g));
-            vc = Fx.buf(buf, DRAGON);
-            Fx.billboard(vc, pose, cam, 0, 3.0, 0, 7F * easeOut(ia / 6F), 0F, k(MAGENTA, 1.2F * g));
+            emblem(buf, pose, cam, 0, 3.0, 0, 7F * easeOut(ia / 6F), 1.2F * g);
         }
     }
 
@@ -235,8 +242,8 @@ public final class LDragoFx {
             float f = 1F - ca / 12F;
             float grow = easeOut(ca / 3F);
             double x = e.clawPos[i][0] - ex, y = e.clawPos[i][1] - ey, z = e.clawPos[i][2] - ez;
-            Fx.billboard(vc, pose, cam, x, y, z, 2.6F * (0.6F + 0.4F * grow), e.clawRot[i], k(CRIMSON, 1.5F * f));
-            Fx.billboard(vc, pose, cam, x, y, z, 2.0F * (0.6F + 0.4F * grow), e.clawRot[i], k(WHITE, 0.7F * f * f));
+            Fx.billboard(vc, pose, cam, x, y, z, 3.4F * (0.6F + 0.4F * grow), e.clawRot[i], k(CRIMSON, 1.5F * f));
+            Fx.billboard(vc, pose, cam, x, y, z, 2.6F * (0.6F + 0.4F * grow), e.clawRot[i], k(WHITE, 0.7F * f * f));
         }
     }
 
@@ -255,8 +262,8 @@ public final class LDragoFx {
         // the dragon looms behind L-Drago
         float in = easeOut(at / 14F), out = at > R_END ? Math.max(0F, 1F - (at - R_END) / 10F) : 1F;
         Vec3 behind = from.add(dir.scale(-1.2)).add(0, 2.0, 0);
-        VertexConsumer vc = Fx.buf(buf, DRAGON);
-        Fx.billboard(vc, pose, cam, behind.x, behind.y, behind.z, 6.5F * in, 0F, k(MAGENTA, 1.0F * in * out));
+        emblem(buf, pose, cam, behind.x, behind.y, behind.z, 6.5F * in, 1.0F * in * out);
+        VertexConsumer vc;
         if (at < R_BREATH) {
             float ch = at / R_BREATH;
             vc = Fx.buf(buf, Fx.FLARE);
