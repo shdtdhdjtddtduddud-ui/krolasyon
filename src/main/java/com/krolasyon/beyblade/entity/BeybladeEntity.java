@@ -892,15 +892,18 @@ public class BeybladeEntity extends Entity {
         Vec3 v = getDeltaMovement();
         boolean gap = StadiumEntity.isGap(Math.atan2(dz, dx));
         double wallR = StadiumEntity.WALL_IN - RADIUS;
+        // only a hard knock carries a top out through a pocket; slower ones roll back off the pocket's rim
+        double vrOut = v.x * nx + v.z * nz;
+        boolean blocked = !gap || (inBowl && vrOut < 0.5);
         // striped walls
-        if (!gap && rel < StadiumEntity.WALL_TOP && r > wallR && r < StadiumEntity.WALL_OUT + RADIUS) {
+        if (blocked && rel < StadiumEntity.WALL_TOP && r > wallR && r < StadiumEntity.WALL_OUT + RADIUS) {
             double vr = v.x * nx + v.z * nz;
             if (inBowl) {
                 setPos(st.getX() + nx * wallR, getY(), st.getZ() + nz * wallR);
                 r = wallR;
                 if (vr > 0) {
                     v = v.subtract(nx * vr * 1.75, 0, nz * vr * 1.75);
-                    if (vr > 0.12 && wallSoundCooldown == 0) {
+                    if (vr > 0.12 && wallSoundCooldown == 0 && !gap) {
                         wallSoundCooldown = 6;
                         play(ModSounds.WALL_HIT.get(), 0.9F, 0.9F + this.random.nextFloat() * 0.3F);
                         ((ServerLevel) this.level()).sendParticles(ParticleTypes.ELECTRIC_SPARK, getX() + nx * RADIUS, getY() + 0.35, getZ() + nz * RADIUS, 10, 0.1, 0.1, 0.1, 0.35);
