@@ -85,7 +85,7 @@ public final class AutoTest {
         wait(130, "leone_fade");
         record(false);
         // ---- scene 4: L-Drago high dive: dragon silhouette, grab, both up, slam down
-        cmd(4, null, "kill @e[type=!player,type=!librabeyblade:stadium]", "weather clear", "tp @a 0.5 -50 10 180 8",
+        cmd(4, null, "kill @e[type=!player,type=!librabeyblade:stadium]", "weather clear", "tp @a 0.5 -53 13 180 -8",
                 "summon librabeyblade:ldrago 0.5 -58 -11 {Tags:[\"a\"]}", "summon librabeyblade:common 0.5 -58 -17 {Variant:1}");
         wait(20, null);
         record(true);

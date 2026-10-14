@@ -220,13 +220,11 @@ public final class LDragoFx {
         if (a <= 0.01F) return;
         org.joml.Vector3f v = new org.joml.Vector3f((float) dir.x, (float) dir.y, (float) dir.z);
         new Quaternionf(cam).conjugate().transform(v);
-        float rot = (float) Math.toDegrees(Math.atan2(v.y, -v.x)) - 90F;
+        float rot = (float) Math.toDegrees(Math.atan2(v.y, -v.x)) + 90F;
         float flap = 1F + 0.06F * Mth.sin(t * 0.9F);
         VertexConsumer vc = Fx.bufT(buf, DRAGON_FLIGHT, 0.92F * a);
         Fx.billboard(vc, pose, cam, x, y, z, size * flap, rot, new float[]{1F, 1F, 1F});
         Fx.alpha = 1F;
-        vc = Fx.buf(buf, DRAGON_FLIGHT);
-        Fx.billboard(vc, pose, cam, x, y, z, size * flap * 1.05F, rot, k(ORANGE, 0.45F * a));
     }
 
     private static void meteorImpact(float ia, float t, PoseStack pose, MultiBufferSource buf, Quaternionf cam) {
