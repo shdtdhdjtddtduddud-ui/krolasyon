@@ -311,5 +311,7 @@
  "msg.librabeyblade.ldrago_revive": "EJDERHA İMPARATORU DİRİLİŞİ! L-Drago çaldığı tüm gücü kullanıp tam hızına geri döndü!",
  "hud.librabeyblade.ldrago_reserve": "Çalınan güç: %s (toplanıyor)",
  "hud.librabeyblade.ldrago_ready": "Çalınan güç: %s - DİRİLİŞ HAZIR",
- "hud.librabeyblade.ldrago_revived": "Diriliş kullanıldı"
+ "hud.librabeyblade.ldrago_revived": "Diriliş kullanıldı",
+ "ability.librabeyblade.leone.6": "Kral Aslan Dev Kasırga",
+ "key.librabeyblade.ability6": "Özel yetenek 6"
 }

@@ -27,6 +27,7 @@ public final class ClientSetup {
             new KeyMapping("key.librabeyblade.ability3", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_J, CATEGORY),
             new KeyMapping("key.librabeyblade.ability4", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_K, CATEGORY),
             new KeyMapping("key.librabeyblade.ability5", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_N, CATEGORY),
+            new KeyMapping("key.librabeyblade.ability6", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_U, CATEGORY),
     };
 
     @SubscribeEvent

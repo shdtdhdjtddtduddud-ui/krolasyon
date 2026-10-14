@@ -19,7 +19,7 @@ public class LibraHud implements IGuiOverlay {
     private static final ResourceLocation ICON = new ResourceLocation(LibraBeyblade.MODID, "textures/item/libra_icon.png");
     private static final ResourceLocation ICON_LDRAGO = new ResourceLocation(LibraBeyblade.MODID, "textures/item/ldrago_icon.png");
     private static final ResourceLocation ICON_LEONE = new ResourceLocation(LibraBeyblade.MODID, "textures/item/leone_icon.png");
-    private static final int[] LE_COLORS = {0xFF9CFFB0, 0xFF6CFF6A, 0xFF40E080, 0xFFE0C070, 0xFFB0FFD0};
+    private static final int[] LE_COLORS = {0xFF9CFFB0, 0xFF6CFF6A, 0xFF40E080, 0xFFE0C070, 0xFFB0FFD0, 0xFFD8D8D8};
     private static final ResourceLocation ICON_EAGLE = new ResourceLocation(LibraBeyblade.MODID, "textures/item/eagle_icon.png");
     private static final int[] EA_COLORS = {0xFFE0C0FF, 0xFFC0A0FF, 0xFFFF7070, 0xFFD0D0E0, 0xFFFFD060};
     private static final ResourceLocation ICON_PEGASUS = new ResourceLocation(LibraBeyblade.MODID, "textures/item/pegasus_icon.png");
@@ -39,7 +39,7 @@ public class LibraHud implements IGuiOverlay {
         if (bey == null) return;
         Font font = mc.font;
         int x = 8, y = height / 2 - 66;
-        g.fill(x - 4, y - 4, x + 168, y + 162, 0x88000000);
+        g.fill(x - 4, y - 4, x + 168, y + 174, 0x88000000);
         boolean tempo = bey.kindId().equals("tempo"), variares = bey.kindId().equals("variares");
         boolean drago = bey.kindId().equals("ldrago"), leone = bey.kindId().equals("leone"), eagle = bey.kindId().equals("eagle"), pegasus = bey.kindId().equals("pegasus");
         com.krolasyon.beyblade.entity.CommonBeybladeEntity common = bey instanceof com.krolasyon.beyblade.entity.CommonBeybladeEntity c ? c : null;
@@ -69,7 +69,7 @@ public class LibraHud implements IGuiOverlay {
         g.fill(x, by + 18, x + (int) (bw * xr), by + 20, 0xFF60D0FF);
         // abilities
         int ay = by + 24;
-        for (int i = 1; i <= BeybladeEntity.ABILITY_COUNT; i++) {
+        for (int i = 1; i <= bey.abilityCount(); i++) {
             KeyMapping key = ClientSetup.ABILITY_KEYS[i - 1];
             int cd = bey.cooldownRemaining(i);
             boolean active = bey.getAbility() == i || (i == bey.buffAbility() && bey.isShielded());

@@ -62,34 +62,23 @@ public final class AutoTest {
     private AutoTest() {
         cmd(0, null, "gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false",
                 "time set 6000", "weather clear", "difficulty peaceful", "gamemode spectator @a", "kill @e[type=!player]", ST);
-        // ---- Rock Leone: runs to the middle and becomes the eye of one colossal tornado
-        cmd(10, null, "tp @a 0.5 -47 24 180 8",
-                "summon librabeyblade:leone -4 -58 -10 {Tags:[\"a\"]}",
-                "summon librabeyblade:common 5 -58 -18 {Variant:1}", "summon librabeyblade:common -5 -58 -19 {Variant:6}",
-                "summon librabeyblade:pegasus 6 -58 -9");
+        // ---- ability 5: the four twisting tornadoes are back
+        cmd(10, null, "tp @a 0.5 -47 10 180 15",
+                "summon librabeyblade:leone 0.5 -58 -13 {Tags:[\"a\"]}",
+                "summon librabeyblade:common -3 -58 -17 {Variant:5}", "summon librabeyblade:common 4 -58 -18 {Variant:3}");
         wait(20, null);
         record(true);
         force(5);
-        wait(60, "leone_to_center");
-        wait(70, "tornado_wide");
-        cmd(2, null, "tp @a 0.5 -53 2 180 25");
-        wait(50, "tornado_whirl");
-        wait(50, "tornado_throw");
-        cmd(2, null, "tp @a 0.5 -44 26 180 2");
-        wait(60, "tornado_fade");
-        record(false);
-        // ---- L-Drago: steals power in every clash, then comes back from the brink once
-        cmd(4, null, "kill @e[type=!player,type=!librabeyblade:stadium]", "weather clear", "tp @a 0.5 -53 -3 180 30",
-                "summon librabeyblade:ldrago -2 -58 -14 {Tags:[\"d\"]}", "summon librabeyblade:pegasus 3 -58 -15");
-        record(true);
-        wait(80, "drago_clash");
-        server(1, null, s -> each(s, "d", b -> {
-            if (b instanceof com.krolasyon.beyblade.entity.LDragoEntity d) d.debugCharge(400F);
-            b.damageSpin(100000F, null);
-        }));
-        wait(10, "drago_brink");
-        wait(25, "drago_revive");
+        wait(70, "four_tornadoes");
         wait(40, null);
+        // ---- ability 6 (new key): one colossal tornado, enemies spun to the top and smashed down
+        cmd(2, null, "tp @a 0.5 -42 26 180 5", "summon librabeyblade:pegasus 6 -58 -9", "summon librabeyblade:ldrago -6 -58 -20");
+        force(6);
+        wait(70, "giant_form");
+        cmd(2, null, "tp @a 0.5 -50 8 180 0");
+        wait(40, "giant_lift");
+        wait(40, "giant_slam");
+        wait(60, "giant_more");
         record(false);
         wait(20, "END");
     }

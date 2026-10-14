@@ -63,7 +63,7 @@ public class BeybladeEntity extends Entity {
     public static final int STATE_BATTLE = 0, STATE_DEFEATED = 1, STATE_RECALL = 2;
 
     public static final int AB_NONE = 0, AB_SONIC_WAVE = 1, AB_SHIELD = 2, AB_INFERNO = 3, AB_BUSTER = 4, AB_JUDGMENT = 5;
-    public static final int ABILITY_COUNT = 5;
+    public static final int ABILITY_COUNT = 6;
     /** how long the ability occupies the beyblade (shield is a timed buff instead) */
     public static final int[] DURATION = {0, 46, 0, 84, 62, 112};
     public static final int[] COOLDOWN = {0, 200, 500, 600, 700, 1200};
@@ -511,7 +511,7 @@ public class BeybladeEntity extends Entity {
             rivalUseAbilities();
         } else if (getOrder() == OR_BERSERK && target != null && this.tickCount % 25 == 0) {
             for (int k = 0; k < 3; k++) {
-                int id = 1 + this.random.nextInt(ABILITY_COUNT);
+                int id = 1 + this.random.nextInt(abilityCount());
                 if (cooldownRemaining(id) == 0 && abilityAvailable(id) && tryAbility(id, false)) break;
             }
         }
@@ -981,7 +981,7 @@ public class BeybladeEntity extends Entity {
 
     // ---------------- abilities ----------------
     public boolean tryAbility(int id, boolean fromPlayer) {
-        if (id < 1 || id > ABILITY_COUNT || getState() != STATE_BATTLE) return false;
+        if (id < 1 || id > abilityCount() || getState() != STATE_BATTLE) return false;
         Player owner = getOwner();
         int cd = cooldownRemaining(id);
         if (cd > 0) {
@@ -1047,6 +1047,9 @@ public class BeybladeEntity extends Entity {
         if (power) { dashTicks = 10; }
     }
 
+    /** how many special moves this beyblade has (Rock Leone has a sixth) */
+    public int abilityCount() { return 5; }
+
     /** called after every clash with another beyblade (damage dealt and taken) */
     protected void onClash(BeybladeEntity other, float dealt, float taken) {}
 
@@ -1084,7 +1087,7 @@ public class BeybladeEntity extends Entity {
 
     private void rivalUseAbilities() {
         if (target == null || target.distanceToSqr(this) > 12 * 12 || this.random.nextInt(45) != 0) return;
-        int id = 1 + this.random.nextInt(ABILITY_COUNT);
+        int id = 1 + this.random.nextInt(abilityCount());
         if (cooldownRemaining(id) == 0) tryAbility(id, false);
     }
 

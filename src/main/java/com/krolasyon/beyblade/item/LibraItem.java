@@ -102,7 +102,7 @@ public class LibraItem extends Item {
         }
         tip.add(Component.translatable(base + ".desc2").withStyle(ChatFormatting.GRAY));
         String ab = kind.equals("libra") ? "ability.librabeyblade." : "ability.librabeyblade." + kind + ".";
-        for (int i = 1; i <= 5; i++)
+        for (int i = 1; i <= (kind.equals("leone") ? 6 : 5); i++)
             tip.add(Component.literal(" ◆ ").withStyle(ChatFormatting.GOLD).append(Component.translatable(ab + i).withStyle(ChatFormatting.YELLOW)));
     }
 

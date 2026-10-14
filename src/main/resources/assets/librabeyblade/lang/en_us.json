@@ -311,5 +311,7 @@
  "msg.librabeyblade.ldrago_revive": "DRAGON EMPEROR REVIVAL! L-Drago burns all the spin it stole and comes back at full speed!",
  "hud.librabeyblade.ldrago_reserve": "Stolen power: %s (charging)",
  "hud.librabeyblade.ldrago_ready": "Stolen power: %s - REVIVAL READY",
- "hud.librabeyblade.ldrago_revived": "Revival used"
+ "hud.librabeyblade.ldrago_revived": "Revival used",
+ "ability.librabeyblade.leone.6": "King Lion Colossal Cyclone",
+ "key.librabeyblade.ability6": "Special move 6"
 }
