@@ -79,7 +79,7 @@ public final class AutoTest {
         server(1, null, s -> each(s, "s1", b -> { b.addSpirit(100); b.releaseSpirit(); }));
         wait(6, "spirit_a");
         wait(30, "spirit_b");
-        cmd(4, null, "kill @e[type=!player]", "gamemode creative @a", "tp @a 0.5 -60 2.7 180 25");
+        cmd(4, null, "kill @e[type=librabeyblade:pegasus]", "kill @e[type=librabeyblade:common]", "gamemode creative @a", "tp @a 0.5 -60 2.7 180 25");
         server(4, null, s -> {
             ServerPlayer p = s.getPlayerList().getPlayers().get(0);
             BeybladeEntity b = BeybladeEntity.launch(com.krolasyon.beyblade.registry.ModEntities.PEGASUS.get(), p.level(), p, new ItemStack(ModItems.PEGASUS.get()),
@@ -87,9 +87,10 @@ public final class AutoTest {
             b.setOrder(BeybladeEntity.OR_CIRCLE);
         });
         steps.add(new Step(60, null, null, true));
-        cmd(4, null, "tp @a 0.5 -48 -1 180 50");
+        cmd(4, null, "tp @a 0.5 -44 -2 180 60");
         wait(20, "circle_a");
-        wait(6, "circle_b");
+        wait(5, "circle_b");
+        wait(5, "circle_c");
         steps.add(new Step(2, null, null, false));
         wait(20, "END");
     }
