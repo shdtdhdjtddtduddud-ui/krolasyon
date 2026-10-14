@@ -186,10 +186,17 @@ public final class LDragoFx {
             Fx.sphere(vc, m, 0.35F, 1.1F + 0.15F * Mth.sin(t * 1.4F), Mth.PI, 10, 20, k(ORANGE, 0.9F * f), 2F, 2F, t * 0.05F, -t * 0.08F);
             if (at < M_DIVE + 4) {
                 float g = at < M_DIVE ? f : 1F - (at - M_DIVE) / 4F;
-                emblem(buf, pose, cam, 0, 3.5, 0, 8F * easeOut(f), 1.1F * g);
                 vc = Fx.buf(buf, Fx.FLARE);
                 Fx.billboard(vc, pose, cam, 0, 0.35, 0, 5F * f, t * 4F, k(ORANGE, 0.9F * g));
             }
+        }
+        if (at >= M_HANG - 4 && e.impactTime < e.clientAbilityStart) {
+            // the Dragon Emperor itself: a huge winged dragon silhouette around L-Drago, head pointing where it flies
+            float f = Mth.clamp((at - M_HANG + 4) / 6F, 0F, 1F);
+            Vec3 vel = new Vec3(e.getX() - e.xo, e.getY() - e.yo, e.getZ() - e.zo);
+            Vec3 dir = at < M_DIVE || vel.lengthSqr() < 1.0E-3 ? new Vec3(0, -1, 0) : vel.normalize();
+            boolean grab = e.grabTime > e.clientAbilityStart;
+            dragonSilhouette(buf, pose, cam, 0, 0.6, 0, grab ? 11F : 9F, f, dir, t);
         }
         if (at >= M_DIVE && e.impactTime < e.clientAbilityStart) {
             // meteor tail streaming back along the dive
@@ -203,6 +210,23 @@ public final class LDragoFx {
                 Fx.beam(vc, m, new Vec3(0, 0.35, 0), tail.scale(0.6), 0.9F, k(new float[]{1F, 0.85F, 0.5F}, 1.1F), BLACK, 0.5F, t);
             }
         }
+    }
+
+    public static final ResourceLocation DRAGON_FLIGHT = new ResourceLocation(LibraBeyblade.MODID, "textures/fx/dragon_flight.png");
+
+    /** camera-facing dragon sprite rotated so its head points along the given world direction on screen */
+    private static void dragonSilhouette(MultiBufferSource buf, PoseStack pose, Quaternionf cam, double x, double y, double z, float size, float a,
+                                         Vec3 dir, float t) {
+        if (a <= 0.01F) return;
+        org.joml.Vector3f v = new org.joml.Vector3f((float) dir.x, (float) dir.y, (float) dir.z);
+        new Quaternionf(cam).conjugate().transform(v);
+        float rot = (float) Math.toDegrees(Math.atan2(v.y, -v.x)) - 90F;
+        float flap = 1F + 0.06F * Mth.sin(t * 0.9F);
+        VertexConsumer vc = Fx.bufT(buf, DRAGON_FLIGHT, 0.92F * a);
+        Fx.billboard(vc, pose, cam, x, y, z, size * flap, rot, new float[]{1F, 1F, 1F});
+        Fx.alpha = 1F;
+        vc = Fx.buf(buf, DRAGON_FLIGHT);
+        Fx.billboard(vc, pose, cam, x, y, z, size * flap * 1.05F, rot, k(ORANGE, 0.45F * a));
     }
 
     private static void meteorImpact(float ia, float t, PoseStack pose, MultiBufferSource buf, Quaternionf cam) {

@@ -70,6 +70,7 @@ public class CommonBeybladeEntity extends BeybladeEntity {
     }
 
     // ---------------- hooks ----------------
+    @Override protected float dodgeChance() { return 0.06F; }
     @Override public int nativeMode() { return variant().mode(); }
     @Override public String kindId() { return "common"; }
     @Override public String titleKey() { return "item.librabeyblade.common_" + variant().id(); }

@@ -218,39 +218,46 @@ public final class PegasusFx {
         pose.popPose();
     }
 
-    // ================= STAR GALLOP =================
+    // ================= STAR BOOSTER ATTACK =================
     private static void gallop(PegasusEntity e, float at, float t, double ex, double ey, double ez, PoseStack pose, MultiBufferSource buf, Quaternionf cam) {
-        float dur = PG_DURATION[PG_GALLOP];
-        float g = Mth.clamp((at - G_START + 6) / 8F, 0F, 1F) * (at > G_END ? Math.max(0F, 1F - (at - G_END) / 8F) : 1F);
-        double bx = e.abilityX - ex, by = e.abilityY - ey, bz = e.abilityZ - ez;
-        double ang = gallopAngle(at);
-        Vec3 sp = new Vec3(bx + Math.cos(ang) * G_RADIUS, by, bz + Math.sin(ang) * G_RADIUS);
-        // blue fire trail along the ring behind the spirit
-        pose.pushPose();
-        pose.translate(bx, by, bz);
-        Matrix4f m = pose.last().pose();
-        VertexConsumer vc = Fx.buf(buf, Fx.WISP);
-        int steps = 24;
-        double len = Math.min(ang, Math.PI * 1.3);
-        for (int i = 0; i < steps; i++) {
-            double a0 = ang - len * i / steps, a1 = ang - len * (i + 1) / steps;
-            float f0 = 1F - (float) i / steps, f1 = 1F - (float) (i + 1) / steps;
-            Vec3 p0 = new Vec3(Math.cos(a0) * G_RADIUS, 0.35, Math.sin(a0) * G_RADIUS), p1 = new Vec3(Math.cos(a1) * G_RADIUS, 0.35, Math.sin(a1) * G_RADIUS);
-            Fx.beam(vc, m, p0, p1, 1.4F * f0, k(SKY, 1.1F * f0 * g), k(SKY, 1.1F * f1 * g), 0.6F, t * 0.2F + i * 0.4F);
-        }
-        vc = Fx.buf(buf, Fx.SOFT);
-        Fx.ring(vc, m, 0.05F, (float) G_RADIUS - 1.2F, (float) G_RADIUS + 0.4F, 64, BLACK, k(SKY, 0.6F * g), 4F, 0F);
-        pose.popPose();
-        if (at >= G_START - 6 && at < G_END + 8) {
-            boolean flip = Math.sin(ang) * 1 < 0;
-            spirit(buf, pose, cam, sp.x, sp.y + 1.6, sp.z, 4.6F, g, flip);
+        double[] ring = PegasusEntity.boosterRing(e.level(), e.abilityX, e.abilityZ);
+        float br = (float) ring[2];
+        double vx = e.getX() - e.xo, vy = e.getY() - e.yo, vz = e.getZ() - e.zo;
+        if (at < B_RIDE_END + 6) {
+            // the vortex the ride whips up, dragging everything to the middle
+            float g = Mth.clamp(at / 8F, 0F, 1F) * (at > B_RIDE_END ? Math.max(0F, 1F - (at - B_RIDE_END) / 6F) : 1F);
+            pose.pushPose();
+            pose.translate(ring[0] - ex, e.abilityY - ey + 0.12, ring[1] - ez);
+            Matrix4f m = pose.last().pose();
+            VertexConsumer vc = Fx.buf(buf, Fx.WAVE);
+            Fx.ring(vc, m, 0.02F, br - 1.2F, br + 0.5F, 72, BLACK, k(SKY, 1.0F * g), 6F, -t * 0.08F);
+            vc = Fx.buf(buf, Fx.SOFT);
+            for (int i = 0; i < 4; i++)
+                Fx.helix(vc, m, 0.05F, 0.3F, br, 0.4F, -t * 0.25F * e.spinDir() + i * Mth.HALF_PI, 0.9F * e.spinDir(), 0.35F, 30,
+                        k(SKY, 0.8F * g), k(WHITE, 0.3F * g), t * 0.1F);
+            pose.popPose();
+            spirit(buf, pose, cam, 0, 1.4, 0, 3.6F, g, vx > 0.01);
             vc = Fx.buf(buf, Fx.FLARE);
-            Fx.billboard(vc, pose, cam, sp.x, sp.y + 0.3, sp.z, 2.4F * g, t * 9F, k(SKY, g));
+            Fx.billboard(vc, pose, cam, 0, 0.35, 0, 2.2F * g, t * 9F, k(SKY, g));
         }
-        // Pegasus at the centre channels the stampede
-        vc = Fx.buf(buf, Fx.SOFT);
-        Fx.beam(vc, pose.last().pose(), new Vec3(0, 0, 0), new Vec3(0, 7, 0), 0.9F * g, k(SKY, 0.9F * g), BLACK, 0.3F, -t * 0.3F);
-        if (dur < 0) return;
+        if (at >= B_RIDE_END && at < B_DIVE + 22 && e.novaTime < e.clientAbilityStart) {
+            // rising off the wall and hanging in the sky: the winged pegasus spreads behind it and a star gathers
+            float g = Mth.clamp((at - B_RIDE_END) / 6F, 0F, 1F);
+            spirit(buf, pose, cam, 0, 1.2, 0, 6.5F * g, g, vx > 0.01);
+            VertexConsumer vc = Fx.buf(buf, STAR);
+            Fx.billboard(vc, pose, cam, 0, 0.4, 0, 3.5F * g + 0.6F * Mth.sin(t * 1.3F), t * 6F, k(GOLD, 1.2F * g));
+            vc = Fx.buf(buf, Fx.FLARE);
+            Fx.billboard(vc, pose, cam, 0, 0.4, 0, 4.5F * g, -t * 4F, k(SKY, g));
+            Vec3 vel = new Vec3(vx, vy, vz);
+            if (at >= B_DIVE && vel.lengthSqr() > 1.0E-3) {
+                Vec3 tail = vel.normalize().scale(-8);
+                vc = Fx.bufT(buf, Fx.WISP, 0.8F);
+                Fx.beam(vc, pose.last().pose(), new Vec3(0, 0.35, 0), tail, 2.0F, new float[]{0.6F, 0.85F, 1F}, new float[]{0.1F, 0.3F, 0.9F}, 0.3F, t * 0.5F);
+                Fx.alpha = 1F;
+                vc = Fx.buf(buf, Fx.SOFT);
+                Fx.beam(vc, pose.last().pose(), new Vec3(0, 0.35, 0), tail.scale(0.6), 0.8F, k(WHITE, 1.1F), BLACK, 0.5F, t);
+            }
+        }
     }
 
     /** camera orientation helper for sprites drawn outside the renderer call chain */

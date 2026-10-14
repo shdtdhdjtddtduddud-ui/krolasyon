@@ -30,7 +30,7 @@ import java.util.Set;
  */
 public class LeoneEntity extends BeybladeEntity {
     public static final int LE_WALL = 1, LE_FANG = 2, LE_POUNCE = 3, LE_QUAKE = 4, LE_CAGE = 5;
-    public static final int[] LE_DURATION = {0, 0, 54, 60, 92, 112};
+    public static final int[] LE_DURATION = {0, 0, 54, 60, 92, 250};
     public static final int[] LE_COOLDOWN = {0, 550, 450, 600, 650, 1000};
     public static final int WALL_TICKS = 180;
     public static final double WALL_RADIUS = 1.7;
@@ -40,8 +40,8 @@ public class LeoneEntity extends BeybladeEntity {
     public static final int Q_SLAM = 14, Q_RINGS = 3, Q_RING_GAP = 10, Q_RING_LIFE = 18;
     public static final float Q_SPEED = 0.48F;
     public static final double Q_RADIUS = 9;
-    public static final int C_FORM = 10, C_BLAST = 92;
-    public static final double C_PILLAR_DIST = 4.4, C_PULL_RANGE = 18, C_HOLD_HEIGHT = 2.4;
+    public static final int C_FORM = 14, C_BLAST = 205, C_FADE = 45;
+    public static final double C_PILLAR_DIST = 5.2, C_PULL_RANGE = 20, C_HOLD_HEIGHT = 2.4;
 
     public static final byte EV_QUAKE = 80, EV_CAGE = 81, EV_CAGE_BLAST = 82, EV_WALL_HIT = 83;
 
@@ -52,6 +52,19 @@ public class LeoneEntity extends BeybladeEntity {
     private Vec3 pounceDir = Vec3.ZERO;
     private int quakeStart = -1;
     @Nullable private Vec3 cageCenter;
+    private boolean stormSet;
+
+    private void clearStorm(ServerLevel sl) {
+        if (!stormSet) return;
+        stormSet = false;
+        sl.setWeatherParameters(6000, 0, false, false);
+    }
+
+    @Override
+    protected void endAbility() {
+        if (stormSet && this.level() instanceof ServerLevel sl && getAbility() == LE_CAGE && abilityTicks < C_BLAST + C_FADE - 5) clearStorm(sl);
+        super.endAbility();
+    }
     @SuppressWarnings("unchecked")
     private final Set<Integer>[] ringHits = new Set[]{new HashSet<>(), new HashSet<>(), new HashSet<>()};
     private final Set<Integer> pounceHits = new HashSet<>();
@@ -65,6 +78,7 @@ public class LeoneEntity extends BeybladeEntity {
     }
 
     // ---------------- hooks ----------------
+    @Override protected float dodgeChance() { return 0.08F; }
     @Override public int nativeMode() { return MODE_DEFENSE; }
     @Override public String kindId() { return "leone"; }
     @Override public String abilityKey(int id) { return "ability.librabeyblade.leone." + id; }
@@ -248,18 +262,35 @@ public class LeoneEntity extends BeybladeEntity {
             case LE_CAGE -> {
                 // King Lion Tearing Blast: four huge grey tornadoes circle Leone (two each way) and drag enemies in
                 if (t == 1) {
+                    // the tornadoes rise where Leone stands and stay there: Leone fights on inside the storm
+                    cageCenter = position();
                     this.level().broadcastEntityEvent(this, EV_CAGE);
                     play(ModSounds.CAGE_WIND.get(), 2.2F, 0.9F);
                     play(ModSounds.LION_ROAR.get(), 1.6F, 1.0F);
+                    // a real storm breaks out over the area while the tornadoes stand
+                    if (!sl.isThundering()) {
+                        stormSet = true;
+                        sl.setWeatherParameters(0, LE_DURATION[LE_CAGE] + 60, true, true);
+                    }
                 }
-                cageCenter = position();
+                if (cageCenter == null) cageCenter = position();
+                if (t >= C_FORM && t < C_BLAST && t % 35 == 0) {
+                    net.minecraft.world.entity.LightningBolt bolt = net.minecraft.world.entity.EntityType.LIGHTNING_BOLT.create(sl);
+                    if (bolt != null) {
+                        Vec3 p = pillar(cageCenter.x, cageCenter.y, cageCenter.z, this.random.nextInt(4), t);
+                        bolt.moveTo(p.x + this.random.nextGaussian() * 2, cageCenter.y, p.z + this.random.nextGaussian() * 2);
+                        bolt.setVisualOnly(true);
+                        sl.addFreshEntity(bolt);
+                    }
+                }
+                if (t == C_BLAST + C_FADE - 5) clearStorm(sl);
                 if (t >= C_FORM && t < C_BLAST) {
                     if ((t - C_FORM) % 30 == 0) play(ModSounds.CAGE_WIND.get(), 2.0F, 0.85F + this.random.nextFloat() * 0.2F);
                     for (Entity e : enemiesWithin(C_PULL_RANGE)) {
                         Vec3 best = null;
                         double bd = 1.0E9;
                         for (int i = 0; i < 4; i++) {
-                            Vec3 p = pillar(getX(), getY(), getZ(), i, t);
+                            Vec3 p = pillar(cageCenter.x, cageCenter.y, cageCenter.z, i, t);
                             double d = flat(p.subtract(e.position())).lengthSqr();
                             if (d < bd) { bd = d; best = p; }
                         }
@@ -287,7 +318,7 @@ public class LeoneEntity extends BeybladeEntity {
                 if (t == C_BLAST) {
                     play(ModSounds.CAGE_BLAST.get(), 2.8F, 0.9F);
                     this.level().broadcastEntityEvent(this, EV_CAGE_BLAST);
-                    for (Entity e : enemiesWithin(8)) {
+                    for (Entity e : enemiesWithin(9)) {
                         Vec3 out = flat(e.position().subtract(position()));
                         out = out.lengthSqr() < 1.0E-4 ? new Vec3(1, 0, 0) : out.normalize();
                         if (e instanceof BeybladeEntity b) {
@@ -321,17 +352,16 @@ public class LeoneEntity extends BeybladeEntity {
     @Override
     public void handleEntityEvent(byte id) {
         switch (id) {
-            case EV_QUAKE -> quakeTime = this.tickCount;
+            case EV_QUAKE -> { quakeTime = this.tickCount; clientScar(4.5F); }
             case EV_CAGE -> {
                 cageTime = this.tickCount;
-                Entity t = this.level().getEntity(getTargetId());
-                Entity c = t != null ? t : this;
-                cageX = c.getX();
-                cageY = c.getY();
-                cageZ = c.getZ();
+                cageX = getX();
+                cageY = getY();
+                cageZ = getZ();
             }
             case EV_CAGE_BLAST -> {
                 cageBlastTime = this.tickCount;
+                clientScar(4F);
                 cageX = getX();
                 cageY = getY();
                 cageZ = getZ();
@@ -369,7 +399,7 @@ public class LeoneEntity extends BeybladeEntity {
             case LE_CAGE -> {
                 if (at >= C_FORM && at < C_BLAST) {
                     for (int i = 0; i < 4; i++) {
-                        Vec3 p = pillar(getX(), getY(), getZ(), i, at);
+                        Vec3 p = pillar(cageX, cageY, cageZ, i, at);
                         double a = this.random.nextDouble() * Math.PI * 2, h = this.random.nextDouble() * 6;
                         Px.add(lv, i % 2 == 0 ? ParticleTypes.CLOUD : LEAF, p.x + Math.cos(a) * 0.8, p.y + h, p.z + Math.sin(a) * 0.8,
                                 -Math.sin(a) * 0.3, 0.1, Math.cos(a) * 0.3);

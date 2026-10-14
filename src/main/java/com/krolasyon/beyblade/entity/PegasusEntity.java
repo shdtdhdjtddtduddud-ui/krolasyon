@@ -27,7 +27,7 @@ import java.util.Set;
  */
 public class PegasusEntity extends BeybladeEntity {
     public static final int PG_WINGS = 1, PG_STORM = 2, PG_STAR = 3, PG_RICO = 4, PG_GALLOP = 5;
-    public static final int[] PG_DURATION = {0, 0, 100, 72, 64, 112};
+    public static final int[] PG_DURATION = {0, 0, 100, 72, 64, 110};
     public static final int[] PG_COOLDOWN = {0, 600, 600, 550, 500, 1100};
     public static final int WINGS_TICKS = 200;
 
@@ -37,6 +37,8 @@ public class PegasusEntity extends BeybladeEntity {
     public static final double C_RADIUS = 4.0;
     public static final int R_FIRST = 4, R_STEP = 14, R_DASH = 11, R_COUNT = 4;
     public static final int G_START = 15, G_END = 95;
+    public static final int B_RIDE_END = 48, B_TOP = 60, B_DIVE = 68;
+    public static final double B_HEIGHT = 9;
     public static final double G_RADIUS = 6.5;
 
     public static final byte EV_STAR = 100, EV_RICO = 101, EV_NOVA = 102;
@@ -48,6 +50,7 @@ public class PegasusEntity extends BeybladeEntity {
     @Nullable private Vec3 starCenter;
     private final Set<Integer> hits = new HashSet<>();
     private int lap = -1;
+    private double bcx, bcz, br, bang;
 
     // client
     public int starTime = -1000, ricoTime = -1000, novaTime = -1000;
@@ -58,6 +61,7 @@ public class PegasusEntity extends BeybladeEntity {
     }
 
     // ---------------- hooks ----------------
+    @Override protected float dodgeChance() { return isBuffActive() ? 0.3F : 0.16F; }
     @Override public int nativeMode() { return MODE_ATTACK; }
     @Override public String kindId() { return "pegasus"; }
     @Override public String abilityKey(int id) { return "ability.librabeyblade.pegasus." + id; }
@@ -207,61 +211,104 @@ public class PegasusEntity extends BeybladeEntity {
                 return true;
             }
             case PG_GALLOP -> {
+                // Star Booster Attack: race round the stadium rim dragging everyone into the middle, launch off the wall,
+                // hang in the sky, then come down on the target like a falling star
                 if (t == 1) {
-                    lap = -1;
+                    double[] c = boosterRing(this.level(), getX(), getZ());
+                    bcx = c[0];
+                    bcz = c[1];
+                    br = c[2];
+                    bang = Math.atan2(getZ() - bcz, getX() - bcx);
+                    hits.clear();
                     play(ModSounds.PEGASUS_NEIGH.get(), 2.2F, 0.9F);
                 }
-                if (t == G_START) play(ModSounds.GALLOP.get(), 2.0F, 1.0F);
-                if (t == G_START + 40) play(ModSounds.GALLOP.get(), 2.0F, 1.1F);
-                hover(1.0, 0.2);
-                if (t >= G_START && t < G_END) {
-                    double ang = gallopAngle(t);
-                    int curLap = (int) (ang / (Math.PI * 2));
-                    if (curLap != lap) {
-                        lap = curLap;
-                        hits.clear();
-                    }
-                    Vec3 sp = new Vec3(abilityX() + Math.cos(ang) * G_RADIUS, abilityBaseY, abilityZ0() + Math.sin(ang) * G_RADIUS);
-                    for (Entity e : enemiesWithin(G_RADIUS + 6)) {
-                        Vec3 rel = flat(e.position().subtract(new Vec3(abilityX(), 0, abilityZ0())));
-                        // keep everyone inside the gallop ring
-                        if (rel.length() > G_RADIUS - 0.5 && rel.length() < G_RADIUS + 4) {
-                            e.setDeltaMovement(e.getDeltaMovement().subtract(rel.normalize().scale(0.06)));
-                            e.hurtMarked = true;
-                        }
-                        if (flat(e.position().subtract(sp)).length() < 2.3 && hits.add(e.getId())) {
-                            Vec3 out = rel.lengthSqr() < 1.0E-4 ? new Vec3(1, 0, 0) : rel.normalize();
+                if (t < B_RIDE_END) {
+                    double speed = 0.55 + 0.85 * t / (double) B_RIDE_END;
+                    bang += speed / br * spinDir();
+                    Vec3 goal = new Vec3(bcx + Math.cos(bang) * br, getY(), bcz + Math.sin(bang) * br);
+                    Vec3 d = flat(goal.subtract(position()));
+                    setDeltaMovement(d.x, getDeltaMovement().y, d.z);
+                    if (t % 12 == 1) play(ModSounds.GALLOP.get(), 1.6F, 1.0F + t * 0.01F);
+                    if (t % 16 == 0) hits.clear();
+                    for (Entity e : enemiesWithin(br + 8)) {
+                        Vec3 rel = flat(e.position().subtract(new Vec3(bcx, 0, bcz)));
+                        double dist = rel.length();
+                        if (dist < 1.0E-3) continue;
+                        Vec3 in = rel.scale(-1 / dist);
+                        Vec3 tan = new Vec3(-in.z, 0, in.x).scale(spinDir());
+                        e.setDeltaMovement(e.getDeltaMovement().add(in.scale(dist > 1.5 ? 0.08 : 0.0)).add(tan.scale(0.05)));
+                        e.hurtMarked = true;
+                        if (e.distanceToSqr(this) < 1.6 * 1.6 && hits.add(e.getId())) {
                             if (e instanceof BeybladeEntity b) {
-                                b.damageSpin(90F, this);
-                                b.setDeltaMovement(out.scale(-0.4).add(0, 0.75, 0));
-                            } else if (e instanceof LivingEntity l) {
-                                l.hurt(damageSources().indirectMagic(this, owner), 10F);
-                                l.setDeltaMovement(l.getDeltaMovement().add(0, 0.7, 0));
-                            }
-                            Px.send(sl, ParticleTypes.CLOUD, e.getX(), e.getY() + 0.3, e.getZ(), 10, 0.3, 0.2, 0.3, 0.05);
-                            play(ModSounds.CLASH_HEAVY.get(), 1.2F, 0.8F);
+                                b.damageSpin(45F * powerMul(), this);
+                                b.setDeltaMovement(b.getDeltaMovement().add(in.scale(0.5)));
+                                this.level().broadcastEntityEvent(b, EV_HEAVY_HIT);
+                            } else if (e instanceof LivingEntity l) l.hurt(damageSources().indirectMagic(this, owner), 5F);
+                            play(ModSounds.CLASH_HEAVY.get(), 1.2F, 1.1F);
                         }
                     }
+                    return true;
                 }
-                if (t == G_END) {
-                    play(ModSounds.THUNDER_STRIKE.get(), 2.0F, 1.2F);
-                    this.level().broadcastEntityEvent(this, EV_NOVA);
-                    for (Entity e : enemiesWithin(G_RADIUS + 1.5)) {
-                        Vec3 out = flat(e.position().subtract(position()));
-                        out = out.lengthSqr() < 1.0E-4 ? new Vec3(1, 0, 0) : out.normalize();
-                        if (e instanceof BeybladeEntity b) {
-                            b.damageSpin(50F, this);
-                            b.setDeltaMovement(b.getDeltaMovement().add(out.scale(0.6)));
-                        } else if (e instanceof LivingEntity l) {
-                            l.hurt(damageSources().indirectMagic(this, owner), 5F);
-                            l.knockback(1.0, -out.x, -out.z);
-                        }
+                Vec3 aim = target != null && target.isAlive() ? target.position() : new Vec3(bcx, abilityBaseY, bcz);
+                if (t < B_DIVE) {
+                    setNoGravity(true);
+                    if (t == B_RIDE_END) {
+                        play(ModSounds.PEGASUS_NEIGH.get(), 2.4F, 1.2F);
+                        play(ModSounds.STAR_CHIME.get(), 2.0F, 1.0F);
+                    }
+                    Vec3 d = aim.add(0, B_HEIGHT, 0).subtract(position());
+                    setDeltaMovement(d.scale(t < B_TOP ? 0.18 : 0.3));
+                    return true;
+                }
+                if (t == B_DIVE) {
+                    diving = true;
+                    play(ModSounds.THUNDER_STRIKE.get(), 2.2F, 1.3F);
+                }
+                if (diving) {
+                    Vec3 d = aim.add(0, 0.2, 0).subtract(position());
+                    if (d.lengthSqr() > 1.0E-4) setDeltaMovement(d.normalize().scale(2.6));
+                    boolean hit = target != null && target.distanceToSqr(this) < 1.6 * 1.6;
+                    if (hit || onGround() || verticalCollision || t > B_DIVE + 20) {
+                        diving = false;
+                        setNoGravity(false);
+                        setDeltaMovement(0, 0, 0);
+                        boosterImpact(owner);
+                        abilityTicks = Math.max(abilityTicks, PG_DURATION[PG_GALLOP] - 14);
                     }
                 }
                 return true;
             }
             default -> {
                 return false;
+            }
+        }
+    }
+
+    /** centre (x, z) and radius of the Star Booster ring: the stadium rim when Pegasus is in a stadium */
+    public static double[] boosterRing(net.minecraft.world.level.Level level, double x, double z) {
+        for (StadiumEntity st : level.getEntitiesOfClass(StadiumEntity.class, new net.minecraft.world.phys.AABB(x - 20, -1000, z - 20, x + 20, 1000, z + 20))) {
+            double dx = x - st.getX(), dz = z - st.getZ();
+            if (dx * dx + dz * dz < StadiumEntity.WALL_IN * StadiumEntity.WALL_IN) return new double[]{st.getX(), st.getZ(), StadiumEntity.BOWL_R * 0.8};
+        }
+        return new double[]{x, z, 5.5};
+    }
+
+    private void boosterImpact(@Nullable Player owner) {
+        play(ModSounds.CLASH_HEAVY.get(), 3.0F, 0.6F);
+        play(ModSounds.THUNDER_STRIKE.get(), 2.5F, 0.9F);
+        this.level().broadcastEntityEvent(this, EV_NOVA);
+        this.level().broadcastEntityEvent(this, EV_IMPACT);
+        for (Entity e : enemiesWithin(5.5)) {
+            Vec3 out = flat(e.position().subtract(position()));
+            out = out.lengthSqr() < 1.0E-4 ? new Vec3(1, 0, 0) : out.normalize();
+            boolean main = e == target;
+            if (e instanceof BeybladeEntity b) {
+                b.damageSpin((main ? 260F : 90F) * powerMul(), this);
+                b.setDeltaMovement(b.getDeltaMovement().add(out.scale(main ? 0.9 : 0.6)).add(0, 0.35, 0));
+                if (main) b.shockwave(this, 1.0);
+            } else if (e instanceof LivingEntity l) {
+                l.hurt(damageSources().indirectMagic(this, owner), main ? 14F : 6F);
+                l.knockback(1.2, -out.x, -out.z);
             }
         }
     }
@@ -307,7 +354,7 @@ public class PegasusEntity extends BeybladeEntity {
                 starZ = c.getZ();
             }
             case EV_RICO -> ricoTime = this.tickCount;
-            case EV_NOVA -> novaTime = this.tickCount;
+            case EV_NOVA -> { novaTime = this.tickCount; clientScar(2.5F); }
             default -> super.handleEntityEvent(id);
         }
     }

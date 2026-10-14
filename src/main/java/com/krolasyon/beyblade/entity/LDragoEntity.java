@@ -26,9 +26,22 @@ import javax.annotation.Nullable;
  */
 public class LDragoEntity extends BeybladeEntity {
     public static final int DR_AWAKEN = 1, DR_VORTEX = 2, DR_METEOR = 3, DR_CLAW = 4, DR_ROAR = 5;
-    public static final int[] DR_DURATION = {0, 0, 100, 96, 54, 84};
+    public static final int[] DR_DURATION = {0, 0, 100, 130, 54, 84};
     public static final int[] DR_COOLDOWN = {0, 600, 500, 700, 400, 900};
     public static final int AWAKEN_TICKS = 200;
+    @Nullable private BeybladeEntity grabbed;
+    private int grabStart;
+    @Override
+    protected void endAbility() {
+        if (grabbed != null) {
+            grabbed.setNoGravity(false);
+            grabbed = null;
+        }
+        super.endAbility();
+    }
+
+    /** client: when the dive caught its target */
+    public int grabTime = -1000;
 
     public static final double VORTEX_RADIUS = 7.5;
     public static final int M_RISE = 8, M_HANG = 30, M_DIVE = 44;
@@ -37,7 +50,8 @@ public class LDragoEntity extends BeybladeEntity {
     public static final int R_BREATH = 20, R_END = 62;
     public static final double R_LENGTH = 13, R_HALF_ANGLE = Math.toRadians(26);
 
-    public static final byte EV_CLAW = 70, EV_AWAKEN = 71, EV_UPPER = 72;
+    public static final byte EV_CLAW = 70, EV_AWAKEN = 71, EV_UPPER = 72, EV_GRAB_UP = 73;
+    public static final int GRAB_UP = 16;
 
     private static final DustParticleOptions CRIMSON = new DustParticleOptions(new Vector3f(0.85F, 0.03F, 0.12F), 1.6F);
     private static final DustParticleOptions EMBER = new DustParticleOptions(new Vector3f(1.0F, 0.45F, 0.05F), 1.2F);
@@ -56,6 +70,12 @@ public class LDragoEntity extends BeybladeEntity {
 
     // ---------------- hooks ----------------
     @Override public int spinDir() { return -1; }
+    /** Reverse Slip: the left-spinning top slides off the hit and steals spin as it goes */
+    @Override protected void onDodge(BeybladeEntity attacker) {
+        float st = Math.min(40F, attacker.getSpin());
+        attacker.damageSpin(st, this);
+        healSpin(st);
+    }
     @Override public int nativeMode() { return MODE_ATTACK; }
     @Override public String kindId() { return "ldrago"; }
     @Override public String abilityKey(int id) { return "ability.librabeyblade.ldrago." + id; }
@@ -154,6 +174,52 @@ public class LDragoEntity extends BeybladeEntity {
                     setDeltaMovement(d.normalize().scale(2.2));
                     diving = true;
                     play(ModSounds.DRAGON_ROAR.get(), 1.6F, 1.3F);
+                }
+                if (diving && target != null && target.isAlive()) {
+                    // homing dive
+                    Vec3 d = target.position().add(0, 0.3, 0).subtract(position());
+                    if (d.lengthSqr() > 1.0E-4) setDeltaMovement(d.normalize().scale(2.2));
+                }
+                if (diving && target instanceof BeybladeEntity tb && target.distanceToSqr(this) < 1.8 * 1.8) {
+                    // caught it: both shoot up into the sky together...
+                    diving = false;
+                    grabbed = tb;
+                    grabStart = t;
+                    tb.stun(40);
+                    tb.damageSpin(60F * powerMul(), this);
+                    play(ModSounds.CLASH_HEAVY.get(), 2.5F, 0.6F);
+                    play(ModSounds.DRAGON_ROAR.get(), 2.0F, 0.9F);
+                    this.level().broadcastEntityEvent(this, EV_GRAB_UP);
+                    this.level().broadcastEntityEvent(tb, EV_HEAVY_HIT);
+                }
+                if (grabbed != null) {
+                    int g = t - grabStart;
+                    if (!grabbed.isAlive()) { grabbed = null; setNoGravity(false); return true; }
+                    if (g < GRAB_UP) {
+                        setNoGravity(true);
+                        setDeltaMovement(0, 0.55 * (1 - g / (double) GRAB_UP) + 0.1, 0);
+                    } else if (g < GRAB_UP + 4) {
+                        setDeltaMovement(0, 0, 0);
+                    } else {
+                        // ...then L-Drago drives it down and smashes it into the ground
+                        setDeltaMovement(0, -1.9, 0);
+                        if (g == GRAB_UP + 4) play(ModSounds.METEOR_CHARGE.get(), 2.0F, 1.4F);
+                    }
+                    grabbed.setNoGravity(true);
+                    grabbed.setPos(getX(), getY() - 0.75, getZ());
+                    grabbed.setDeltaMovement(getDeltaMovement());
+                    grabbed.hurtMarked = true;
+                    boolean landed = g > GRAB_UP + 4 && (grabbed.onGround() || onGround() || verticalCollision || g > GRAB_UP + 22);
+                    if (landed) {
+                        grabbed.setNoGravity(false);
+                        grabbed.damageSpin(280F * powerMul(), this);
+                        grabbed.shockwave(this, 1.0);
+                        grabbed = null;
+                        setNoGravity(false);
+                        meteorImpact(owner);
+                        abilityTicks = Math.max(abilityTicks, DR_DURATION[DR_METEOR] - 18);
+                    }
+                    return true;
                 }
                 if (diving && (onGround() || verticalCollision || horizontalCollision || t > M_DIVE + 20)) {
                     diving = false;
@@ -292,6 +358,7 @@ public class LDragoEntity extends BeybladeEntity {
     public void handleEntityEvent(byte id) {
         switch (id) {
             case EV_AWAKEN -> awakenTime = this.tickCount;
+            case EV_GRAB_UP -> grabTime = this.tickCount;
             case EV_CLAW, EV_UPPER -> {
                 Entity t = this.level().getEntity(getTargetId());
                 int i = clawIndex++ % clawTimes.length;

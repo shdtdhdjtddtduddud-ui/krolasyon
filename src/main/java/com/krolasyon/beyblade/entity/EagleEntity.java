@@ -93,7 +93,8 @@ public class EagleEntity extends BeybladeEntity {
 
     @Override
     public boolean tryDodge(BeybladeEntity attacker) {
-        if (!isShielded() || this.random.nextFloat() >= 0.5F) return false;
+        if (!isShielded()) return super.tryDodge(attacker);
+        if (this.random.nextFloat() >= 0.5F) return false;
         Vec3 away = flat(position().subtract(attacker.position()));
         away = away.lengthSqr() < 1.0E-4 ? new Vec3(1, 0, 0) : away.normalize();
         Vec3 side = new Vec3(-away.z, 0, away.x).scale(this.random.nextBoolean() ? 1.3 : -1.3).add(away.scale(0.5));
@@ -296,7 +297,7 @@ public class EagleEntity extends BeybladeEntity {
                     Px.add(this.level(), i % 2 == 0 ? VIOLET : SILVER, getX(), getY() + 0.4, getZ(), this.random.nextGaussian() * 0.15, 0.08, this.random.nextGaussian() * 0.15);
             }
             case EV_GRAB -> grabTime = this.tickCount;
-            case EV_SLAM -> slamTime = this.tickCount;
+            case EV_SLAM -> { slamTime = this.tickCount; clientScar(3F); }
             case EV_SCREECH -> screechTime = this.tickCount;
             default -> super.handleEntityEvent(id);
         }

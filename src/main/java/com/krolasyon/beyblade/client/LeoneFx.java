@@ -237,17 +237,18 @@ public final class LeoneFx {
     private static void cage(LeoneEntity e, float at, float t, float partial, double ex, double ey, double ez, PoseStack pose,
                              MultiBufferSource buf, Quaternionf cam) {
         float form = easeOut(at / C_FORM);
-        float fade = at > C_BLAST ? Math.max(0F, 1F - (at - C_BLAST) / 8F) : 1F;
+        // after the blast the storm dies down slowly instead of vanishing
+        float fade = at > C_BLAST ? Math.max(0F, 1F - (at - C_BLAST) / (float) C_FADE) : 1F;
         if (fade <= 0F) return;
-        float H = 15F * form;
+        float H = 21F * form * (0.55F + 0.45F * fade);
         Vec3[] pil = new Vec3[4];
-        for (int i = 0; i < 4; i++) pil[i] = pillar(0, -0.05, 0, i, at);
+        for (int i = 0; i < 4; i++) pil[i] = pillar(e.cageX - ex, e.cageY - ey - 0.05, e.cageZ - ez, i, at);
         for (int i = 0; i < 4; i++) twister(pose, buf, pil[i], H, t, i, fade);
         if (at >= C_FORM * 0.6F) {
             Matrix4f m = pose.last().pose();
             VertexConsumer vc;
             // storm swirling around the captive at the centre
-            Vec3 c = new Vec3(0, C_HOLD_HEIGHT, 0);
+            Vec3 c = new Vec3(e.cageX - ex, e.cageY - ey + C_HOLD_HEIGHT, e.cageZ - ez);
             vc = Fx.buf(buf, Fx.WAVE);
             for (int r = 0; r < 3; r++) {
                 float tilt = r * 60F + t * 4F;
@@ -279,7 +280,7 @@ public final class LeoneFx {
             cx[j][0] = (float) base.x + sway + wig;
             cx[j][1] = (float) base.y + h;
             cx[j][2] = (float) base.z + sway * 0.6F + wig2;
-            rad[j] = 0.45F + (float) Math.pow(f, 1.5) * 3.8F + 0.1F * Mth.sin(t * 0.7F + j);
+            rad[j] = (0.55F + (float) Math.pow(f, 1.5) * 5.2F + 0.12F * Mth.sin(t * 0.7F + j)) * (0.6F + 0.4F * fade);
         }
         Matrix4f m = pose.last().pose();
         for (int layer = 0; layer < 3; layer++) {

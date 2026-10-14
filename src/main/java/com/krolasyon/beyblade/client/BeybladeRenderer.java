@@ -214,12 +214,12 @@ public class BeybladeRenderer extends EntityRenderer<BeybladeEntity> {
         // ---- spin motion blur: translucent copies of the face trailing the rotation
         if (state == STATE_BATTLE && ratio > 0.08F) {
             float speed = BeybladeEntity.spinSpeedFor(ratio);
-            float a = 0.34F * Math.min(1F, ratio * 1.6F);
+            float a = 0.4F * Math.min(1F, ratio * 1.6F);
             // motion blur: copies spread over the angle covered during one frame
-            for (int k = 1; k <= 4; k++) {
+            for (int k = 1; k <= 6; k++) {
                 pose.pushPose();
-                pose.mulPose(Axis.YP.rotationDegrees((-spin + speed * 0.12F * k) * dir));
-                mesh.renderGhostDisc(pose, buf, light, a * (1F - k * 0.2F), mesh.TOP_Y + 0.008F * k);
+                pose.mulPose(Axis.YP.rotationDegrees((-spin + speed * 0.09F * k) * dir));
+                mesh.renderGhostDisc(pose, buf, light, a * (1F - k * 0.14F), mesh.TOP_Y + 0.006F * k);
                 pose.popPose();
             }
             // speed streaks around the rim
@@ -234,6 +234,16 @@ public class BeybladeRenderer extends EntityRenderer<BeybladeEntity> {
         }
         pose.popPose();
 
+        float gr = t - e.grindTime;
+        if (gr >= 0 && gr < 5) renderSparks(e, gr, t, pose, buf);
+        float ev = t - e.evadeTime;
+        if (ev >= 0 && ev < 10) {
+            float f = 1F - ev / 10F;
+            VertexConsumer vc = Fx.buf(buf, Fx.WAVE);
+            Fx.ring(vc, pose.last().pose(), 0.25F, 0.3F + ev * 0.12F, 0.6F + ev * 0.18F, 32, new float[]{0, 0, 0}, Fx.c(0.8F, 0.95F, 1F, 1.2F * f), 3F, 0F);
+            vc = Fx.buf(buf, Fx.SOFT);
+            Fx.band(vc, pose.last().pose(), 0.5F, 0F, 0.7F, 1.1F * f, 24, Fx.c(glowCol[0], glowCol[1], glowCol[2], 0.7F * f), new float[]{0, 0, 0}, 1F, 0F, 1F, 0F);
+        }
         float sh = t - e.shockTime;
         if (sh >= 0 && sh < 14) renderShock(e, sh, ex, ey, ez, pose, buf);
         float sa = t - e.spiritTime;
@@ -245,6 +255,43 @@ public class BeybladeRenderer extends EntityRenderer<BeybladeEntity> {
         else if (drago) LDragoFx.render((LDragoEntity) e, partial, t, ex, ey, ez, pose, buf, this.entityRenderDispatcher.cameraOrientation());
         else LibraFx.render(e, partial, t, ex, ey, ez, pose, buf, this.entityRenderDispatcher.cameraOrientation());
         super.render(e, yaw, partial, pose, buf, light);
+    }
+
+    /** sparks spraying from the contact point while two tops grind against each other */
+    private void renderSparks(BeybladeEntity e, float age, float t, PoseStack pose, MultiBufferSource buf) {
+        BeybladeEntity other = null;
+        double best = 2.5;
+        for (BeybladeEntity b : e.level().getEntitiesOfClass(BeybladeEntity.class, e.getBoundingBox().inflate(1.6), b -> b != e)) {
+            double d = b.distanceToSqr(e);
+            if (d < best) { best = d; other = b; }
+        }
+        if (other == null) return;
+        Vec3 dir = new Vec3(other.getX() - e.getX(), 0, other.getZ() - e.getZ());
+        if (dir.lengthSqr() < 1.0E-4) return;
+        dir = dir.normalize();
+        Vec3 c = dir.scale(RADIUS).add(0, 0.38, 0);
+        Vec3 side = new Vec3(-dir.z, 0, dir.x).scale(e.spinDir());
+        VertexConsumer vc = Fx.buf(buf, Fx.SOFT);
+        Matrix4f m = pose.last().pose();
+        float f = 1F - age / 5F;
+        int seed = (int) (t * 3) + e.getId() * 31;
+        for (int i = 0; i < 14; i++) {
+            float h1 = hash(seed + i * 17), h2 = hash(seed + i * 29), h3 = hash(seed + i * 43);
+            // sprayed tangentially (the spin throws them sideways) and a bit up
+            Vec3 d = side.scale(0.6 + h1).add(dir.scale(h2 - 0.5)).add(0, 0.2 + h3 * 0.6, 0).normalize();
+            float len = 0.25F + h2 * 0.6F;
+            Vec3 a = c.add(d.scale(age * 0.12));
+            Vec3 b = a.add(d.scale(len)).add(0, -age * age * 0.01, 0);
+            float k = f * (0.6F + 0.4F * h3);
+            Fx.beam(vc, m, a, b, 0.07F, Fx.c(1F, 0.95F, 0.7F, 1.4F * k), Fx.c(1F, 0.45F, 0.1F, 0.6F * k), 1F, 0F);
+        }
+        vc = Fx.buf(buf, Fx.FLARE);
+        Fx.billboard(vc, pose, net.minecraft.client.Minecraft.getInstance().getEntityRenderDispatcher().cameraOrientation(), c.x, c.y, c.z, 0.9F * f, t * 20F, Fx.c(1F, 0.8F, 0.4F, 1.2F * f));
+    }
+
+    private static float hash(int n) {
+        n = (n << 13) ^ n;
+        return ((n * (n * n * 15731 + 789221) + 1376312589) & 0x7fffffff) / (float) 0x7fffffff;
     }
 
     /** directional shock wave from a strong hit: an arc of compressed air racing away from the impact */

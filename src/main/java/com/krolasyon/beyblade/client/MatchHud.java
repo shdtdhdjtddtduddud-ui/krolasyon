@@ -33,10 +33,7 @@ public class MatchHud implements IGuiOverlay {
         g.drawCenteredString(f, score, cx, y + 2, 0xFFFFE070);
         String state = switch (s.matchState()) {
             case StadiumEntity.M_COUNTDOWN -> Component.translatable("hud.librabeyblade.match.countdown", s.round()).getString();
-            case StadiumEntity.M_BATTLE -> {
-                int sec = s.timerTicks() / 20;
-                yield Component.translatable("hud.librabeyblade.match.battle", s.round(), String.format("%d:%02d", sec / 60, sec % 60)).getString();
-            }
+            case StadiumEntity.M_BATTLE -> Component.translatable("hud.librabeyblade.match.battle", s.round()).getString();
             case StadiumEntity.M_ROUND_END -> Component.translatable("hud.librabeyblade.match.round_end").getString();
             default -> Component.translatable("hud.librabeyblade.match.end").getString();
         };

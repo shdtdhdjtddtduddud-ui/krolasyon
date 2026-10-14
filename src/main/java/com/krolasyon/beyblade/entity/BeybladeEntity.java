@@ -58,7 +58,7 @@ import java.util.UUID;
  */
 public class BeybladeEntity extends Entity {
     public static final float WIDTH = 0.9F, HEIGHT = 0.66F, RADIUS = WIDTH / 2F;
-    public static final float MAX_SPIN = 3000F;
+    public static final float MAX_SPIN = 5000F;
 
     public static final int STATE_BATTLE = 0, STATE_DEFEATED = 1, STATE_RECALL = 2;
 
@@ -88,7 +88,7 @@ public class BeybladeEntity extends Entity {
             "zigzag", "berserk", "conserve", "flank", "upper"};
     public static final int MAX_LEVEL = 30;
 
-    public static final byte EV_HIT = 60, EV_HEAVY_HIT = 61, EV_LAND = 62, EV_SHIELD_HIT = 63, EV_WALL = 64, EV_IMPACT = 65, EV_STRIKE = 66, EV_GRIND = 67, EV_SHOCK = 68, EV_SPIRIT = 69;
+    public static final byte EV_HIT = 60, EV_HEAVY_HIT = 61, EV_LAND = 62, EV_SHIELD_HIT = 63, EV_WALL = 64, EV_IMPACT = 65, EV_STRIKE = 66, EV_GRIND = 67, EV_SHOCK = 68, EV_SPIRIT = 69, EV_EVADE = 110;
 
     private static final EntityDataAccessor<Optional<UUID>> DATA_OWNER = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.OPTIONAL_UUID);
     private static final EntityDataAccessor<Float> DATA_SPIN = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.FLOAT);
@@ -119,6 +119,9 @@ public class BeybladeEntity extends Entity {
     /** ability waiting for contact: the beyblade charges into its target and the move starts on impact */
     private int pendingAbility, ramTicks;
     private int rushPhase, trainTicks;
+    /** hit-and-run: back off after a clash before charging again; lock: two tops pressed together, grinding */
+    private int retreatTicks, lockTicks;
+    @Nullable private BeybladeEntity lockPartner;
     /** who last hurt us and when an enemy special move last hit us (match scoring: ability finish) */
     @Nullable private BeybladeEntity lastAttacker;
     private long lastAttackTick = -1000, lastAbilityHitTick = -1000;
@@ -143,7 +146,7 @@ public class BeybladeEntity extends Entity {
     public float spinAngle, spinAngleO, precess, precessO;
     public int clientAbility, clientAbilityStart = -1000, clientStateStart;
     public double abilityX, abilityY, abilityZ;
-    public int grindTime = -1000, shockTime = -1000, spiritTime = -1000;
+    public int grindTime = -1000, shockTime = -1000, spiritTime = -1000, evadeTime = -1000;
     public double shockDirX, shockDirZ, shockX, shockY, shockZ;
     public int hitTime = -1000, heavyHitTime = -1000, landTime = -1000, shieldHitTime = -1000, impactTime = -1000, strikeTime = -1000;
     public final double[] trailX = new double[8], trailY = new double[8], trailZ = new double[8];
@@ -393,7 +396,27 @@ public class BeybladeEntity extends Entity {
     protected ItemStack defaultItem() { return new ItemStack(ModItems.LIBRA.get()); }
     protected float clientSpinSpeed(int ab, float at, float speed) { return ab == AB_INFERNO && at < INF_TORNADO ? 96F : speed; }
     /** chance to evade a collision completely (Earth Eagle's Eagle Eye); return true if this hit was dodged */
-    public boolean tryDodge(BeybladeEntity attacker) { return false; }
+    public boolean tryDodge(BeybladeEntity attacker) {
+        float c = dodgeChance();
+        if (c <= 0F || getState() != STATE_BATTLE || this.random.nextFloat() >= c) return false;
+        Vec3 away = flat(position().subtract(attacker.position()));
+        away = away.lengthSqr() < 1.0E-4 ? new Vec3(1, 0, 0) : away.normalize();
+        Vec3 side = new Vec3(-away.z, 0, away.x).scale(this.random.nextBoolean() ? 1 : -1);
+        Vec3 jump = side.scale(0.9).add(away.scale(0.35));
+        if (this.level().noCollision(this, getBoundingBox().move(jump))) setPos(getX() + jump.x, getY(), getZ() + jump.z);
+        setDeltaMovement(getDeltaMovement().add(side.scale(0.35)));
+        this.level().broadcastEntityEvent(this, EV_EVADE);
+        play(ModSounds.CHARGE.get(), 0.9F, 1.9F);
+        onDodge(attacker);
+        Player owner = getOwner();
+        if (owner != null) owner.displayClientMessage(Component.translatable("dodge.librabeyblade." + kindId()).withStyle(net.minecraft.ChatFormatting.AQUA), true);
+        return true;
+    }
+
+    /** chance to slip out of a collision completely with this beyblade's own evasion move */
+    protected float dodgeChance() { return isBuffActive() ? 0.22F : 0.1F; }
+
+    protected void onDodge(BeybladeEntity attacker) {}
 
     /** multiplier on all spin damage taken (defense types take less) */
     public float incomingMul() { return 1F; }
@@ -535,6 +558,27 @@ public class BeybladeEntity extends Entity {
         int mode = getMode();
         if (order == OR_DEFEND) {
             setDeltaMovement(v.multiply(0.86, 1, 0.86));
+            return;
+        }
+        if (lockTicks > 0 && lockPartner != null && lockPartner.isAlive() && lockPartner.getState() == STATE_BATTLE && lockPartner.distanceToSqr(this) < 4) {
+            // locked together: keep pressing in, sliding around the contact point, sparks flying
+            lockTicks--;
+            Vec3 to = flat(lockPartner.position().subtract(position()));
+            Vec3 dir = to.lengthSqr() < 1.0E-4 ? new Vec3(1, 0, 0) : to.normalize();
+            Vec3 desired = dir.scale(0.22).add(new Vec3(-dir.z, 0, dir.x).scale(0.1 * spinDir()));
+            setDeltaMovement(v.add((desired.x - v.x) * 0.4, 0, (desired.z - v.z) * 0.4));
+            clashCooldown = Math.max(clashCooldown, 2);
+            if (this.tickCount % 2 == 0) this.level().broadcastEntityEvent(this, EV_GRIND);
+            return;
+        }
+        lockTicks = 0;
+        if (retreatTicks > 0 && tg != null) {
+            retreatTicks--;
+            Vec3 to = flat(tg.position().subtract(position()));
+            Vec3 dir = to.lengthSqr() < 1.0E-4 ? new Vec3(1, 0, 0) : to.normalize();
+            Vec3 desired = dir.scale(-0.42 * mul).add(new Vec3(dir.z, 0, -dir.x).scale(0.12 * spinDir()));
+            setDeltaMovement(v.add((desired.x - v.x) * 0.3, 0, (desired.z - v.z) * 0.3));
+            if (retreatTicks == 0) dashCooldown = 0;
             return;
         }
         if (tg == null || order == OR_CIRCLE || order == OR_CENTER || order == OR_CONSERVE) {
@@ -827,6 +871,19 @@ public class BeybladeEntity extends Entity {
         }
         addSpirit(heavy ? 6 : 3);
         o.addSpirit(heavy ? 6 : 3);
+        // what happens next: sometimes they lock and grind, often they bounce back and charge again
+        float r = this.random.nextFloat();
+        if (r < 0.24F && lockTicks == 0 && o.lockTicks == 0) {
+            int n = 24 + this.random.nextInt(18);
+            lockTicks = n;
+            o.lockTicks = n;
+            lockPartner = o;
+            o.lockPartner = this;
+            this.level().playSound(null, cx, cy, cz, ModSounds.GRIND.get(), SoundSource.NEUTRAL, 1.4F, 0.8F);
+        } else if (r < 0.7F) {
+            retreatTicks = 6 + this.random.nextInt(8);
+            o.retreatTicks = 6 + this.random.nextInt(8);
+        }
         if (o.target == null) o.target = this;
         if (target == null) target = o;
     }
@@ -1464,7 +1521,7 @@ public class BeybladeEntity extends Entity {
 
     @Override
     public AABB getBoundingBoxForCulling() {
-        if (clientAbility != AB_NONE || getState() == STATE_RECALL) return getBoundingBox().inflate(26, 14, 26);
+        if (clientAbility != AB_NONE || getState() == STATE_RECALL) return getBoundingBox().inflate(26, 24, 26);
         if (isShielded()) return getBoundingBox().inflate(2);
         return getBoundingBox().inflate(1.5);
     }
@@ -1495,6 +1552,7 @@ public class BeybladeEntity extends Entity {
             case EV_HIT, EV_WALL -> hitTime = this.tickCount;
             case EV_GRIND -> grindTime = this.tickCount;
             case EV_SPIRIT -> spiritTime = this.tickCount;
+            case EV_EVADE -> evadeTime = this.tickCount;
             case EV_SHOCK -> {
                 // direction: away from the nearest other beyblade (the one that hit us)
                 BeybladeEntity other = null;
@@ -1506,6 +1564,7 @@ public class BeybladeEntity extends Entity {
                 Vec3 dir = other == null ? new Vec3(1, 0, 0) : flat(position().subtract(other.position()));
                 dir = dir.lengthSqr() < 1.0E-4 ? new Vec3(1, 0, 0) : dir.normalize();
                 shockTime = this.tickCount;
+                clientScar(1.2F);
                 shockDirX = dir.x;
                 shockDirZ = dir.z;
                 Vec3 c = other == null ? position() : position().add(other.position()).scale(0.5);
@@ -1523,14 +1582,23 @@ public class BeybladeEntity extends Entity {
                 }
             }
             case EV_SHIELD_HIT -> shieldHitTime = this.tickCount;
-            case EV_IMPACT -> impactTime = this.tickCount;
-            case EV_STRIKE -> strikeTime = this.tickCount;
+            case EV_IMPACT -> { impactTime = this.tickCount; clientScar(3.4F); }
+            case EV_STRIKE -> { strikeTime = this.tickCount; clientScar(1.8F); }
             default -> super.handleEntityEvent(id);
         }
     }
 
     /** degrees per tick of the spin animation at a given spin ratio */
-    public static float spinSpeedFor(float ratio) { return 44F + 100F * ratio; }
+    public static float spinSpeedFor(float ratio) { return 70F + 175F * ratio; }
+
+    /** client: leave impact cracks in the stadium bowl under this beyblade (the stadium is marked, never broken) */
+    public void clientScar(float r) {
+        for (StadiumEntity st : this.level().getEntitiesOfClass(StadiumEntity.class, getBoundingBox().inflate(18, 6, 18))) {
+            double dx = getX() - st.getX(), dz = getZ() - st.getZ();
+            if (dx * dx + dz * dz < (StadiumEntity.BOWL_R - 0.5) * (StadiumEntity.BOWL_R - 0.5)) st.addScar(getX(), getZ(), r);
+            return;
+        }
+    }
 
     public float abilityAge(float partial) {
         return clientAbility == AB_NONE ? -1F : this.tickCount - clientAbilityStart + partial;

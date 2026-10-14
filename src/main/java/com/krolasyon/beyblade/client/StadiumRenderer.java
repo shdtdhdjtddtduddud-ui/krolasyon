@@ -45,7 +45,42 @@ public class StadiumRenderer extends EntityRenderer<StadiumEntity> {
                     .uv2(light).normal(n, d[i + 5], d[i + 6], d[i + 7]).endVertex();
         }
         renderPads(e, partial, pose, buf);
+        renderScars(e, partial, pose, buf);
         super.render(e, yaw, partial, pose, buf, light);
+    }
+
+    private static final ResourceLocation CRACKS = new ResourceLocation(LibraBeyblade.MODID, "textures/fx/cracks.png");
+
+    /** impact cracks in the bowl floor, following its curve; they fade away over a minute and a half */
+    private void renderScars(StadiumEntity e, float partial, PoseStack pose, MultiBufferSource buf) {
+        if (e.scars.isEmpty()) return;
+        Matrix4f m = pose.last().pose();
+        float now = e.tickCount + partial;
+        int G = 6;
+        for (float[] sc : e.scars) {
+            float age = now - sc[3];
+            if (age < 0 || age > SCAR_LIFE) continue;
+            float a = Math.min(1F, (SCAR_LIFE - age) / 300F) * 0.9F;
+            VertexConsumer vc = Fx.bufT(buf, CRACKS, a);
+            float r = sc[2], cr = Mth.cos(sc[4]), sr = Mth.sin(sc[4]);
+            for (int i = 0; i < G; i++) {
+                for (int j = 0; j < G; j++) {
+                    float[][] q = new float[4][];
+                    float[][] uv = new float[4][];
+                    int[][] c = {{i, j}, {i, j + 1}, {i + 1, j + 1}, {i + 1, j}};
+                    for (int k = 0; k < 4; k++) {
+                        float u = c[k][0] / (float) G * 2 - 1, v = c[k][1] / (float) G * 2 - 1;
+                        float x = sc[0] + (u * cr - v * sr) * r, z = sc[1] + (u * sr + v * cr) * r;
+                        float y = (float) surface(Math.sqrt(x * x + z * z)) + 0.02F;
+                        q[k] = new float[]{x, y, z};
+                        uv[k] = new float[]{(u + 1) / 2, (v + 1) / 2};
+                    }
+                    float[] w = {1F, 1F, 1F};
+                    Fx.quad(vc, m, q[0], q[1], q[2], q[3], uv[0][0], uv[0][1], uv[2][0], uv[2][1], w, w);
+                }
+            }
+            Fx.alpha = 1F;
+        }
     }
 
     /** glowing launch pads at both ends: blue (side A, +z) and red (side B, -z) */

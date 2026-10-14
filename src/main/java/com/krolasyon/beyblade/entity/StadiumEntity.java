@@ -83,6 +83,15 @@ public class StadiumEntity extends Entity {
     private boolean seenA, seenB;
     private int timer;
 
+    /** client only: cracks big impacts leave in the bowl {x, z (relative), radius, birth tick, rotation}; they fade out */
+    public final List<float[]> scars = new ArrayList<>();
+    public static final int SCAR_LIFE = 1800;
+
+    public void addScar(double x, double z, float r) {
+        scars.add(new float[]{(float) (x - getX()), (float) (z - getZ()), r, this.tickCount, this.random.nextFloat() * 6.283F});
+        if (scars.size() > 28) scars.remove(0);
+    }
+
     public StadiumEntity(EntityType<? extends StadiumEntity> type, Level level) {
         super(type, level);
         this.noPhysics = true;
@@ -262,7 +271,7 @@ public class StadiumEntity extends Entity {
                     broadcast(Component.translatable("msg.librabeyblade.match.go").withStyle(net.minecraft.ChatFormatting.AQUA, net.minecraft.ChatFormatting.BOLD),
                             Component.translatable("msg.librabeyblade.match.go_sub"), SoundEvents.PLAYER_ATTACK_SWEEP);
                     playAll(SoundEvents.NOTE_BLOCK_PLING.value(), 1.4F);
-                    setState(M_BATTLE, ROUND_TICKS);
+                    setState(M_BATTLE, 0);
                     graceTicks = LAUNCH_GRACE;
                     seenA = seenB = false;
                     outTicksA = outTicksB = 0;
@@ -376,12 +385,7 @@ public class StadiumEntity extends Entity {
         if (downA && downB) { roundOver(-1, 0, "msg.librabeyblade.match.draw"); return; }
         if (downA) { scoreFinish(1, ba); return; }
         if (downB) { scoreFinish(0, bb); return; }
-        if (timer <= 0) {
-            if (ba == null || bb == null) { roundOver(-1, 0, "msg.librabeyblade.match.draw"); return; }
-            float ra = ba.spinRatio(), rb = bb.spinRatio();
-            if (Math.abs(ra - rb) < 0.02F) roundOver(-1, 0, "msg.librabeyblade.match.draw");
-            else roundOver(ra > rb ? 0 : 1, 1, "msg.librabeyblade.match.time");
-        }
+        // no time limit: the round lasts until a beyblade stops
     }
 
     /** the loser's beyblade stopped: 2 points if an enemy special move finished it, 1 for a plain spin finish */

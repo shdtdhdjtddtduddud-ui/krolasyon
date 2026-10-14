@@ -62,44 +62,47 @@ public final class AutoTest {
     private AutoTest() {
         cmd(0, null, "gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false",
                 "time set 6000", "weather clear", "difficulty peaceful", "gamemode spectator @a", "kill @e[type=!player]", ST);
-        // ---- scene 1: free-for-all in the stadium, wide shot (rivals use their moves on their own)
+        // ---- scene 1: free-for-all, wide shot (rivals use their moves on their own)
         server(20, null, s -> BeybladeEntity.rivalAbilities = true);
         cmd(2, null, "tp @a 0.5 -49 4 180 38",
-                "summon librabeyblade:pegasus -5 -57 -14.5 {Spin:3000f,MaxSpin:3000f}", "summon librabeyblade:ldrago 6 -57 -14.5 {Spin:3000f,MaxSpin:3000f}",
-                "summon librabeyblade:common 0.5 -57 -20 {Variant:0,Spin:3000f,MaxSpin:3000f}", "summon librabeyblade:eagle 0.5 -57 -9 {Spin:3000f,MaxSpin:3000f}");
+                "summon librabeyblade:pegasus -5 -57 -14.5", "summon librabeyblade:ldrago 6 -57 -14.5",
+                "summon librabeyblade:leone 0.5 -57 -20", "summon librabeyblade:eagle 0.5 -57 -9");
         record(true);
-        wait(200, null);
-        // ---- scene 2: close up of the clashes
+        wait(180, null);
+        // ---- scene 2: close up: hit and run, locked grinding with sparks
         cmd(2, null, "tp @a 0.5 -55.2 -5.5 180 32");
         wait(160, "battle_close");
         record(false);
-        // ---- scene 3: Rock Leone's King Lion Tearing Blast in the stadium
         server(2, null, s -> BeybladeEntity.rivalAbilities = false);
-        cmd(4, null, "kill @e[type=!player,type=!librabeyblade:stadium]", "tp @a 0.5 -48 9 180 22",
-                "summon librabeyblade:leone 0.5 -58 -14.5 {Spin:3000f,MaxSpin:3000f,Tags:[\"a\"]}",
-                "summon librabeyblade:common -3 -58 -11 {Variant:5,Spin:3000f,MaxSpin:3000f}", "summon librabeyblade:common 4 -58 -18 {Variant:3,Spin:3000f,MaxSpin:3000f}");
+        // ---- scene 3: King Lion Tearing Blast: storm + huge tornadoes standing near Leone, slowly dying away
+        cmd(4, null, "kill @e[type=!player,type=!librabeyblade:stadium]", "tp @a 0.5 -46 12 180 15",
+                "summon librabeyblade:leone 0.5 -58 -13 {Tags:[\"a\"]}",
+                "summon librabeyblade:common -3 -58 -17 {Variant:5}", "summon librabeyblade:common 4 -58 -18 {Variant:3}");
         wait(20, null);
         record(true);
         force(5);
-        wait(130, "leone_storm");
+        wait(140, "leone_storm");
+        wait(130, "leone_fade");
         record(false);
-        // ---- scene 4: L-Drago, Pegasus and Libra specials
-        cmd(4, null, "kill @e[type=!player,type=!librabeyblade:stadium]", "tp @a 0.5 -51 1 180 30",
-                "summon librabeyblade:ldrago 0.5 -58 -12 {Spin:3000f,MaxSpin:3000f,Tags:[\"a\"]}", "summon librabeyblade:common 0.5 -58 -17 {Variant:1,Spin:3000f,MaxSpin:3000f}");
+        // ---- scene 4: L-Drago high dive: dragon silhouette, grab, both up, slam down
+        cmd(4, null, "kill @e[type=!player,type=!librabeyblade:stadium]", "weather clear", "tp @a 0.5 -50 10 180 8",
+                "summon librabeyblade:ldrago 0.5 -58 -11 {Tags:[\"a\"]}", "summon librabeyblade:common 0.5 -58 -17 {Variant:1}");
         wait(20, null);
         record(true);
         force(3);
-        wait(110, "ldrago_meteor");
-        cmd(2, null, "kill @e[tag=a]", "summon librabeyblade:pegasus -3 -58 -12 {Spin:3000f,MaxSpin:3000f,Tags:[\"a\"]}");
-        wait(10, null);
-        force(2);
-        wait(90, "pegasus_storm");
-        cmd(2, null, "kill @e[tag=a]", "summon librabeyblade:libra 3 -58 -12 {Spin:3000f,MaxSpin:3000f,Tags:[\"a\"]}");
-        wait(10, null);
-        force(3);
-        wait(100, "libra_inferno");
+        wait(70, "dragon_dive");
+        wait(80, "dragon_slam");
         record(false);
-        // ---- scene 5: our own Pegasus with the HUD: Blader Spirit then circling the arena fast
+        // ---- scene 5: Pegasus Star Booster Attack: rim ride vortex, launch off the wall, dive
+        cmd(4, null, "kill @e[type=!player,type=!librabeyblade:stadium]", "tp @a 0.5 -47 8 180 25",
+                "summon librabeyblade:pegasus -3 -58 -12 {Tags:[\"a\"]}", "summon librabeyblade:common 1 -58 -16 {Variant:6}");
+        wait(20, null);
+        record(true);
+        force(5);
+        wait(50, "booster_ride");
+        wait(70, "booster_dive");
+        record(false);
+        // ---- scene 6: our own Pegasus with the HUD: Blader Spirit, then circling the arena
         cmd(4, null, "kill @e[type=!player,type=!librabeyblade:stadium]", "gamemode creative @a", "tp @a 0.5 -60 2.7 180 25");
         server(4, null, s -> {
             ServerPlayer p = s.getPlayerList().getPlayers().get(0);
@@ -107,13 +110,13 @@ public final class AutoTest {
                     p.getEyePosition().add(0, 0.5, -1), new Vec3(0, 0.45, -0.5), 1F);
         });
         steps.add(new Step(2, null, null, true));
-        cmd(2, null, "summon librabeyblade:common 0.5 -58 -16 {Variant:6,Spin:3000f,MaxSpin:3000f}", "gamemode spectator @a", "tp @a 0.5 -50 3 180 40");
+        cmd(2, null, "summon librabeyblade:common 0.5 -58 -16 {Variant:0}", "gamemode spectator @a", "tp @a 0.5 -50 3 180 40");
         record(true);
-        wait(50, null);
+        wait(40, null);
         server(1, null, s -> each(s, null, b -> { if (!b.isRival()) { b.addSpirit(100); b.releaseSpirit(); } }));
-        wait(70, "spirit");
+        wait(60, "spirit");
         server(1, null, s -> each(s, null, b -> { if (!b.isRival()) b.setOrder(BeybladeEntity.OR_CIRCLE); }));
-        wait(100, "circle");
+        wait(80, "circle");
         record(false);
         steps.add(new Step(2, null, null, false));
         wait(20, "END");
