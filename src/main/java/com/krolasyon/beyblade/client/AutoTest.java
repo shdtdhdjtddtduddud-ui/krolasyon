@@ -59,53 +59,49 @@ public final class AutoTest {
 
     private static final String ST = "summon librabeyblade:stadium 0.5 -60 -14.5";
 
-    private static final String TA = "summon librabeyblade:tempo 0.5 -58 -12 {Tags:[\"a\"]}";
-    private static final String V1 = "summon librabeyblade:common -2.5 -58 -16 {Variant:0}";
+    private static final String TA = "summon librabeyblade:variares 0.5 -58 -12 {Tags:[\"a\"]}";
+    private static final String V1 = "summon librabeyblade:common -2.5 -58 -16 {Variant:2}";
     private static final String V2 = "summon librabeyblade:common 4 -58 -17 {Variant:5}";
 
     private AutoTest() {
         cmd(0, null, "gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false",
                 "time set 6000", "weather clear", "difficulty peaceful", "gamemode spectator @a", "kill @e[type=!player]",
                 "fill -2 -60 -2 2 -60 2 minecraft:smooth_stone");
-        // ---- Twisted Tempo model close-ups
-        cmd(4, null, "summon librabeyblade:tempo 0 -59 0 {Frozen:1b}", "tp @a 0.5 -57.6 1.4 180 50");
+        // ---- Variares model close-ups
+        cmd(4, null, "summon librabeyblade:variares 0 -59 0 {Frozen:1b}", "tp @a 0.5 -57.6 1.4 180 50");
         record(true);
-        wait(40, "tempo_close");
-        cmd(20, "tempo_side", "tp @a 0.5 -58.2 2.6 180 18");
+        wait(40, "variares_close");
+        cmd(20, "variares_side", "tp @a 0.5 -58.2 2.6 180 18");
         record(false);
-        cmd(4, null, "kill @e[type=!player]", "fill -2 -60 -2 2 -60 2 minecraft:air", ST, "tp @a 0.5 -48 4 180 35", TA, V1, V2);
+        cmd(4, null, "kill @e[type=!player]", "fill -2 -60 -2 2 -60 2 minecraft:air", ST, "tp @a 0.5 -49 3 180 35", TA, V1, V2);
         wait(20, null);
         record(true);
-        // ---- Time Stop
         force(1);
-        wait(70, "time_stop");
-        // ---- Clock Hands Sweep
-        force(3);
-        wait(35, "clock_hands");
-        wait(25, null);
-        // ---- Tempo Acceleration
-        force(4);
-        wait(40, "accel");
-        wait(20, null);
-        // ---- Time Rewind
+        wait(40, "fury");
         force(2);
-        wait(14, "rewind");
-        wait(16, null);
-        // ---- Twisted Time Judgment
-        cmd(2, null, "tp @a 0.5 -47 8 180 18");
-        force(5);
-        wait(60, "great_clock");
-        wait(36, "clock_toll");
+        wait(30, "lightning_flash");
         wait(20, null);
-        // ---- free battle Tempo vs Pegasus and L-Drago
+        force(4);
+        wait(30, "twin_blades");
+        wait(35, null);
+        force(3);
+        wait(30, "war_shield");
+        wait(20, null);
+        cmd(2, null, "kill @e[type=!player,type=!librabeyblade:stadium]", TA, V1, "tp @a 0.5 -50 10 180 2");
+        wait(15, null);
+        force(5);
+        wait(40, "sword_form");
+        wait(14, "sword_hit");
+        wait(30, null);
+        // ---- free battle: Variares vs Pegasus and Twisted Tempo
         server(2, null, s -> BeybladeEntity.rivalAbilities = true);
         cmd(2, null, "kill @e[type=!player,type=!librabeyblade:stadium]", "tp @a 0.5 -49 4 180 38", TA,
-                "summon librabeyblade:pegasus -5 -57 -14.5", "summon librabeyblade:ldrago 6 -57 -14.5");
+                "summon librabeyblade:pegasus -5 -57 -14.5", "summon librabeyblade:tempo 6 -57 -14.5");
         wait(200, "battle");
         record(false);
         server(2, null, s -> BeybladeEntity.rivalAbilities = false);
-        cmd(4, null, "gamemode creative @a", "tp @a 0.5 -60 2.7 180 20", "item replace entity @a weapon.mainhand with librabeyblade:twisted_tempo",
-                "item replace entity @a hotbar.1 with librabeyblade:tempo_launcher");
+        cmd(4, null, "gamemode creative @a", "tp @a 0.5 -60 2.7 180 20", "item replace entity @a weapon.mainhand with librabeyblade:variares",
+                "item replace entity @a hotbar.1 with librabeyblade:variares_launcher");
         steps.add(new Step(16, "item_hand", null, true));
         steps.add(new Step(2, null, null, false));
         wait(20, "END");

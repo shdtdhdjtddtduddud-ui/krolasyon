@@ -52,11 +52,15 @@ public final class BeyMesh {
     /** Twisted Tempo: radius 247 px, texture window half size 257 px */
     public static final BeyMesh TEMPO = new BeyMesh("tempo", 1.27F, 1.48F, 257F / 247F);
 
+    /** Variares: radius 250 px, texture window half size 262 px */
+    public static final BeyMesh VARIARES = new BeyMesh("variares", 1.28F, 1.48F, 262F / 250F);
+
     public static BeyMesh of(String kind) {
         if (kind.startsWith("common_")) return common(Integer.parseInt(kind.substring(7)));
         return switch (kind) {
             case "pegasus" -> PEGASUS;
             case "tempo" -> TEMPO;
+            case "variares" -> VARIARES;
             case "eagle" -> EAGLE;
             case "ldrago" -> LDRAGO;
             case "leone" -> LEONE;

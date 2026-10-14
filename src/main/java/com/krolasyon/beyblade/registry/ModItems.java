@@ -62,6 +62,13 @@ public final class ModItems {
     public static final RegistryObject<Item> RIVAL_TEMPO = ITEMS.register("rival_tempo",
             () -> new RivalLibraItem(new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON), ModEntities.TEMPO));
 
+    public static final RegistryObject<Item> VARIARES = ITEMS.register("variares",
+            () -> new LibraItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC).fireResistant(), "variares"));
+    public static final RegistryObject<Item> VARIARES_LAUNCHER = ITEMS.register("variares_launcher",
+            () -> new LauncherItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE), VARIARES, ModEntities.VARIARES));
+    public static final RegistryObject<Item> RIVAL_VARIARES = ITEMS.register("rival_variares",
+            () -> new RivalLibraItem(new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON), ModEntities.VARIARES));
+
     /** the ten ordinary beyblades, in {@link com.krolasyon.beyblade.entity.CommonBeybladeEntity#VARIANTS} order */
     public static final java.util.List<RegistryObject<Item>> COMMONS = new java.util.ArrayList<>();
 
@@ -103,6 +110,9 @@ public final class ModItems {
                 output.accept(TEMPO.get());
                 output.accept(TEMPO_LAUNCHER.get());
                 output.accept(RIVAL_TEMPO.get());
+                output.accept(VARIARES.get());
+                output.accept(VARIARES_LAUNCHER.get());
+                output.accept(RIVAL_VARIARES.get());
                 output.accept(STADIUM.get());
             })
             .build());

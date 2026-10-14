@@ -291,5 +291,21 @@
  "subtitles.librabeyblade.clock_tick": "Clock ticking",
  "subtitles.librabeyblade.clock_bell": "Clock tower bell",
  "subtitles.librabeyblade.time_stop": "Time stops",
- "subtitles.librabeyblade.rewind": "Time rewinds"
+ "subtitles.librabeyblade.rewind": "Time rewinds",
+ "item.librabeyblade.variares": "Variares 145WB",
+ "entity.librabeyblade.variares": "Variares",
+ "hud.librabeyblade.title.variares": "Variares",
+ "item.librabeyblade.variares.desc": "Legendary attack type - the god of war",
+ "item.librabeyblade.variares.desc2": "Launch it with the Variares Launcher. Special moves:",
+ "item.librabeyblade.variares_launcher": "Variares Launcher",
+ "item.librabeyblade.variares_launcher.desc": "Hold right click to wind, release to launch Variares",
+ "item.librabeyblade.rival_variares": "Rival Variares",
+ "item.librabeyblade.rival_variares.desc": "Launches a rival Variares that fights on its own",
+ "ability.librabeyblade.variares.1": "War God's Fury",
+ "ability.librabeyblade.variares.2": "Lightning Sword Flash",
+ "ability.librabeyblade.variares.3": "War Shield Charge",
+ "ability.librabeyblade.variares.4": "Twin Blade Whirlwind",
+ "ability.librabeyblade.variares.5": "Final Variares Lightning Sword",
+ "msg.librabeyblade.ability.variares": "§4§lVARIARES! §r§c%s!",
+ "dodge.librabeyblade.variares": "War Step!"
 }

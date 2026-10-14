@@ -291,5 +291,21 @@
  "subtitles.librabeyblade.clock_tick": "Saat tık tak",
  "subtitles.librabeyblade.clock_bell": "Saat kulesi çanı",
  "subtitles.librabeyblade.time_stop": "Zaman duruyor",
- "subtitles.librabeyblade.rewind": "Zaman geri sarılıyor"
+ "subtitles.librabeyblade.rewind": "Zaman geri sarılıyor",
+ "item.librabeyblade.variares": "Variares 145WB",
+ "entity.librabeyblade.variares": "Variares",
+ "hud.librabeyblade.title.variares": "Variares",
+ "item.librabeyblade.variares.desc": "Efsanevi saldırı tipi - savaş tanrısı",
+ "item.librabeyblade.variares.desc2": "Variares Fırlatıcı ile fırlat. Özel yetenekler:",
+ "item.librabeyblade.variares_launcher": "Variares Fırlatıcı",
+ "item.librabeyblade.variares_launcher.desc": "Sağ tık basılı tut: güç topla, bırak: Variares'i fırlat",
+ "item.librabeyblade.rival_variares": "Rakip Variares",
+ "item.librabeyblade.rival_variares.desc": "Önüne kendi kendine savaşan rakip bir Variares fırlatır",
+ "ability.librabeyblade.variares.1": "Savaş Tanrısının Öfkesi",
+ "ability.librabeyblade.variares.2": "Şimşek Kılıç Çakması",
+ "ability.librabeyblade.variares.3": "Savaş Kalkanı Hücumu",
+ "ability.librabeyblade.variares.4": "Çift Kılıç Kasırgası",
+ "ability.librabeyblade.variares.5": "Son Variares Şimşek Kılıcı",
+ "msg.librabeyblade.ability.variares": "§4§lVARIARES! §r§c%s!",
+ "dodge.librabeyblade.variares": "Savaş Adımı!"
 }
