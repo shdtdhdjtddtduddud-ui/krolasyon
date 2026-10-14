@@ -1,0 +1,22 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "CDC",
+  "DXD",
+  "CDC"
+ ],
+ "key": {
+  "C": {
+   "item": "minecraft:clock"
+  },
+  "D": {
+   "item": "minecraft:diamond"
+  },
+  "X": {
+   "item": "minecraft:recovery_compass"
+  }
+ },
+ "result": {
+  "item": "librabeyblade:twisted_tempo"
+ }
+}

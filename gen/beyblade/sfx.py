@@ -721,11 +721,53 @@ def grind():
     return mix(rub * 0.7, squeal, sparks) * env(n, 0.02, 0.2, 1.0)
 
 
+# ======================= TWISTED TEMPO =======================
+def clock_tick():
+    d = 0.35
+    tick = mix(clink(4200, 0.012) * 0.6, tick_noise(0.03, 2000, 9000, 0.004) * 0.9)
+    tock = mix(clink(3100, 0.014) * 0.5, tick_noise(0.03, 1500, 7000, 0.005) * 0.8)
+    out = np.zeros(int(d * SR))
+    out[:len(tick)] += tick[:len(out)]
+    p = int(0.17 * SR)
+    out[p:p + len(tock)] += tock[:len(out) - p]
+    return reverb(out, 0.15, 0.4)
+
+
+def clock_bell():
+    d = 3.0
+    b = bell(d, 196, (1, 2.0, 2.4, 3.0, 4.2, 5.4), 1.4) + bell(d, 392, (1, 2.76, 5.4), 0.8) * 0.3
+    return reverb(mix(b, boom(0.8, 90, 40, 0.3) * 0.6), 0.35, 1.8)
+
+
+def time_stop():
+    d = 1.6
+    n = int(d * SR)
+    t = T(d)
+    down = sweep_bp(noise(d), 6000, 300, 1.5) * env(n, 0.02, 0.6, 1.0)
+    tone = osc(glide(d, 900, 120)) * env(n, 0.01, 0.7, 1.0) * 0.4
+    shimmer = bell(d, 1320, (1, 2.4, 3.9), 0.9) * 0.3
+    return reverb(mix(down, tone, shimmer), 0.4, 1.6)
+
+
+def rewind():
+    d = 1.3
+    n = int(d * SR)
+    t = T(d)
+    # a tape-style reverse sweep with backwards ticking
+    rate = 30 - 20 * t / d
+    ph = np.cumsum(rate / SR)
+    ticks = (np.diff(np.floor(ph), prepend=0) > 0).astype(float)
+    tk = np.convolve(ticks, clink(3600, 0.01)[:400])[:n] * 0.5
+    sweep = sweep_bp(noise(d), 300, 5000, 1.4) * np.linspace(0.2, 1, n) ** 2
+    tone = osc(glide(d, 200, 1200)) * np.linspace(0, 0.4, n)
+    return reverb(mix(tk, sweep * 0.7, tone), 0.3, 1.0)
+
+
 if __name__ == '__main__':
     jobs = {
         'launch': launch, 'land': land, 'charge': charge, 'spin_loop': spin_loop,
         'clash1': lambda: clash(), 'clash2': lambda: clash(), 'clash3': lambda: clash(), 'clash_heavy': lambda: clash(True),
-        'wall_hit': wall_hit, 'grind': grind, 'sonic_wave': sonic_wave, 'shield_up': shield_up, 'shield_hit': shield_hit,
+        'wall_hit': wall_hit, 'grind': grind, 'clock_tick': clock_tick, 'clock_bell': clock_bell, 'time_stop': time_stop, 'rewind': rewind, 'sonic_wave': sonic_wave, 'shield_up': shield_up, 'shield_hit': shield_hit,
         'inferno_drill': inferno_drill, 'inferno_tornado': inferno_tornado, 'inferno_impact': inferno_impact,
         'buster_charge': buster_charge, 'buster_fire': buster_fire,
         'judgment_start': judgment_start, 'judgment_strike': judgment_strike, 'drain': drain,

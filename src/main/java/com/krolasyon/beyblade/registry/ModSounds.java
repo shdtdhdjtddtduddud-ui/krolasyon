@@ -24,6 +24,11 @@ public final class ModSounds {
     public static final RegistryObject<SoundEvent> CLASH_HEAVY = reg("clash_heavy");
     public static final RegistryObject<SoundEvent> WALL_HIT = reg("wall_hit");
     public static final RegistryObject<SoundEvent> GRIND = reg("grind");
+    // Twisted Tempo
+    public static final RegistryObject<SoundEvent> CLOCK_TICK = reg("clock_tick");
+    public static final RegistryObject<SoundEvent> CLOCK_BELL = reg("clock_bell");
+    public static final RegistryObject<SoundEvent> TIME_STOP = reg("time_stop");
+    public static final RegistryObject<SoundEvent> REWIND = reg("rewind");
     public static final RegistryObject<SoundEvent> SONIC_WAVE = reg("sonic_wave");
     public static final RegistryObject<SoundEvent> SHIELD_UP = reg("shield_up");
     public static final RegistryObject<SoundEvent> SHIELD_HIT = reg("shield_hit");

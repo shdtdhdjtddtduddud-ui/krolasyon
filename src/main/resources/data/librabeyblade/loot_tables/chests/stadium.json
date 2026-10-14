@@ -99,6 +99,11 @@
      "weight": 1
     },
     {
+     "type": "minecraft:item",
+     "name": "librabeyblade:twisted_tempo",
+     "weight": 1
+    },
+    {
      "type": "minecraft:empty",
      "weight": 45
     }

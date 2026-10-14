@@ -429,7 +429,7 @@ public class StadiumEntity extends Entity {
             lvl = hb != null ? hb.getLevel() : BeybladeEntity.heldLevel(human);
         }
         List<EntityType<? extends BeybladeEntity>> types = List.of(ModEntities.LIBRA.get(), ModEntities.LDRAGO.get(), ModEntities.LEONE.get(),
-                ModEntities.EAGLE.get(), ModEntities.PEGASUS.get(), ModEntities.COMMON.get(), ModEntities.COMMON.get(), ModEntities.COMMON.get());
+                ModEntities.EAGLE.get(), ModEntities.PEGASUS.get(), ModEntities.TEMPO.get(), ModEntities.COMMON.get(), ModEntities.COMMON.get(), ModEntities.COMMON.get());
         EntityType<? extends BeybladeEntity> type = types.get(this.random.nextInt(types.size()));
         double z = side == 0 ? 7.5 : -7.5;
         Vec3 pos = position().add(0, 3.0, z);

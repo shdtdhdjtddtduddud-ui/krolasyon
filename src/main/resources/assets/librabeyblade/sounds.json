@@ -418,5 +418,29 @@
    "librabeyblade:grind"
   ],
   "subtitle": "subtitles.librabeyblade.grind"
+ },
+ "clock_tick": {
+  "sounds": [
+   "librabeyblade:clock_tick"
+  ],
+  "subtitle": "subtitles.librabeyblade.clock_tick"
+ },
+ "clock_bell": {
+  "sounds": [
+   "librabeyblade:clock_bell"
+  ],
+  "subtitle": "subtitles.librabeyblade.clock_bell"
+ },
+ "time_stop": {
+  "sounds": [
+   "librabeyblade:time_stop"
+  ],
+  "subtitle": "subtitles.librabeyblade.time_stop"
+ },
+ "rewind": {
+  "sounds": [
+   "librabeyblade:rewind"
+  ],
+  "subtitle": "subtitles.librabeyblade.rewind"
  }
 }

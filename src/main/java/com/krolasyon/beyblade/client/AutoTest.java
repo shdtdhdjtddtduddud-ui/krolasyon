@@ -59,65 +59,54 @@ public final class AutoTest {
 
     private static final String ST = "summon librabeyblade:stadium 0.5 -60 -14.5";
 
+    private static final String TA = "summon librabeyblade:tempo 0.5 -58 -12 {Tags:[\"a\"]}";
+    private static final String V1 = "summon librabeyblade:common -2.5 -58 -16 {Variant:0}";
+    private static final String V2 = "summon librabeyblade:common 4 -58 -17 {Variant:5}";
+
     private AutoTest() {
         cmd(0, null, "gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false",
-                "time set 6000", "weather clear", "difficulty peaceful", "gamemode spectator @a", "kill @e[type=!player]", ST);
-        // ---- scene 1: free-for-all, wide shot (rivals use their moves on their own)
-        server(20, null, s -> BeybladeEntity.rivalAbilities = true);
-        cmd(2, null, "tp @a 0.5 -49 4 180 38",
-                "summon librabeyblade:pegasus -5 -57 -14.5", "summon librabeyblade:ldrago 6 -57 -14.5",
-                "summon librabeyblade:leone 0.5 -57 -20", "summon librabeyblade:eagle 0.5 -57 -9");
+                "time set 6000", "weather clear", "difficulty peaceful", "gamemode spectator @a", "kill @e[type=!player]",
+                "fill -2 -60 -2 2 -60 2 minecraft:smooth_stone");
+        // ---- Twisted Tempo model close-ups
+        cmd(4, null, "summon librabeyblade:tempo 0 -59 0 {Frozen:1b}", "tp @a 0.5 -57.6 1.4 180 50");
         record(true);
-        wait(180, null);
-        // ---- scene 2: close up: hit and run, locked grinding with sparks
-        cmd(2, null, "tp @a 0.5 -55.2 -5.5 180 32");
-        wait(160, "battle_close");
+        wait(40, "tempo_close");
+        cmd(20, "tempo_side", "tp @a 0.5 -58.2 2.6 180 18");
+        record(false);
+        cmd(4, null, "kill @e[type=!player]", "fill -2 -60 -2 2 -60 2 minecraft:air", ST, "tp @a 0.5 -48 4 180 35", TA, V1, V2);
+        wait(20, null);
+        record(true);
+        // ---- Time Stop
+        force(1);
+        wait(70, "time_stop");
+        // ---- Clock Hands Sweep
+        force(3);
+        wait(35, "clock_hands");
+        wait(25, null);
+        // ---- Tempo Acceleration
+        force(4);
+        wait(40, "accel");
+        wait(20, null);
+        // ---- Time Rewind
+        force(2);
+        wait(14, "rewind");
+        wait(16, null);
+        // ---- Twisted Time Judgment
+        cmd(2, null, "tp @a 0.5 -47 8 180 18");
+        force(5);
+        wait(60, "great_clock");
+        wait(36, "clock_toll");
+        wait(20, null);
+        // ---- free battle Tempo vs Pegasus and L-Drago
+        server(2, null, s -> BeybladeEntity.rivalAbilities = true);
+        cmd(2, null, "kill @e[type=!player,type=!librabeyblade:stadium]", "tp @a 0.5 -49 4 180 38", TA,
+                "summon librabeyblade:pegasus -5 -57 -14.5", "summon librabeyblade:ldrago 6 -57 -14.5");
+        wait(200, "battle");
         record(false);
         server(2, null, s -> BeybladeEntity.rivalAbilities = false);
-        // ---- scene 3: King Lion Tearing Blast: storm + huge tornadoes standing near Leone, slowly dying away
-        cmd(4, null, "kill @e[type=!player,type=!librabeyblade:stadium]", "tp @a 0.5 -46 12 180 15",
-                "summon librabeyblade:leone 0.5 -58 -13 {Tags:[\"a\"]}",
-                "summon librabeyblade:common -3 -58 -17 {Variant:5}", "summon librabeyblade:common 4 -58 -18 {Variant:3}");
-        wait(20, null);
-        record(true);
-        force(5);
-        wait(140, "leone_storm");
-        wait(130, "leone_fade");
-        record(false);
-        // ---- scene 4: L-Drago high dive: dragon silhouette, grab, both up, slam down
-        cmd(4, null, "kill @e[type=!player,type=!librabeyblade:stadium]", "weather clear", "tp @a 0.5 -53 13 180 -8",
-                "summon librabeyblade:ldrago 0.5 -58 -11 {Tags:[\"a\"]}", "summon librabeyblade:common 0.5 -58 -17 {Variant:1}");
-        wait(20, null);
-        record(true);
-        force(3);
-        wait(70, "dragon_dive");
-        wait(80, "dragon_slam");
-        record(false);
-        // ---- scene 5: Pegasus Star Booster Attack: rim ride vortex, launch off the wall, dive
-        cmd(4, null, "kill @e[type=!player,type=!librabeyblade:stadium]", "tp @a 0.5 -47 8 180 25",
-                "summon librabeyblade:pegasus -3 -58 -12 {Tags:[\"a\"]}", "summon librabeyblade:common 1 -58 -16 {Variant:6}");
-        wait(20, null);
-        record(true);
-        force(5);
-        wait(50, "booster_ride");
-        wait(70, "booster_dive");
-        record(false);
-        // ---- scene 6: our own Pegasus with the HUD: Blader Spirit, then circling the arena
-        cmd(4, null, "kill @e[type=!player,type=!librabeyblade:stadium]", "gamemode creative @a", "tp @a 0.5 -60 2.7 180 25");
-        server(4, null, s -> {
-            ServerPlayer p = s.getPlayerList().getPlayers().get(0);
-            BeybladeEntity.launch(com.krolasyon.beyblade.registry.ModEntities.PEGASUS.get(), p.level(), p, new ItemStack(ModItems.PEGASUS.get()),
-                    p.getEyePosition().add(0, 0.5, -1), new Vec3(0, 0.45, -0.5), 1F);
-        });
-        steps.add(new Step(2, null, null, true));
-        cmd(2, null, "summon librabeyblade:common 0.5 -58 -16 {Variant:0}", "gamemode spectator @a", "tp @a 0.5 -50 3 180 40");
-        record(true);
-        wait(40, null);
-        server(1, null, s -> each(s, null, b -> { if (!b.isRival()) { b.addSpirit(100); b.releaseSpirit(); } }));
-        wait(60, "spirit");
-        server(1, null, s -> each(s, null, b -> { if (!b.isRival()) b.setOrder(BeybladeEntity.OR_CIRCLE); }));
-        wait(80, "circle");
-        record(false);
+        cmd(4, null, "gamemode creative @a", "tp @a 0.5 -60 2.7 180 20", "item replace entity @a weapon.mainhand with librabeyblade:twisted_tempo",
+                "item replace entity @a hotbar.1 with librabeyblade:tempo_launcher");
+        steps.add(new Step(16, "item_hand", null, true));
         steps.add(new Step(2, null, null, false));
         wait(20, "END");
     }

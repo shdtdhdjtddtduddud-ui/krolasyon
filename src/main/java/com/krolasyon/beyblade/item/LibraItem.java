@@ -49,6 +49,7 @@ public class LibraItem extends Item {
             case "leone" -> ModEntities.LEONE.get();
             case "eagle" -> ModEntities.EAGLE.get();
             case "pegasus" -> ModEntities.PEGASUS.get();
+            case "tempo" -> ModEntities.TEMPO.get();
             default -> ModEntities.LIBRA.get();
         };
     }
@@ -78,6 +79,7 @@ public class LibraItem extends Item {
                 case "ldrago" -> ChatFormatting.RED;
                 case "eagle" -> ChatFormatting.LIGHT_PURPLE;
                 case "pegasus" -> ChatFormatting.AQUA;
+                case "tempo" -> ChatFormatting.WHITE;
                 default -> ChatFormatting.GREEN;
             };
             tip.add(Component.translatable("item.librabeyblade.legendary").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));

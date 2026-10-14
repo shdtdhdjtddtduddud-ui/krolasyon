@@ -1642,7 +1642,8 @@ public class BeybladeEntity extends Entity {
         int ab = getAbility();
         float at = abilityAge(0);
         float s2 = clientSpinSpeed(ab, at, speed);
-        if (s2 != speed) speed = Math.max(speed, s2 * 1.45F);
+        if (s2 < 0) speed = s2 * 1.45F;
+        else if (s2 != speed) speed = Math.max(speed, s2 * 1.45F);
         spinAngle += speed;
         precess += state == STATE_DEFEATED ? Math.max(0F, 22F * (1F - (this.tickCount - clientStateStart) / 50F)) : 10F + (1F - ratio) * 22F;
         if (spinAngle > 36000F) { spinAngle -= 36000F; spinAngleO -= 36000F; }
