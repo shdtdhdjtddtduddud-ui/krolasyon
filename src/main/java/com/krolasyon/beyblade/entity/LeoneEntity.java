@@ -21,7 +21,9 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -30,7 +32,7 @@ import java.util.Set;
  */
 public class LeoneEntity extends BeybladeEntity {
     public static final int LE_WALL = 1, LE_FANG = 2, LE_POUNCE = 3, LE_QUAKE = 4, LE_CAGE = 5;
-    public static final int[] LE_DURATION = {0, 0, 54, 60, 92, 250};
+    public static final int[] LE_DURATION = {0, 0, 54, 60, 92, 282};
     public static final int[] LE_COOLDOWN = {0, 550, 450, 600, 650, 1000};
     public static final int WALL_TICKS = 180;
     public static final double WALL_RADIUS = 1.7;
@@ -40,8 +42,8 @@ public class LeoneEntity extends BeybladeEntity {
     public static final int Q_SLAM = 14, Q_RINGS = 3, Q_RING_GAP = 10, Q_RING_LIFE = 18;
     public static final float Q_SPEED = 0.48F;
     public static final double Q_RADIUS = 9;
-    public static final int C_FORM = 14, C_BLAST = 205, C_FADE = 45;
-    public static final double C_PILLAR_DIST = 5.2, C_PULL_RANGE = 20, C_HOLD_HEIGHT = 2.4;
+    public static final int C_FORM = 16, C_BLAST = 205, C_FADE = 45, C_TRAVEL = 32, C_ORBIT = 40;
+    public static final double C_PILLAR_DIST = 5.2, C_PULL_RANGE = 40, C_CAPTURE = 4.6, C_TOP_R = 22, C_TORNADO_H = 70, C_HOLD_HEIGHT = 2.4;
 
     public static final byte EV_QUAKE = 80, EV_CAGE = 81, EV_CAGE_BLAST = 82, EV_WALL_HIT = 83;
 
@@ -53,6 +55,8 @@ public class LeoneEntity extends BeybladeEntity {
     private int quakeStart = -1;
     @Nullable private Vec3 cageCenter;
     private boolean stormSet;
+    private final Map<Integer, double[]> captured = new HashMap<>();
+    private final Map<Integer, Integer> released = new HashMap<>();
 
     private void clearStorm(ServerLevel sl) {
         if (!stormSet) return;
@@ -62,7 +66,12 @@ public class LeoneEntity extends BeybladeEntity {
 
     @Override
     protected void endAbility() {
-        if (stormSet && this.level() instanceof ServerLevel sl && getAbility() == LE_CAGE && abilityTicks < C_BLAST + C_FADE - 5) clearStorm(sl);
+        if (stormSet && this.level() instanceof ServerLevel sl && getAbility() == LE_CAGE && abilityTicks < C_TRAVEL + C_BLAST + C_FADE - 5) clearStorm(sl);
+        for (Integer id : captured.keySet()) {
+            Entity e = this.level().getEntity(id);
+            if (e != null) e.setNoGravity(false);
+        }
+        captured.clear();
         super.endAbility();
     }
     @SuppressWarnings("unchecked")
@@ -86,7 +95,8 @@ public class LeoneEntity extends BeybladeEntity {
     @Override public int cooldown(int id) { return LE_COOLDOWN[id]; }
     @Override public int buffAbility() { return LE_WALL; }
     @Override public int buffTicks() { return WALL_TICKS; }
-    @Override public boolean requiresTarget(int id) { return id == LE_FANG || id == LE_POUNCE || id == LE_CAGE; }
+    @Override public boolean requiresTarget(int id) { return id == LE_FANG || id == LE_POUNCE; }
+    @Override protected boolean ramsInto(int id) { return id == LE_FANG || id == LE_POUNCE || id == LE_QUAKE; }
     @Override public boolean buffReflects() { return true; }
     @Override public float incomingMul() { return isShielded() ? 0.5F : 0.75F; }
     @Override protected ItemStack defaultItem() { return new ItemStack(ModItems.LEONE.get()); }
@@ -260,78 +270,120 @@ public class LeoneEntity extends BeybladeEntity {
                 return true;
             }
             case LE_CAGE -> {
-                // King Lion Tearing Blast: four huge grey tornadoes circle Leone (two each way) and drag enemies in
-                if (t == 1) {
-                    // the tornadoes rise where Leone stands and stay there: Leone fights on inside the storm
-                    cageCenter = position();
+                // King Lion Tearing Blast: Leone runs to the middle of the stadium and becomes the eye of one colossal
+                // tornado. Enemies are sucked in; whoever touches the funnel is whirled twice around Leone and hurled into the wall.
+                if (t <= C_TRAVEL) {
+                    if (t == 1) {
+                        play(ModSounds.LION_ROAR.get(), 2.0F, 0.9F);
+                        Vec3 c = position();
+                        for (StadiumEntity st : this.level().getEntitiesOfClass(StadiumEntity.class, getBoundingBox().inflate(20, 6, 20))) {
+                            double dx = getX() - st.getX(), dz = getZ() - st.getZ();
+                            if (dx * dx + dz * dz < StadiumEntity.WALL_IN * StadiumEntity.WALL_IN) c = new Vec3(st.getX(), getY(), st.getZ());
+                            break;
+                        }
+                        cageCenter = c;
+                    }
+                    Vec3 d = flat(cageCenter.subtract(position()));
+                    if (d.length() > 0.5 && t < C_TRAVEL) {
+                        Vec3 v = d.normalize().scale(Math.min(0.75, d.length() * 0.5));
+                        setDeltaMovement(v.x, getDeltaMovement().y, v.z);
+                        return true;
+                    }
+                    // in position: the storm begins (the timeline continues from C_TRAVEL)
+                    abilityTicks = C_TRAVEL + 1;
+                    cageCenter = new Vec3(getX(), getY(), getZ());
+                    captured.clear();
+                    released.clear();
                     this.level().broadcastEntityEvent(this, EV_CAGE);
-                    play(ModSounds.CAGE_WIND.get(), 2.2F, 0.9F);
-                    play(ModSounds.LION_ROAR.get(), 1.6F, 1.0F);
-                    // a real storm breaks out over the area while the tornadoes stand
+                    play(ModSounds.CAGE_WIND.get(), 3.0F, 0.6F);
+                    play(ModSounds.LION_ROAR.get(), 2.4F, 0.8F);
                     if (!sl.isThundering()) {
                         stormSet = true;
                         sl.setWeatherParameters(0, LE_DURATION[LE_CAGE] + 60, true, true);
                     }
+                    return true;
                 }
                 if (cageCenter == null) cageCenter = position();
-                if (t >= C_FORM && t < C_BLAST && t % 35 == 0) {
+                int a = t - C_TRAVEL;
+                // Leone stays in the eye of the storm
+                Vec3 hold = flat(cageCenter.subtract(position()));
+                setDeltaMovement(hold.x * 0.4, getDeltaMovement().y, hold.z * 0.4);
+                if (a >= C_FORM && a < C_BLAST && a % 30 == 0) {
                     net.minecraft.world.entity.LightningBolt bolt = net.minecraft.world.entity.EntityType.LIGHTNING_BOLT.create(sl);
                     if (bolt != null) {
-                        Vec3 p = pillar(cageCenter.x, cageCenter.y, cageCenter.z, this.random.nextInt(4), t);
-                        bolt.moveTo(p.x + this.random.nextGaussian() * 2, cageCenter.y, p.z + this.random.nextGaussian() * 2);
+                        double ang = this.random.nextDouble() * Math.PI * 2, r = 8 + this.random.nextDouble() * 10;
+                        bolt.moveTo(cageCenter.x + Math.cos(ang) * r, cageCenter.y, cageCenter.z + Math.sin(ang) * r);
                         bolt.setVisualOnly(true);
                         sl.addFreshEntity(bolt);
                     }
                 }
-                if (t == C_BLAST + C_FADE - 5) clearStorm(sl);
-                if (t >= C_FORM && t < C_BLAST) {
-                    if ((t - C_FORM) % 30 == 0) play(ModSounds.CAGE_WIND.get(), 2.0F, 0.85F + this.random.nextFloat() * 0.2F);
+                if (a == C_BLAST + C_FADE - 5) clearStorm(sl);
+                if (a >= C_FORM && a < C_BLAST) {
+                    if ((a - C_FORM) % 25 == 0) play(ModSounds.CAGE_WIND.get(), 3.0F, 0.6F + this.random.nextFloat() * 0.15F);
                     for (Entity e : enemiesWithin(C_PULL_RANGE)) {
-                        Vec3 best = null;
-                        double bd = 1.0E9;
-                        for (int i = 0; i < 4; i++) {
-                            Vec3 p = pillar(cageCenter.x, cageCenter.y, cageCenter.z, i, t);
-                            double d = flat(p.subtract(e.position())).lengthSqr();
-                            if (d < bd) { bd = d; best = p; }
-                        }
-                        Vec3 to = flat(best.subtract(e.position()));
-                        double d = Math.sqrt(bd);
+                        if (captured.containsKey(e.getId())) continue;
+                        Vec3 to = flat(cageCenter.subtract(e.position()));
+                        double d = to.length();
                         if (d < 1.0E-3) continue;
+                        Integer rel = released.get(e.getId());
+                        boolean cooling = rel != null && t - rel < 45;
+                        if (!cooling && d < C_CAPTURE) {
+                            // touched the funnel: caught by the wind
+                            captured.put(e.getId(), new double[]{t, Math.atan2(e.getZ() - cageCenter.z, e.getX() - cageCenter.x)});
+                            e.setNoGravity(true);
+                            play(ModSounds.CAGE_WIND.get(), 1.6F, 1.4F);
+                            continue;
+                        }
                         Vec3 dir = to.scale(1 / d);
                         Vec3 swirl = new Vec3(-dir.z, 0, dir.x);
-                        double k = e == target ? 1.4 : 1.0;
-                        double pull = d < 1.8 ? 0.03 : Math.min(0.22, 0.9 / (d + 1.5)) * k;
-                        Vec3 v = e.getDeltaMovement().add(dir.scale(pull)).add(swirl.scale(d < 3.2 ? 0.2 : 0.06));
-                        if (d < 3.0) {
-                            v = new Vec3(v.x, Math.min(0.32, v.y + 0.1), v.z);
-                            e.fallDistance = 0;
-                            if (e instanceof BeybladeEntity b) b.damageSpin(e == target ? 5F : 3F, this);
-                            else if (e instanceof LivingEntity l && t % 6 == 0) {
-                                l.invulnerableTime = 0;
-                                l.hurt(damageSources().indirectMagic(this, owner), 1.5F);
-                            }
-                        }
-                        e.setDeltaMovement(v);
+                        double pull = cooling ? 0.02 : Math.min(0.26, 2.4 / (d + 3)) * (e == target ? 1.3 : 1.0);
+                        e.setDeltaMovement(e.getDeltaMovement().add(dir.scale(pull)).add(swirl.scale(0.07)));
                         e.hurtMarked = true;
                     }
                 }
-                if (t == C_BLAST) {
-                    play(ModSounds.CAGE_BLAST.get(), 2.8F, 0.9F);
-                    this.level().broadcastEntityEvent(this, EV_CAGE_BLAST);
-                    for (Entity e : enemiesWithin(9)) {
-                        Vec3 out = flat(e.position().subtract(position()));
-                        out = out.lengthSqr() < 1.0E-4 ? new Vec3(1, 0, 0) : out.normalize();
+                // the caught ones: two laps around Leone, rising with the wind, then thrown out into the wall
+                for (java.util.Iterator<Map.Entry<Integer, double[]>> it = captured.entrySet().iterator(); it.hasNext(); ) {
+                    Map.Entry<Integer, double[]> en = it.next();
+                    Entity e = this.level().getEntity(en.getKey());
+                    if (e == null || !e.isAlive()) { it.remove(); continue; }
+                    double prog = (t - en.getValue()[0]) / C_ORBIT;
+                    if (prog < 1 && a < C_BLAST) {
+                        double ang = en.getValue()[1] + prog * Math.PI * 4 * spinDir();
+                        double r = C_CAPTURE - 0.6;
+                        double y = cageCenter.y + 0.3 + Math.sin(prog * Math.PI) * 2.5;
+                        e.setPos(cageCenter.x + Math.cos(ang) * r, y, cageCenter.z + Math.sin(ang) * r);
+                        e.setDeltaMovement(new Vec3(-Math.sin(ang), 0, Math.cos(ang)).scale(0.6 * spinDir()));
+                        e.hurtMarked = true;
+                        e.fallDistance = 0;
                         if (e instanceof BeybladeEntity b) {
-                            b.damageSpin(e == target ? 120F : 60F, this);
-                            b.setDeltaMovement(out.scale(1.0).add(0, 0.3, 0));
-                        } else if (e instanceof LivingEntity l) {
-                            l.hurt(damageSources().indirectMagic(this, owner), e == target ? 10F : 5F);
-                            l.knockback(1.5, -out.x, -out.z);
+                            b.stun(5);
+                            b.damageSpin(2.5F, this);
+                        } else if (e instanceof LivingEntity l && t % 8 == 0) {
+                            l.invulnerableTime = 0;
+                            l.hurt(damageSources().indirectMagic(this, owner), 1.5F);
                         }
+                    } else {
+                        Vec3 out = flat(e.position().subtract(cageCenter));
+                        out = out.lengthSqr() < 1.0E-4 ? new Vec3(1, 0, 0) : out.normalize();
+                        e.setNoGravity(false);
+                        e.setDeltaMovement(out.scale(2.4).add(0, 0.12, 0));
+                        e.hurtMarked = true;
+                        if (e instanceof BeybladeEntity b) {
+                            b.damageSpin(90F * powerMul(), this);
+                            this.level().broadcastEntityEvent(b, EV_HEAVY_HIT);
+                        } else if (e instanceof LivingEntity l) {
+                            l.hurt(damageSources().indirectMagic(this, owner), 8F);
+                        }
+                        play(ModSounds.CAGE_BLAST.get(), 1.8F, 1.3F);
+                        released.put(en.getKey(), t);
+                        it.remove();
                     }
                 }
-                // Leone keeps fighting while the storm rages around it
-                return t < C_FORM;
+                if (a == C_BLAST) {
+                    play(ModSounds.CAGE_BLAST.get(), 2.8F, 0.8F);
+                    this.level().broadcastEntityEvent(this, EV_CAGE_BLAST);
+                }
+                return true;
             }
             default -> {
                 return false;

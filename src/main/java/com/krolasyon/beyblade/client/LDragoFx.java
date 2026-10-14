@@ -50,6 +50,18 @@ public final class LDragoFx {
     public static void render(LDragoEntity e, float partial, float t, double ex, double ey, double ez, PoseStack pose,
                               MultiBufferSource buf, Quaternionf cam) {
         if (e.isShielded()) awaken(e, t, pose, buf, cam);
+        float rv = t - e.reviveTime;
+        if (rv >= 0 && rv < 50) {
+            // Dragon Emperor Revival: a pillar of crimson fire and the dragon rising out of it
+            float f = rv < 6 ? rv / 6F : 1F - (rv - 6F) / 44F;
+            VertexConsumer vc = Fx.bufT(buf, Fx.WISP, 0.8F * f);
+            Fx.band(vc, pose.last().pose(), 1.2F, 0F, 0.4F, 12F, 32, new float[]{1F, 0.3F, 0.08F}, new float[]{0.6F, 0.02F, 0.08F}, 3F, t * 0.2F, 2F, -t * 0.15F);
+            Fx.alpha = 1F;
+            vc = Fx.buf(buf, Fx.WAVE);
+            float r = 0.5F + easeOut(rv / 16F) * 6F;
+            Fx.ring(vc, pose.last().pose(), 0.08F, r - 1.4F, r, 64, BLACK, k(CRIMSON, 1.5F * f), 6F, 0F);
+            dragonSilhouette(buf, pose, cam, 0, 2.5 + easeOut(rv / 20F) * 5, 0, 10F, f, new Vec3(0, 1, 0), t);
+        }
         float aw = t - e.awakenTime;
         if (aw >= 0 && aw < 34) awakenBurst(aw, t, pose, buf, cam);
         claws(e, t, ex, ey, ez, pose, buf, cam);

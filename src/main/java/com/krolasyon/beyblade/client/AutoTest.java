@@ -59,51 +59,38 @@ public final class AutoTest {
 
     private static final String ST = "summon librabeyblade:stadium 0.5 -60 -14.5";
 
-    private static final String TA = "summon librabeyblade:variares 0.5 -58 -12 {Tags:[\"a\"]}";
-    private static final String V1 = "summon librabeyblade:common -2.5 -58 -16 {Variant:2}";
-    private static final String V2 = "summon librabeyblade:common 4 -58 -17 {Variant:5}";
-
     private AutoTest() {
         cmd(0, null, "gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false",
-                "time set 6000", "weather clear", "difficulty peaceful", "gamemode spectator @a", "kill @e[type=!player]",
-                "fill -2 -60 -2 2 -60 2 minecraft:smooth_stone");
-        // ---- Variares model close-ups
-        cmd(4, null, "summon librabeyblade:variares 0 -59 0 {Frozen:1b}", "tp @a 0.5 -57.6 1.4 180 50");
-        record(true);
-        wait(40, "variares_close");
-        cmd(20, "variares_side", "tp @a 0.5 -58.2 2.6 180 18");
-        record(false);
-        cmd(4, null, "kill @e[type=!player]", "fill -2 -60 -2 2 -60 2 minecraft:air", ST, "tp @a 0.5 -49 3 180 35", TA, V1, V2);
+                "time set 6000", "weather clear", "difficulty peaceful", "gamemode spectator @a", "kill @e[type=!player]", ST);
+        // ---- Rock Leone: runs to the middle and becomes the eye of one colossal tornado
+        cmd(10, null, "tp @a 0.5 -47 24 180 8",
+                "summon librabeyblade:leone -4 -58 -10 {Tags:[\"a\"]}",
+                "summon librabeyblade:common 5 -58 -18 {Variant:1}", "summon librabeyblade:common -5 -58 -19 {Variant:6}",
+                "summon librabeyblade:pegasus 6 -58 -9");
         wait(20, null);
         record(true);
-        force(1);
-        wait(40, "fury");
-        force(2);
-        wait(30, "lightning_flash");
-        wait(20, null);
-        force(4);
-        wait(30, "twin_blades");
-        wait(35, null);
-        force(3);
-        wait(30, "war_shield");
-        wait(20, null);
-        cmd(2, null, "kill @e[type=!player,type=!librabeyblade:stadium]", TA, V1, "tp @a 0.5 -50 10 180 2");
-        wait(15, null);
         force(5);
-        wait(40, "sword_form");
-        wait(14, "sword_hit");
-        wait(30, null);
-        // ---- free battle: Variares vs Pegasus and Twisted Tempo
-        server(2, null, s -> BeybladeEntity.rivalAbilities = true);
-        cmd(2, null, "kill @e[type=!player,type=!librabeyblade:stadium]", "tp @a 0.5 -49 4 180 38", TA,
-                "summon librabeyblade:pegasus -5 -57 -14.5", "summon librabeyblade:tempo 6 -57 -14.5");
-        wait(200, "battle");
+        wait(60, "leone_to_center");
+        wait(70, "tornado_wide");
+        cmd(2, null, "tp @a 0.5 -53 2 180 25");
+        wait(50, "tornado_whirl");
+        wait(50, "tornado_throw");
+        cmd(2, null, "tp @a 0.5 -44 26 180 2");
+        wait(60, "tornado_fade");
         record(false);
-        server(2, null, s -> BeybladeEntity.rivalAbilities = false);
-        cmd(4, null, "gamemode creative @a", "tp @a 0.5 -60 2.7 180 20", "item replace entity @a weapon.mainhand with librabeyblade:variares",
-                "item replace entity @a hotbar.1 with librabeyblade:variares_launcher");
-        steps.add(new Step(16, "item_hand", null, true));
-        steps.add(new Step(2, null, null, false));
+        // ---- L-Drago: steals power in every clash, then comes back from the brink once
+        cmd(4, null, "kill @e[type=!player,type=!librabeyblade:stadium]", "weather clear", "tp @a 0.5 -53 -3 180 30",
+                "summon librabeyblade:ldrago -2 -58 -14 {Tags:[\"d\"]}", "summon librabeyblade:pegasus 3 -58 -15");
+        record(true);
+        wait(80, "drago_clash");
+        server(1, null, s -> each(s, "d", b -> {
+            if (b instanceof com.krolasyon.beyblade.entity.LDragoEntity d) d.debugCharge(400F);
+            b.damageSpin(100000F, null);
+        }));
+        wait(10, "drago_brink");
+        wait(25, "drago_revive");
+        wait(40, null);
+        record(false);
         wait(20, "END");
     }
 

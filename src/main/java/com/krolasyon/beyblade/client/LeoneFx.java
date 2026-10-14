@@ -236,26 +236,32 @@ public final class LeoneFx {
     // ================= KING LION STORM CAGE =================
     private static void cage(LeoneEntity e, float at, float t, float partial, double ex, double ey, double ez, PoseStack pose,
                              MultiBufferSource buf, Quaternionf cam) {
-        float form = easeOut(at / C_FORM);
+        // client storm age counts from when Leone reached the middle (EV_CAGE)
+        if (e.cageTime < e.clientAbilityStart) {
+            // still running to the centre: wind gathering around it
+            VertexConsumer vc = Fx.buf(buf, Fx.WAVE);
+            Fx.ring(vc, pose.last().pose(), 0.06F, 0.6F, 1.6F, 32, BLACK, k(GREY_LIGHT, 0.8F), 3F, -t * 0.1F);
+            return;
+        }
+        float ca = t - e.cageTime;
+        float form = easeOut(ca / C_FORM);
         // after the blast the storm dies down slowly instead of vanishing
-        float fade = at > C_BLAST ? Math.max(0F, 1F - (at - C_BLAST) / (float) C_FADE) : 1F;
+        float fade = ca > C_BLAST ? Math.max(0F, 1F - (ca - C_BLAST) / (float) C_FADE) : 1F;
         if (fade <= 0F) return;
-        float H = 21F * form * (0.55F + 0.45F * fade);
-        Vec3[] pil = new Vec3[4];
-        for (int i = 0; i < 4; i++) pil[i] = pillar(e.cageX - ex, e.cageY - ey - 0.05, e.cageZ - ez, i, at);
-        for (int i = 0; i < 4; i++) twister(pose, buf, pil[i], H, t, i, fade);
-        if (at >= C_FORM * 0.6F) {
+        float H = (float) C_TORNADO_H * form * (0.5F + 0.5F * fade);
+        Vec3 base = new Vec3(e.cageX - ex, e.cageY - ey - 0.05, e.cageZ - ez);
+        twister(pose, buf, base, H, t, 0, fade, 3.2F, (float) C_TOP_R, 4F, 44, 6F);
+        if (ca >= C_FORM * 0.6F) {
             Matrix4f m = pose.last().pose();
-            VertexConsumer vc;
-            // storm swirling around the captive at the centre
-            Vec3 c = new Vec3(e.cageX - ex, e.cageY - ey + C_HOLD_HEIGHT, e.cageZ - ez);
-            vc = Fx.buf(buf, Fx.WAVE);
+            // wind rings around Leone in the eye, and the lion emblem high in the funnel
+            Vec3 c = base.add(0, 1.2, 0);
+            VertexConsumer vc = Fx.buf(buf, Fx.WAVE);
             for (int r = 0; r < 3; r++) {
                 float tilt = r * 60F + t * 4F;
                 Vec3 axis = new Vec3(Math.sin(Math.toRadians(tilt)), Math.cos(Math.toRadians(tilt)), Math.sin(Math.toRadians(tilt * 0.7)) * 0.5);
                 Fx.ringAround(vc, m, c, axis, 1.0F, 1.35F, 40, k(GREY_LIGHT, 0.7F * fade), t * 0.05F);
             }
-            emblem(buf, pose, cam, c.x, c.y + 3.2, c.z, 3.2F * form, 0.9F * fade);
+            emblem(buf, pose, cam, base.x, base.y + 14, base.z, 7F * form, 0.9F * fade);
         }
     }
 
@@ -266,21 +272,22 @@ public final class LeoneFx {
      * built from stacked rings. Translucent (not additive) so it keeps its storm-grey colour against the sky. Two
      * counter-scrolling layers give the twisting look; dark debris bands spiral up the outside.
      */
-    private static void twister(PoseStack pose, MultiBufferSource buf, Vec3 base, float H, float t, int seed, float fade) {
+    private static void twister(PoseStack pose, MultiBufferSource buf, Vec3 base, float H, float t, int seed, float fade,
+                                float baseR, float topR, float swayK, int SEG, float tile) {
         if (H < 0.2F) return;
-        int SL = 22, SEG = 22;
+        int SL = 26;
         float[][] cx = new float[SL + 1][3];
         float[] rad = new float[SL + 1];
         for (int j = 0; j <= SL; j++) {
             float f = j / (float) SL, h = f * H;
             // bent, swaying axis: a slow lean plus a travelling S-curve
-            float sway = Mth.sin(t * 0.11F + seed * 1.9F) * 1.1F * f * f;
-            float wig = Mth.sin(h * 0.55F - t * 0.32F + seed) * 0.45F * f;
-            float wig2 = Mth.cos(h * 0.42F - t * 0.27F + seed * 2.3F) * 0.45F * f;
+            float sway = Mth.sin(t * 0.11F + seed * 1.9F) * 1.1F * f * f * swayK;
+            float wig = Mth.sin(h * 0.55F / swayK - t * 0.32F + seed) * 0.45F * f * swayK;
+            float wig2 = Mth.cos(h * 0.42F / swayK - t * 0.27F + seed * 2.3F) * 0.45F * f * swayK;
             cx[j][0] = (float) base.x + sway + wig;
             cx[j][1] = (float) base.y + h;
             cx[j][2] = (float) base.z + sway * 0.6F + wig2;
-            rad[j] = (0.55F + (float) Math.pow(f, 1.5) * 5.2F + 0.12F * Mth.sin(t * 0.7F + j)) * (0.6F + 0.4F * fade);
+            rad[j] = (baseR + (float) Math.pow(f, 1.5) * (topR - baseR) + 0.12F * baseR * Mth.sin(t * 0.7F + j)) * (0.6F + 0.4F * fade);
         }
         Matrix4f m = pose.last().pose();
         for (int layer = 0; layer < 3; layer++) {
@@ -301,15 +308,15 @@ public final class LeoneFx {
                     float[] p01 = {cx[j + 1][0] + Mth.cos(a0) * r1, cx[j + 1][1], cx[j + 1][2] + Mth.sin(a0) * r1};
                     float[] p11 = {cx[j + 1][0] + Mth.cos(a1) * r1, cx[j + 1][1], cx[j + 1][2] + Mth.sin(a1) * r1};
                     float[] p10 = {cx[j][0] + Mth.cos(a1) * r0, cx[j][1], cx[j][2] + Mth.sin(a1) * r0};
-                    float u0 = i / (float) SEG * 2F, u1 = (i + 1) / (float) SEG * 2F;
-                    Fx.v(vc, m, p00[0], p00[1], p00[2], c0[0], c0[1], c0[2], u0 + tw0, f0 * 2F - t * 0.04F);
-                    Fx.v(vc, m, p01[0], p01[1], p01[2], c1[0], c1[1], c1[2], u0 + tw1, f1 * 2F - t * 0.04F);
-                    Fx.v(vc, m, p11[0], p11[1], p11[2], c1[0], c1[1], c1[2], u1 + tw1, f1 * 2F - t * 0.04F);
-                    Fx.v(vc, m, p10[0], p10[1], p10[2], c0[0], c0[1], c0[2], u1 + tw0, f0 * 2F - t * 0.04F);
-                    Fx.v(vc, m, p10[0], p10[1], p10[2], c0[0], c0[1], c0[2], u1 + tw0, f0 * 2F - t * 0.04F);
-                    Fx.v(vc, m, p11[0], p11[1], p11[2], c1[0], c1[1], c1[2], u1 + tw1, f1 * 2F - t * 0.04F);
-                    Fx.v(vc, m, p01[0], p01[1], p01[2], c1[0], c1[1], c1[2], u0 + tw1, f1 * 2F - t * 0.04F);
-                    Fx.v(vc, m, p00[0], p00[1], p00[2], c0[0], c0[1], c0[2], u0 + tw0, f0 * 2F - t * 0.04F);
+                    float u0 = i / (float) SEG * tile, u1 = (i + 1) / (float) SEG * tile;
+                    Fx.v(vc, m, p00[0], p00[1], p00[2], c0[0], c0[1], c0[2], u0 + tw0, f0 * tile - t * 0.04F);
+                    Fx.v(vc, m, p01[0], p01[1], p01[2], c1[0], c1[1], c1[2], u0 + tw1, f1 * tile - t * 0.04F);
+                    Fx.v(vc, m, p11[0], p11[1], p11[2], c1[0], c1[1], c1[2], u1 + tw1, f1 * tile - t * 0.04F);
+                    Fx.v(vc, m, p10[0], p10[1], p10[2], c0[0], c0[1], c0[2], u1 + tw0, f0 * tile - t * 0.04F);
+                    Fx.v(vc, m, p10[0], p10[1], p10[2], c0[0], c0[1], c0[2], u1 + tw0, f0 * tile - t * 0.04F);
+                    Fx.v(vc, m, p11[0], p11[1], p11[2], c1[0], c1[1], c1[2], u1 + tw1, f1 * tile - t * 0.04F);
+                    Fx.v(vc, m, p01[0], p01[1], p01[2], c1[0], c1[1], c1[2], u0 + tw1, f1 * tile - t * 0.04F);
+                    Fx.v(vc, m, p00[0], p00[1], p00[2], c0[0], c0[1], c0[2], u0 + tw0, f0 * tile - t * 0.04F);
                 }
             }
             Fx.alpha = 1F;
@@ -322,7 +329,7 @@ public final class LeoneFx {
                 float f0 = j / (float) SL, f1 = (j + 1) / (float) SL;
                 float a0 = ph + f0 * 9F, a1 = ph + f1 * 9F;
                 float r0 = rad[j] * 1.05F, r1 = rad[j + 1] * 1.05F;
-                float w = 0.18F + f0 * 0.3F;
+                float w = (0.18F + f0 * 0.3F) * baseR * 0.6F;
                 float x0 = cx[j][0] + Mth.cos(a0) * r0, z0 = cx[j][2] + Mth.sin(a0) * r0, x1 = cx[j + 1][0] + Mth.cos(a1) * r1, z1 = cx[j + 1][2] + Mth.sin(a1) * r1;
                 float[] dc = {0.3F, 0.29F, 0.28F};
                 Fx.quad(vc, m, new float[]{x0, cx[j][1] - w, z0}, new float[]{x0, cx[j][1] + w, z0}, new float[]{x1, cx[j + 1][1] + w, z1},
@@ -335,7 +342,7 @@ public final class LeoneFx {
         pose.translate(cx[0][0], cx[0][1], cx[0][2]);
         Matrix4f pm = pose.last().pose();
         vc = Fx.bufT(buf, Fx.SMOKE, 0.5F * fade);
-        Fx.band(vc, pm, 0.5F, 0F, 2.8F, 1.1F, 24, new float[]{0.5F, 0.47F, 0.42F}, new float[]{0.62F, 0.6F, 0.56F}, 2F, -t * 0.12F, 1F, 0F);
+        Fx.band(vc, pm, baseR * 0.2F, 0F, baseR * 1.4F, baseR * 0.4F, 32, new float[]{0.5F, 0.47F, 0.42F}, new float[]{0.62F, 0.6F, 0.56F}, 2F, -t * 0.12F, 1F, 0F);
         Fx.alpha = 1F;
         pose.popPose();
     }

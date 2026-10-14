@@ -307,5 +307,9 @@
  "ability.librabeyblade.variares.4": "Twin Blade Whirlwind",
  "ability.librabeyblade.variares.5": "Final Variares Lightning Sword",
  "msg.librabeyblade.ability.variares": "§4§lVARIARES! §r§c%s!",
- "dodge.librabeyblade.variares": "War Step!"
+ "dodge.librabeyblade.variares": "War Step!",
+ "msg.librabeyblade.ldrago_revive": "DRAGON EMPEROR REVIVAL! L-Drago burns all the spin it stole and comes back at full speed!",
+ "hud.librabeyblade.ldrago_reserve": "Stolen power: %s (charging)",
+ "hud.librabeyblade.ldrago_ready": "Stolen power: %s - REVIVAL READY",
+ "hud.librabeyblade.ldrago_revived": "Revival used"
 }

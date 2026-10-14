@@ -482,6 +482,8 @@ public class BeybladeEntity extends Entity {
         // rivals and berserkers let their spirit loose as soon as it is full
         if ((isRival() || getOrder() == OR_BERSERK) && getSpirit() >= SPIRIT_MAX && target != null) releaseSpirit();
         setSpin(getSpin() - decay);
+        // a last stand (L-Drago's stolen power) can pull it back from the brink, once
+        if (getSpin() <= getMaxSpin() * 0.02F) lastStand();
         if (getSpin() <= 0F) {
             defeat();
             return;
@@ -846,6 +848,8 @@ public class BeybladeEntity extends Entity {
         }
         o.damageSpin(toO, this);
         damageSpin(toMe, o);
+        onClash(o, toO, toMe);
+        o.onClash(this, toMe, toO);
         ServerLevel sl = (ServerLevel) this.level();
         if (opposite) {
             // the left-spinning top absorbs part of the right-spinner's rotation
@@ -1042,6 +1046,16 @@ public class BeybladeEntity extends Entity {
         if (perfect) this.entityData.set(DATA_SPIRIT, 40);
         if (power) { dashTicks = 10; }
     }
+
+    /** called after every clash with another beyblade (damage dealt and taken) */
+    protected void onClash(BeybladeEntity other, float dealt, float taken) {}
+
+    /** chance to come back when the spin is about to run out; return true if it did */
+    protected boolean lastStand() { return false; }
+
+    /** an extra HUD line for beyblade-specific passives, or null */
+    @Nullable
+    public Component passiveLine() { return null; }
 
     /** whether this move is delivered by charging into the target first (all action moves by default) */
     protected boolean ramsInto(int id) { return id != buffAbility(); }
@@ -1361,6 +1375,12 @@ public class BeybladeEntity extends Entity {
             double vr = v.x * nx + v.z * nz;
             if (vr > 0) {
                 v = v.subtract(nx * vr * 1.7, 0, nz * vr * 1.7);
+                if (vr > 0.7 && getState() == STATE_BATTLE) {
+                    // slammed into the wall at speed: real damage and a heavy crash
+                    damageSpin((float) ((vr - 0.4) * 150), lastAttacker());
+                    this.level().playSound(null, getX(), getY(), getZ(), ModSounds.CLASH_HEAVY.get(), SoundSource.NEUTRAL, 2.2F, 0.55F);
+                    this.level().broadcastEntityEvent(this, EV_HEAVY_HIT);
+                }
                 if (vr > 0.12 && wallSoundCooldown == 0 && rel < StadiumEntity.WALL_TOP + 0.5) {
                     wallSoundCooldown = 6;
                     play(ModSounds.WALL_HIT.get(), 0.9F, 0.9F + this.random.nextFloat() * 0.3F);
@@ -1521,7 +1541,7 @@ public class BeybladeEntity extends Entity {
 
     @Override
     public AABB getBoundingBoxForCulling() {
-        if (clientAbility != AB_NONE || getState() == STATE_RECALL) return getBoundingBox().inflate(26, 24, 26);
+        if (clientAbility != AB_NONE || getState() == STATE_RECALL) return getBoundingBox().inflate(30, 80, 30);
         if (isShielded()) return getBoundingBox().inflate(2);
         return getBoundingBox().inflate(1.5);
     }

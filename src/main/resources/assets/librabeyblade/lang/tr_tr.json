@@ -307,5 +307,9 @@
  "ability.librabeyblade.variares.4": "Çift Kılıç Kasırgası",
  "ability.librabeyblade.variares.5": "Son Variares Şimşek Kılıcı",
  "msg.librabeyblade.ability.variares": "§4§lVARIARES! §r§c%s!",
- "dodge.librabeyblade.variares": "Savaş Adımı!"
+ "dodge.librabeyblade.variares": "Savaş Adımı!",
+ "msg.librabeyblade.ldrago_revive": "EJDERHA İMPARATORU DİRİLİŞİ! L-Drago çaldığı tüm gücü kullanıp tam hızına geri döndü!",
+ "hud.librabeyblade.ldrago_reserve": "Çalınan güç: %s (toplanıyor)",
+ "hud.librabeyblade.ldrago_ready": "Çalınan güç: %s - DİRİLİŞ HAZIR",
+ "hud.librabeyblade.ldrago_revived": "Diriliş kullanıldı"
 }

@@ -109,6 +109,11 @@ public class LibraHud implements IGuiOverlay {
         g.drawString(font, Component.translatable(sp ? "hud.librabeyblade.spirit_on" : (bey.getSpirit() >= BeybladeEntity.SPIRIT_MAX ? "hud.librabeyblade.spirit_ready" : "hud.librabeyblade.spirit")),
                 x + 26, ay, 0xFFFFFFFF, true);
         ay += 11;
+        net.minecraft.network.chat.Component passive = bey.passiveLine();
+        if (passive != null) {
+            g.drawString(font, passive, x, ay, 0xFFFF6070, true);
+            ay += 10;
+        }
         if (bey.isFinalDrive()) g.drawString(font, Component.translatable("hud.librabeyblade.final_drive"), x, ay, 0xFFFF6040, true);
         else if (bey.isLifeAfterDeath()) g.drawString(font, Component.translatable("hud.librabeyblade.lad"), x, ay, 0xFF60FF90, true);
     }

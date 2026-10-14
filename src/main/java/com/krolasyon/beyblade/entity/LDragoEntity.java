@@ -64,6 +64,65 @@ public class LDragoEntity extends BeybladeEntity {
     public final float[] clawRot = new float[6];
     private int clawIndex;
 
+    // ---------------- Dragon Emperor Revival: power stolen in every clash, spent once to come back from the brink ----------------
+    private static final net.minecraft.network.syncher.EntityDataAccessor<Float> DATA_RESERVE =
+            net.minecraft.network.syncher.SynchedEntityData.defineId(LDragoEntity.class, net.minecraft.network.syncher.EntityDataSerializers.FLOAT);
+    private static final net.minecraft.network.syncher.EntityDataAccessor<Boolean> DATA_REVIVED =
+            net.minecraft.network.syncher.SynchedEntityData.defineId(LDragoEntity.class, net.minecraft.network.syncher.EntityDataSerializers.BOOLEAN);
+    public static final float REVIVE_MIN = 60F;
+    public static final byte EV_REVIVE = 74;
+    public int reviveTime = -1000;
+
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(DATA_RESERVE, 0F);
+        this.entityData.define(DATA_REVIVED, false);
+    }
+
+    /** test hook: store stolen power directly */
+    public void debugCharge(float amount) { this.entityData.set(DATA_RESERVE, reserve() + amount); }
+
+    public float reserve() { return this.entityData.get(DATA_RESERVE); }
+    public boolean revived() { return this.entityData.get(DATA_REVIVED); }
+
+    /** every collision feeds the dragon: part of the damage dealt and taken is stored as stolen power */
+    @Override
+    protected void onClash(BeybladeEntity other, float dealt, float taken) {
+        if (revived()) return;
+        this.entityData.set(DATA_RESERVE, reserve() + dealt * 0.5F + taken * 0.5F);
+    }
+
+    /** right before it stops, L-Drago burns everything it stole and spins back up to full speed - once per launch */
+    @Override
+    protected boolean lastStand() {
+        if (revived() || reserve() < REVIVE_MIN) return false;
+        this.entityData.set(DATA_REVIVED, true);
+        this.entityData.set(DATA_RESERVE, 0F);
+        healSpin(getMaxSpin());
+        stun(0);
+        play(ModSounds.DRAGON_ROAR.get(), 2.5F, 0.8F);
+        play(ModSounds.METEOR_IMPACT.get(), 2.0F, 1.2F);
+        this.level().broadcastEntityEvent(this, EV_REVIVE);
+        for (Entity e : enemiesWithin(5)) {
+            Vec3 out = flat(e.position().subtract(position()));
+            out = out.lengthSqr() < 1.0E-4 ? new Vec3(1, 0, 0) : out.normalize();
+            e.setDeltaMovement(e.getDeltaMovement().add(out.scale(0.8)).add(0, 0.2, 0));
+            e.hurtMarked = true;
+        }
+        Player owner = getOwner();
+        if (owner != null) owner.displayClientMessage(net.minecraft.network.chat.Component.translatable("msg.librabeyblade.ldrago_revive")
+                .withStyle(net.minecraft.ChatFormatting.RED, net.minecraft.ChatFormatting.BOLD), false);
+        return true;
+    }
+
+    @Override
+    public net.minecraft.network.chat.Component passiveLine() {
+        if (revived()) return net.minecraft.network.chat.Component.translatable("hud.librabeyblade.ldrago_revived");
+        return net.minecraft.network.chat.Component.translatable(reserve() >= REVIVE_MIN ? "hud.librabeyblade.ldrago_ready" : "hud.librabeyblade.ldrago_reserve",
+                Mth.floor(reserve()));
+    }
+
     public LDragoEntity(EntityType<? extends LDragoEntity> type, Level level) {
         super(type, level);
     }
@@ -359,6 +418,7 @@ public class LDragoEntity extends BeybladeEntity {
         switch (id) {
             case EV_AWAKEN -> awakenTime = this.tickCount;
             case EV_GRAB_UP -> grabTime = this.tickCount;
+            case EV_REVIVE -> reviveTime = this.tickCount;
             case EV_CLAW, EV_UPPER -> {
                 Entity t = this.level().getEntity(getTargetId());
                 int i = clawIndex++ % clawTimes.length;
