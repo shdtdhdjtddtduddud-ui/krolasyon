@@ -659,8 +659,11 @@ def clash(heavy=False):
     hit = mix(clink(f, 0.035 if not heavy else 0.06) * 0.8, clink(f * 0.71, 0.03) * 0.45)
     click = tick_noise(0.02, 3500, 12000, 0.004) * 1.4
     knock = tick_noise(0.06, 500, 1600, 0.018) * 0.7
-    y = mix(hit, click, knock)
+    # the deep "boom" of two heavy metal tops slamming together
+    gum = mix(boom(0.4, 150, 48, 0.09) * 1.1, lp(noise(0.08), 300) * env(int(0.08 * SR), 0.001, 0.02) * 0.6)
+    y = mix(hit * 0.85, click, knock, gum)
     if heavy:
+        y = mix(y, boom(0.7, 110, 32, 0.2) * 1.6, lp(noise(0.25), 220) * env(int(0.25 * SR), 0.002, 0.06) * 0.9)
         # a rattle of 2-3 quick impacts, a short scrape and a dull thump
         for k, off in enumerate((0.018, 0.041)):
             p = int(off * SR)
@@ -670,7 +673,7 @@ def clash(heavy=False):
         scrape = bp(noise(sc_d), 2200, 6500) * env(int(sc_d * SR), 0.005, 0.07, 1.0) * rattle(int(sc_d * SR), 90, 0.6) * 0.5
         thump = boom(0.2, 140, 60, 0.05) * 0.5
         y = mix(y, np.concatenate([np.zeros(int(0.02 * SR)), scrape]), thump)
-    return reverb(pad(y, 0.4), 0.1, 0.35)
+    return reverb(pad(y, 0.7 if heavy else 0.45), 0.14 if heavy else 0.1, 0.5)
 
 
 def wall_hit():

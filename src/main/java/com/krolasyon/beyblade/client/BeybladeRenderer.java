@@ -234,6 +234,10 @@ public class BeybladeRenderer extends EntityRenderer<BeybladeEntity> {
         }
         pose.popPose();
 
+        float sh = t - e.shockTime;
+        if (sh >= 0 && sh < 14) renderShock(e, sh, ex, ey, ez, pose, buf);
+        float sa = t - e.spiritTime;
+        if (e.isSpiritActive() || (sa >= 0 && sa < 24)) renderSpirit(e, t, sa, pose, buf, glowCol);
         if (common != null) CommonFx.render(common, partial, t, ex, ey, ez, pose, buf, this.entityRenderDispatcher.cameraOrientation());
         else if (pegasus) PegasusFx.render((PegasusEntity) e, partial, t, ex, ey, ez, pose, buf, this.entityRenderDispatcher.cameraOrientation());
         else if (eagle) EagleFx.render((EagleEntity) e, partial, t, ex, ey, ez, pose, buf, this.entityRenderDispatcher.cameraOrientation());
@@ -241,6 +245,57 @@ public class BeybladeRenderer extends EntityRenderer<BeybladeEntity> {
         else if (drago) LDragoFx.render((LDragoEntity) e, partial, t, ex, ey, ez, pose, buf, this.entityRenderDispatcher.cameraOrientation());
         else LibraFx.render(e, partial, t, ex, ey, ez, pose, buf, this.entityRenderDispatcher.cameraOrientation());
         super.render(e, yaw, partial, pose, buf, light);
+    }
+
+    /** directional shock wave from a strong hit: an arc of compressed air racing away from the impact */
+    private void renderShock(BeybladeEntity e, float age, double ex, double ey, double ez, PoseStack pose, MultiBufferSource buf) {
+        float f = 1F - age / 14F;
+        float k = 1F - (1F - Math.min(1F, age / 11F)) * (1F - Math.min(1F, age / 11F)) * (1F - Math.min(1F, age / 11F));
+        float r = 0.5F + k * 5.5F;
+        float base = (float) Math.atan2(e.shockDirZ, e.shockDirX);
+        float cx = (float) (e.shockX - ex), cy = (float) (e.shockY - ey) + 0.3F, cz = (float) (e.shockZ - ez);
+        Matrix4f m = pose.last().pose();
+        VertexConsumer vc = Fx.buf(buf, Fx.WAVE);
+        int N = 18;
+        float span = 1.15F;
+        float[] cIn = Fx.c(0.75F, 0.9F, 1F, 0F), cOut = Fx.c(0.8F, 0.92F, 1F, 1.3F * f);
+        float[] wall = Fx.c(0.85F, 0.95F, 1F, 0.9F * f), top = Fx.c(0F, 0F, 0F, 0F);
+        float h = 1.1F * f + 0.2F;
+        for (int i = 0; i < N; i++) {
+            float a0 = base - span + 2 * span * i / N, a1 = base - span + 2 * span * (i + 1) / N;
+            // fade toward the ends of the arc
+            float w0 = 1F - Math.abs(i / (float) N * 2 - 1), w1 = 1F - Math.abs((i + 1) / (float) N * 2 - 1);
+            float ri = Math.max(0F, r - 1.3F);
+            float[] o0 = Fx.c(cOut[0], cOut[1], cOut[2], w0), o1 = Fx.c(cOut[0], cOut[1], cOut[2], w1);
+            Fx.quad(vc, m, new float[]{cx + Mth.cos(a0) * ri, cy, cz + Mth.sin(a0) * ri}, new float[]{cx + Mth.cos(a0) * r, cy, cz + Mth.sin(a0) * r},
+                    new float[]{cx + Mth.cos(a1) * r, cy, cz + Mth.sin(a1) * r}, new float[]{cx + Mth.cos(a1) * ri, cy, cz + Mth.sin(a1) * ri},
+                    i / (float) N, 0F, (i + 1) / (float) N, 1F, cIn, Fx.lerp(0.5F, o0, o1));
+            float[] wc = Fx.c(wall[0], wall[1], wall[2], (w0 + w1) * 0.5F);
+            Fx.quad(vc, m, new float[]{cx + Mth.cos(a0) * r, cy - 0.2F, cz + Mth.sin(a0) * r}, new float[]{cx + Mth.cos(a0) * r, cy + h, cz + Mth.sin(a0) * r},
+                    new float[]{cx + Mth.cos(a1) * r, cy + h, cz + Mth.sin(a1) * r}, new float[]{cx + Mth.cos(a1) * r, cy - 0.2F, cz + Mth.sin(a1) * r},
+                    i / (float) N, 1F, (i + 1) / (float) N, 0F, wc, top);
+        }
+    }
+
+    /** Blader Spirit: a golden aura column around the top while the burst lasts */
+    private void renderSpirit(BeybladeEntity e, float t, float sa, PoseStack pose, MultiBufferSource buf, float[] col) {
+        float in = sa >= 0 && sa < 24 ? 1F - sa / 24F : 0F;
+        float on = e.isSpiritActive() ? Math.min(1F, e.spiritRemaining() / 20F) : 0F;
+        Matrix4f m = pose.last().pose();
+        VertexConsumer vc = Fx.buf(buf, Fx.WISP);
+        float[] gold = {1F, 0.8F, 0.3F};
+        float a = on * (0.6F + 0.2F * Mth.sin(t * 0.8F));
+        if (a > 0.01F) {
+            Fx.band(vc, m, 0.55F, 0F, 0.9F, 2.2F, 24, Fx.c(gold[0], gold[1], gold[2], a), new float[]{0, 0, 0}, 2F, t * 0.15F, 1F, -t * 0.08F);
+            Fx.band(vc, m, 0.5F, 0F, 0.6F, 1.4F, 24, Fx.c(col[0], col[1], col[2], a * 0.8F), new float[]{0, 0, 0}, 3F, -t * 0.2F, 1F, -t * 0.1F);
+        }
+        if (in > 0.01F) {
+            vc = Fx.buf(buf, Fx.WAVE);
+            float r = 0.6F + (1F - in) * 4F;
+            Fx.ring(vc, m, 0.1F, r - 0.9F, r, 48, new float[]{0, 0, 0}, Fx.c(gold[0], gold[1], gold[2], 1.4F * in), 4F, 0F);
+            vc = Fx.buf(buf, Fx.SOFT);
+            Fx.band(vc, m, 0.3F, 0F, 0.1F, 8F * in, 16, Fx.c(gold[0], gold[1], gold[2], in), new float[]{0, 0, 0}, 1F, 0F, 1F, 0F);
+        }
     }
 
     private void renderTrail(BeybladeEntity e, double ex, double ey, double ez, PoseStack pose, MultiBufferSource buf, int light, float sp) {

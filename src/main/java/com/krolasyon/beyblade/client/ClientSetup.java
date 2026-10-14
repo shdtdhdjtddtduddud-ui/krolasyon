@@ -19,6 +19,7 @@ public final class ClientSetup {
     public static final String CATEGORY = "key.categories.librabeyblade";
     public static final KeyMapping RECALL_KEY = new KeyMapping("key.librabeyblade.recall", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, CATEGORY);
     public static final KeyMapping COMMAND_KEY = new KeyMapping("key.librabeyblade.commands", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_B, CATEGORY);
+    public static final KeyMapping SPIRIT_KEY = new KeyMapping("key.librabeyblade.spirit", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_V, CATEGORY);
     public static final KeyMapping MODE_KEY = new KeyMapping("key.librabeyblade.mode", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_M, CATEGORY);
     public static final KeyMapping[] ABILITY_KEYS = {
             new KeyMapping("key.librabeyblade.ability1", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_G, CATEGORY),
@@ -44,6 +45,7 @@ public final class ClientSetup {
         event.register(RECALL_KEY);
         event.register(COMMAND_KEY);
         event.register(MODE_KEY);
+        event.register(SPIRIT_KEY);
         for (KeyMapping k : ABILITY_KEYS) event.register(k);
     }
 

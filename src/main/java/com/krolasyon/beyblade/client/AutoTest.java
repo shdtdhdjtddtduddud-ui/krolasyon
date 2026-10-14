@@ -59,62 +59,37 @@ public final class AutoTest {
 
     private AutoTest() {
         cmd(0, null, "gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false",
-                "time set 6000", "weather clear", "difficulty peaceful", "gamemode spectator @a", "kill @e[type=!player]",
-                "fill -6 -60 -2 6 -60 2 minecraft:smooth_stone");
-        // ---- the ten common beyblades in a row
-        cmd(4, null, "summon librabeyblade:common -4 -59 0 {Variant:0,Spin:3000f,MaxSpin:3000f,Frozen:1b}",
-                "summon librabeyblade:common -3 -59 0 {Variant:1,Spin:3000f,MaxSpin:3000f,Frozen:1b}",
-                "summon librabeyblade:common -2 -59 0 {Variant:2,Spin:3000f,MaxSpin:3000f,Frozen:1b}",
-                "summon librabeyblade:common -1 -59 0 {Variant:3,Spin:3000f,MaxSpin:3000f,Frozen:1b}",
-                "summon librabeyblade:common 0 -59 0 {Variant:4,Spin:3000f,MaxSpin:3000f,Frozen:1b}",
-                "summon librabeyblade:common 1 -59 0 {Variant:5,Spin:3000f,MaxSpin:3000f,Frozen:1b}",
-                "summon librabeyblade:common 2 -59 0 {Variant:6,Spin:3000f,MaxSpin:3000f,Frozen:1b}",
-                "summon librabeyblade:common 3 -59 0 {Variant:7,Spin:3000f,MaxSpin:3000f,Frozen:1b}",
-                "summon librabeyblade:common 4 -59 0 {Variant:8,Spin:3000f,MaxSpin:3000f,Frozen:1b}",
-                "summon librabeyblade:common 5 -59 0 {Variant:9,Spin:3000f,MaxSpin:3000f,Frozen:1b}",
-                "tp @a 0.5 -56.6 3.2 180 45");
-        wait(30, "commons_row");
-        cmd(6, "commons_close", "tp @a -1.5 -57.8 1.6 180 40");
-        // ---- contact battle on flat ground: Leone rams Eagle with the storm cage
-        cmd(10, null, "kill @e[type=!player]", "fill -6 -60 -2 6 -60 2 minecraft:air", "tp @a 1.5 -55 6 180 22", A, B);
+                "time set 6000", "weather clear", "difficulty peaceful", "gamemode spectator @a", "kill @e[type=!player]");
+        // ---- Leone's tornadoes circling Leone itself
+        cmd(10, null, "tp @a 1.5 -52 12 180 18", A, B, "summon librabeyblade:common -3 -60 -8 {Variant:2,Spin:3000f,MaxSpin:3000f,Frozen:1b}");
         wait(15, null);
         force(5);
-        wait(20, "cage_ram");
-        wait(25, "cage_tornado_a");
-        wait(30, "cage_tornado_b");
-        wait(60, null);
-        // ---- big stadium, free battle with commons and legends touching and grinding
-        cmd(10, null, "kill @e[type=!player]", "summon librabeyblade:stadium 0.5 -60 -14.5", "tp @a 0.5 -47 9 180 40",
-                "summon librabeyblade:pegasus -4 -57 -14.5 {Spin:3000f,MaxSpin:3000f}", "summon librabeyblade:common 5 -57 -14.5 {Variant:0,Spin:3000f,MaxSpin:3000f}",
-                "summon librabeyblade:ldrago 0.5 -57 -19 {Spin:3000f,MaxSpin:3000f}", "summon librabeyblade:common 0.5 -57 -10 {Variant:7,Spin:3000f,MaxSpin:3000f}");
-        wait(40, "stadium_big");
-        cmd(4, null, "tp @a 0.5 -56 -6 180 35");
-        wait(16, "stadium_contact_a");
-        wait(12, "stadium_contact_b");
+        wait(25, "tornado_a");
+        wait(25, "tornado_b");
+        wait(30, "tornado_c");
+        wait(50, null);
+        // ---- stadium: shock wave, Blader Spirit, fast circling
+        cmd(10, null, "kill @e[type=!player]", "summon librabeyblade:stadium 0.5 -60 -14.5", "tp @a 0.5 -55.5 -6 180 35",
+                "summon librabeyblade:pegasus -1 -59 -13.5 {Spin:3000f,MaxSpin:3000f,Frozen:1b,Tags:[\"s1\"]}",
+                "summon librabeyblade:common 0.2 -59 -13.5 {Variant:0,Spin:3000f,MaxSpin:3000f,Frozen:1b,Tags:[\"s2\"]}");
         wait(30, null);
-        // ---- match vs AI with the scoreboard and the owned HUD
-        cmd(4, null, "kill @e[type=librabeyblade:common]", "kill @e[type=librabeyblade:pegasus]", "kill @e[type=librabeyblade:ldrago]",
-                "gamemode creative @a", "tp @a 0.5 -60 2.7 180 25");
-        server(10, null, s -> {
-            ServerPlayer p = s.getPlayerList().getPlayers().get(0);
-            for (com.krolasyon.beyblade.entity.StadiumEntity st : p.level().getEntitiesOfClass(com.krolasyon.beyblade.entity.StadiumEntity.class, p.getBoundingBox().inflate(40)))
-                st.debugStartVsAI(p);
-        });
-        steps.add(new Step(90, null, null, true));
+        server(1, null, s -> each(s, "s2", b -> each(s, "s1", o -> b.shockwave(o, 1.0))));
+        wait(3, "shock_a");
+        wait(4, "shock_b");
+        server(1, null, s -> each(s, "s1", b -> { b.addSpirit(100); b.releaseSpirit(); }));
+        wait(6, "spirit_a");
+        wait(30, "spirit_b");
+        cmd(4, null, "kill @e[type=!player]", "gamemode creative @a", "tp @a 0.5 -60 2.7 180 25");
         server(4, null, s -> {
             ServerPlayer p = s.getPlayerList().getPlayers().get(0);
-            ItemStack st = new ItemStack(ModItems.COMMONS.get(3).get());
-            st.getOrCreateTag().putInt("BeyLevel", 7);
-            BeybladeEntity.launch(com.krolasyon.beyblade.registry.ModEntities.COMMON.get(), p.level(), p, st,
+            BeybladeEntity b = BeybladeEntity.launch(com.krolasyon.beyblade.registry.ModEntities.PEGASUS.get(), p.level(), p, new ItemStack(ModItems.PEGASUS.get()),
                     p.getEyePosition().add(0, 0.5, -1), new Vec3(0, 0.45, -0.5), 1F);
+            b.setOrder(BeybladeEntity.OR_CIRCLE);
         });
-        wait(50, "match_hud");
-        cmd(4, null, "tp @a 0.5 -52 -2 180 40");
-        wait(40, "match_battle");
-        client(4, "command_screen", mc -> mc.setScreen(new CommandScreen()));
-        client(4, null, mc -> mc.setScreen(null));
-        cmd(4, null, "item replace entity @a weapon.mainhand with librabeyblade:common_thunder_viper", "item replace entity @a hotbar.1 with librabeyblade:standard_launcher");
-        wait(16, "item_hand");
+        steps.add(new Step(60, null, null, true));
+        cmd(4, null, "tp @a 0.5 -48 -1 180 50");
+        wait(20, "circle_a");
+        wait(6, "circle_b");
         steps.add(new Step(2, null, null, false));
         wait(20, "END");
     }

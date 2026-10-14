@@ -255,5 +255,15 @@
  "hud.librabeyblade.match.battle": "Round %s - %s",
  "hud.librabeyblade.match.round_end": "Round over",
  "hud.librabeyblade.match.end": "Match over",
- "hud.librabeyblade.match.goal": "First to %s points | Spin Finish 1, Special Move Finish 2"
+ "hud.librabeyblade.match.goal": "First to %s points | Spin Finish 1, Special Move Finish 2",
+ "key.librabeyblade.spirit": "Blader Spirit burst",
+ "msg.librabeyblade.spirit": "BLADER SPIRIT! Get up, %s!",
+ "msg.librabeyblade.spirit_low": "Blader Spirit is not full yet (%s/100)",
+ "hud.librabeyblade.spirit": "Blader Spirit",
+ "hud.librabeyblade.spirit_ready": "Spirit READY! (press)",
+ "hud.librabeyblade.spirit_on": "SPIRIT BURST!",
+ "hud.librabeyblade.final_drive": "» FINAL DRIVE: last-gasp speed!",
+ "hud.librabeyblade.lad": "» Life After Death: still spinning!",
+ "msg.librabeyblade.perfect_launch": "★ PERFECT LAUNCH! Blader Spirit +40",
+ "msg.librabeyblade.power_launch": "Power Launch! (sneak launch: faster start)"
 }

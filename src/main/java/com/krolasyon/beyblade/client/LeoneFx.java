@@ -239,15 +239,15 @@ public final class LeoneFx {
         float form = easeOut(at / C_FORM);
         float fade = at > C_BLAST ? Math.max(0F, 1F - (at - C_BLAST) / 8F) : 1F;
         if (fade <= 0F) return;
-        float H = 11F * form;
+        float H = 15F * form;
         Vec3[] pil = new Vec3[4];
-        for (int i = 0; i < 4; i++) pil[i] = pillar(e.cageX, e.cageY, e.cageZ, i, at).subtract(ex, ey, ez);
+        for (int i = 0; i < 4; i++) pil[i] = pillar(0, -0.05, 0, i, at);
         for (int i = 0; i < 4; i++) twister(pose, buf, pil[i], H, t, i, fade);
         if (at >= C_FORM * 0.6F) {
             Matrix4f m = pose.last().pose();
             VertexConsumer vc;
             // storm swirling around the captive at the centre
-            Vec3 c = new Vec3(e.cageX - ex, e.cageY - ey + C_HOLD_HEIGHT, e.cageZ - ez);
+            Vec3 c = new Vec3(0, C_HOLD_HEIGHT, 0);
             vc = Fx.buf(buf, Fx.WAVE);
             for (int r = 0; r < 3; r++) {
                 float tilt = r * 60F + t * 4F;
@@ -279,7 +279,7 @@ public final class LeoneFx {
             cx[j][0] = (float) base.x + sway + wig;
             cx[j][1] = (float) base.y + h;
             cx[j][2] = (float) base.z + sway * 0.6F + wig2;
-            rad[j] = 0.35F + (float) Math.pow(f, 1.5) * 2.7F + 0.08F * Mth.sin(t * 0.7F + j);
+            rad[j] = 0.45F + (float) Math.pow(f, 1.5) * 3.8F + 0.1F * Mth.sin(t * 0.7F + j);
         }
         Matrix4f m = pose.last().pose();
         for (int layer = 0; layer < 3; layer++) {
@@ -334,7 +334,7 @@ public final class LeoneFx {
         pose.translate(cx[0][0], cx[0][1], cx[0][2]);
         Matrix4f pm = pose.last().pose();
         vc = Fx.bufT(buf, Fx.SMOKE, 0.5F * fade);
-        Fx.band(vc, pm, 0.4F, 0F, 2.2F, 0.9F, 24, new float[]{0.5F, 0.47F, 0.42F}, new float[]{0.62F, 0.6F, 0.56F}, 2F, -t * 0.12F, 1F, 0F);
+        Fx.band(vc, pm, 0.5F, 0F, 2.8F, 1.1F, 24, new float[]{0.5F, 0.47F, 0.42F}, new float[]{0.62F, 0.6F, 0.56F}, 2F, -t * 0.12F, 1F, 0F);
         Fx.alpha = 1F;
         pose.popPose();
     }

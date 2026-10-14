@@ -88,7 +88,7 @@ public class BeybladeEntity extends Entity {
             "zigzag", "berserk", "conserve", "flank", "upper"};
     public static final int MAX_LEVEL = 30;
 
-    public static final byte EV_HIT = 60, EV_HEAVY_HIT = 61, EV_LAND = 62, EV_SHIELD_HIT = 63, EV_WALL = 64, EV_IMPACT = 65, EV_STRIKE = 66, EV_GRIND = 67;
+    public static final byte EV_HIT = 60, EV_HEAVY_HIT = 61, EV_LAND = 62, EV_SHIELD_HIT = 63, EV_WALL = 64, EV_IMPACT = 65, EV_STRIKE = 66, EV_GRIND = 67, EV_SHOCK = 68, EV_SPIRIT = 69;
 
     private static final EntityDataAccessor<Optional<UUID>> DATA_OWNER = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.OPTIONAL_UUID);
     private static final EntityDataAccessor<Float> DATA_SPIN = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.FLOAT);
@@ -100,6 +100,8 @@ public class BeybladeEntity extends Entity {
     private static final EntityDataAccessor<Integer> DATA_MODE = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_ORDER = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_LEVEL = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_SPIRIT = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_SPIRIT_END = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_XP = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.INT);
     @SuppressWarnings("unchecked")
     private static final EntityDataAccessor<Integer>[] DATA_COOLDOWN = new EntityDataAccessor[ABILITY_COUNT];
@@ -141,7 +143,8 @@ public class BeybladeEntity extends Entity {
     public float spinAngle, spinAngleO, precess, precessO;
     public int clientAbility, clientAbilityStart = -1000, clientStateStart;
     public double abilityX, abilityY, abilityZ;
-    public int grindTime = -1000;
+    public int grindTime = -1000, shockTime = -1000, spiritTime = -1000;
+    public double shockDirX, shockDirZ, shockX, shockY, shockZ;
     public int hitTime = -1000, heavyHitTime = -1000, landTime = -1000, shieldHitTime = -1000, impactTime = -1000, strikeTime = -1000;
     public final double[] trailX = new double[8], trailY = new double[8], trailZ = new double[8];
     private boolean soundStarted, trailInit;
@@ -191,6 +194,8 @@ public class BeybladeEntity extends Entity {
         this.entityData.define(DATA_ORDER, OR_AUTO);
         this.entityData.define(DATA_LEVEL, 1);
         this.entityData.define(DATA_XP, 0);
+        this.entityData.define(DATA_SPIRIT, 0);
+        this.entityData.define(DATA_SPIRIT_END, 0);
         for (EntityDataAccessor<Integer> a : DATA_COOLDOWN) this.entityData.define(a, 0);
     }
 
@@ -268,6 +273,42 @@ public class BeybladeEntity extends Entity {
         }
     }
 
+    // ---------------- Metal Fight mechanics ----------------
+    public static final int SPIRIT_MAX = 100, SPIRIT_TICKS = 180;
+    public int getSpirit() { return this.entityData.get(DATA_SPIRIT); }
+    public void addSpirit(int n) {
+        if (getState() != STATE_BATTLE || isSpiritActive()) return;
+        this.entityData.set(DATA_SPIRIT, Mth.clamp(getSpirit() + n, 0, SPIRIT_MAX));
+    }
+    /** Blader Spirit burst (anime "Get up!"): more power and speed, spin recovers, moves recharge faster */
+    public boolean isSpiritActive() { return this.level().getGameTime() < this.entityData.get(DATA_SPIRIT_END); }
+    public int spiritRemaining() { return (int) Math.max(0, this.entityData.get(DATA_SPIRIT_END) - this.level().getGameTime()); }
+    public void releaseSpirit() {
+        Player owner = getOwner();
+        if (getState() != STATE_BATTLE) return;
+        if (getSpirit() < SPIRIT_MAX) {
+            if (owner != null) owner.displayClientMessage(Component.translatable("msg.librabeyblade.spirit_low", getSpirit()), true);
+            return;
+        }
+        this.entityData.set(DATA_SPIRIT, 0);
+        this.entityData.set(DATA_SPIRIT_END, (int) (this.level().getGameTime() + SPIRIT_TICKS));
+        healSpin(getMaxSpin() * 0.15F);
+        long now = this.level().getGameTime();
+        for (int i = 0; i < ABILITY_COUNT; i++) {
+            int end = this.entityData.get(DATA_COOLDOWN[i]);
+            if (end > now) this.entityData.set(DATA_COOLDOWN[i], (int) (now + (end - now) / 2));
+        }
+        play(ModSounds.SHIELD_UP.get(), 2.0F, 0.7F);
+        play(ModSounds.CLASH_HEAVY.get(), 1.5F, 0.6F);
+        this.level().broadcastEntityEvent(this, EV_SPIRIT);
+        if (owner != null) owner.displayClientMessage(Component.translatable("msg.librabeyblade.spirit", Component.translatable(titleKey()))
+                .withStyle(net.minecraft.ChatFormatting.GOLD, net.minecraft.ChatFormatting.BOLD), true);
+    }
+    /** Final Drive (Metal Fury): attack types surge forward when their spin runs low */
+    public boolean isFinalDrive() { return getMode() == MODE_ATTACK && spinRatio() < 0.35F && getState() == STATE_BATTLE; }
+    /** Life After Death: stamina types keep wobbling on far longer at the very end of their spin */
+    public boolean isLifeAfterDeath() { return getMode() == MODE_STAMINA && spinRatio() < 0.12F && getState() == STATE_BATTLE; }
+
     private boolean nativeBonus() { return getMode() == nativeMode(); }
     /** multiplier on spin damage this beyblade deals */
     public float powerMul() {
@@ -275,6 +316,8 @@ public class BeybladeEntity extends Entity {
         if (nativeBonus()) m *= 1.1F;
         if (getOrder() == OR_BERSERK) m *= 1.15F;
         if (getOrder() == OR_UPPER) m *= 0.9F;
+        if (isSpiritActive()) m *= 1.3F;
+        if (isFinalDrive()) m *= 1.15F;
         return m * (1F + 0.03F * (getLevel() - 1));
     }
     /** multiplier on spin damage taken */
@@ -287,6 +330,8 @@ public class BeybladeEntity extends Entity {
     }
     public double modeSpeed() {
         double m = switch (getMode()) { case MODE_ATTACK -> 1.25; case MODE_DEFENSE -> 0.85; case MODE_STAMINA -> 0.9; default -> 1.05; };
+        if (isSpiritActive()) m *= 1.2;
+        if (isFinalDrive()) m *= 1.25;
         return m * (1.0 + 0.008 * (getLevel() - 1));
     }
     public float modeDecay() {
@@ -294,6 +339,7 @@ public class BeybladeEntity extends Entity {
         if (getMode() == MODE_STAMINA && nativeBonus()) m *= 0.85F;
         if (getOrder() == OR_CONSERVE) m *= 0.6F;
         if (getOrder() == OR_BERSERK) m *= 1.3F;
+        if (isLifeAfterDeath()) m *= 0.4F;
         return m;
     }
     /** how much of a collision knock this beyblade takes */
@@ -404,10 +450,14 @@ public class BeybladeEntity extends Entity {
     private void tickBattle(@Nullable Player owner) {
         float decay = 0.2F * modeDecay() * (isInWater() ? 4F : 1F) * (isShielded() ? 1.15F : 1F);
         // training: every 5 seconds spent spinning gives experience
-        if (!isRival() && ++trainTicks >= 100) {
+        if (++trainTicks >= 100) {
             trainTicks = 0;
-            addXp(target != null ? 2 : 1);
+            if (!isRival()) addXp(target != null ? 2 : 1);
+            // the spirit rises when things look bad, and slowly in any battle
+            addSpirit(spinRatio() < 0.3F ? 8 : (target != null ? 3 : 1));
         }
+        // rivals and berserkers let their spirit loose as soon as it is full
+        if ((isRival() || getOrder() == OR_BERSERK) && getSpirit() >= SPIRIT_MAX && target != null) releaseSpirit();
         setSpin(getSpin() - decay);
         if (getSpin() <= 0F) {
             defeat();
@@ -491,14 +541,14 @@ public class BeybladeEntity extends Entity {
             Vec3 c = order == OR_FOLLOW || order == OR_GUARD ? (owner != null ? owner.position() : base) : base;
             double r, tan;
             switch (order) {
-                case OR_CIRCLE -> { r = arena ? StadiumEntity.BOWL_R * 0.78 : 5.0; tan = 0.42; }
+                case OR_CIRCLE -> { r = arena ? StadiumEntity.BOWL_R * 0.8 : 5.0; tan = 0.95; }
                 case OR_CENTER -> { r = 0.25; tan = 0.04; }
                 case OR_CONSERVE -> { r = arena ? 1.2 : 1.5; tan = 0.1; }
                 case OR_FOLLOW -> { r = 1.8; tan = 0.18; }
                 case OR_GUARD -> { r = 2.2; tan = 0.22; }
                 default -> { r = arena ? 3.4 : 2.8; tan = 0.25; }
             }
-            setDeltaMovement(orbit(v, c, r, tan, mul, order == OR_CIRCLE ? 0.18 : 0.12));
+            setDeltaMovement(orbit(v, c, r, tan, order == OR_CIRCLE ? Math.max(mul, 0.9 * modeSpeed()) : mul, order == OR_CIRCLE ? 0.3 : 0.12));
             return;
         }
         Vec3 to = flat(tg.position().subtract(position()));
@@ -554,16 +604,17 @@ public class BeybladeEntity extends Entity {
             default -> {}
         }
         // AUTO / ATTACK / BERSERK / UPPER / GUARD: close in, grind against the target and dash into it
-        double r = 0.55;
-        int dashMin = 12, dashRand = 16;
-        double dashPow = 0.55;
-        if (order == OR_ATTACK || order == OR_BERSERK || order == OR_UPPER) { r = 0.2; dashMin = 6; dashRand = 8; dashPow = 0.66; }
-        else if (mode == MODE_ATTACK) { r = 0.3; dashMin = 8; dashRand = 12; dashPow = 0.62; }
-        else if (mode == MODE_DEFENSE) { r = 1.0; dashMin = 22; dashRand = 20; dashPow = 0.45; }
-        else if (mode == MODE_STAMINA) { r = 1.4; dashMin = 26; dashRand = 24; dashPow = 0.42; }
+        // they keep coming back at each other: short pauses between dashes
+        double r = 0.3;
+        int dashMin = 6, dashRand = 8;
+        double dashPow = 0.58;
+        if (order == OR_ATTACK || order == OR_BERSERK || order == OR_UPPER) { r = 0.1; dashMin = 3; dashRand = 5; dashPow = 0.68; }
+        else if (mode == MODE_ATTACK) { r = 0.15; dashMin = 4; dashRand = 6; dashPow = 0.66; }
+        else if (mode == MODE_DEFENSE) { r = 0.6; dashMin = 10; dashRand = 10; dashPow = 0.5; }
+        else if (mode == MODE_STAMINA) { r = 0.8; dashMin = 12; dashRand = 12; dashPow = 0.46; }
         if (--dashCooldown <= 0 && onGround()) {
             setDeltaMovement(v.add(dir.scale(dashPow * (0.6 + 0.4 * ratio) * buffSpeedMul())));
-            dashTicks = 7;
+            dashTicks = 5;
             dashCooldown = (int) ((dashMin + this.random.nextInt(dashRand)) / buffSpeedMul());
             return;
         }
@@ -729,7 +780,7 @@ public class BeybladeEntity extends Entity {
         clashCooldown = 4;
         o.clashCooldown = 4;
         double impact = -rel;
-        boolean heavy = impact > 0.5;
+        boolean heavy = impact > 0.42;
         float base = (float) (10 + 150 * impact);
         float toO = base * (0.6F + 0.6F * spinRatio()) * buffAttackMul() * powerMul();
         float toMe = base * (0.6F + 0.6F * o.spinRatio()) * o.buffAttackMul() * o.powerMul();
@@ -766,11 +817,42 @@ public class BeybladeEntity extends Entity {
             Px.send(sl, ParticleTypes.FIREWORK, cx, cy, cz, 10, 0.05, 0.05, 0.05, 0.25);
         }
         this.level().playSound(null, cx, cy, cz, heavy ? ModSounds.CLASH_HEAVY.get() : ModSounds.CLASH.get(), SoundSource.NEUTRAL,
-                heavy ? 1.2F : 0.9F, 0.85F + this.random.nextFloat() * 0.35F);
+                heavy ? 2.2F : 1.4F, 0.8F + this.random.nextFloat() * 0.3F);
         this.level().broadcastEntityEvent(this, heavy ? EV_HEAVY_HIT : EV_HIT);
         this.level().broadcastEntityEvent(o, heavy ? EV_HEAVY_HIT : EV_HIT);
+        if (heavy) {
+            // the shock wave runs out on the side of the one that took the blow
+            BeybladeEntity loser = toO >= toMe ? o : this, winner = loser == o ? this : o;
+            loser.shockwave(winner, Math.min(1.0, impact));
+        }
+        addSpirit(heavy ? 6 : 3);
+        o.addSpirit(heavy ? 6 : 3);
         if (o.target == null) o.target = this;
         if (target == null) target = o;
+    }
+
+    /** a strong hit: a shock wave travels away from the attacker, shoving whatever stands in its way */
+    public void shockwave(Entity from, double strength) {
+        Vec3 dir = flat(position().subtract(from.position()));
+        dir = dir.lengthSqr() < 1.0E-4 ? new Vec3(1, 0, 0) : dir.normalize();
+        this.level().broadcastEntityEvent(this, EV_SHOCK);
+        Vec3 c = position().add(from.position()).scale(0.5);
+        double range = 3.5 + 2.5 * strength;
+        for (Entity e : this.level().getEntities(this, getBoundingBox().inflate(range, 2, range))) {
+            if (e == from || e instanceof StadiumEntity || e instanceof Player p && p.isSpectator()) continue;
+            Vec3 rel = flat(e.position().subtract(c));
+            double d = rel.length();
+            if (d < 0.3 || d > range || rel.scale(1 / d).dot(dir) < 0.55) continue;
+            double k = (1 - d / range) * strength;
+            if (e instanceof BeybladeEntity b) {
+                if (b.getState() != STATE_BATTLE) continue;
+                b.setDeltaMovement(b.getDeltaMovement().add(dir.scale(0.35 * k)));
+                if (isEnemy(b) || b.isEnemy(this)) b.damageSpin((float) (25 * k), from);
+            } else if (e instanceof LivingEntity l) {
+                l.push(dir.x * 0.6 * k, 0.15 * k, dir.z * 0.6 * k);
+                l.hurtMarked = true;
+            }
+        }
     }
 
     private static void shift(Entity e, double dx, double dz) {
@@ -813,7 +895,12 @@ public class BeybladeEntity extends Entity {
 
     public void damageSpin(float amount, @Nullable Entity source) {
         if (getState() != STATE_BATTLE || amount <= 0) return;
-        setSpin(getSpin() - amount * incomingMul() * guardMul());
+        float taken = amount * incomingMul() * guardMul();
+        setSpin(getSpin() - taken);
+        if (taken > 30F) addSpirit(4);
+        // Defense types bounce part of a collision back at the attacker (counter)
+        if (getMode() == MODE_DEFENSE && source instanceof BeybladeEntity att && att != this && att.getAbility() == AB_NONE && taken > 12F)
+            att.setSpin(att.getSpin() - taken * 0.15F);
         if (source instanceof BeybladeEntity b && b != this) {
             lastAttacker = b;
             lastAttackTick = this.level().getGameTime();
@@ -891,6 +978,12 @@ public class BeybladeEntity extends Entity {
         for (Set<Integer> s : waveHits) s.clear();
         this.entityData.set(DATA_ABILITY, id);
         announce(owner, id);
+    }
+
+    /** launcher bonus: a perfectly timed pull starts with a fuller spirit gauge */
+    public void launchBonus(boolean perfect, boolean power) {
+        if (perfect) this.entityData.set(DATA_SPIRIT, 40);
+        if (power) { dashTicks = 10; }
     }
 
     /** whether this move is delivered by charging into the target first (all action moves by default) */
@@ -1228,6 +1321,12 @@ public class BeybladeEntity extends Entity {
                 if (v.y < 0) v = new Vec3(v.x, v.y < -0.35 ? -v.y * 0.25 : 0, v.z);
                 setOnGround(true);
                 double sl = StadiumEntity.slope(r);
+                // Tornado Ridge: riding the outer slope of the bowl tangentially builds up speed
+                if (r > StadiumEntity.BOWL_R * 0.62) {
+                    double tx = -nz, tz = nx;
+                    double vt = v.x * tx + v.z * tz;
+                    if (Math.abs(vt) > 0.25 && Math.abs(vt) < 1.05) v = v.add(tx * vt * 0.045, 0, tz * vt * 0.045);
+                }
                 // gravity along the curved floor pulls tops toward the centre; same rolling friction as the ground
                 v = new Vec3((v.x - nx * sl * 0.045) * 0.965, v.y, (v.z - nz * sl * 0.045) * 0.965);
             }
@@ -1395,6 +1494,25 @@ public class BeybladeEntity extends Entity {
         switch (id) {
             case EV_HIT, EV_WALL -> hitTime = this.tickCount;
             case EV_GRIND -> grindTime = this.tickCount;
+            case EV_SPIRIT -> spiritTime = this.tickCount;
+            case EV_SHOCK -> {
+                // direction: away from the nearest other beyblade (the one that hit us)
+                BeybladeEntity other = null;
+                double best = 9;
+                for (BeybladeEntity b : this.level().getEntitiesOfClass(BeybladeEntity.class, getBoundingBox().inflate(2.5), b -> b != this)) {
+                    double d = b.distanceToSqr(this);
+                    if (d < best) { best = d; other = b; }
+                }
+                Vec3 dir = other == null ? new Vec3(1, 0, 0) : flat(position().subtract(other.position()));
+                dir = dir.lengthSqr() < 1.0E-4 ? new Vec3(1, 0, 0) : dir.normalize();
+                shockTime = this.tickCount;
+                shockDirX = dir.x;
+                shockDirZ = dir.z;
+                Vec3 c = other == null ? position() : position().add(other.position()).scale(0.5);
+                shockX = c.x;
+                shockY = c.y;
+                shockZ = c.z;
+            }
             case EV_HEAVY_HIT -> { hitTime = this.tickCount; heavyHitTime = this.tickCount; }
             case EV_LAND -> {
                 landTime = this.tickCount;
@@ -1565,6 +1683,7 @@ public class BeybladeEntity extends Entity {
         this.entityData.set(DATA_XP, tag.getInt("Xp"));
         if (tag.contains("Mode")) this.entityData.set(DATA_MODE, Mth.clamp(tag.getInt("Mode"), 0, MODE_COUNT - 1));
         this.entityData.set(DATA_ORDER, Mth.clamp(tag.getInt("Order"), 0, ORDER_COUNT - 1));
+        this.entityData.set(DATA_SPIRIT, Mth.clamp(tag.getInt("Spirit"), 0, SPIRIT_MAX));
         if (tag.contains("Level") && !tag.contains("MaxSpin")) this.entityData.set(DATA_MAX_SPIN, maxSpinFor(getLevel()));
         if (tag.contains("Item")) stored = ItemStack.of(tag.getCompound("Item"));
         if (tag.contains("HomeX")) home = new Vec3(tag.getDouble("HomeX"), tag.getDouble("HomeY"), tag.getDouble("HomeZ"));
@@ -1587,6 +1706,7 @@ public class BeybladeEntity extends Entity {
         tag.putInt("Xp", getXp());
         tag.putInt("Mode", getMode());
         tag.putInt("Order", getOrder());
+        tag.putInt("Spirit", getSpirit());
         if (!stored.isEmpty()) tag.put("Item", stored.save(new CompoundTag()));
         if (home != null) {
             tag.putDouble("HomeX", home.x);

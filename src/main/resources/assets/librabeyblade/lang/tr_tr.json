@@ -255,5 +255,15 @@
  "hud.librabeyblade.match.battle": "Raund %s - %s",
  "hud.librabeyblade.match.round_end": "Raund bitti",
  "hud.librabeyblade.match.end": "Maç bitti",
- "hud.librabeyblade.match.goal": "%s puana ulaşan kazanır | Döngü Bitirişi 1, Özel Hareket Bitirişi 2"
+ "hud.librabeyblade.match.goal": "%s puana ulaşan kazanır | Döngü Bitirişi 1, Özel Hareket Bitirişi 2",
+ "key.librabeyblade.spirit": "Blader Ruhu patlaması",
+ "msg.librabeyblade.spirit": "BLADER RUHU! Kalk, %s!",
+ "msg.librabeyblade.spirit_low": "Blader Ruhu henüz dolmadı (%s/100)",
+ "hud.librabeyblade.spirit": "Blader Ruhu",
+ "hud.librabeyblade.spirit_ready": "Ruh HAZIR! (bas)",
+ "hud.librabeyblade.spirit_on": "RUH PATLAMASI!",
+ "hud.librabeyblade.final_drive": "» FINAL DRIVE: son güçle hız!",
+ "hud.librabeyblade.lad": "» Ölüm Sonrası Yaşam: hâlâ dönüyor!",
+ "msg.librabeyblade.perfect_launch": "★ MÜKEMMEL FIRLATIŞ! Blader Ruhu +40",
+ "msg.librabeyblade.power_launch": "Güçlü Fırlatış! (eğilerek fırlatma: daha hızlı başlangıç)"
 }

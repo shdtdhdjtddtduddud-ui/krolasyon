@@ -22,6 +22,7 @@ public final class ModNetwork {
     public static final int CMD_RECALL = 0;   // 1..5 = abilities
     public static final int CMD_ORDER = 20;   // 20 + order id
     public static final int CMD_MODE_CYCLE = 39, CMD_MODE = 40;   // 40 + mode id
+    public static final int CMD_SPIRIT = 50;
 
     public static void register() {
         CHANNEL.registerMessage(0, Command.class, Command::encode, Command::decode, Command::handle);
@@ -48,6 +49,7 @@ public final class ModNetwork {
                 }
                 if (m.cmd == CMD_RECALL) bey.recall();
                 else if (m.cmd >= CMD_ORDER && m.cmd < CMD_ORDER + BeybladeEntity.ORDER_COUNT) bey.setOrder(m.cmd - CMD_ORDER);
+                else if (m.cmd == CMD_SPIRIT) bey.releaseSpirit();
                 else if (m.cmd == CMD_MODE_CYCLE) bey.setMode(bey.getMode() + 1);
                 else if (m.cmd >= CMD_MODE && m.cmd < CMD_MODE + BeybladeEntity.MODE_COUNT) bey.setMode(m.cmd - CMD_MODE);
                 else if (m.cmd >= 1 && m.cmd <= BeybladeEntity.ABILITY_COUNT) bey.tryAbility(m.cmd, true);

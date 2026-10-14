@@ -127,9 +127,16 @@ public class LauncherItem extends Item {
             }
         }
         EntityType<? extends BeybladeEntity> type = isStandard() && libraType.getItem() instanceof LibraItem li ? li.spawnType() : beyType.get();
-        BeybladeEntity.launch(type, level, player, launched, pos, vel, 0.55F + 0.45F * power);
+        // launch techniques: a pull released right at full charge is a Perfect Launch, a sneaking launch is a Power Launch
+        boolean perfect = used >= FULL_CHARGE && used <= FULL_CHARGE + 8;
+        boolean powerLaunch = player.isShiftKeyDown();
+        if (powerLaunch) vel = vel.multiply(1.35, 1.0, 1.35);
+        BeybladeEntity bey = BeybladeEntity.launch(type, level, player, launched, pos, vel, 0.55F + 0.45F * power);
+        bey.launchBonus(perfect, powerLaunch);
+        if (perfect) player.displayClientMessage(Component.translatable("msg.librabeyblade.perfect_launch").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD), false);
+        if (powerLaunch) player.displayClientMessage(Component.translatable("msg.librabeyblade.power_launch").withStyle(ChatFormatting.RED), false);
         level.playSound(null, player.getX(), player.getY(), player.getZ(), ModSounds.LAUNCH.get(), SoundSource.PLAYERS, 1.2F, 0.95F + power * 0.1F);
-        player.displayClientMessage(Component.translatable("msg.librabeyblade.launch", Math.round(power * 100)), true);
+        if (!perfect && !powerLaunch) player.displayClientMessage(Component.translatable("msg.librabeyblade.launch", Math.round(power * 100)), true);
         player.getCooldowns().addCooldown(this, 10);
     }
 

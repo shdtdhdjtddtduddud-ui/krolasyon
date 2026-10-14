@@ -41,7 +41,7 @@ public class LeoneEntity extends BeybladeEntity {
     public static final float Q_SPEED = 0.48F;
     public static final double Q_RADIUS = 9;
     public static final int C_FORM = 10, C_BLAST = 92;
-    public static final double C_PILLAR_DIST = 4.6, C_HOLD_HEIGHT = 2.4;
+    public static final double C_PILLAR_DIST = 4.4, C_PULL_RANGE = 18, C_HOLD_HEIGHT = 2.4;
 
     public static final byte EV_QUAKE = 80, EV_CAGE = 81, EV_CAGE_BLAST = 82, EV_WALL_HIT = 83;
 
@@ -246,39 +246,20 @@ public class LeoneEntity extends BeybladeEntity {
                 return true;
             }
             case LE_CAGE -> {
+                // King Lion Tearing Blast: four huge grey tornadoes circle Leone (two each way) and drag enemies in
                 if (t == 1) {
-                    if (target == null) {
-                        endAbilityEarly();
-                        return true;
-                    }
-                    cageCenter = target.position();
                     this.level().broadcastEntityEvent(this, EV_CAGE);
-                    play(ModSounds.CAGE_WIND.get(), 2.0F, 1.0F);
-                    play(ModSounds.LION_ROAR.get(), 1.4F, 1.1F);
+                    play(ModSounds.CAGE_WIND.get(), 2.2F, 0.9F);
+                    play(ModSounds.LION_ROAR.get(), 1.6F, 1.0F);
                 }
-                if (cageCenter == null) return true;
-                setDeltaMovement(getDeltaMovement().multiply(0.5, 1, 0.5));
+                cageCenter = position();
                 if (t >= C_FORM && t < C_BLAST) {
-                    if ((t - C_FORM) % 40 == 0) play(ModSounds.CAGE_WIND.get(), 1.6F, 1.1F);
-                    if (target != null && target.isAlive()) {
-                        Vec3 hold = cageCenter.add(Math.cos(t * 0.35) * 0.6, C_HOLD_HEIGHT + Math.sin(t * 0.2) * 0.3, Math.sin(t * 0.35) * 0.6);
-                        Vec3 d = hold.subtract(target.position());
-                        target.setDeltaMovement(d.scale(0.35));
-                        target.hurtMarked = true;
-                        target.fallDistance = 0;
-                        if (target instanceof BeybladeEntity b) b.damageSpin(4F, this);
-                        else if (target instanceof LivingEntity l && t % 5 == 0) {
-                            l.invulnerableTime = 0;
-                            l.hurt(damageSources().indirectMagic(this, owner), 1.5F);
-                        }
-                    }
-                    // everything else is sucked toward the nearest of the four twisting tornadoes and whirled around it
-                    for (Entity e : enemiesWithin(16)) {
-                        if (e == target) continue;
+                    if ((t - C_FORM) % 30 == 0) play(ModSounds.CAGE_WIND.get(), 2.0F, 0.85F + this.random.nextFloat() * 0.2F);
+                    for (Entity e : enemiesWithin(C_PULL_RANGE)) {
                         Vec3 best = null;
                         double bd = 1.0E9;
                         for (int i = 0; i < 4; i++) {
-                            Vec3 p = pillar(cageCenter.x, cageCenter.y, cageCenter.z, i, t);
+                            Vec3 p = pillar(getX(), getY(), getZ(), i, t);
                             double d = flat(p.subtract(e.position())).lengthSqr();
                             if (d < bd) { bd = d; best = p; }
                         }
@@ -287,29 +268,30 @@ public class LeoneEntity extends BeybladeEntity {
                         if (d < 1.0E-3) continue;
                         Vec3 dir = to.scale(1 / d);
                         Vec3 swirl = new Vec3(-dir.z, 0, dir.x);
-                        double pull = d < 1.6 ? 0.02 : Math.min(0.16, 0.6 / (d + 1.5));
-                        Vec3 v = e.getDeltaMovement().add(dir.scale(pull)).add(swirl.scale(d < 2.5 ? 0.16 : 0.05));
-                        if (d < 2.2) {
-                            v = new Vec3(v.x, Math.min(0.28, v.y + 0.09), v.z);
+                        double k = e == target ? 1.4 : 1.0;
+                        double pull = d < 1.8 ? 0.03 : Math.min(0.22, 0.9 / (d + 1.5)) * k;
+                        Vec3 v = e.getDeltaMovement().add(dir.scale(pull)).add(swirl.scale(d < 3.2 ? 0.2 : 0.06));
+                        if (d < 3.0) {
+                            v = new Vec3(v.x, Math.min(0.32, v.y + 0.1), v.z);
                             e.fallDistance = 0;
-                            if (e instanceof BeybladeEntity b) b.damageSpin(3F, this);
-                            else if (e instanceof LivingEntity l && t % 8 == 0) l.hurt(damageSources().indirectMagic(this, owner), 1.5F);
+                            if (e instanceof BeybladeEntity b) b.damageSpin(e == target ? 5F : 3F, this);
+                            else if (e instanceof LivingEntity l && t % 6 == 0) {
+                                l.invulnerableTime = 0;
+                                l.hurt(damageSources().indirectMagic(this, owner), 1.5F);
+                            }
                         }
                         e.setDeltaMovement(v);
                         e.hurtMarked = true;
                     }
                 }
                 if (t == C_BLAST) {
-                    play(ModSounds.CAGE_BLAST.get(), 2.6F, 1.0F);
+                    play(ModSounds.CAGE_BLAST.get(), 2.8F, 0.9F);
                     this.level().broadcastEntityEvent(this, EV_CAGE_BLAST);
-                    Px.send(sl, ParticleTypes.CLOUD, cageCenter.x, cageCenter.y + 2, cageCenter.z, 50, 1.5, 1.5, 1.5, 0.3);
-                    for (Entity e : this.level().getEntities(this, new net.minecraft.world.phys.AABB(cageCenter, cageCenter).inflate(5))) {
-                        boolean enemy = e instanceof BeybladeEntity b ? isEnemy(b) : (e instanceof LivingEntity l && isHostileLiving(l));
-                        if (!enemy && e != target) continue;
-                        Vec3 out = flat(e.position().subtract(cageCenter));
+                    for (Entity e : enemiesWithin(8)) {
+                        Vec3 out = flat(e.position().subtract(position()));
                         out = out.lengthSqr() < 1.0E-4 ? new Vec3(1, 0, 0) : out.normalize();
                         if (e instanceof BeybladeEntity b) {
-                            b.damageSpin(e == target ? 110F : 50F, this);
+                            b.damageSpin(e == target ? 120F : 60F, this);
                             b.setDeltaMovement(out.scale(1.0).add(0, 0.3, 0));
                         } else if (e instanceof LivingEntity l) {
                             l.hurt(damageSources().indirectMagic(this, owner), e == target ? 10F : 5F);
@@ -317,7 +299,8 @@ public class LeoneEntity extends BeybladeEntity {
                         }
                     }
                 }
-                return true;
+                // Leone keeps fighting while the storm rages around it
+                return t < C_FORM;
             }
             default -> {
                 return false;
@@ -327,8 +310,10 @@ public class LeoneEntity extends BeybladeEntity {
 
     /** the 4 tornado pillars of the storm cage, around its centre */
     public static Vec3 pillar(double cx, double cy, double cz, int i, float t) {
-        double a = Math.PI / 4 + i * Math.PI / 2 + t * 0.035;
-        double r = C_PILLAR_DIST + Math.sin(t * 0.09 + i * 1.7) * 0.6;
+        // even tornadoes circle one way, odd ones the other; each sways in and out on its own rhythm
+        double dir = i % 2 == 0 ? 1 : -1;
+        double a = Math.PI / 4 + i * Math.PI / 2 + dir * t * 0.065;
+        double r = C_PILLAR_DIST + Math.sin(t * 0.083 + i * 2.1) * 1.3 + Math.sin(t * 0.21 + i) * 0.4;
         return new Vec3(cx + Math.cos(a) * r, cy, cz + Math.sin(a) * r);
     }
 
@@ -345,7 +330,12 @@ public class LeoneEntity extends BeybladeEntity {
                 cageY = c.getY();
                 cageZ = c.getZ();
             }
-            case EV_CAGE_BLAST -> cageBlastTime = this.tickCount;
+            case EV_CAGE_BLAST -> {
+                cageBlastTime = this.tickCount;
+                cageX = getX();
+                cageY = getY();
+                cageZ = getZ();
+            }
             case EV_WALL_HIT -> wallHitTime = this.tickCount;
             default -> super.handleEntityEvent(id);
         }
@@ -379,7 +369,7 @@ public class LeoneEntity extends BeybladeEntity {
             case LE_CAGE -> {
                 if (at >= C_FORM && at < C_BLAST) {
                     for (int i = 0; i < 4; i++) {
-                        Vec3 p = pillar(cageX, cageY, cageZ, i, at);
+                        Vec3 p = pillar(getX(), getY(), getZ(), i, at);
                         double a = this.random.nextDouble() * Math.PI * 2, h = this.random.nextDouble() * 6;
                         Px.add(lv, i % 2 == 0 ? ParticleTypes.CLOUD : LEAF, p.x + Math.cos(a) * 0.8, p.y + h, p.z + Math.sin(a) * 0.8,
                                 -Math.sin(a) * 0.3, 0.1, Math.cos(a) * 0.3);

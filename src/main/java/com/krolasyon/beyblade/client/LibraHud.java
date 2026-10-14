@@ -39,7 +39,7 @@ public class LibraHud implements IGuiOverlay {
         if (bey == null) return;
         Font font = mc.font;
         int x = 8, y = height / 2 - 66;
-        g.fill(x - 4, y - 4, x + 168, y + 140, 0x88000000);
+        g.fill(x - 4, y - 4, x + 168, y + 162, 0x88000000);
         boolean drago = bey.kindId().equals("ldrago"), leone = bey.kindId().equals("leone"), eagle = bey.kindId().equals("eagle"), pegasus = bey.kindId().equals("pegasus");
         com.krolasyon.beyblade.entity.CommonBeybladeEntity common = bey instanceof com.krolasyon.beyblade.entity.CommonBeybladeEntity c ? c : null;
         if (common != null) g.blit(new ResourceLocation(LibraBeyblade.MODID, "textures/item/common_" + common.getVariant() + "_icon.png"), x, y, 0, 0, 24, 24, 24, 24);
@@ -95,5 +95,18 @@ public class LibraHud implements IGuiOverlay {
         ay += 10;
         g.drawString(font, "[" + ClientSetup.COMMAND_KEY.getTranslatedKeyMessage().getString() + "]", x, ay, 0xFFFFE070, true);
         g.drawString(font, Component.translatable("order.librabeyblade." + BeybladeEntity.ORDER_IDS[bey.getOrder()]), x + 22, ay, 0xFFE0E0E0, true);
+        // Blader Spirit gauge
+        ay += 12;
+        g.drawString(font, "[" + ClientSetup.SPIRIT_KEY.getTranslatedKeyMessage().getString() + "]", x, ay, 0xFFFFE070, true);
+        boolean sp = bey.isSpiritActive();
+        float sr = sp ? bey.spiritRemaining() / (float) BeybladeEntity.SPIRIT_TICKS : bey.getSpirit() / (float) BeybladeEntity.SPIRIT_MAX;
+        g.fill(x + 22, ay + 1, x + 160, ay + 8, 0xFF202020);
+        int scol = sp ? ((mc.level.getGameTime() / 3) % 2 == 0 ? 0xFFFFE060 : 0xFFFF9020) : (bey.getSpirit() >= BeybladeEntity.SPIRIT_MAX ? 0xFFFFD040 : 0xFFB07020);
+        g.fill(x + 23, ay + 2, x + 23 + (int) (136 * Mth.clamp(sr, 0F, 1F)), ay + 7, scol);
+        g.drawString(font, Component.translatable(sp ? "hud.librabeyblade.spirit_on" : (bey.getSpirit() >= BeybladeEntity.SPIRIT_MAX ? "hud.librabeyblade.spirit_ready" : "hud.librabeyblade.spirit")),
+                x + 26, ay, 0xFFFFFFFF, true);
+        ay += 11;
+        if (bey.isFinalDrive()) g.drawString(font, Component.translatable("hud.librabeyblade.final_drive"), x, ay, 0xFFFF6040, true);
+        else if (bey.isLifeAfterDeath()) g.drawString(font, Component.translatable("hud.librabeyblade.lad"), x, ay, 0xFF60FF90, true);
     }
 }
