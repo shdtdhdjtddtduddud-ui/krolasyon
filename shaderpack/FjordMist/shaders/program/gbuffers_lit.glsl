@@ -6,6 +6,7 @@
 #include "/lib/common.glsl"
 #include "/lib/sky.glsl"
 #include "/lib/waving.glsl"
+#include "/lib/water.glsl"
 
 varying vec2 texcoord;
 varying vec2 lmcoord;
@@ -116,6 +117,15 @@ void main() {
 		float n = noise2D(wp * 0.22) * 0.65 + noise2D(wp * 0.9 + 3.1) * 0.35;
 		puddle = smoothstep(0.50, 0.60, n) * wet;
 		storedNormal = upDir;
+		#ifdef RAIN_RIPPLES
+		// raindrops make rings on the puddles too
+		float pd = length(feetPos);
+		if (puddle > 0.05 && rainStrength > 0.01 && pd < 24.0) {
+			vec3 drops = rainDrops(wp, rainStrength);
+			float k = rainStrength * 0.25 * (1.0 - smoothstep(10.0, 24.0, pd));
+			storedNormal = normalize(mat3(gbufferModelView) * normalize(vec3(-drops.x * k, 1.0, -drops.y * k)));
+		}
+		#endif
 	}
 	#endif
 	float porosity = foliage ? 0.35 : 1.0;

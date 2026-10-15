@@ -24,7 +24,9 @@ sabah ya da öğleden sonra görürsün.
 | Yağmur | Suya düşen her damla için sıçrama ve yayılıp sönen dalga halkaları, hareket bulanıklıklı yağmur çizgileri, uzakta yağmur perdeleri (yansımalarda ve siste bozulmaz), ıslanınca koyulaşan yüzeyler, düz zeminlerde su birikintileri ve yansımaları, gökyüzü ışığını yansıtan yağmur çizgileri, lense düşen yağmur damlaları |
 | Bitkiler | Katmanlı rüzgar: araziyi dalga dalga geçen esintiler, ağaç taçlarının birlikte salınması, dalların hareketi ve yaprak titremesi; fırtınada hepsi şiddetlenir. Çimen, çiçek, ekin, uzun bitkiler ve sarmaşıklar rüzgar yönünde eğilir (gölgeleri de sallanır), yapraklardan ışık geçmesi |
 | Işık | Elde tutulan meşale/fener/ışık taşı etrafı aydınlatır, yumuşak gölgeler, kapalı havada dağınık gri ışık, sıcak meşale ışığı, gündoğumu/günbatımı renkleri, ay ışığı |
-| Kamera | Otomatik pozlama, bloom, ACES tonlama, serin "fiyort" renk tonu, vinyet, film greni |
+| Gökyüzü | Parıldayan renkli yıldızlar, Samanyolu, ara sıra kayan yıldızlar; bazı açık gecelerde dalgalanan kuzey ışıkları (aurora, suda da yansır); yağmur dinince güneşin karşısında çift gökkuşağı; şimşek çakınca bulutlar ve dünya bir anlığına aydınlanır, şimşeğin kendisi göz kamaştırır |
+| Gerçekçilik | Ortam gölgelendirmesi (köşeler, ağaç altları, çimen araları kararır), sığ suyun dibinde ve su altında dalgalanan ışık desenleri (kostik), su birikintilerinde de yağmur halkaları |
+| Kamera | Otomatik pozlama, bloom, ACES tonlama, güneşe bakınca lens parlaması, serin "fiyort" renk tonu, vinyet, film greni |
 
 **Fiyort Havası (kapalı gök)** ayarı yağmur yokken bile gökyüzünün ne kadar gri ve
 kasvetli olacağını belirler (`0` = açık hava, `1.0` = sürekli fırtına). Tüm ayarlar

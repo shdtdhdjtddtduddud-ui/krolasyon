@@ -40,7 +40,11 @@ void main() {
 	#endif
 	/* DRAWBUFFERS:03 */
 	if (star) {
+	#ifdef STARS
+		float s = 0.0;   // procedural stars are drawn in getSky()
+	#else
 		float s = glcolor.r * glcolor.a * 1.6;
+	#endif
 		gl_FragData[0] = vec4(0.0);
 		gl_FragData[1] = vec4(vec3(0.85, 0.9, 1.0) * s, 1.0);
 	} else {

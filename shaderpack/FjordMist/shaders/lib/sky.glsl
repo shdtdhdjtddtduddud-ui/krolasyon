@@ -1,4 +1,6 @@
 // Sky and light colours. Needs common.glsl.
+
+#include "/lib/celestial.glsl"
 // Everything is driven by the sun elevation and by the overcast amount, so
 // that a rainy day turns into the soft, gray, wet light of a northern fjord.
 
@@ -64,6 +66,13 @@ void getAtmosphereColors(out vec3 lightCol, out vec3 ambientCol, out vec3 zenith
 	ambientCol = mix(zenithCol, horizonCol, 0.45) * (0.85 + oc * 0.25);
 	ambientCol = mix(ambientCol, vec3(luma(ambientCol)), oc * 0.35);
 	ambientCol *= AMBIENT_BRIGHTNESS;
+
+	// lightning lights up the whole storm for a moment
+	float flash = lightningFlash();
+	vec3 flashCol = vec3(0.55, 0.6, 0.9) * flash;
+	ambientCol += flashCol * 1.4;
+	zenithCol  += flashCol * 1.0;
+	horizonCol += flashCol * 0.8;
 }
 
 float hgPhase(float cosTheta, float g) {
@@ -101,6 +110,18 @@ vec3 getSky(vec3 dirView, vec3 lightCol, vec3 zenithCol, vec3 horizonCol, bool w
 	if (withSun) {
 		float disc = smoothstep(0.99955, 0.99975, cs);
 		sky += sunGlowCol * disc * 22.0 * pow(clearAmt, 3.0);
+	}
+
+	// night sky: stars, milky way, shooting stars, northern lights
+	vec3 dirW = mat3(gbufferModelViewInverse) * dirView;
+	float nightAmt = 1.0 - smoothstep(-0.18, 0.02, e);
+	if (nightAmt > 0.0 && dirW.y > -0.05) {
+		float clearSky = 1.0 - smoothstep(0.35, 0.95, oc);
+		vec3 night = getAurora(dirW, nightAmt);
+	#ifdef STARS
+		if (withSun) night += (getStars(dirW) + getShootingStar(dirW)) * nightAmt * clearSky;
+	#endif
+		sky += night * smoothstep(-0.05, 0.08, dirW.y);
 	}
 
 	// moon halo

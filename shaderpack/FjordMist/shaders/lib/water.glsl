@@ -99,3 +99,16 @@ vec3 waterNormal(vec2 p, float distanceFade, float rippleFade) {
 
 	return normalize(vec3(-grad.x, 1.0, -grad.y));
 }
+
+// Caustics: bright, wobbling light lines that waves focus onto the ground
+// under shallow water.
+float waterCaustics(vec2 p) {
+	float t = frameTimeCounter * 0.55 * WATER_WAVE_SPEED;
+	float a = noise2D(p * 0.95 + vec2(t * 0.42, t * 0.23));
+	float b = noise2D(p * 1.15 + vec2(-t * 0.31, t * 0.37) + 7.3);
+	float c1 = pow(saturate(1.0 - abs(a - b) * 3.2), 7.0);
+	float a2 = noise2D(p * 2.1 + vec2(t * 0.6, -t * 0.45) + 3.1);
+	float b2 = noise2D(p * 2.4 + vec2(-t * 0.52, -t * 0.3) + 11.7);
+	float c2 = pow(saturate(1.0 - abs(a2 - b2) * 3.0), 6.0);
+	return c1 * 0.75 + c2 * 0.45;
+}

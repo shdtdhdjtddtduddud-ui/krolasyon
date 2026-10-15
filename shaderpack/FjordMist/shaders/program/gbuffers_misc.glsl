@@ -33,10 +33,16 @@ void main() {
 #ifdef CLOUDS
 	discard;
 #endif
+#ifdef LIGHTNING
+	vec4 tex = glcolor;
+#else
 	vec4 tex = texture2D(texture, texcoord) * glcolor;
+#endif
 	vec4 outCol;
 #if defined DAMAGED
 	outCol = tex;                                       // multiplicative blend
+#elif defined LIGHTNING
+	outCol = vec4(vec3(0.75, 0.82, 1.0) * 12.0, tex.a);  // blinding white-blue bolt
 #elif defined GLINT
 	outCol = vec4(pow(tex.rgb, vec3(2.2)) * 1.5, tex.a);
 #elif defined WEATHER

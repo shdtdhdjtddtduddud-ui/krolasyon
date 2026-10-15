@@ -24,6 +24,7 @@ PROGRAMS = {
     "gbuffers_spidereyes":    ("gbuffers_misc.glsl", ["EMISSIVE"]),
     "gbuffers_armor_glint":   ("gbuffers_misc.glsl", ["GLINT"]),
     "gbuffers_weather":       ("gbuffers_misc.glsl", ["WEATHER"]),
+    "gbuffers_lightning":     ("gbuffers_misc.glsl", ["LIGHTNING"]),
     "composite":              ("composite.glsl", []),
     "composite1":             ("composite1.glsl", []),
     "composite2":             ("composite2.glsl", []),

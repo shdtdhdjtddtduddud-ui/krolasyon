@@ -16,6 +16,14 @@ FAR = 320.0
 SHADOW_RES = 2048
 SHADOW_DIST = 128.0
 
+def _hash12(x, y):
+    import math
+    def fr(v): return v - math.floor(v)
+    p3 = [fr(x * 0.1031), fr(y * 0.1031), fr(x * 0.1031)]
+    d = p3[0] * (p3[1] + 33.33) + p3[1] * (p3[2] + 33.33) + p3[2] * (p3[0] + 33.33)
+    p3 = [v + d for v in p3]
+    return fr((p3[0] + p3[1]) * p3[2])
+AURORA_DAY = next(d for d in range(1, 500) if _hash12(float(d), 5.1) > 0.8)
 PRESETS = {
     "rain":   dict(time="day", sunElev=0.55, rain=1.0, wet=1.0),
     "cloudy": dict(time="day", sunElev=0.6, rain=0.0, wet=0.0),
@@ -25,6 +33,10 @@ PRESETS = {
     "storm":  dict(time="day", sunElev=0.45, rain=1.0, wet=1.0, thunder=1.0),
     "torch":  dict(time="night", sunElev=-0.5, rain=0.0, wet=0.0, held=14),
     "sunny":  dict(time="day", sunElev=0.7, rain=0.0, wet=0.0, overcast_off=True),
+    "aurora": dict(time="night", sunElev=-0.6, rain=0.0, wet=0.0, worldDay=AURORA_DAY),
+    "rainbow": dict(time="day", sunElev=0.3, rain=0.0, wet=1.0, sunBehind=True),
+    "lightning": dict(time="day", sunElev=0.45, rain=1.0, wet=1.0, thunder=1.0, bolt=(-60.0, 0.0, -120.0)),
+    "flare":  dict(time="sunset", sunElev=0.4, rain=0.0, wet=0.0),
 }
 preset = PRESETS[sys.argv[2] if len(sys.argv) > 2 else "rain"]
 extra_defines = sys.argv[3].split(",") if len(sys.argv) > 3 and sys.argv[3] else []
@@ -111,6 +123,11 @@ def height(x, z):
 
 CAM_PRESETS = {
     "shore": (np.array([36.0, 65.0, 34.0]), np.array([-0.30, 0.0, -1.0])),
+    "up":    (np.array([36.0, 65.0, 34.0]), np.array([-0.30, 0.55, -1.0])),
+    "back":  (np.array([36.0, 65.0, 34.0]), np.array([-0.2, 0.12, -1.0])),
+    "west":  (np.array([36.0, 65.0, 34.0]), np.array([-1.0, 0.12, -0.25])),
+    "sky":   (np.array([36.0, 700.0, 34.0]), np.array([-1.0, 0.3, -0.25])),
+    "westup": (np.array([36.0, 65.0, 34.0]), np.array([-1.0, 0.45, 0.1])),
     "high":  (np.array([70.0, 110.0, 60.0]), np.array([-0.4, -0.12, -1.0])),
 }
 cam, cam_fwd = CAM_PRESETS[cam_name]
@@ -309,9 +326,13 @@ if preset["time"] == "sunset": sun_w[0] = -sun_w[0]
 c, s = math.cos(sun_rot), math.sin(sun_rot)
 sun_w = np.array([sun_w[0], sun_w[1] * c, sun_w[1] * s])
 sun_w = normalize(sun_w + np.array([0, 0, -0.35]))
+if preset.get("sunBehind"):
+    sun_w = normalize(np.array([0.25, preset["sunElev"], 0.95]))
 moon_w = -sun_w
 light_w = sun_w if e > 0 else moon_w
 
+if os.environ.get("LOOK_AT_SUN"):
+    cam_fwd = normalize(sun_w + np.array([0.45, -0.2, 0.35]))
 view = look_dir(cam_fwd)
 proj = perspective(70, W / H, 0.05, FAR * 4)
 sv = look_dir(-light_w, np.array([0, 0, 1.0]) if abs(light_w[1]) > 0.99 else np.array([0, 1, 0.0]))
@@ -329,7 +350,8 @@ U = {
     "gbufferProjection": proj, "gbufferProjectionInverse": np.linalg.inv(proj),
     "shadowModelView": shadow_mv, "shadowModelViewInverse": np.linalg.inv(shadow_mv), "shadowProjection": shadow_proj,
     "frameTimeCounter": 123.4, "rainStrength": preset["rain"], "wetness": preset["wet"],
-    "thunderStrength": float(preset.get("thunder", 0.0)), "heldBlockLightValue": int(preset.get("held", 0)), "heldBlockLightValue2": 0,
+    "thunderStrength": float(preset.get("thunder", 0.0)), "worldDay": int(preset.get("worldDay", 3)),
+    "lightningBoltPosition": np.array(list(preset["bolt"]) + [1.0]) if "bolt" in preset else np.zeros(4), "heldBlockLightValue": int(preset.get("held", 0)), "heldBlockLightValue2": 0,
     "viewWidth": float(W), "viewHeight": float(H), "near": 0.05, "far": FAR, "sunAngle": 0.25,
     "isEyeInWater": 0, "worldTime": 6000, "frameCounter": 7, "eyeBrightnessSmooth": (0, 240), "renderStage": 0,
     "entityColor": np.zeros(4),
@@ -408,8 +430,10 @@ glDisable(GL_DEPTH_TEST)
 
 # composite passes
 ct4 = tex2d(GL_RGBA16F, W, H)
-fbo4 = fbo([ct4], None)
+ct6 = tex2d(GL_R8, W, H, GL_RED)
+fbo4 = fbo([ct4, ct6], None)
 SAMPLERS["colortex4"] = (9, ct4)
+SAMPLERS["colortex6"] = (11, ct6)
 def dump(name):
     if os.environ.get("DUMP"):
         for q in os.environ["DUMP"].split(";"):
@@ -419,7 +443,8 @@ passes = [("composite", ct0, comp_fbo_a), ("composite1", ct0b, fbo4), ("composit
 for name, srcTex, target in passes:
     if name in os.environ.get("SKIP", "").split(","):
         continue
-    glBindFramebuffer(GL_FRAMEBUFFER, target); glDrawBuffers(1, [GL_COLOR_ATTACHMENT0])
+    glBindFramebuffer(GL_FRAMEBUFFER, target)
+    glDrawBuffers(2, [GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1]) if target == fbo4 else glDrawBuffers(1, [GL_COLOR_ATTACHMENT0])
     SAMPLERS["colortex0"] = (2, srcTex)
     use(P[name]); fullscreen(); dump(name)
 src = ct0 if "composite2" not in os.environ.get("SKIP", "") else ct0b

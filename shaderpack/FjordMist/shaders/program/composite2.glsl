@@ -4,6 +4,8 @@
 /*
 const int colortex4Format = RGBA16F;
 const int colortex5Format = RGBA16F;
+const int colortex6Format = R8;
+const vec4 colortex6ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
 const vec4 colortex5ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
 */
 
@@ -29,12 +31,16 @@ void main() {
 uniform sampler2D colortex0;
 uniform sampler2D colortex4;
 uniform sampler2D colortex5;
+uniform sampler2D colortex1;
+uniform sampler2D colortex2;
+uniform sampler2D colortex6;
 uniform sampler2D depthtex0;
 
 // depth aware blur of the noisy ray-marched fog
-vec4 denoiseFog(vec2 uv, float centerDist) {
+vec4 denoiseFog(vec2 uv, float centerDist, out float ao) {
 	vec2 px = 1.0 / vec2(viewWidth, viewHeight);
 	vec4 sum = vec4(0.0);
+	float aoSum = 0.0;
 	float wsum = 0.0;
 	for (int x = -2; x <= 2; x++) {
 		for (int y = -2; y <= 2; y++) {
@@ -43,9 +49,11 @@ vec4 denoiseFog(vec2 uv, float centerDist) {
 			float dist = d >= 1.0 ? far * 1.6 : length(screenToView(uv + o, d));
 			float w = exp(-abs(dist - centerDist) / (0.5 + centerDist * 0.05)) * exp(-float(x * x + y * y) * 0.15);
 			sum += texture2D(colortex4, uv + o) * w;
+			aoSum += texture2D(colortex6, uv + o).r * w;
 			wsum += w;
 		}
 	}
+	ao = aoSum / max(wsum, 0.0001);
 	return sum / max(wsum, 0.0001);
 }
 
@@ -101,7 +109,19 @@ void main() {
 #elif defined END
 		color = mix(color, vec3(0.08, 0.05, 0.11), 1.0 - exp(-dist * 0.004 * FOG_DENSITY));
 #else
-		vec4 fog = denoiseFog(uv, dist);
+		float ao;
+		vec4 fog = denoiseFog(uv, dist, ao);
+	#ifdef SSAO
+		if (!sky) {
+			float material = floor(texture2D(colortex1, uv).z * 255.0 + 0.5);
+			if (abs(material - MAT_WATER) > 0.5 && abs(material - MAT_HAND) > 0.5) {
+				// occlusion mostly affects sky light, less so direct sunlight
+				float sunLit = texture2D(colortex2, uv).y * (1.0 - getOvercast() * 0.7);
+				ao = pow(ao, AO_STRENGTH);
+				color *= mix(ao, 1.0, sunLit * 0.45);
+			}
+		}
+	#endif
 		if (sky) {
 			// keep the sky readable: haze mostly near the horizon
 			float horizon = 1.0 - smoothstep(0.0, 0.35, dirW.y);

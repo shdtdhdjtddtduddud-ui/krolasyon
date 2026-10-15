@@ -48,6 +48,16 @@
 #define WAVING_STRENGTH 1.0     // [0.0 0.25 0.5 0.75 1.0 1.5 2.0 3.0]
 #define FOLIAGE_TRANSLUCENCY 1.0 // [0.0 0.5 1.0 1.5 2.0]
 
+// ------------------------------------------------------------ Sky wonders
+#define STARS
+#define SHOOTING_STARS
+#define AURORA 1                // [0 1 2]
+#define AURORA_STRENGTH 1.0     // [0.25 0.5 0.75 1.0 1.5 2.0 3.0]
+#define RAINBOW
+#define LIGHTNING_FLASH
+#define LENS_FLARE
+#define LENS_FLARE_STRENGTH 1.0 // [0.25 0.5 0.75 1.0 1.5 2.0]
+
 // ------------------------------------------------------------------ Lighting
 const int shadowMapResolution = 2048;   // [1024 1536 2048 3072 4096 6144 8192]
 const float shadowDistance = 128.0;     // [64.0 96.0 128.0 160.0 192.0 256.0 320.0]
@@ -57,6 +67,9 @@ const float sunPathRotation = -25.0;    // [-45.0 -40.0 -35.0 -30.0 -25.0 -20.0 
 #define AMBIENT_BRIGHTNESS 1.0  // [0.25 0.5 0.75 1.0 1.25 1.5 2.0]
 #define TORCH_BRIGHTNESS 1.0    // [0.25 0.5 0.75 1.0 1.25 1.5 2.0 3.0]
 #define MIN_LIGHT 1.0           // [0.0 0.5 1.0 2.0 3.0 5.0]
+#define SSAO
+#define AO_STRENGTH 1.0         // [0.25 0.5 0.75 1.0 1.25 1.5 2.0]
+#define CAUSTICS
 #define WETNESS_STRENGTH 1.0    // [0.0 0.25 0.5 0.75 1.0 1.5]
 
 // ------------------------------------------------------------------- Camera

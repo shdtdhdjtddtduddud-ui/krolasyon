@@ -106,6 +106,7 @@ void main() {
 			vec4 cl = traceClouds(dirW, 100000.0, lightDirWorld(), lightCol, ambientCol, dither, CLOUD_STEPS, CLOUD_LIGHT_STEPS);
 			sky = sky * cl.a + cl.rgb;
 		}
+		sky += getRainbow(dirView, dirW, horizonCol + lightCol * 0.3);
 #endif
 		color = sky;
 	} else {
@@ -142,6 +143,15 @@ void main() {
 				}
 	#endif
 				vec3 behind = texture2D(colortex0, refrUV).rgb;
+	#ifdef CAUSTICS
+				{
+					vec3 floorW = viewToFeet(view1) + cameraPosition;
+					float floorDepth = max(wp0.y - floorW.y, 0.0);
+					float caustic = waterCaustics(floorW.xz) * exp(-floorDepth * 0.35) * smoothstep(0.0, 0.6, floorDepth);
+					float sunVis = sampleShadowSingle(feet0 + vec3(0.0, 0.1, 0.0)) * smoothstep(0.4, 0.9, skyLm);
+					behind *= 1.0 + caustic * sunVis * luma(lightCol) * 1.4;
+				}
+	#endif
 
 				// absorption: dark, slightly green fjord water
 				vec3 sigmaA = vec3(0.30, 0.085, 0.075) / WATER_CLARITY;
@@ -200,6 +210,12 @@ void main() {
 				}
 	#endif
 			}
+		} else if (isEyeInWater == 1 && abs(material - MAT_HAND) > 0.5) {
+	#ifdef CAUSTICS
+			vec3 wp = feet0 + cameraPosition;
+			float caustic = waterCaustics(wp.xz + wp.y * 0.15);
+			color *= 1.0 + caustic * data2.y * luma(lightCol) * 1.6 * exp(-length(view0) * 0.04);
+	#endif
 		} else if (abs(material - MAT_HAND) > 0.5 && abs(material - MAT_GLASS) > 0.5) {
 			// ============================================ WET SURFACES
 	#ifdef WET_REFLECTIONS

@@ -11,6 +11,7 @@ const bool colortex0MipmapEnabled = true;
 
 varying vec2 texcoord;
 varying float exposure;
+varying vec3 flareCol;
 
 #ifdef VSH
 void main() {
@@ -22,12 +23,17 @@ void main() {
 	float eyeSky = float(eyeBrightnessSmooth.y) / 240.0;
 	float e = EXPOSURE;
 #ifdef AUTO_EXPOSURE
-	float outdoorLum = luma(amb) + luma(lc) * 0.25;
+	// the eye must not adapt to lightning flashes, or they would vanish
+	float flashLum = lightningFlash() * luma(vec3(0.55, 0.6, 0.9)) * 1.4;
+	float outdoorLum = max(luma(amb) - flashLum, 0.0) + luma(lc) * 0.25;
 	float outdoorExp = clamp(pow(0.55 / (outdoorLum + 0.03), 0.55), 0.9, 4.0);
 	float caveExp = 2.6;
 	e *= mix(caveExp, outdoorExp, smoothstep(0.0, 0.9, eyeSky));
 #endif
 	exposure = e;
+	// flare colour follows the sun; fades with clouds, rain and at night
+	float sunUp = smoothstep(0.0, 0.1, getSunElevation());
+	flareCol = lc / max(1.0 - getOvercast() * 0.86, 0.05) * sunUp * (1.0 - rainStrength) * LENS_FLARE_STRENGTH;
 }
 #endif
 
@@ -72,6 +78,41 @@ vec2 lensDrops(vec2 uv, out float dropMask) {
 #endif
 }
 
+vec3 lensFlare(vec2 uv) {
+#ifdef LENS_FLARE
+	if (sunPosition.z > 0.0 || dot(flareCol, flareCol) < 1e-6) return vec3(0.0);
+	vec2 sp = viewToScreen(sunPosition).xy;
+	if (any(lessThan(sp, vec2(-0.2))) || any(greaterThan(sp, vec2(1.2)))) return vec3(0.0);
+	// is the sun actually visible? (terrain or thick clouds hide its bright disc)
+	vec2 spc = clamp(sp, vec2(0.002), vec2(0.998));
+	float sunLum = luma(texture2D(colortex0, spc, 1.5).rgb);
+	float vis = smoothstep(3.0, 12.0, sunLum) * (1.0 - smoothstep(0.85, 1.2, max(abs(sp.x - 0.5), abs(sp.y - 0.5)) * 2.0));
+	if (vis < 0.001) return vec3(0.0);
+
+	vec2 aspect = vec2(viewWidth / viewHeight, 1.0);
+	vec2 toCenter = vec2(0.5) - sp;
+	vec3 f = vec3(0.0);
+	// soft glow and anamorphic streak around the sun
+	vec2 ds = (uv - sp) * aspect;
+	f += exp(-length(ds) * 9.0) * 0.06;
+	f += exp(-abs(ds.y) * 220.0) * exp(-abs(ds.x) * 2.0) * 0.06 * vec3(0.7, 0.85, 1.0);
+	// ghosts mirrored through the screen centre
+	const float ghostPos[5] = float[5](0.45, 0.8, 1.15, 1.45, 1.9);
+	const float ghostSize[5] = float[5](0.035, 0.07, 0.025, 0.11, 0.05);
+	const vec3 ghostCol[5] = vec3[5](vec3(1.0, 0.6, 0.3), vec3(0.4, 0.8, 1.0), vec3(1.0, 0.9, 0.5), vec3(0.5, 1.0, 0.6), vec3(0.8, 0.5, 1.0));
+	for (int i = 0; i < 5; i++) {
+		vec2 gp = sp + toCenter * ghostPos[i];
+		float d = length((uv - gp) * aspect);
+		float disc = smoothstep(ghostSize[i], ghostSize[i] * 0.6, d);
+		float ring = smoothstep(ghostSize[i] * 0.12, 0.0, abs(d - ghostSize[i])) * 0.6;
+		f += ghostCol[i] * (disc * 0.5 + ring) * 0.03;
+	}
+	return f * flareCol * vis;
+#else
+	return vec3(0.0);
+#endif
+}
+
 void main() {
 	float dropMask;
 	vec2 uv = texcoord + lensDrops(texcoord, dropMask);
@@ -90,6 +131,7 @@ void main() {
 	// lens drops blur what is behind them
 	color = mix(color, texture2D(colortex0, uv, 3.0).rgb * 1.08, dropMask * 0.6);
 
+	color += lensFlare(texcoord);
 	color *= exposure;
 	color = acesFitted(color);
 
