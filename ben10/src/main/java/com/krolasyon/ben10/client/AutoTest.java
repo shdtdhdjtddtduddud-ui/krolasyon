@@ -204,7 +204,7 @@ public final class AutoTest {
         }
         if (mc.level == null || mc.player == null || mc.getSingleplayerServer() == null) return;
         if (mc.screen != null && !(mc.screen instanceof OmnitrixScreen)) mc.setScreen(null);
-        if (!(mc.screen instanceof OmnitrixScreen) && stepIndex < steps.size() - 2) mc.options.hideGui = true;
+        if (!(mc.screen instanceof OmnitrixScreen) && stepIndex < steps.size() - 2) mc.options.hideGui = !WatchMode.active;
         if (inWorld < 0) {
             inWorld = tick;
             stepStart = tick + 100;
