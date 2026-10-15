@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/door_bottom_left_open",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "bottom": "alienisolation:block/security_door_bottom",
+    "top": "alienisolation:block/security_door_top"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "variants": {
+    "": [
+      {
+        "model": "alienisolation:block/debris",
+        "y": 0
+      },
+      {
+        "model": "alienisolation:block/debris",
+        "y": 90
+      },
+      {
+        "model": "alienisolation:block/debris",
+        "y": 180
+      },
+      {
+        "model": "alienisolation:block/debris",
+        "y": 270
+      }
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "  F",
+    "IBI",
+    "I  "
+  ],
+  "key": {
+    "F": {
+      "item": "minecraft:flint_and_steel"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "B": {
+      "item": "minecraft:blaze_powder"
+    }
+  },
+  "result": {
+    "item": "alienisolation:flamethrower",
+    "count": 1
+  }
+}

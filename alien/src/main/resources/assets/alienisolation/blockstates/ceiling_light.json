@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "flicker=false,lit=false": {
+      "model": "alienisolation:block/ceiling_light_off"
+    },
+    "flicker=false,lit=true": {
+      "model": "alienisolation:block/ceiling_light"
+    },
+    "flicker=true,lit=false": {
+      "model": "alienisolation:block/ceiling_light_off"
+    },
+    "flicker=true,lit=true": {
+      "model": "alienisolation:block/ceiling_light"
+    }
+  }
+}

@@ -1,0 +1,199 @@
+{
+  "xeno_hiss": {
+    "sounds": [
+      "alienisolation:xeno_hiss1",
+      "alienisolation:xeno_hiss2",
+      "alienisolation:xeno_hiss3"
+    ],
+    "subtitle": "subtitles.alienisolation.xeno_hiss"
+  },
+  "xeno_step": {
+    "sounds": [
+      "alienisolation:xeno_step1",
+      "alienisolation:xeno_step2",
+      "alienisolation:xeno_step3"
+    ],
+    "subtitle": "subtitles.alienisolation.xeno_step"
+  },
+  "xeno_vent": {
+    "sounds": [
+      "alienisolation:xeno_vent1",
+      "alienisolation:xeno_vent2",
+      "alienisolation:xeno_vent3"
+    ],
+    "subtitle": "subtitles.alienisolation.xeno_vent"
+  },
+  "xeno_screech": {
+    "sounds": [
+      "alienisolation:xeno_screech1",
+      "alienisolation:xeno_screech2"
+    ],
+    "subtitle": "subtitles.alienisolation.xeno_screech"
+  },
+  "xeno_sniff": {
+    "sounds": [
+      "alienisolation:xeno_sniff1",
+      "alienisolation:xeno_sniff2"
+    ],
+    "subtitle": "subtitles.alienisolation.xeno_sniff"
+  },
+  "xeno_growl": {
+    "sounds": [
+      "alienisolation:xeno_growl1",
+      "alienisolation:xeno_growl2"
+    ],
+    "subtitle": "subtitles.alienisolation.xeno_growl"
+  },
+  "xeno_flinch": {
+    "sounds": [
+      "alienisolation:xeno_flinch1",
+      "alienisolation:xeno_flinch2"
+    ],
+    "subtitle": "subtitles.alienisolation.xeno_flinch"
+  },
+  "station_creak": {
+    "sounds": [
+      "alienisolation:station_creak1",
+      "alienisolation:station_creak2"
+    ],
+    "subtitle": "subtitles.alienisolation.station_creak"
+  },
+  "xeno_kill": {
+    "sounds": [
+      "alienisolation:xeno_kill"
+    ],
+    "subtitle": "subtitles.alienisolation.xeno_kill"
+  },
+  "xeno_drop": {
+    "sounds": [
+      "alienisolation:xeno_drop"
+    ],
+    "subtitle": "subtitles.alienisolation.xeno_drop"
+  },
+  "tracker_ping": {
+    "sounds": [
+      "alienisolation:tracker_ping"
+    ],
+    "subtitle": "subtitles.alienisolation.tracker_ping"
+  },
+  "tracker_beep": {
+    "sounds": [
+      "alienisolation:tracker_beep"
+    ],
+    "subtitle": "subtitles.alienisolation.tracker_beep"
+  },
+  "flamethrower": {
+    "sounds": [
+      "alienisolation:flamethrower"
+    ],
+    "subtitle": "subtitles.alienisolation.flamethrower"
+  },
+  "flame_empty": {
+    "sounds": [
+      "alienisolation:flame_empty"
+    ],
+    "subtitle": "subtitles.alienisolation.flame_empty"
+  },
+  "noisemaker": {
+    "sounds": [
+      "alienisolation:noisemaker"
+    ],
+    "subtitle": "subtitles.alienisolation.noisemaker"
+  },
+  "flare": {
+    "sounds": [
+      "alienisolation:flare"
+    ],
+    "subtitle": "subtitles.alienisolation.flare"
+  },
+  "medkit": {
+    "sounds": [
+      "alienisolation:medkit"
+    ],
+    "subtitle": "subtitles.alienisolation.medkit"
+  },
+  "flashlight": {
+    "sounds": [
+      "alienisolation:flashlight"
+    ],
+    "subtitle": "subtitles.alienisolation.flashlight"
+  },
+  "door": {
+    "sounds": [
+      "alienisolation:door"
+    ],
+    "subtitle": "subtitles.alienisolation.door"
+  },
+  "locker": {
+    "sounds": [
+      "alienisolation:locker"
+    ],
+    "subtitle": "subtitles.alienisolation.locker"
+  },
+  "save_beep": {
+    "sounds": [
+      "alienisolation:save_beep"
+    ],
+    "subtitle": "subtitles.alienisolation.save_beep"
+  },
+  "save_done": {
+    "sounds": [
+      "alienisolation:save_done"
+    ],
+    "subtitle": "subtitles.alienisolation.save_done"
+  },
+  "terminal": {
+    "sounds": [
+      "alienisolation:terminal"
+    ],
+    "subtitle": "subtitles.alienisolation.terminal"
+  },
+  "station_hum": {
+    "sounds": [
+      "alienisolation:station_hum"
+    ],
+    "subtitle": "subtitles.alienisolation.station_hum"
+  },
+  "station_alarm": {
+    "sounds": [
+      "alienisolation:station_alarm"
+    ],
+    "subtitle": "subtitles.alienisolation.station_alarm"
+  },
+  "station_vent": {
+    "sounds": [
+      "alienisolation:station_vent"
+    ],
+    "subtitle": "subtitles.alienisolation.station_vent"
+  },
+  "light_buzz": {
+    "sounds": [
+      "alienisolation:light_buzz"
+    ],
+    "subtitle": "subtitles.alienisolation.light_buzz"
+  },
+  "stinger": {
+    "sounds": [
+      "alienisolation:stinger"
+    ],
+    "subtitle": "subtitles.alienisolation.stinger"
+  },
+  "heartbeat": {
+    "sounds": [
+      "alienisolation:heartbeat"
+    ],
+    "subtitle": "subtitles.alienisolation.heartbeat"
+  },
+  "breath_hold": {
+    "sounds": [
+      "alienisolation:breath_hold"
+    ],
+    "subtitle": "subtitles.alienisolation.breath_hold"
+  },
+  "gasp": {
+    "sounds": [
+      "alienisolation:gasp"
+    ],
+    "subtitle": "subtitles.alienisolation.gasp"
+  }
+}

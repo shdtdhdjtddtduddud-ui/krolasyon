@@ -1,0 +1,28 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="alienisolation"
+version="1.0.0"
+displayName="Alien Isolation: Sevastopol"
+authors="krolasyon"
+description='''
+Sevastopol istasyonunda tek bir Xenomorph seni avliyor.
+Sesle, isikla ve gozle avlanan gelismis yapay zeka, havalandirma kanallari, dolaplarda saklanma,
+hareket sensoru, alev silahi, gurultu yapici, isaret fisegi ve kayit istasyonlari. 2 kisiye kadar birlikte oynanabilir.
+'''
+
+[[dependencies.alienisolation]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.alienisolation]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"
