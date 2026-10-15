@@ -5,6 +5,7 @@
 #include "/lib/settings.glsl"
 #include "/lib/common.glsl"
 #include "/lib/sky.glsl"
+#include "/lib/world.glsl"
 
 varying vec2 texcoord;
 varying vec2 lmcoord;
@@ -49,7 +50,7 @@ void main() {
 	// streaks: smear the drop texture along the fall direction (motion blur)
 	vec4 t0 = texture2D(texture, texcoord);
 	#ifdef SNOW_COVER
-	if (biome_precipitation == 2) {
+	if (isSnowing()) {
 		// snowflakes: soft, bright, no motion blur
 		if (t0.a < 0.05) discard;
 		vec3 snowLight = ambientCol * 2.0 + lightCol * 0.5 + vec3(0.02);

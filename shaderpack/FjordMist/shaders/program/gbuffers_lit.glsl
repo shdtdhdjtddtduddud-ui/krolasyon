@@ -7,6 +7,7 @@
 #include "/lib/sky.glsl"
 #include "/lib/waving.glsl"
 #include "/lib/water.glsl"
+#include "/lib/world.glsl"
 
 varying vec2 texcoord;
 varying vec2 lmcoord;
@@ -92,12 +93,14 @@ void main() {
 	float material = MAT_TERRAIN;
 	float reflectivity = 0.0;
 	float wetSpec = 0.0;
+	float sparkleAmt = 0.0;
+	float caveWet = 0.0;
 	vec3 storedNormal = normal;
 
 #ifdef TERRAIN
 	bool foliage = isFoliageId(blockId);
 	if (foliage) {
-		translucency = idIs(blockId, ID_LEAVES) ? 0.65 : 1.0;
+		translucency = (idIs(blockId, ID_LEAVES) || idIs(blockId, ID_EVERGREEN)) ? 0.65 : 1.0;
 		material = MAT_FOLIAGE;
 	}
 	if (idIs(blockId, ID_EMISSIVE)) {
@@ -132,7 +135,7 @@ void main() {
 	#ifdef SHORE_WETNESS
 	// sand and stone at the water line are soaked by the waves; the wet band
 	// creeps up and down as the waves roll in
-	if (idIs(blockId, ID_SHORE) && lm.y > 0.5) {
+	if ((idIs(blockId, ID_SHORE) || idIs(blockId, ID_STONE)) && lm.y > 0.5) {
 		vec3 wpos = feetPos + cameraPosition;
 		float t = frameTimeCounter * WATER_WAVE_SPEED;
 		float reach = 1.1 + sin(t * 0.7 + dot(wpos.xz, vec2(0.21, 0.17))) * 0.35 + waterWaveStrength() * 0.4;
@@ -152,6 +155,88 @@ void main() {
 		storedNormal = mix(storedNormal, normal, snow);
 	}
 	#endif
+	vec3 wpW = feetPos + cameraPosition;
+	vec4 season = seasonWeights();
+	float tinted = biomeTint(glcolor);
+	bool leafBlock = idIs(blockId, ID_LEAVES) || idIs(blockId, ID_EVERGREEN);
+
+	#ifdef COLOR_VARIATION
+	// natural variation: patches of lusher / drier vegetation and lighter /
+	// darker ground, so large areas never look copy-pasted
+	{
+		float m = noise2D(wpW.xz * 0.03) * 0.6 + noise2D(wpW.xz * 0.11 + 5.0) * 0.4;
+		color *= mix(vec3(1.0), mix(vec3(1.07, 1.02, 0.82), vec3(0.88, 1.03, 1.05), m), tinted);
+		color *= 0.93 + 0.14 * noise2D(wpW.xz * 0.07 + 11.0);
+	}
+	#endif
+
+	#ifdef SEASONS
+	// seasons: spring green, summer, autumn reds and golds, pale winter
+	color = seasonalFoliage(color, tinted, wpW, leafBlock, idIs(blockId, ID_EVERGREEN), season);
+	#endif
+
+	#ifdef MOSS
+	// moss creeps over stone in damp, sheltered places and near water
+	if (idIs(blockId, ID_STONE) && upness > -0.3) {
+		float damp = saturate(wetness * 0.5 + (1.0 - smoothstep(SEA_LEVEL + 2.0, SEA_LEVEL + 14.0, wpW.y)) * 0.6 + season.x * 0.2 + 0.15);
+		float n = noise2D(wpW.xz * 0.35 + wpW.y * 0.27) * 0.6 + noise2D(wpW.xz * 1.7 - wpW.y * 0.9) * 0.4;
+		float moss = smoothstep(0.62 - damp * 0.25, 0.8 - damp * 0.2, n) * (0.4 + 0.6 * saturate(upness + 0.3)) * MOSS_AMOUNT;
+		moss *= smoothstep(0.2, 0.6, lm.y);
+		vec3 mossCol = vec3(0.13, 0.24, 0.06) * (0.7 + 0.6 * noise2D(wpW.xz * 4.0));
+		color = mix(color, mossCol, saturate(moss) * 0.8);
+	}
+	#endif
+
+	#ifdef SNOW_LINE
+	// snow caps on the mountain tops; the snow line drops in winter
+	{
+		float n = noise2D(wpW.xz * 0.05) * 18.0 + noise2D(wpW.xz * 0.4) * 5.0;
+		float line = SNOW_LINE_HEIGHT - season.w * 45.0 + season.y * 15.0 + n;
+		float alt = smoothstep(line - 4.0, line + 6.0, wpW.y);
+		float face = smoothstep(0.15, 0.55, upness + noise2D(wpW.xz * 1.3) * 0.25);
+		snow = max(snow, alt * face * smoothstep(0.4, 0.8, lm.y));
+	}
+	#endif
+
+	#if defined SEASONS && defined SNOW_COVER
+	// winter: snow covers the land (deeper the longer winter lasts)
+	if (season.w > 0.3) {
+		float n = noise2D(wpW.xz * 0.6) * 0.5 + noise2D(wpW.xz * 2.3) * 0.5;
+		float cover = smoothstep(0.3, 0.9, season.w) * smoothstep(0.3, 0.7, upness + n * 0.4) * exposed;
+		snow = max(snow, cover);
+		wet *= 1.0 - cover;
+		puddle *= 1.0 - cover;
+	}
+	#endif
+
+	#ifdef FROST
+	// hoarfrost: on clear, cold nights grass and leaves turn white; it melts
+	// once the sun climbs
+	{
+		float coldNight = 1.0 - smoothstep(0.04, 0.3, getSunElevation());
+		float cold = saturate(season.w + season.z * 0.6 + season.x * 0.2 + smoothstep(100.0, 150.0, wpW.y));
+		float frost = coldNight * cold * (1.0 - rainStrength) * exposed * max(tinted, foliage ? 1.0 : 0.0) * FROST_AMOUNT;
+		frost *= smoothstep(0.0, 0.5, upness + 0.3 + noise2D(wpW.xz * 3.0) * 0.4);
+		color = mix(color, vec3(0.72, 0.8, 0.9) * (0.8 + 0.3 * luma(color)), saturate(frost) * 0.7);
+		sparkleAmt = max(sparkleAmt, saturate(frost));
+	}
+	#endif
+
+	#ifdef CAVE_DAMPNESS
+	// caves are damp: stone walls are darker and glisten in torch light
+	if (lm.y < 0.15 && wpW.y < SEA_LEVEL - 5.0 && !foliage) {
+		float damp = smoothstep(0.4, 0.75, noise2D(wpW.xz * 0.25 + wpW.y * 0.31)) * (1.0 - lm.y / 0.15);
+		wet = max(wet, damp * 0.7);
+		caveWet = damp;
+	}
+	#endif
+
+	#ifdef SPARKLES
+	if (idIs(blockId, ID_ORE)) sparkleAmt = max(sparkleAmt, 0.6);
+	if (idIs(blockId, ID_SNOWICE)) sparkleAmt = max(sparkleAmt, 0.35);
+	#endif
+	sparkleAmt = max(sparkleAmt, snow * 0.35);
+
 	float porosity = foliage ? 0.35 : 1.0;
 	color = pow(color, vec3(1.0 + 0.35 * wet * porosity));
 	color *= 1.0 - 0.30 * wet * porosity;
@@ -185,6 +270,29 @@ void main() {
 		float fres = 0.04 + 0.96 * pow(1.0 - saturate(dot(normal, V)), 5.0);
 		lit += lightCol * sp * shadow * wetSpec * (0.25 + fres);
 	}
+#endif
+
+#ifdef TERRAIN
+	vec3 Vw = normalize(-feetPos);
+	#ifdef SPARKLES
+	// glittering minerals, snow, ice and frost
+	if (sparkleAmt > 0.01) {
+		float sp = sparkle(feetPos + cameraPosition, -Vw, 0.12) * sparkleAmt;
+		float torchL = pow(max(lm.x, saturate((float(max(heldBlockLightValue, heldBlockLightValue2)) - length(feetPos)) / 15.0)), 2.0);
+		lit += sp * (lightCol * shadow * 2.0 + ambientCol * lm.y * 0.6 + TORCH_COLOR * torchL * 1.5) * 1.5;
+	}
+	#endif
+	#ifdef CAVE_DAMPNESS
+	// water drops on damp cave walls catch the light of a torch in your hand
+	if (caveWet > 0.01) {
+		float heldL = saturate((float(max(heldBlockLightValue, heldBlockLightValue2)) - length(feetPos)) / 15.0);
+		float lightHere = max(heldL, pow(lm.x, 2.0));
+		vec3 V = -normalize((gbufferModelView * vec4(feetPos, 1.0)).xyz);
+		float spec = pow(saturate(dot(normal, V)), 30.0) * heldL;
+		float drops = sparkle(feetPos + cameraPosition, -Vw, 0.08);
+		lit += TORCH_COLOR * (spec * 0.4 + drops * 1.2) * caveWet * lightHere * TORCH_BRIGHTNESS;
+	}
+	#endif
 #endif
 
 #ifdef PARTICLE

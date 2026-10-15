@@ -210,10 +210,17 @@ void main() {
 					float handLm = saturate((held - length(feet0)) / 15.0);
 					color += vec3(1.0, 0.55, 0.24) * pow(handLm, 3.0) * TORCH_BRIGHTNESS * (0.015 + F * 0.3);
 				}
+	#ifdef WATERFALLS
+				// foam of falling water
+				if (data2.w > 0.01) {
+					vec3 fallCol = ambientCol * (0.35 + 0.75 * skyLm) + lightCol * 0.5 * surfShadow + vec3(1.0, 0.55, 0.24) * pow(data2.z, 3.0) * 0.6;
+					color = mix(color, fallCol, data2.w * 0.9);
+				}
+	#endif
 	#ifdef RAIN_RIPPLES
 				// tiny white splashes where raindrops hit the surface
 				float splashDist = length(view0);
-				if (rainStrength > 0.05 && splashDist < 28.0 && biome_precipitation != 2) {
+				if (rainStrength > 0.05 && splashDist < 28.0 && !snowFalling()) {
 					float splash = saturate(rainDrops(wp0.xz, rainStrength).z) * rainStrength * (1.0 - smoothstep(10.0, 28.0, splashDist));
 					vec3 splashCol = ambientCol * (0.7 + 0.5 * skyLm) + lightCol * 0.4 * surfShadow;
 					color = mix(color, splashCol, splash * 0.75);

@@ -73,12 +73,25 @@ void main() {
 			if (nWorld.y < 0.0) wn.y = -wn.y;   // seen from below
 			normal = normalize(mat3(gbufferModelView) * wn);
 		}
+		float fallFoam = 0.0;
+	#ifdef WATERFALLS
+		// falling water: white streaks of foam rushing down vertical faces
+		if (abs(nWorld.y) < 0.5) {
+			vec3 wp = feetPos + cameraPosition;
+			vec2 tangent = normalize(vec2(-nWorld.z, nWorld.x) + 1e-5);
+			float u = dot(wp.xz, tangent);
+			float tt = frameTimeCounter;
+			float s1 = noise2D(vec2(u * 3.0, wp.y * 0.5 + tt * 2.6));
+			float s2 = noise2D(vec2(u * 8.0 + 3.0, wp.y * 1.4 + tt * 3.8));
+			fallFoam = smoothstep(0.3, 0.75, s1 * 0.6 + s2 * 0.5) * 0.85 + 0.12;
+		}
+	#endif
 		// faint base tint; the real colour is computed in composite
 		vec3 tint = ambientCol * vec3(0.05, 0.085, 0.09) * lm.y;
 		/* DRAWBUFFERS:012 */
 		gl_FragData[0] = vec4(tint, 0.12);
 		gl_FragData[1] = vec4(encodeNormal(normal), MAT_WATER / 255.0, lm.y);
-		gl_FragData[2] = vec4(1.0, 1.0, lm.x, 1.0);
+		gl_FragData[2] = vec4(1.0, 1.0, lm.x, fallFoam);
 		return;
 	}
 #endif

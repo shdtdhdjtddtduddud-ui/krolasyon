@@ -16,11 +16,15 @@ const float ID_VINE         = 10006.0;
 const float ID_EMISSIVE     = 10008.0;
 const float ID_LILY         = 10009.0;
 const float ID_SHORE        = 10010.0;
+const float ID_STONE        = 10011.0;
+const float ID_ORE          = 10012.0;
+const float ID_SNOWICE      = 10013.0;
+const float ID_EVERGREEN    = 10014.0;
 
 bool idIs(float id, float target) { return abs(id - target) < 0.5; }
 
 bool isFoliageId(float id) {
-	return id > 10001.5 && id < 10006.5 || idIs(id, ID_LILY);
+	return id > 10001.5 && id < 10006.5 || idIs(id, ID_LILY) || idIs(id, ID_EVERGREEN);
 }
 
 float stormAmount() {
@@ -86,7 +90,7 @@ vec3 waveOffset(vec3 worldPos, float id, bool topVertex, float skyLight) {
 	}
 #endif
 #ifdef WAVING_LEAVES
-	if (idIs(id, ID_LEAVES)) {
+	if (idIs(id, ID_LEAVES) || idIs(id, ID_EVERGREEN)) {
 		// crown sway: a smooth, low-frequency motion field, so the leaves of
 		// one tree lean together instead of jittering independently
 		vec3 crown = windVector(worldPos * 0.15, t, 1.0, 0.0, 0.9) * 0.10;

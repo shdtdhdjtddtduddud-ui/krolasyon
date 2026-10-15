@@ -1,6 +1,16 @@
 // Procedural fjord water: long wind-driven swells, chop, storm waves and
 // physically inspired raindrop ripples. Needs common.glsl.
 
+bool snowFalling() {
+#ifdef SEASONS
+	// same rule as isSnowing() in world.glsl (water.glsl is used without it)
+	float day = float(worldDay) + float(worldTime) / 24000.0 + float(START_SEASON) * SEASON_LENGTH;
+	float s = fract(day / (4.0 * SEASON_LENGTH)) * 4.0;
+	if (s > 3.15 && s < 3.85) return true;
+#endif
+	return biome_precipitation == 2;
+}
+
 float stormWaves() {
 	return saturate(rainStrength * 0.5 + thunderStrength);
 }
@@ -26,9 +36,14 @@ float waterHeight(vec2 p) {
 	// sharper crests in storms
 	float crest = noise2D(q * vec2(0.08, 0.2) + vec2(t * 0.14, 0.3));
 	h += (1.0 - abs(crest * 2.0 - 1.0) - 0.5) * 0.6 * storm;
-	// chop
-	h += (noise2D(p * 0.42 + vec2(t * 0.28, -t * 0.15)) - 0.5) * (0.22 + storm * 0.15);
-	h += (noise2D(p * 0.85 + vec2(-t * 0.35, t * 0.31)) - 0.5) * (0.10 + storm * 0.08);
+	// chop. Gusts sweep over the water as darker, rougher patches
+	// ("cat's paws") moving with the wind.
+	float gust = 1.0;
+#ifdef WIND_PATCHES
+	gust = 0.45 + 1.3 * smoothstep(0.42, 0.75, noise2D(q * vec2(0.018, 0.035) - vec2(t * 0.09, 0.0)));
+#endif
+	h += (noise2D(p * 0.42 + vec2(t * 0.28, -t * 0.15)) - 0.5) * (0.22 + storm * 0.15) * gust;
+	h += (noise2D(p * 0.85 + vec2(-t * 0.35, t * 0.31)) - 0.5) * (0.10 + storm * 0.08) * gust;
 	h += (noise2D(p * 1.90 + vec2(t * 0.52, t * 0.47)) - 0.5) * 0.045;
 	return h;
 }
@@ -91,7 +106,7 @@ vec3 waterNormal(vec2 p, float distanceFade, float rippleFade) {
 	vec2 grad = vec2(hx - h0, hz - h0) / e * strength * 0.35;
 
 #ifdef RAIN_RIPPLES
-	if (rainStrength > 0.01 && rippleFade > 0.01 && biome_precipitation != 2) {
+	if (rainStrength > 0.01 && rippleFade > 0.01 && !snowFalling()) {
 		vec3 drops = rainDrops(p, rainStrength);
 		grad += drops.xy * rainStrength * 0.22 * rippleFade;
 	}

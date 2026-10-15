@@ -65,6 +65,22 @@
 #define TWILIGHT_BELT
 #define CLOUD_SHADOWS
 #define FIREFLIES
+#define SEASONS
+#define SEASON_LENGTH 8.0       // [2.0 4.0 6.0 8.0 12.0 16.0 24.0 32.0]
+#define START_SEASON 0          // [0 1 2 3]
+#define SNOW_LINE
+#define SNOW_LINE_HEIGHT 175.0  // [120.0 140.0 160.0 175.0 190.0 210.0 240.0]
+#define FROST
+#define FROST_AMOUNT 1.0        // [0.25 0.5 1.0 1.5]
+#define MOSS
+#define MOSS_AMOUNT 1.0         // [0.25 0.5 1.0 1.5 2.0]
+#define WATERFALLS
+#define LIGHT_FLICKER
+#define FLICKER_STRENGTH 1.0    // [0.25 0.5 1.0 1.5 2.0]
+#define COLOR_VARIATION
+#define SPARKLES
+#define WIND_PATCHES
+#define CAVE_DAMPNESS
 #define FIREFLY_AMOUNT 1.0      // [0.25 0.5 1.0 1.5 2.0 3.0]
 #define BIOLUMINESCENCE
 #define BIOLUM_STRENGTH 1.0     // [0.25 0.5 1.0 1.5 2.0 3.0]

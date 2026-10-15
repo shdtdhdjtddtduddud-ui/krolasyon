@@ -64,6 +64,17 @@ vec3 computeLighting(
 
 	// ---- block light
 	float torch = pow(lm.x, 3.2) * 1.4 + pow(lm.x, 12.0) * 2.0;
+#ifdef LIGHT_FLICKER
+	// flames are never steady: block light breathes and flickers gently,
+	// each area slightly out of step with the others
+	{
+		vec3 cellP = floor((feetPos + cameraPosition) / 6.0);
+		float seed = dot(cellP, vec3(1.7, 3.1, 2.3));
+		float tf = frameTimeCounter;
+		float fl = noise2D(vec2(tf * 7.0, seed * 13.0)) * 0.6 + noise2D(vec2(tf * 17.0, seed * 7.0)) * 0.4;
+		torch *= mix(1.0, 0.82 + 0.3 * fl, FLICKER_STRENGTH);
+	}
+#endif
 	vec3 block = TORCH_COLOR * torch * TORCH_BRIGHTNESS;
 
 	// ---- minimum light for caves

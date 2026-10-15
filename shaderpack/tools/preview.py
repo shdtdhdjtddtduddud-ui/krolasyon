@@ -45,6 +45,10 @@ PRESETS = {
     "snow":   dict(time="day", sunElev=0.4, rain=1.0, wet=1.0, biomePrecip=2),
     "lenswet": dict(time="day", sunElev=0.5, rain=0.0, wet=0.0, lensWet=1.0),
     "twilight": dict(time="sunset", sunElev=-0.02, rain=0.0, wet=0.0, worldDay=NO_AURORA_DAY),
+    "spring": dict(time="day", sunElev=0.5, rain=0.0, wet=0.0, worldDay=4),
+    "autumn": dict(time="day", sunElev=0.4, rain=0.0, wet=0.0, worldDay=20),
+    "winter": dict(time="day", sunElev=0.3, rain=0.0, wet=0.0, worldDay=28),
+    "frost":  dict(time="day", sunElev=0.06, rain=0.0, wet=0.0, worldDay=24),
     "flare":  dict(time="sunset", sunElev=0.4, rain=0.0, wet=0.0),
 }
 preset = PRESETS[sys.argv[2] if len(sys.argv) > 2 else "rain"]
