@@ -59,26 +59,55 @@ public final class AutoTest {
 
     private static final String ST = "summon librabeyblade:stadium 0.5 -60 -14.5";
 
+    private static final String CLEAR = "kill @e[type=!player,type=!librabeyblade:stadium]";
+
+    /** one special-move showcase: the user beyblade tagged a plus two common targets, then force the move */
+    private void showcase(String kind, int ability, String cam, int ticks, String... shots) {
+        cmd(4, null, CLEAR, "weather clear", cam,
+                "summon librabeyblade:" + kind + " 0.5 -58 -12 {Tags:[\"a\"]}",
+                "summon librabeyblade:common -2.5 -58 -17 {Variant:5}", "summon librabeyblade:common 3.5 -58 -17.5 {Variant:0}");
+        wait(18, null);
+        force(ability);
+        int step = ticks / (shots.length + 1);
+        for (String sh : shots) wait(step, sh);
+        wait(step, null);
+    }
+
     private AutoTest() {
         cmd(0, null, "gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false",
-                "time set 6000", "weather clear", "difficulty peaceful", "gamemode spectator @a", "kill @e[type=!player]", ST);
-        // ---- ability 5: the four twisting tornadoes are back
-        cmd(10, null, "tp @a 0.5 -47 10 180 15",
-                "summon librabeyblade:leone 0.5 -58 -13 {Tags:[\"a\"]}",
-                "summon librabeyblade:common -3 -58 -17 {Variant:5}", "summon librabeyblade:common 4 -58 -18 {Variant:3}");
-        wait(20, null);
+                "time set 5000", "weather clear", "difficulty peaceful", "gamemode spectator @a", "kill @e[type=!player]", ST);
+        // ---- the seven legends spinning side by side
+        cmd(10, null, "tp @a 0.5 -57.4 -9.2 180 26",
+                "summon librabeyblade:leone -5.5 -58 -14.5 {Frozen:1b}", "summon librabeyblade:eagle -3.7 -58 -14.5 {Frozen:1b}",
+                "summon librabeyblade:ldrago -1.8 -58 -14.5 {Frozen:1b}", "summon librabeyblade:pegasus 0 -58 -14.5 {Frozen:1b}",
+                "summon librabeyblade:variares 1.8 -58 -14.5 {Frozen:1b}", "summon librabeyblade:libra 3.7 -58 -14.5 {Frozen:1b}",
+                "summon librabeyblade:tempo 5.5 -58 -14.5 {Frozen:1b}");
         record(true);
-        force(5);
-        wait(70, "four_tornadoes");
-        wait(40, null);
-        // ---- ability 6 (new key): one colossal tornado, enemies spun to the top and smashed down
-        cmd(2, null, "tp @a 0.5 -42 26 180 5", "summon librabeyblade:pegasus 6 -58 -9", "summon librabeyblade:ldrago -6 -58 -20");
-        force(6);
-        wait(70, "giant_form");
-        cmd(2, null, "tp @a 0.5 -50 8 180 0");
-        wait(40, "giant_lift");
-        wait(40, "giant_slam");
-        wait(60, "giant_more");
+        wait(50, "lineup_front");
+        cmd(40, "lineup_low", "tp @a -3 -58.3 -11 205 14");
+        cmd(40, "lineup_high", "tp @a 0.5 -53.5 -8.5 180 55");
+        // ---- free battle, wide then close
+        server(2, null, s -> BeybladeEntity.rivalAbilities = true);
+        cmd(2, null, CLEAR, "tp @a 0.5 -49.5 3 180 36",
+                "summon librabeyblade:pegasus -5 -57 -14.5", "summon librabeyblade:ldrago 6 -57 -14.5",
+                "summon librabeyblade:leone 0.5 -57 -20", "summon librabeyblade:variares 0.5 -57 -9");
+        wait(70, "battle_wide_1");
+        wait(70, "battle_wide_2");
+        cmd(2, null, "tp @a -1 -55.8 -6.5 170 30");
+        wait(60, "battle_close_1");
+        wait(60, "battle_close_2");
+        server(2, null, s -> BeybladeEntity.rivalAbilities = false);
+        // ---- special moves
+        showcase("leone", 6, "tp @a 0.5 -45 26 180 4", 200, "leone_cyclone_1", "leone_cyclone_2", "leone_cyclone_3");
+        showcase("leone", 5, "tp @a 0.5 -47 10 180 15", 110, "leone_tornadoes_1", "leone_tornadoes_2");
+        showcase("ldrago", 3, "tp @a 0.5 -53 13 180 -8", 130, "ldrago_dive_1", "ldrago_dive_2", "ldrago_dive_3");
+        showcase("pegasus", 5, "tp @a 0.5 -47 8 180 25", 110, "pegasus_booster_1", "pegasus_booster_2", "pegasus_booster_3");
+        showcase("variares", 5, "tp @a 0.5 -50 10 180 3", 90, "variares_sword_1", "variares_sword_2");
+        showcase("tempo", 5, "tp @a 0.5 -47 8 180 18", 120, "tempo_clock_1", "tempo_clock_2");
+        showcase("libra", 3, "tp @a 0.5 -51 4 180 25", 100, "libra_inferno_1", "libra_inferno_2");
+        showcase("eagle", 5, "tp @a 0.5 -49 6 180 15", 130, "eagle_buster_1", "eagle_buster_2");
+        showcase("variares", 4, "tp @a 0.5 -54 -4 180 30", 60, "variares_blades");
+        showcase("tempo", 3, "tp @a 0.5 -52 -3 180 40", 50, "tempo_hands");
         record(false);
         wait(20, "END");
     }
