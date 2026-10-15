@@ -273,7 +273,7 @@ def dome(c, face, W, H, r):
     lng = vert(face, c)
     u = (xx / max(W - 1, 1)) if lng else (yy / max(H - 1, 1))
     t = (yy / max(H - 1, 1)) if lng else (xx / max(W - 1, 1))
-    base = mix((52, 52, 46), (118, 116, 102), vnoise(H, W, r, cell=10) * 0.6 + 0.2)
+    base = mix((78, 78, 70), (150, 148, 132), vnoise(H, W, r, cell=10) * 0.6 + 0.2)
     # long wet specular streak running the length of the dome
     streak = np.exp(-((u - 0.35) ** 2) / 0.012) * (0.6 + 0.4 * np.sin(t * 9 + r.random() * 6) ** 2)
     if face in ('top',):
@@ -282,7 +282,7 @@ def dome(c, face, W, H, r):
         streak = streak * 0.2
     col = mix(base, (232, 230, 220), streak * 0.85)
     col = mix(col, (30, 28, 24), np.clip(1 - np.minimum(u, 1 - u) * 6, 0, 1) * 0.4)
-    alpha = np.clip(0.55 + streak * 0.4, 0, 0.97)
+    alpha = np.clip(0.7 + streak * 0.28, 0, 0.98)
     return col, alpha, None
 
 

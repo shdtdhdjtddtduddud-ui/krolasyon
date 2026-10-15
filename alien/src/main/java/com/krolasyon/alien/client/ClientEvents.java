@@ -97,6 +97,12 @@ public final class ClientEvents {
         }
     }
 
+    /** the radar HUD is the tracker: hide the hand model while it is raised. */
+    @SubscribeEvent
+    public static void onHand(net.minecraftforge.client.event.RenderHandEvent e) {
+        if (e.getItemStack().is(com.krolasyon.alien.registry.ModItems.MOTION_TRACKER.get())) e.setCanceled(true);
+    }
+
     @SubscribeEvent
     public static void onInput(MovementInputUpdateEvent e) {
         if (!ClientState.hidden) return;

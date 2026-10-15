@@ -97,8 +97,8 @@ public final class AutoTest {
         // a real hunt in survival
         cmd(10, null, false, "kill @e[type=alienisolation:xenomorph]", "kill @e[type=minecraft:pig]", "gamemode survival @a",
                 "tp @a 0 -60 0 0 0", "effect give @a minecraft:resistance 99999 4 true");
-        server(5, null, false, s -> run(s, "summon alienisolation:xenomorph ~ ~ ~-30"));
-        for (int i = 0; i < 8; i++) wait(60, "hunt_" + i, true);
+        cmd(5, null, false, "summon alienisolation:xenomorph 14 -60 14");
+        for (int i = 0; i < 14; i++) wait(60, "hunt_" + i, true);
         wait(20, "END", false);
     }
 
