@@ -907,7 +907,9 @@ public class XenomorphEntity extends Monster {
         if (stateTicks >= KILL_LEN) {
             this.entityData.set(DATA_KILL, -1);
             if (t.isAlive()) {
-                enter(State.CHASE);
+                // easy difficulty / no instant kill: it wounds and slinks away, giving a chance to hide
+                menace = 30;
+                retreatToVents(level, 240 + this.random.nextInt(200));
             } else {
                 detection.remove(t.getUUID());
                 targetId = null;

@@ -131,6 +131,8 @@ public final class Hud {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer p = mc.player;
         if (p == null || mc.level == null || ClientState.hidden || !holdingTracker(p) || mc.options.hideGui) return;
+        for (XenomorphEntity x : mc.level.getEntitiesOfClass(XenomorphEntity.class, p.getBoundingBox().inflate(4)))
+            if (x.getKillTargetId() == p.getId()) return;
         long now = mc.level.getGameTime();
         int pw = 196, ph = 112;
         int x = w / 2 - pw / 2, y = h - ph - 44;
