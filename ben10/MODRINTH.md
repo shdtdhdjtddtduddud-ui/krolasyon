@@ -25,8 +25,8 @@
 
 ```
 Initial release
-- Omnitrix item with an animated selection dial (G / right-click)
-- 9 aliens: Heatblast, Four Arms, Diamondhead, XLR8, Goop, Cannonbolt, Big Chill, Ultimate Echo Echo, Ghostfreak
+- Wear the Omnitrix on your wrist and transform Ben 10 style: raise your arm, turn the dial (hologram), slam it down
+- 9 aliens: Heatblast, Four Arms, Diamondhead, XLR8, Goop, Blowpoke, Big Chill, Ultimate Echo Echo, Ghostfreak
 - 36 unique abilities (4 per alien) + 9 unique guards
 - Custom models, textures, glowing details and keyframe animations for every alien
 - Procedural walk / run / fly / float / roll animations
@@ -47,7 +47,8 @@ Initial release
 
 ## Features
 
-- **Omnitrix dial** - a rotating selection wheel with alien portraits, ability previews and a green transformation flash
+- **Transform from your wrist, just like Ben** - raise your arm, the dial pops up, turn it to scroll through green alien holograms and slam it down
+- **Omnitrix menu** - a rotating selection wheel with alien portraits and ability previews
 - **9 playable aliens** with custom models, textures, glowing eyes and details
 - **36 abilities + 9 guards** with keyframe animations, particles, sounds and camera shake
 - **Procedural animations** - walking, sprinting, flying, ghostly floating, rolling, punching
@@ -63,7 +64,11 @@ Initial release
 
 | Key | Action |
 |---|---|
-| **G** or right-click the Omnitrix | Open the dial - scroll/click to choose, click again (or Enter) to transform. "Return to Human" button |
+| **Right-click** the Omnitrix | Lock the watch onto your wrist |
+| **G** | Raise your arm - the dial pops up with a green alien hologram. **Scroll** to turn the dial, **left click** (or G) to slam it down and transform |
+| **G** as an alien | Slap the symbol and turn back into a human |
+| **Sneak + G** | Take the Omnitrix off |
+| **H** | Alien list menu |
 | **Z / X / C / V** | Ability 1 / 2 / 3 / 4 |
 | **R** (hold) | Guard |
 | **Left click** | Alien melee (burns, freezes, poisons, stuns, knocks back...) |
@@ -99,7 +104,7 @@ Passive: super speed, runs across water, steps up blocks. Overdrive slows down e
 Guard: *Liquid Body* - projectiles pass right through.
 Passive: no fall damage, immune to poison, punches poison, floats with his anti-gravity UFO. Acid leaves damaging puddles and dissolves plants.
 
-### 🛡️ Cannonbolt
+### 🛡️ Blowpoke
 **Rolling Charge** · **Cannonball Launch** · **Bounce Bomb** · **Ricochet**
 Guard: *Armoured Shell* - curls into a ball and blocks 90% of damage.
 Passive: heavy armour, hard to knock back, no fall damage. Crushes everything in his path while rolling.

@@ -36,12 +36,36 @@ public final class Transform {
 
     private Transform() {}
 
+    /** the Omnitrix has to be worn on the wrist to transform */
     public static boolean hasOmnitrix(Player p) {
-        if (p.isCreative()) return true;
-        for (int i = 0; i < p.getInventory().getContainerSize(); i++) {
-            if (p.getInventory().getItem(i).is(ModRegistry.OMNITRIX.get())) return true;
-        }
-        return false;
+        return OmniData.get(p).worn;
+    }
+
+    /** right-clicking the item locks the watch onto the wrist */
+    public static boolean equip(ServerPlayer p) {
+        OmniData d = OmniData.get(p);
+        if (d.worn) return false;
+        d.worn = true;
+        Fx.sound(p.serverLevel(), p.position(), ModRegistry.S_DIAL_OPEN.get(), 1.2F, 0.7F);
+        Fx.sound(p.serverLevel(), p.position(), net.minecraft.sounds.SoundEvents.ARMOR_EQUIP_NETHERITE, 1F, 1.4F);
+        Fx.particles(p.serverLevel(), new DustParticleOptions(new Vector3f(0.35F, 1F, 0.2F), 1.0F), p.getX(), p.getY() + 1.0, p.getZ(), 30, 0.4, 0.4, 0.4, 0.02);
+        p.displayClientMessage(Component.translatable("msg.krolben10.worn").withStyle(ChatFormatting.GREEN), true);
+        Net.sync(p);
+        save(p);
+        return true;
+    }
+
+    /** sneak + dial key as a human takes the watch off again */
+    public static void unequip(ServerPlayer p) {
+        OmniData d = OmniData.get(p);
+        if (!d.worn || d.alien != null) return;
+        d.worn = false;
+        net.minecraft.world.item.ItemStack stack = new net.minecraft.world.item.ItemStack(ModRegistry.OMNITRIX.get());
+        if (!p.getInventory().add(stack)) p.drop(stack, false);
+        Fx.sound(p.serverLevel(), p.position(), net.minecraft.sounds.SoundEvents.ARMOR_EQUIP_GENERIC, 1F, 0.8F);
+        p.displayClientMessage(Component.translatable("msg.krolben10.removed"), true);
+        Net.sync(p);
+        save(p);
     }
 
     public static void request(ServerPlayer p, int id) {
@@ -52,7 +76,11 @@ public final class Transform {
             return;
         }
         Alien a = Alien.byId(id);
-        if (a == null || !hasOmnitrix(p)) return;
+        if (a == null) return;
+        if (!hasOmnitrix(p)) {
+            p.displayClientMessage(Component.translatable("msg.krolben10.wear_first").withStyle(ChatFormatting.YELLOW), true);
+            return;
+        }
         if (d.recharge > 0 && d.alien == null) {
             p.displayClientMessage(Component.translatable("msg.krolben10.recharging", (d.recharge + 19) / 20).withStyle(ChatFormatting.RED), true);
             p.level().playSound(null, p.blockPosition(), ModRegistry.S_BEEP.get(), SoundSource.PLAYERS, 0.8F, 0.6F);
@@ -185,7 +213,7 @@ public final class Transform {
         add(p, Attributes.ARMOR, ARMOR, a.armor, AttributeModifier.Operation.ADDITION);
         add(p, Attributes.ARMOR_TOUGHNESS, TOUGH, a.armor / 3.0, AttributeModifier.Operation.ADDITION);
         add(p, Attributes.KNOCKBACK_RESISTANCE, KNOCK, a.knockbackRes, AttributeModifier.Operation.ADDITION);
-        add(p, ForgeMod.STEP_HEIGHT_ADDITION.get(), STEP, a.height > 2.05F || a == Alien.XLR8 || a == Alien.CANNONBOLT ? 0.6 : 0.0, AttributeModifier.Operation.ADDITION);
+        add(p, ForgeMod.STEP_HEIGHT_ADDITION.get(), STEP, a.height > 2.05F || a == Alien.XLR8 || a == Alien.BLOWPOKE ? 0.6 : 0.0, AttributeModifier.Operation.ADDITION);
         add(p, ForgeMod.ENTITY_REACH.get(), REACH, a.height > 2.05F ? 1.0 : 0.0, AttributeModifier.Operation.ADDITION);
         add(p, ForgeMod.SWIM_SPEED.get(), SWIM, a == Alien.XLR8 ? 1.0 : 0.0, AttributeModifier.Operation.MULTIPLY_TOTAL);
     }

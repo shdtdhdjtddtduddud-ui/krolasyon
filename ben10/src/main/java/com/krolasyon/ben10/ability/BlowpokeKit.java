@@ -19,8 +19,8 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 
 import java.util.*;
 
-/** Cannonbolt: rolling charge, cannonball launch, bounce bomb, ricochet between enemies. Guard = armoured shell. */
-public class CannonboltKit extends Kit {
+/** Blowpoke: rolling charge, cannonball launch, bounce bomb, ricochet between enemies. Guard = armoured shell. */
+public class BlowpokeKit extends Kit {
     private final Map<UUID, Map<Integer, Integer>> lastHit = new HashMap<>();
     private final Map<UUID, List<Integer>> chain = new HashMap<>();
 

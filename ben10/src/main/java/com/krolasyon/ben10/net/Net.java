@@ -32,6 +32,7 @@ public final class Net {
         CHANNEL.registerMessage(id++, Use.class, Use::encode, Use::new, Use::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
         CHANNEL.registerMessage(id++, Guard.class, Guard::encode, Guard::new, Guard::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
         CHANNEL.registerMessage(id++, Sync.class, Sync::encode, Sync::new, Sync::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CHANNEL.registerMessage(id++, Wear.class, Wear::encode, Wear::new, Wear::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
         CHANNEL.registerMessage(id++, Shake.class, Shake::encode, Shake::new, Shake::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
     }
 
@@ -92,12 +93,25 @@ public final class Net {
         }
     }
 
+    /** take the Omnitrix off the wrist */
+    public record Wear(boolean on) {
+        Wear(FriendlyByteBuf b) { this(b.readBoolean()); }
+
+        void encode(FriendlyByteBuf b) { b.writeBoolean(on); }
+
+        void handle(Supplier<NetworkEvent.Context> ctx) {
+            ServerPlayer p = ctx.get().getSender();
+            ctx.get().enqueueWork(() -> { if (p != null && !on) Transform.unequip(p); });
+            ctx.get().setPacketHandled(true);
+        }
+    }
+
     // ---- server -> client ----
 
     public record Sync(int entity, int alien, int ability, int abilityTick, boolean blocking, int flags, int timeLeft, int recharge,
                        int target, int[] cd, int[] cdMax) {
         static Sync of(Player p, OmniData d) {
-            int flags = d.flags | (com.krolasyon.ben10.Transform.hasOmnitrix(p) ? OmniData.F_WATCH : 0);
+            int flags = d.flags | (d.worn ? OmniData.F_WATCH : 0);
             return new Sync(p.getId(), d.alien == null ? -1 : d.alien.ordinal(), d.ability, d.abilityTick, d.blocking, flags,
                     d.timeLeft, d.recharge, d.targetId, d.cooldown.clone(), d.cooldownMax.clone());
         }

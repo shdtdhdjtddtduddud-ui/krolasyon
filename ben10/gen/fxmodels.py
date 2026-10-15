@@ -119,11 +119,15 @@ MODELS.append(('ice_spike', IS, P))
 W_ = Model('watch', 64, 64)
 W_.bone('base', None, (0, 0, 0))
 W_.cube('base', (-4.6, -2.2, -4.6), (9.2, 4.4, 9.2), 'band')
-W_.cube('base', (4.4, -3.2, -3.0), (1.6, 6.4, 6.0), 'face_ring')     # dial on the outer (+x) side of the left arm
-W_.cube('base', (5.8, -2.4, -2.2), (0.8, 4.8, 4.4), 'face')
 W_.cube('base', (-4.9, -1.2, -5.0), (9.8, 2.4, 1.0), 'white')
 W_.cube('base', (-4.9, -1.2, 4.0), (9.8, 2.4, 1.0), 'white')
-W_.cube('base', (4.6, 2.6, -1.0), (1.2, 1.4, 2.0), 'button')
+# the dial core on the outer (+x) side of the left arm; it pops up and turns when selecting an alien
+W_.bone('core', 'base', (4.6, 0, 0))
+W_.cube('core', (4.4, -3.2, -3.0), (1.6, 6.4, 6.0), 'face_ring')
+W_.cube('core', (5.8, -2.4, -2.2), (0.8, 4.8, 4.4), 'face')
+W_.cube('core', (4.6, 2.6, -1.0), (1.2, 1.4, 2.0), 'button')
+for i, (y, z) in enumerate(((-3.6, -3.4), (-3.6, 2.4), (2.6, -3.4), (2.6, 2.4))):
+    W_.cube('core', (4.2, y, z), (1.0, 1.0, 1.0), 'button')
 
 
 def band(c, face, W, H, r):

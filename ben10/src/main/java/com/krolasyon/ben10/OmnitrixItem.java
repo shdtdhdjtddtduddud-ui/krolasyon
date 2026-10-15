@@ -23,7 +23,14 @@ public class OmnitrixItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (level.isClientSide) DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> com.krolasyon.ben10.client.ClientHooks.openDial());
+        if (player instanceof net.minecraft.server.level.ServerPlayer sp) {
+            if (Transform.equip(sp)) {
+                if (!sp.getAbilities().instabuild) stack.shrink(1);
+            }
+        } else if (OmniData.get(player).worn) {
+            // already wearing one: raise the arm and open the dial
+            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> com.krolasyon.ben10.client.WatchMode.open());
+        }
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
     }
 

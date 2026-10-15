@@ -23,7 +23,7 @@ public final class Animator {
     public static float firstPersonScale(Alien a) {
         return switch (a) {
             case FOURARMS -> 0.75F;
-            case CANNONBOLT -> 0.85F;
+            case BLOWPOKE -> 0.85F;
             case ECHOECHO, BIGCHILL -> 0.9F;
             default -> 1.0F;
         };
@@ -52,7 +52,7 @@ public final class Animator {
     /** effect-only bones are hidden unless their state is active */
     public static void hideFx(AlienModel m, OmniData d, float guard) {
         Alien a = d.alien;
-        boolean ball = a == Alien.CANNONBOLT && (d.has(OmniData.F_ROLLING) || guard > 0.5F || (d.ability >= 1));
+        boolean ball = a == Alien.BLOWPOKE && (d.has(OmniData.F_ROLLING) || guard > 0.5F || (d.ability >= 1));
         vis(m.bone("shield"), guard > 0.25F);
         vis(m.bone("disc_wall"), guard > 0.25F);
         vis(m.bone("ball"), ball);
@@ -101,7 +101,7 @@ public final class Animator {
         float stride = switch (a) {
             case FOURARMS -> 0.45F;
             case XLR8 -> 0.55F;
-            case DIAMONDHEAD, CANNONBOLT -> 0.5F;
+            case DIAMONDHEAD, BLOWPOKE -> 0.5F;
             default -> 0.6F;
         };
         float legAmp = switch (a) {
@@ -216,7 +216,7 @@ public final class Animator {
                     sc(base, 1 + guard * 0.35F, 1 - guard * 0.45F, 1 + guard * 0.35F);
                 }
             }
-            case CANNONBOLT -> {
+            case BLOWPOKE -> {
                 ModelPart ball = m.bone("ball");
                 if (ball != null && ball.visible) {
                     float spin = d.has(OmniData.F_ROLLING) || d.ability >= 1 ? age * 0.9F : limb * 0.4F;
@@ -278,7 +278,7 @@ public final class Animator {
                 float s2 = Mth.sin(Math.max(0, f1 - 0.25F) / 0.75F * Mth.PI);
                 rx(arm2, -s2 * 1.3F);
             }
-            if (a == Alien.CANNONBOLT || a == Alien.GOOP) rx(fore, -swing * 0.3F);
+            if (a == Alien.BLOWPOKE || a == Alien.GOOP) rx(fore, -swing * 0.3F);
         }
 
         // ---------------- ability clips ----------------

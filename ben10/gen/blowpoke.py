@@ -1,4 +1,4 @@
-"""Cannonbolt (Arburian Pelarota): huge olive shell with five dark ports, pale green flipper arms with black spots, small peeking head.
+"""Blowpoke: huge olive shell with five dark ports, pale green flipper arms with black spots, small peeking head.
 Two rigs in one model: 'stand' (walking) and 'ball' (curled up for rolling/guard)."""
 import math, numpy as np
 from core import Model, Anim
@@ -6,7 +6,7 @@ from paint import Painter, noise2, lerp
 from toon import *
 from animlib import pose_seq
 
-M = Model('cannonbolt', 512, 256)
+M = Model('blowpoke', 512, 256)
 hc = box_helpers(M)
 FIT = 70
 

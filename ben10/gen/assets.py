@@ -191,7 +191,7 @@ def fit(img, S, pad=2, top=False):
 
 
 REF = os.path.join(HERE, 'ref')
-for name in ('heatblast', 'fourarms', 'diamondhead', 'xlr8', 'goop', 'cannonbolt', 'bigchill', 'echoecho', 'ghostfreak'):
+for name in ('heatblast', 'fourarms', 'diamondhead', 'xlr8', 'goop', 'blowpoke', 'bigchill', 'echoecho', 'ghostfreak'):
     c = cutout(os.path.join(REF, name + '.jpg'))
     # portraits focus on the upper body/head so they read at 32 px
     w, h = c.size

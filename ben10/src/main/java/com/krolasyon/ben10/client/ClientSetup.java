@@ -38,6 +38,7 @@ import java.util.Map;
 public final class ClientSetup {
     public static final String CATEGORY = "key.categories.krolben10";
     public static final KeyMapping DIAL = new KeyMapping("key.krolben10.dial", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_G, CATEGORY);
+    public static final KeyMapping LIST = new KeyMapping("key.krolben10.list", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_H, CATEGORY);
     public static final KeyMapping GUARD = new KeyMapping("key.krolben10.guard", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, CATEGORY);
     public static final KeyMapping[] ABILITY = {
             new KeyMapping("key.krolben10.ability1", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_Z, CATEGORY),
@@ -58,6 +59,7 @@ public final class ClientSetup {
         @SubscribeEvent
         public static void keys(RegisterKeyMappingsEvent e) {
             e.register(DIAL);
+            e.register(LIST);
             e.register(GUARD);
             for (KeyMapping k : ABILITY) e.register(k);
         }
@@ -99,10 +101,17 @@ public final class ClientSetup {
             ClientHooks.flash *= 0.86F;
             if (mc.player == null) return;
             OmniData d = OmniData.get(mc.player);
-            while (DIAL.consumeClick()) if (mc.screen == null) ClientHooks.openDial();
+            WatchMode.tick();
+            while (DIAL.consumeClick()) {
+                if (mc.screen != null) continue;
+                if (WatchMode.active) WatchMode.confirm();
+                else if (mc.player.isShiftKeyDown() && d.alien == null && d.has(OmniData.F_WATCH)) Net.CHANNEL.sendToServer(new Net.Wear(false));
+                else WatchMode.open();
+            }
+            while (LIST.consumeClick()) if (mc.screen == null) ClientHooks.openDial();
             for (int i = 0; i < ABILITY.length; i++) {
                 while (ABILITY[i].consumeClick()) {
-                    if (mc.screen == null && d.alien != null) Net.CHANNEL.sendToServer(new Net.Use(i));
+                    if (mc.screen == null && d.alien != null && !WatchMode.active) Net.CHANNEL.sendToServer(new Net.Use(i));
                 }
             }
             boolean g = GUARD.isDown() && mc.screen == null && d.alien != null;
@@ -113,8 +122,32 @@ public final class ClientSetup {
         }
 
         @SubscribeEvent
+        public static void scroll(net.minecraftforge.client.event.InputEvent.MouseScrollingEvent e) {
+            if (!WatchMode.active) return;
+            e.setCanceled(true);
+            WatchMode.scroll(e.getScrollDelta() < 0 ? 1 : -1);
+        }
+
+        @SubscribeEvent
+        public static void click(net.minecraftforge.client.event.InputEvent.InteractionKeyMappingTriggered e) {
+            if (!WatchMode.active) return;
+            e.setCanceled(true);
+            e.setSwingHand(false);
+            if (e.isAttack()) WatchMode.confirm();
+            else if (e.isUseItem()) WatchMode.close();
+        }
+
+        @SubscribeEvent
+        public static void hands(net.minecraftforge.client.event.RenderHandEvent e) {
+            if (!WatchMode.active) return;
+            e.setCanceled(true);
+            if (e.getHand() == net.minecraft.world.InteractionHand.MAIN_HAND) WatchMode.render(e.getPoseStack(), e.getMultiBufferSource(), e.getPackedLight(), e.getPartialTick());
+        }
+
+        @SubscribeEvent
         public static void logout(ClientPlayerNetworkEvent.LoggingOut e) {
             OmniData.clearClient();
+            WatchMode.close();
             guardSent = false;
         }
 

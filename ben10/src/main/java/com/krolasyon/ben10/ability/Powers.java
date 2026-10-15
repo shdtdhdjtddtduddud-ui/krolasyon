@@ -19,7 +19,7 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 
 public final class Powers {
     private static final Kit[] KITS = {new HeatblastKit(), new FourArmsKit(), new DiamondheadKit(), new Xlr8Kit(), new GoopKit(),
-            new CannonboltKit(), new BigChillKit(), new EchoEchoKit(), new GhostfreakKit()};
+            new BlowpokeKit(), new BigChillKit(), new EchoEchoKit(), new GhostfreakKit()};
 
     private Powers() {}
 
@@ -51,7 +51,7 @@ public final class Powers {
         if (d.blocking == on) return;
         d.blocking = on;
         d.dirty = true;
-        if (d.alien == Alien.CANNONBOLT) p.refreshDimensions();
+        if (d.alien == Alien.BLOWPOKE) p.refreshDimensions();
         Net.sync(p);
     }
 
@@ -66,8 +66,8 @@ public final class Powers {
         }
         if (d.alien != a) return;
         k.passive(p, d);
-        // guarding slows the alien down (Cannonbolt cannot move while curled up)
-        double slow = d.blocking ? (a == Alien.CANNONBOLT ? -1.0 : -0.55) : 0;
+        // guarding slows the alien down (Blowpoke cannot move while curled up)
+        double slow = d.blocking ? (a == Alien.BLOWPOKE ? -1.0 : -0.55) : 0;
         var inst = p.getAttribute(Attributes.MOVEMENT_SPEED);
         if (inst != null) {
             var cur = inst.getModifier(Transform.GUARD_SLOW);
@@ -164,10 +164,10 @@ public final class Powers {
         }
     }
 
-    /** guards only protect against attacks from the front half (Cannonbolt's shell covers everything) */
+    /** guards only protect against attacks from the front half (Blowpoke's shell covers everything) */
     private static boolean facing(ServerPlayer p, DamageSource src) {
         OmniData d = OmniData.get(p);
-        if (d.alien == Alien.CANNONBOLT || d.alien == Alien.GOOP) return true;
+        if (d.alien == Alien.BLOWPOKE || d.alien == Alien.GOOP) return true;
         Vec3 from = src.getSourcePosition();
         if (from == null) return true;
         Vec3 to = from.subtract(p.position());

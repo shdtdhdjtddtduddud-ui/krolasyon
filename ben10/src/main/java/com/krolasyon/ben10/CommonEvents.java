@@ -42,14 +42,14 @@ public final class CommonEvents {
         if (d == null || d.alien == null) return;
         Alien a = d.alien;
         float h = a.height, w = a.width;
-        if (a == Alien.CANNONBOLT && (d.has(OmniData.F_ROLLING) || d.blocking)) {
+        if (a == Alien.BLOWPOKE && (d.has(OmniData.F_ROLLING) || d.blocking)) {
             h = 1.3F;
             w = 0.9F;
         }
         if (a == Alien.GOOP && d.ability == 3) h = 0.9F;
         if (pose == Pose.CROUCHING) h *= 0.85F;
         e.setNewSize(EntityDimensions.scalable(w, h), false);
-        e.setNewEyeHeight(h * (a == Alien.CANNONBOLT && h < 1.5F ? 0.75F : 0.86F));
+        e.setNewEyeHeight(h * (a == Alien.BLOWPOKE && h < 1.5F ? 0.75F : 0.86F));
     }
 
     @SubscribeEvent
@@ -98,8 +98,13 @@ public final class CommonEvents {
 
     @SubscribeEvent
     public static void clone(PlayerEvent.Clone e) {
-        // the old player object is gone; keep only the recharge timer
-        e.getEntity().getPersistentData().put(Ben10.MODID, new net.minecraft.nbt.CompoundTag());
+        // like Ben, you keep the watch on your wrist after dying; the transformation itself ends
+        net.minecraft.nbt.CompoundTag old = e.getOriginal().getPersistentData().getCompound(Ben10.MODID);
+        net.minecraft.nbt.CompoundTag t = new net.minecraft.nbt.CompoundTag();
+        t.putInt("alien", -1);
+        t.putBoolean("worn", old.getBoolean("worn"));
+        t.putInt("recharge", old.getInt("recharge"));
+        e.getEntity().getPersistentData().put(Ben10.MODID, t);
     }
 
     @SubscribeEvent

@@ -27,8 +27,8 @@
 
 ```
 Initial release
-- Omnitrix item with an animated selection dial (G / right-click)
-- 9 aliens: Heatblast, Four Arms, Diamondhead, XLR8, Goop, Cannonbolt, Big Chill, Ultimate Echo Echo, Ghostfreak
+- Wear the Omnitrix on your wrist and transform Ben 10 style: raise your arm, turn the dial (hologram), slam it down
+- 9 aliens: Heatblast, Four Arms, Diamondhead, XLR8, Goop, Blowpoke, Big Chill, Ultimate Echo Echo, Ghostfreak
 - 36 unique abilities (4 per alien) + 9 unique guards
 - Custom models, textures, glowing details and keyframe animations for every alien
 - Procedural walk / run / fly / float / roll animations
@@ -47,7 +47,8 @@ Initial release
 
 ## ✨ Features
 
-- **Omnitrix dial** - rotating selection wheel with alien portraits and ability previews
+- **Transform from your wrist, just like Ben** - raise your arm, turn the dial through green alien holograms and slam it down
+- **Omnitrix menu** - rotating selection wheel with alien portraits and ability previews
 - **9 playable aliens** with custom models, textures and glowing details
 - **36 abilities + 9 guards** with animations, particles, sounds and camera shake
 - **Smooth animations** - walking, sprinting, flying, ghost floating, rolling, punching
@@ -61,7 +62,10 @@ Initial release
 
 | Key | Action |
 |---|---|
-| **G** / right-click Omnitrix | Open the dial, click again (or Enter) to transform |
+| **Right-click** Omnitrix | Lock it onto your wrist |
+| **G** | Raise your arm, **scroll** the dial, **left click** to slam it down and transform |
+| **G** as an alien | Turn back into a human |
+| **Sneak + G** | Take the Omnitrix off |
 | **Z / X / C / V** | Ability 1 / 2 / 3 / 4 |
 | **R** (hold) | Guard |
 | **Left click** | Alien melee |
@@ -77,12 +81,12 @@ Rebind in *Options → Controls → Ben 10 Omnitrix*.
 | 💎 **Diamondhead** | Crystal Shards · Crystal Spikes · Crystal Wall · Crystal Storm | Crystal Shield (reflects projectiles) |
 | ⚡ **XLR8** | Speed Dash · Cyclone · Blitz Combo · Overdrive | Evasion |
 | 🟢 **Goop** | Acid Spit · Slime Whip · Engulf · Goo Wave | Liquid Body (projectiles pass through) |
-| 🛡️ **Cannonbolt** | Rolling Charge · Cannonball Launch · Bounce Bomb · Ricochet | Armoured Shell (90% block) |
+| 🛡️ **Blowpoke** | Rolling Charge · Cannonball Launch · Bounce Bomb · Ricochet | Armoured Shell (90% block) |
 | ❄️ **Big Chill** | Ice Breath · Ice Prison · Ice Spear · Blizzard | Wing Cloak (freezes attackers) |
 | 🔊 **Ultimate Echo Echo** | Sonic Discs · Sonic Beam · Disc Barrage · Sonic Doom | Disc Wall |
 | 👻 **Ghostfreak** | Shadow Claw · Fear Gaze · Possession · Phantom Form | Ghostly Evasion (50% dodge) |
 
-**Passives:** Heatblast flies and is fire-immune (but water hurts him) · Four Arms jumps very high · Diamondhead has huge armour · XLR8 runs on water · Goop takes no fall damage and is poison-immune · Cannonbolt is almost impossible to knock back · Big Chill flies and freezes water beneath him · Echo Echo hovers · Ghostfreak flies and sees in the dark.
+**Passives:** Heatblast flies and is fire-immune (but water hurts him) · Four Arms jumps very high · Diamondhead has huge armour · XLR8 runs on water · Goop takes no fall damage and is poison-immune · Blowpoke is almost impossible to knock back · Big Chill flies and freezes water beneath him · Echo Echo hovers · Ghostfreak flies and sees in the dark.
 
 ## 📦 Getting the Omnitrix
 

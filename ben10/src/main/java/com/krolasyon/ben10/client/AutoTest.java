@@ -58,7 +58,26 @@ public final class AutoTest {
                 "time set 6000", "weather clear", "difficulty normal", "gamemode creative @a", "tp @a 0 -60 0 0 0",
                 "kill @e[type=!player]", "give @a krolben10:omnitrix", "summon minecraft:armor_stand -6.5 -58.9 3.2 {Invisible:1b,NoGravity:1b,Marker:1b,Tags:[\"cam\"],Rotation:[-90f,10f]}",
                 "fill -6 -61 10 6 -61 14 minecraft:sand", "fill 3 -60 4 5 -58 4 minecraft:glass", "fill -5 -61 9 -2 -61 9 minecraft:water");
+        server(2, null, s -> {
+            OmniData.get(sp(s)).worn = true;
+            com.krolasyon.ben10.net.Net.sync(sp(s));
+        });
         client(10, "human_front", () -> cam(0));
+        // Ben 10 style wrist transformation in first person
+        client(4, null, () -> {
+            Minecraft.getInstance().options.setCameraType(CameraType.FIRST_PERSON);
+            WatchMode.open();
+        });
+        wait(8, "watch_open");
+        client(6, "watch_scroll", () -> WatchMode.scroll(1));
+        client(2, null, () -> WatchMode.confirm());
+        wait(1, "watch_slam");
+        wait(14, "watch_transformed");
+        server(2, null, s -> Transform.detransform(sp(s), false));
+        server(2, null, s -> {
+            OmniData.get(sp(s)).recharge = 0;
+            com.krolasyon.ben10.net.Net.sync(sp(s));
+        });
         for (Alien a : Alien.values()) {
             cmd(2, null, "fill -20 -61 -20 20 -50 30 air replace minecraft:fire", "fill -20 -61 -20 20 -50 30 air replace minecraft:snow",
                     "fill -20 -61 -20 20 -50 30 air replace krolben10:frost_ice", "fill -20 -61 -20 20 -50 30 air replace krolben10:crystal_wall",

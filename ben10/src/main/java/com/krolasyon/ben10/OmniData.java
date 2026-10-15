@@ -17,6 +17,8 @@ public final class OmniData {
     public static final int F_ROLLING = 1, F_PHASED = 2, F_OVERDRIVE = 4, F_ENGULF = 8, F_GRAB = 16, F_POSSESS = 32, F_CHARGING = 64, F_AIRBORNE = 128, F_WATCH = 1 << 20;
 
     public Alien alien;
+    /** the Omnitrix is locked onto the wrist */
+    public boolean worn;
     public int timeLeft;
     public int recharge;
     public final int[] cooldown = new int[4];
@@ -73,6 +75,7 @@ public final class OmniData {
         t.putInt("alien", alien == null ? -1 : alien.ordinal());
         t.putInt("time", timeLeft);
         t.putInt("recharge", recharge);
+        t.putBoolean("worn", worn);
         return t;
     }
 
@@ -80,5 +83,6 @@ public final class OmniData {
         alien = t.contains("alien") ? Alien.byId(t.getInt("alien")) : null;
         timeLeft = t.getInt("time");
         recharge = t.getInt("recharge");
+        worn = t.getBoolean("worn");
     }
 }

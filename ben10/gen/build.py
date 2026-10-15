@@ -9,7 +9,7 @@ JAVA = os.path.join(ROOT, 'src/main/java/com/krolasyon/ben10/client/model')
 os.makedirs(TEX, exist_ok=True)
 os.makedirs(JAVA, exist_ok=True)
 
-ALIENS = [a for a in os.environ.get('ALIENS', 'heatblast,fourarms,diamondhead,xlr8,goop,cannonbolt,bigchill,echoecho,ghostfreak').split(',')]
+ALIENS = [a for a in os.environ.get('ALIENS', 'heatblast,fourarms,diamondhead,xlr8,goop,blowpoke,bigchill,echoecho,ghostfreak').split(',')]
 EXTRA = ['fxmodels']
 
 layers, anims, cases, regs = [], [], [], []

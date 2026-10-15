@@ -24,7 +24,7 @@ ALIENS = {
              'Düşme hasarı almaz, zehre bağışık. Yumrukları zehirler. Antigravite UFO\'su ile süzülür.',
              ['Acid Spit', 'Slime Whip', 'Engulf', 'Goo Wave'], 'Liquid Body',
              'No fall damage, immune to poison. Punches poison. Floats with his anti-gravity UFO.'),
-    'cannonbolt': ('Cannonbolt', ['Yuvarlanma', 'Gülle Atışı', 'Sekme Bombası', 'Bilardo Sekmesi'], 'Zırhlı Kabuk',
+    'blowpoke': ('Blowpoke', ['Yuvarlanma', 'Gülle Atışı', 'Sekme Bombası', 'Bilardo Sekmesi'], 'Zırhlı Kabuk',
                    'Ağır zırh, geri itilmez, düşme hasarı almaz. Yuvarlanırken önüne çıkanı ezer.',
                    ['Rolling Charge', 'Cannonball Launch', 'Bounce Bomb', 'Ricochet'], 'Armoured Shell',
                    'Heavy armour, hard to knock back, no fall damage. Crushes everything while rolling.'),
@@ -48,17 +48,22 @@ def build(tr):
     L['itemGroup.krolben10'] = 'Ben 10 Omnitrix'
     L['block.krolben10.crystal_wall'] = 'Kristal Duvar' if tr else 'Crystal Wall'
     L['block.krolben10.frost_ice'] = 'Sihirli Buz' if tr else 'Frost Ice'
-    tips = (['Uzaylıya dönüşmek için sağ tıkla veya G', 'Yetenekler: Z  X  C  V', 'Bloklama: R (basılı tut)', 'İnsana dönmek: G menüsünden', 'Süre dolunca Omnitrix şarj olur'] if tr else
-            ['Right click or press G to transform', 'Abilities: Z  X  C  V', 'Guard: hold R', 'Return to human from the G dial', 'When time runs out the Omnitrix recharges'])
+    tips = (['Koluna takmak için sağ tıkla', 'G: kolunu kaldır, tekerlek: uzaylı seç, sol tık: DÖNÜŞ!', 'Yetenekler: Z  X  C  V · Bloklama: R', 'Uzaylıyken G: insana dön · Eğilip G: saati çıkar', 'Süre dolunca Omnitrix şarj olur'] if tr else
+            ['Right click to lock it onto your wrist', 'G: raise your arm, scroll: pick an alien, left click: SLAM!', 'Abilities: Z  X  C  V · Guard: R', 'As an alien G turns you back · Sneak + G takes it off', 'When time runs out the Omnitrix recharges'])
     for i, t in enumerate(tips):
         L[f'item.krolben10.omnitrix.tip{i + 1}'] = t
     L['key.categories.krolben10'] = 'Ben 10 Omnitrix'
-    L['key.krolben10.dial'] = 'Omnitrix menüsü' if tr else 'Omnitrix dial'
+    L['key.krolben10.dial'] = 'Omnitrix (kolu kaldır / dönüş)' if tr else 'Omnitrix (raise arm / transform)'
     L['key.krolben10.guard'] = 'Bloklama (basılı tut)' if tr else 'Guard (hold)'
     for i in range(4):
         L[f'key.krolben10.ability{i + 1}'] = (f'Yetenek {i + 1}' if tr else f'Ability {i + 1}')
     L['msg.krolben10.recharging'] = 'Omnitrix şarj oluyor... %ss' if tr else 'Omnitrix recharging... %ss'
     L['msg.krolben10.timeout'] = 'Omnitrix süresi doldu!' if tr else 'The Omnitrix timed out!'
+    L['msg.krolben10.worn'] = 'Omnitrix bileğine kilitlendi! G ile kolunu kaldır.' if tr else 'The Omnitrix locked onto your wrist! Press G to raise your arm.'
+    L['msg.krolben10.removed'] = 'Omnitrix çıkarıldı.' if tr else 'Omnitrix removed.'
+    L['msg.krolben10.wear_first'] = 'Önce Omnitrix\'i koluna tak (eşyayla sağ tık).' if tr else 'Put the Omnitrix on first (right click the item).'
+    L['watch.krolben10.hint'] = 'Tekerlek: seç  ·  Sol tık / G: DÖNÜŞ!  ·  Sağ tık: kapat' if tr else 'Scroll: choose  ·  Left click / G: TRANSFORM!  ·  Right click: close'
+    L['key.krolben10.list'] = 'Uzaylı listesi (menü)' if tr else 'Alien list (menu)'
     L['msg.krolben10.notarget'] = 'Yakında hedef yok!' if tr else 'No target nearby!'
     L['hud.krolben10.recharging'] = 'Şarj oluyor' if tr else 'Recharging'
     L['gui.krolben10.dial'] = 'Omnitrix'

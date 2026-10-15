@@ -31,6 +31,7 @@ public class OmniHud implements IGuiOverlay {
         OmniData d = OmniData.get(mc.player);
         Font font = mc.font;
         drawFlash(g, sw, sh);
+        WatchMode.hud(g, sw, sh);
         if (d.alien == null) {
             if (d.recharge > 0 && d.has(OmniData.F_WATCH)) {
                 int x = 6, y = sh / 2 - 12;

@@ -19,7 +19,7 @@ public final class AlienLayers {
         m.put("diamondhead", AlienLayers::Diamondhead);
         m.put("xlr8", AlienLayers::Xlr8);
         m.put("goop", AlienLayers::Goop);
-        m.put("cannonbolt", AlienLayers::Cannonbolt);
+        m.put("blowpoke", AlienLayers::Blowpoke);
         m.put("bigchill", AlienLayers::Bigchill);
         m.put("echoecho", AlienLayers::Echoecho);
         m.put("ghostfreak", AlienLayers::Ghostfreak);
@@ -169,7 +169,7 @@ public final class AlienLayers {
         return LayerDefinition.create(mesh, 256, 256);
     }
 
-    public static LayerDefinition Cannonbolt() {
+    public static LayerDefinition Blowpoke() {
         MeshDefinition mesh = new MeshDefinition();
         PartDefinition root = mesh.getRoot();
         PartDefinition p_stand = root.addOrReplaceChild("stand", CubeListBuilder.create(), PartPose.offsetAndRotation(0.0F, 48.0F, 0.0F, 0.0F, 0.0F, 0.0F));
@@ -327,7 +327,8 @@ public final class AlienLayers {
     public static LayerDefinition Watch() {
         MeshDefinition mesh = new MeshDefinition();
         PartDefinition root = mesh.getRoot();
-        PartDefinition p_base = root.addOrReplaceChild("base", CubeListBuilder.create().texOffs(0, 0).addBox(-4.6F, -2.2F, -4.6F, 9.2F, 4.4F, 9.2F, new CubeDeformation(0.0F)).texOffs(40, 0).addBox(4.4F, -3.2F, -3.0F, 1.6F, 6.4F, 6.0F, new CubeDeformation(0.0F)).texOffs(0, 15).addBox(5.8F, -2.4F, -2.2F, 0.8F, 4.8F, 4.4F, new CubeDeformation(0.0F)).texOffs(12, 15).addBox(-4.9F, -1.2F, -5.0F, 9.8F, 2.4F, 1.0F, new CubeDeformation(0.0F)).texOffs(34, 15).addBox(-4.9F, -1.2F, 4.0F, 9.8F, 2.4F, 1.0F, new CubeDeformation(0.0F)).texOffs(56, 15).addBox(4.6F, 2.6F, -1.0F, 1.2F, 1.4F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F));
+        PartDefinition p_base = root.addOrReplaceChild("base", CubeListBuilder.create().texOffs(0, 0).addBox(-4.6F, -2.2F, -4.6F, 9.2F, 4.4F, 9.2F, new CubeDeformation(0.0F)).texOffs(12, 15).addBox(-4.9F, -1.2F, -5.0F, 9.8F, 2.4F, 1.0F, new CubeDeformation(0.0F)).texOffs(34, 15).addBox(-4.9F, -1.2F, 4.0F, 9.8F, 2.4F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F));
+        PartDefinition p_core = p_base.addOrReplaceChild("core", CubeListBuilder.create().texOffs(40, 0).addBox(-0.2F, -3.2F, -3.0F, 1.6F, 6.4F, 6.0F, new CubeDeformation(0.0F)).texOffs(0, 15).addBox(1.2F, -2.4F, -2.2F, 0.8F, 4.8F, 4.4F, new CubeDeformation(0.0F)).texOffs(56, 15).addBox(0.0F, 2.6F, -1.0F, 1.2F, 1.4F, 2.0F, new CubeDeformation(0.0F)).texOffs(0, 25).addBox(-0.4F, -3.6F, -3.4F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)).texOffs(4, 25).addBox(-0.4F, -3.6F, 2.4F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)).texOffs(8, 25).addBox(-0.4F, 2.6F, -3.4F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)).texOffs(12, 25).addBox(-0.4F, 2.6F, 2.4F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(4.6F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F));
         return LayerDefinition.create(mesh, 64, 64);
     }
 }

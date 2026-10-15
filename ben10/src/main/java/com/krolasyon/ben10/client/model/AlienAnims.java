@@ -36,11 +36,11 @@ public final class AlienAnims {
             case "goop/ab3" -> GOOP_AB3;
             case "goop/ab4" -> GOOP_AB4;
             case "goop/block" -> GOOP_BLOCK;
-            case "cannonbolt/ab1" -> CANNONBOLT_AB1;
-            case "cannonbolt/ab2" -> CANNONBOLT_AB2;
-            case "cannonbolt/ab3" -> CANNONBOLT_AB3;
-            case "cannonbolt/ab4" -> CANNONBOLT_AB4;
-            case "cannonbolt/block" -> CANNONBOLT_BLOCK;
+            case "blowpoke/ab1" -> BLOWPOKE_AB1;
+            case "blowpoke/ab2" -> BLOWPOKE_AB2;
+            case "blowpoke/ab3" -> BLOWPOKE_AB3;
+            case "blowpoke/ab4" -> BLOWPOKE_AB4;
+            case "blowpoke/block" -> BLOWPOKE_BLOCK;
             case "bigchill/ab1" -> BIGCHILL_AB1;
             case "bigchill/ab2" -> BIGCHILL_AB2;
             case "bigchill/ab3" -> BIGCHILL_AB3;
@@ -548,9 +548,9 @@ public final class AlienAnims {
         .build();
     }
 
-    public static final AnimationDefinition CANNONBOLT_AB1 = makeCANNONBOLT_AB1();
+    public static final AnimationDefinition BLOWPOKE_AB1 = makeBLOWPOKE_AB1();
 
-    private static AnimationDefinition makeCANNONBOLT_AB1() {
+    private static AnimationDefinition makeBLOWPOKE_AB1() {
         return AnimationDefinition.Builder.withLength(5.0F)
         .addAnimation("body", new AnimationChannel(AnimationChannel.Targets.ROTATION, new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM), new Keyframe(5.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM)))
         .addAnimation("head", new AnimationChannel(AnimationChannel.Targets.ROTATION, new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM), new Keyframe(5.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM)))
@@ -567,9 +567,9 @@ public final class AlienAnims {
         .build();
     }
 
-    public static final AnimationDefinition CANNONBOLT_AB2 = makeCANNONBOLT_AB2();
+    public static final AnimationDefinition BLOWPOKE_AB2 = makeBLOWPOKE_AB2();
 
-    private static AnimationDefinition makeCANNONBOLT_AB2() {
+    private static AnimationDefinition makeBLOWPOKE_AB2() {
         return AnimationDefinition.Builder.withLength(1.5F)
         .addAnimation("body", new AnimationChannel(AnimationChannel.Targets.ROTATION, new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM), new Keyframe(1.5F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM)))
         .addAnimation("head", new AnimationChannel(AnimationChannel.Targets.ROTATION, new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM), new Keyframe(1.5F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM)))
@@ -586,9 +586,9 @@ public final class AlienAnims {
         .build();
     }
 
-    public static final AnimationDefinition CANNONBOLT_AB3 = makeCANNONBOLT_AB3();
+    public static final AnimationDefinition BLOWPOKE_AB3 = makeBLOWPOKE_AB3();
 
-    private static AnimationDefinition makeCANNONBOLT_AB3() {
+    private static AnimationDefinition makeBLOWPOKE_AB3() {
         return AnimationDefinition.Builder.withLength(3.0F)
         .addAnimation("body", new AnimationChannel(AnimationChannel.Targets.ROTATION, new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM), new Keyframe(3.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM)))
         .addAnimation("head", new AnimationChannel(AnimationChannel.Targets.ROTATION, new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM), new Keyframe(3.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM)))
@@ -605,9 +605,9 @@ public final class AlienAnims {
         .build();
     }
 
-    public static final AnimationDefinition CANNONBOLT_AB4 = makeCANNONBOLT_AB4();
+    public static final AnimationDefinition BLOWPOKE_AB4 = makeBLOWPOKE_AB4();
 
-    private static AnimationDefinition makeCANNONBOLT_AB4() {
+    private static AnimationDefinition makeBLOWPOKE_AB4() {
         return AnimationDefinition.Builder.withLength(2.5F)
         .addAnimation("body", new AnimationChannel(AnimationChannel.Targets.ROTATION, new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM), new Keyframe(2.5F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM)))
         .addAnimation("head", new AnimationChannel(AnimationChannel.Targets.ROTATION, new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM), new Keyframe(2.5F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM)))
@@ -624,9 +624,9 @@ public final class AlienAnims {
         .build();
     }
 
-    public static final AnimationDefinition CANNONBOLT_BLOCK = makeCANNONBOLT_BLOCK();
+    public static final AnimationDefinition BLOWPOKE_BLOCK = makeBLOWPOKE_BLOCK();
 
-    private static AnimationDefinition makeCANNONBOLT_BLOCK() {
+    private static AnimationDefinition makeBLOWPOKE_BLOCK() {
         return AnimationDefinition.Builder.withLength(1.0F).looping()
         .addAnimation("body", new AnimationChannel(AnimationChannel.Targets.ROTATION, new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM), new Keyframe(1.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM)))
         .addAnimation("head", new AnimationChannel(AnimationChannel.Targets.ROTATION, new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM), new Keyframe(1.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM)))
