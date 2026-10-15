@@ -25,6 +25,10 @@ public class AlienMod {
         bus.addListener(this::onAttributes);
         bus.addListener(this::onSetup);
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, AlienConfig.SPEC);
+        if (Boolean.getBoolean("alien.autotest")) {
+            net.minecraftforge.fml.DistExecutor.unsafeRunWhenOn(net.minecraftforge.api.distmarker.Dist.CLIENT,
+                    () -> com.krolasyon.alien.client.AutoTest::init);
+        }
     }
 
     private void onSetup(FMLCommonSetupEvent event) {

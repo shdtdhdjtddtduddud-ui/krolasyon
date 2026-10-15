@@ -1171,6 +1171,13 @@ public class XenomorphEntity extends Monster {
         }
     }
 
+    public String debugState() {
+        return state + " t=" + stateTicks + " target=" + (target() == null ? null : target().getName().getString())
+                + " hidden=" + isHidden() + " menace=" + (int) menace + " pos=" + this.blockPosition().toShortString();
+    }
+
+    public void debugAnim(int id) { playAnim(id); }
+
     /** spawned hidden inside a vent (used by the station generator). */
     public void startInVents(int ticks) {
         setHidden(true);
