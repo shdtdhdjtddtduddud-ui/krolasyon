@@ -23,6 +23,7 @@ def _hash12(x, y):
     d = p3[0] * (p3[1] + 33.33) + p3[1] * (p3[2] + 33.33) + p3[2] * (p3[0] + 33.33)
     p3 = [v + d for v in p3]
     return fr((p3[0] + p3[1]) * p3[2])
+NO_AURORA_DAY = next(d for d in range(1, 500) if _hash12(float(d), 5.1) < 0.3)
 AURORA_DAY = next(d for d in range(1, 500) if _hash12(float(d), 5.1) > 0.8)
 PRESETS = {
     "rain":   dict(time="day", sunElev=0.55, rain=1.0, wet=1.0),
@@ -36,6 +37,8 @@ PRESETS = {
     "aurora": dict(time="night", sunElev=-0.6, rain=0.0, wet=0.0, worldDay=AURORA_DAY),
     "rainbow": dict(time="day", sunElev=0.3, rain=0.0, wet=1.0, sunBehind=True),
     "lightning": dict(time="day", sunElev=0.45, rain=1.0, wet=1.0, thunder=1.0, bolt=(-60.0, 0.0, -120.0)),
+    "starry": dict(time="night", sunElev=-0.75, rain=0.0, wet=0.0, moonPhase=2, sunAngle=0.72, worldDay=NO_AURORA_DAY),
+    "fullmoon": dict(time="night", sunElev=-0.5, rain=0.0, wet=0.0, moonPhase=0, sunAngle=0.70, worldDay=NO_AURORA_DAY),
     "flare":  dict(time="sunset", sunElev=0.4, rain=0.0, wet=0.0),
 }
 preset = PRESETS[sys.argv[2] if len(sys.argv) > 2 else "rain"]
@@ -331,6 +334,10 @@ if preset.get("sunBehind"):
 moon_w = -sun_w
 light_w = sun_w if e > 0 else moon_w
 
+if os.environ.get("LOOK_DIR"):
+    cam_fwd = normalize(np.array([float(v) for v in os.environ["LOOK_DIR"].split(",")]))
+if os.environ.get("LOOK_AT_MOON"):
+    cam_fwd = normalize(-sun_w + np.array([0.08, -0.02, 0.05]))
 if os.environ.get("LOOK_AT_SUN"):
     cam_fwd = normalize(sun_w + np.array([0.45, -0.2, 0.35]))
 view = look_dir(cam_fwd)
@@ -352,7 +359,7 @@ U = {
     "frameTimeCounter": 123.4, "rainStrength": preset["rain"], "wetness": preset["wet"],
     "thunderStrength": float(preset.get("thunder", 0.0)), "worldDay": int(preset.get("worldDay", 3)),
     "lightningBoltPosition": np.array(list(preset["bolt"]) + [1.0]) if "bolt" in preset else np.zeros(4), "heldBlockLightValue": int(preset.get("held", 0)), "heldBlockLightValue2": 0,
-    "viewWidth": float(W), "viewHeight": float(H), "near": 0.05, "far": FAR, "sunAngle": 0.25,
+    "viewWidth": float(W), "viewHeight": float(H), "near": 0.05, "far": FAR, "sunAngle": float(preset.get("sunAngle", 0.25)), "moonPhase": int(preset.get("moonPhase", 0)),
     "isEyeInWater": 0, "worldTime": 6000, "frameCounter": 7, "eyeBrightnessSmooth": (0, 240), "renderStage": 0,
     "entityColor": np.zeros(4),
 }

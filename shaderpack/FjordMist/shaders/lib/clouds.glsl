@@ -5,7 +5,13 @@ float cloudBottom() { return CLOUD_HEIGHT - rainStrength * 25.0; }
 float cloudTop()    { return cloudBottom() + CLOUD_THICKNESS; }
 
 float cloudCoverage() {
-	return mix(CLOUD_COVERAGE, 0.96, getOvercast() * 0.92);
+	float cov = mix(CLOUD_COVERAGE, 0.96, getOvercast() * 0.92);
+#ifdef CLEAR_NIGHTS
+	// dry nights are usually clear: the cloud deck breaks up after sunset
+	float night = 1.0 - smoothstep(-0.2, 0.02, dot(normalize(sunPosition), normalize(upPosition)));
+	cov = mix(cov, cov * 0.45, night * (1.0 - rainStrength));
+#endif
+	return cov;
 }
 
 float cloudDensity(vec3 p, float coverage, int octaves) {

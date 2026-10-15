@@ -35,7 +35,7 @@ void getAtmosphereColors(out vec3 lightCol, out vec3 ambientCol, out vec3 zenith
 	vec3 sunNoon   = vec3(1.00, 0.94, 0.86) * 2.3;
 	vec3 sunLow    = vec3(1.00, 0.52, 0.22) * 1.6;
 	vec3 sunCol    = mix(sunNoon, sunLow, saturate(sunset * 1.3 + (1.0 - day) * 0.5));
-	vec3 moonCol   = vec3(0.50, 0.62, 0.90) * 0.14;
+	vec3 moonCol   = vec3(0.50, 0.62, 0.90) * 0.16 * (0.2 + 0.8 * moonIllumination());
 	float crossFade = smoothstep(0.0, 0.07, abs(e));   // hide the sun/moon swap
 	lightCol = (e > 0.0 ? sunCol : moonCol) * crossFade;
 	lightCol *= 1.0 - oc * 0.86;
@@ -52,8 +52,8 @@ void getAtmosphereColors(out vec3 lightCol, out vec3 ambientCol, out vec3 zenith
 	horizonCol += vec3(1.10, 0.52, 0.24) * sunset * 0.9;
 	zenithCol  += vec3(0.35, 0.25, 0.35) * sunset * 0.25;
 
-	vec3 nightZen = mix(vec3(0.006, 0.010, 0.024), vec3(0.010, 0.012, 0.015), oc);
-	vec3 nightHor = mix(vec3(0.014, 0.020, 0.036), vec3(0.016, 0.018, 0.021), oc);
+	vec3 nightZen = mix(vec3(0.005, 0.008, 0.022), vec3(0.010, 0.012, 0.015), oc);
+	vec3 nightHor = mix(vec3(0.030, 0.020, 0.034), vec3(0.016, 0.018, 0.021), oc);
 	zenithCol  += nightZen * night;
 	horizonCol += nightHor * night;
 
@@ -121,12 +121,20 @@ vec3 getSky(vec3 dirView, vec3 lightCol, vec3 zenithCol, vec3 horizonCol, bool w
 	#ifdef STARS
 		if (withSun) night += (getStars(dirW) + getShootingStar(dirW)) * nightAmt * clearSky;
 	#endif
+		// warm airglow low on the horizon (pink / orange, like distant towns)
+		float glowBand = exp(-max(dirW.y, 0.0) * 9.0);
+		night += vec3(0.05, 0.022, 0.03) * glowBand * clearSky * NIGHT_GLOW;
 		sky += night * smoothstep(-0.05, 0.08, dirW.y);
 	}
 
-	// moon halo
+	// moon and its halo (scattered light grows with the lit fraction)
+	float moonUp = 1.0 - smoothstep(-0.1, 0.1, e);
 	float cm = dot(dirView, normalize(moonPosition));
-	sky += vec3(0.35, 0.45, 0.7) * pow(saturate(cm), 40.0) * 0.06 * (1.0 - smoothstep(-0.1, 0.1, e));
+	float illum = moonIllumination();
+	sky += vec3(0.4, 0.5, 0.75) * (pow(saturate(cm), 60.0) * 0.08 + pow(saturate(cm), 900.0) * 0.25) * moonUp * illum * (1.0 - oc * 0.5);
+	float moonCover;
+	vec3 moon = getMoon(dirView, moonCover);
+	sky = mix(sky, sky * 0.06 + moon, moonCover * moonUp);
 
 	return sky;
 }

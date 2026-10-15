@@ -57,7 +57,7 @@ void main() {
 	#ifdef MC_RENDER_STAGE_SUN
 	if (renderStage == MC_RENDER_STAGE_SUN) discard;   // sun is procedural
 	#endif
-	#if defined END || defined NETHER
+	#if defined END || defined NETHER || defined PROCEDURAL_MOON
 	discard;
 	#endif
 	vec4 tex = texture2D(texture, texcoord) * glcolor;

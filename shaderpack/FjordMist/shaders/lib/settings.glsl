@@ -50,6 +50,12 @@
 
 // ------------------------------------------------------------ Sky wonders
 #define STARS
+#define STAR_DENSITY 1.0        // [0.25 0.5 0.75 1.0 1.5 2.0 3.0]
+#define MILKY_WAY 1.0           // [0.0 0.5 0.75 1.0 1.5 2.0 3.0]
+#define NIGHT_GLOW 1.0          // [0.0 0.5 1.0 1.5 2.0]
+#define CLEAR_NIGHTS
+#define PROCEDURAL_MOON
+#define MOON_SIZE 1.0           // [0.5 0.75 1.0 1.25 1.5 2.0]
 #define SHOOTING_STARS
 #define AURORA 1                // [0 1 2]
 #define AURORA_STRENGTH 1.0     // [0.25 0.5 0.75 1.0 1.5 2.0 3.0]
