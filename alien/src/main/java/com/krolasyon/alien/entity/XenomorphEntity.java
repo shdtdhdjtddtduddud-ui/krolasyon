@@ -289,6 +289,7 @@ public class XenomorphEntity extends Monster {
         if (level.getDifficulty() == Difficulty.PEACEFUL) { this.getNavigation().stop(); return; }
 
         director(level);
+        if (unstick(level)) return;
         if (!isHidden() && state != State.KILL && state != State.VENT_EXIT && state != State.VENT_ENTER && state != State.FLEE) {
             perceive(level);
             hear(level);
@@ -438,6 +439,32 @@ public class XenomorphEntity extends Monster {
             Vec3 hint = focus.position().add((this.random.nextDouble() - 0.5) * 24, 0, (this.random.nextDouble() - 0.5) * 24);
             if (!travelVents(level, hint, State.ROAM, null)) goal = hint;
         }
+    }
+
+    private Vec3 stuckPos = Vec3.ZERO;
+    private int stuckTicks;
+
+    /** wandering states that make no progress for 10 s: slip into the ducts (or hop somewhere free) instead. */
+    private boolean unstick(ServerLevel level) {
+        boolean wandering = state == State.ROAM || state == State.INVESTIGATE || state == State.SEARCH || state == State.FLEE && stateLen <= 0;
+        if (!wandering || isHidden() || searchPause > 0) { stuckTicks = 0; stuckPos = this.position(); return false; }
+        if (this.position().distanceToSqr(stuckPos) > 2.0) { stuckPos = this.position(); stuckTicks = 0; return false; }
+        if (++stuckTicks < 200) return false;
+        stuckTicks = 0;
+        Player p = level.getNearestPlayer(this.getX(), this.getY(), this.getZ(), 200, e -> e instanceof Player pl && isValidPrey(pl));
+        Vec3 c = p != null ? p.position() : this.position();
+        BlockPos v = pickExitVent(level, c, 8, 26);
+        if (v == null) v = nearestVent(level, this.position(), 60, null);
+        if (v != null) {
+            this.playSound(ModSounds.XENO_VENT.get(), 1.2F, 1.0F);
+            setHidden(true);
+            startVentTravel(level, BlockPos.containing(this.position()), v, State.ROAM, null);
+            return true;
+        }
+        Vec3 free = standableNear(level, this.position(), 6, 6);
+        if (free != null) this.teleportTo(free.x, free.y, free.z);
+        goal = null;
+        return true;
     }
 
     private void retreatToVents(ServerLevel level, int ticks) {
@@ -605,8 +632,9 @@ public class XenomorphEntity extends Monster {
             goal = pickRoamGoal(level);
             noPathTicks = 0;
             stateTicks = 0;
+            if (goal == null) { searchPause = 20; return; }
         }
-        if (goal != null && !moveTo(goal, STALK)) goal = null;
+        if (!moveTo(goal, STALK)) { goal = null; searchPause = 10; }
     }
 
     @Nullable

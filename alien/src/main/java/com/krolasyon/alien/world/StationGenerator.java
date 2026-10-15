@@ -378,9 +378,13 @@ public final class StationGenerator {
         }
         if (r.theme() == Theme.STORAGE || r.theme() == Theme.MAINTENANCE) {
             for (int k = 0; k < 5; k++) {
-                int x = 2 + R.nextInt(CELL - 4), z = 2 + R.nextInt(CELL - 4);
+                // crates only line the walls so they never box anything in
+                int along = 3 + R.nextInt(CELL - 6);
+                int side = R.nextInt(4);
+                int x = side == 0 ? 1 : side == 1 ? CELL - 1 : along, z = side == 2 ? 1 : side == 3 ? CELL - 1 : along;
                 BlockPos p = new BlockPos(rx + x, y0 + 1, rz + z);
-                if (!L.getBlockState(p).isAir()) continue;
+                Direction in = side == 0 ? Direction.EAST : side == 1 ? Direction.WEST : side == 2 ? Direction.SOUTH : Direction.NORTH;
+                if (!free(p, 2, in)) continue;
                 set(p, R.nextBoolean() ? Blocks.BARREL.defaultBlockState() : st(ModBlocks.STATION_TRIM));
                 if (R.nextInt(3) == 0 && L.getBlockState(p.above()).isAir()) set(p.above(), Blocks.BARREL.defaultBlockState());
             }
