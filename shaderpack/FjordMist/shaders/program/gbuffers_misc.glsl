@@ -48,6 +48,17 @@ void main() {
 #elif defined WEATHER
 	// streaks: smear the drop texture along the fall direction (motion blur)
 	vec4 t0 = texture2D(texture, texcoord);
+	#ifdef SNOW_COVER
+	if (biome_precipitation == 2) {
+		// snowflakes: soft, bright, no motion blur
+		if (t0.a < 0.05) discard;
+		vec3 snowLight = ambientCol * 2.0 + lightCol * 0.5 + vec3(0.02);
+		float sa = t0.a * glcolor.a * smoothstep(0.4, 2.0, viewDist) * 0.9 * RAIN_VISIBILITY;
+		/* DRAWBUFFERS:5 */
+		gl_FragData[0] = vec4(snowLight * sa, sa);
+		return;
+	}
+	#endif
 	vec4 t1 = texture2D(texture, texcoord + vec2(0.0, 0.012));
 	vec4 t2 = texture2D(texture, texcoord - vec2(0.0, 0.012));
 	vec4 t3 = texture2D(texture, texcoord + vec2(0.0, 0.024));

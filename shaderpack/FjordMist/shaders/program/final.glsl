@@ -39,6 +39,41 @@ void main() {
 
 #ifdef FSH
 uniform sampler2D colortex0;
+uniform float lensWet;    // custom uniform: fades out over a few seconds after leaving water
+
+// Water running down the lens after you come out of the water.
+vec2 lensWater(vec2 uv, out float mask) {
+	mask = 0.0;
+#ifdef LENS_WATER
+	float amount = isEyeInWater == 0 ? lensWet : 0.0;
+	if (amount < 0.01) return vec2(0.0);
+	vec2 aspect = vec2(viewWidth / viewHeight, 1.0);
+	vec2 offset = vec2(0.0);
+	float t = frameTimeCounter;
+	for (int layer = 0; layer < 3; layer++) {
+		float scale = 5.0 + float(layer) * 4.0;
+		vec2 p = uv * aspect * scale + float(layer) * 7.7;
+		float col = floor(p.x);
+		float speed = 0.25 + hash12(vec2(col, float(layer))) * 0.5;
+		p.y += t * speed;                                  // drops slide down
+		vec2 cell = floor(p);
+		vec2 f = fract(p) - 0.5;
+		float h = hash12(cell + float(layer) * 11.3);
+		vec2 c = (hash22(cell) - 0.5) * vec2(0.5, 0.3);
+		vec2 dv = f - c;
+		float r = 0.12 + h * 0.15;
+		float drop = smoothstep(r, r * 0.2, length(dv * vec2(1.0, 0.8))) * step(0.55, h);
+		// faint wet trail left behind the sliding drop
+		float trail = smoothstep(0.03, 0.0, abs(dv.x)) * smoothstep(-0.45, 0.0, dv.y) * step(0.0, -dv.y + r) * step(0.55, h) * 0.12;
+		offset += dv * drop * 0.2 / scale;
+		mask = max(mask, max(drop, trail * smoothstep(0.0, 0.5, f.y + 0.5)));
+	}
+	mask *= amount;
+	return offset * amount;
+#else
+	return vec2(0.0);
+#endif
+}
 
 vec3 acesFitted(vec3 v) {
 	v *= 0.6;
@@ -116,6 +151,9 @@ vec3 lensFlare(vec2 uv) {
 void main() {
 	float dropMask;
 	vec2 uv = texcoord + lensDrops(texcoord, dropMask);
+	float wetMask;
+	uv += lensWater(texcoord, wetMask);
+	dropMask = max(dropMask, wetMask);
 	vec3 color = texture2D(colortex0, uv).rgb;
 
 #ifdef BLOOM
@@ -130,9 +168,19 @@ void main() {
 #endif
 	// lens drops blur what is behind them
 	color = mix(color, texture2D(colortex0, uv, 3.0).rgb * 1.08, dropMask * 0.6);
+	// water films on the lens catch a little light at their edges
+	color *= 1.0 + wetMask * (1.0 - wetMask) * 0.35;
 
 	color += lensFlare(texcoord);
 	color *= exposure;
+
+#ifdef PURKINJE
+	// night vision: in very low light the eye switches to rods, colours fade
+	// and the world turns a dim blue
+	float sceneLum = luma(color);
+	float rods = smoothstep(0.06, 0.004, sceneLum) * PURKINJE_STRENGTH;
+	color = mix(color, vec3(sceneLum) * vec3(0.62, 0.8, 1.15), rods * 0.65);
+#endif
 	color = acesFitted(color);
 
 #ifdef FJORD_GRADE

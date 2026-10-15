@@ -1,6 +1,8 @@
 // Forward lighting used by all lit gbuffers programs.
 // Needs common.glsl, sky.glsl and (optionally) shadow.glsl with SHADOW_SAMPLING.
 
+#include "/lib/clouds.glsl"
+
 const vec3 TORCH_COLOR = vec3(1.0, 0.55, 0.24);
 
 vec3 computeLighting(
@@ -33,6 +35,8 @@ vec3 computeLighting(
 #endif
 	// beyond shadow range / underground: use skylight as a rough occlusion term
 	shadow *= smoothstep(0.05, 0.6, lm.y);
+	// drifting shadows of the clouds overhead
+	shadow *= cloudShadow(feetPos + cameraPosition, mat3(gbufferModelViewInverse) * lightDir);
 	shadowOut = shadow;
 
 	// subsurface: light passing through leaves and grass from behind

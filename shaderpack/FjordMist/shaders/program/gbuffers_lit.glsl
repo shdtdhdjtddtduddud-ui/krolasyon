@@ -91,6 +91,7 @@ void main() {
 	float emissive = 0.0;
 	float material = MAT_TERRAIN;
 	float reflectivity = 0.0;
+	float wetSpec = 0.0;
 	vec3 storedNormal = normal;
 
 #ifdef TERRAIN
@@ -128,11 +129,37 @@ void main() {
 		#endif
 	}
 	#endif
+	#ifdef SHORE_WETNESS
+	// sand and stone at the water line are soaked by the waves; the wet band
+	// creeps up and down as the waves roll in
+	if (idIs(blockId, ID_SHORE) && lm.y > 0.5) {
+		vec3 wpos = feetPos + cameraPosition;
+		float t = frameTimeCounter * WATER_WAVE_SPEED;
+		float reach = 1.1 + sin(t * 0.7 + dot(wpos.xz, vec2(0.21, 0.17))) * 0.35 + waterWaveStrength() * 0.4;
+		float shore = (1.0 - smoothstep(reach - 0.6, reach, wpos.y - (SEA_LEVEL - 0.1))) * step(SEA_LEVEL - 1.5, wpos.y);
+		wet = max(wet, shore);
+	}
+	#endif
+	float snow = 0.0;
+	#ifdef SNOW_COVER
+	// snowy biomes: snow piles up on everything facing the sky while it snows
+	if (biome_precipitation == 2) {
+		vec3 wpos = feetPos + cameraPosition;
+		float n = noise2D(wpos.xz * 0.6) * 0.5 + noise2D(wpos.xz * 2.3) * 0.5;
+		snow = smoothstep(0.35, 0.75, upness + n * 0.35) * smoothstep(0.86, 0.96, lm.y) * saturate(wetness * 1.5);
+		wet *= 0.2;
+		puddle = 0.0;
+		storedNormal = mix(storedNormal, normal, snow);
+	}
+	#endif
 	float porosity = foliage ? 0.35 : 1.0;
 	color = pow(color, vec3(1.0 + 0.35 * wet * porosity));
 	color *= 1.0 - 0.30 * wet * porosity;
 	color *= 1.0 - 0.18 * puddle;
 	reflectivity = foliage ? wet * 0.06 : wet * 0.22 + puddle * 0.78;
+	color = mix(color, vec3(0.86, 0.9, 0.96), snow);
+	reflectivity *= 1.0 - snow;
+	wetSpec = foliage ? wet * 0.5 : wet;
 #endif
 
 #ifdef ENTITY
@@ -148,6 +175,17 @@ void main() {
 
 	float shadow;
 	vec3 lit = computeLighting(color, normal, feetPos, lm, translucency, emissive, lightCol, ambientCol, dither, shadow);
+
+#ifdef WET_GLINTS
+	// wet stones and leaves glisten in the sun / moon
+	if (wetSpec > 0.01) {
+		vec3 V = -normalize((gbufferModelView * vec4(feetPos, 1.0)).xyz);
+		vec3 Lh = normalize(normalize(shadowLightPosition) + V);
+		float sp = pow(saturate(dot(normal, Lh)), 90.0) * 3.0 + pow(saturate(dot(normal, Lh)), 12.0) * 0.08;
+		float fres = 0.04 + 0.96 * pow(1.0 - saturate(dot(normal, V)), 5.0);
+		lit += lightCol * sp * shadow * wetSpec * (0.25 + fres);
+	}
+#endif
 
 #ifdef PARTICLE
 	/* DRAWBUFFERS:0 */

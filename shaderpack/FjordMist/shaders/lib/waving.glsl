@@ -15,6 +15,7 @@ const float ID_LEAVES       = 10005.0;
 const float ID_VINE         = 10006.0;
 const float ID_EMISSIVE     = 10008.0;
 const float ID_LILY         = 10009.0;
+const float ID_SHORE        = 10010.0;
 
 bool idIs(float id, float target) { return abs(id - target) < 0.5; }
 

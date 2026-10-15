@@ -20,6 +20,7 @@ uniform float rainStrength;
 uniform float wetness;
 uniform float thunderStrength;
 uniform int heldBlockLightValue;
+uniform int biome_precipitation;   // Iris: 0 none, 1 rain, 2 snow
 uniform int heldBlockLightValue2;
 uniform float viewWidth;
 uniform float viewHeight;

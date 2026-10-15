@@ -39,6 +39,12 @@ PRESETS = {
     "lightning": dict(time="day", sunElev=0.45, rain=1.0, wet=1.0, thunder=1.0, bolt=(-60.0, 0.0, -120.0)),
     "starry": dict(time="night", sunElev=-0.75, rain=0.0, wet=0.0, moonPhase=2, sunAngle=0.72, worldDay=NO_AURORA_DAY),
     "fullmoon": dict(time="night", sunElev=-0.5, rain=0.0, wet=0.0, moonPhase=0, sunAngle=0.70, worldDay=NO_AURORA_DAY),
+    "fireflies": dict(time="night", sunElev=-0.5, rain=0.0, wet=0.0, moonPhase=4, sunAngle=0.72, worldDay=NO_AURORA_DAY),
+    "biolum": dict(time="night", sunElev=-0.5, rain=0.6, wet=0.6, thunder=0.6, moonPhase=4, sunAngle=0.72, worldDay=NO_AURORA_DAY),
+    "underwater": dict(time="day", sunElev=0.7, rain=0.0, wet=0.0, eyeInWater=1),
+    "snow":   dict(time="day", sunElev=0.4, rain=1.0, wet=1.0, biomePrecip=2),
+    "lenswet": dict(time="day", sunElev=0.5, rain=0.0, wet=0.0, lensWet=1.0),
+    "twilight": dict(time="sunset", sunElev=-0.02, rain=0.0, wet=0.0, worldDay=NO_AURORA_DAY),
     "flare":  dict(time="sunset", sunElev=0.4, rain=0.0, wet=0.0),
 }
 preset = PRESETS[sys.argv[2] if len(sys.argv) > 2 else "rain"]
@@ -128,6 +134,8 @@ CAM_PRESETS = {
     "shore": (np.array([36.0, 65.0, 34.0]), np.array([-0.30, 0.0, -1.0])),
     "up":    (np.array([36.0, 65.0, 34.0]), np.array([-0.30, 0.55, -1.0])),
     "back":  (np.array([36.0, 65.0, 34.0]), np.array([-0.2, 0.12, -1.0])),
+    "under": (np.array([36.0, 60.5, 34.0]), np.array([-0.3, 0.15, -1.0])),
+    "east":  (np.array([36.0, 65.0, 34.0]), np.array([1.0, 0.08, 0.3])),
     "west":  (np.array([36.0, 65.0, 34.0]), np.array([-1.0, 0.12, -0.25])),
     "sky":   (np.array([36.0, 700.0, 34.0]), np.array([-1.0, 0.3, -0.25])),
     "westup": (np.array([36.0, 65.0, 34.0]), np.array([-1.0, 0.45, 0.1])),
@@ -360,7 +368,7 @@ U = {
     "thunderStrength": float(preset.get("thunder", 0.0)), "worldDay": int(preset.get("worldDay", 3)),
     "lightningBoltPosition": np.array(list(preset["bolt"]) + [1.0]) if "bolt" in preset else np.zeros(4), "heldBlockLightValue": int(preset.get("held", 0)), "heldBlockLightValue2": 0,
     "viewWidth": float(W), "viewHeight": float(H), "near": 0.05, "far": FAR, "sunAngle": float(preset.get("sunAngle", 0.25)), "moonPhase": int(preset.get("moonPhase", 0)),
-    "isEyeInWater": 0, "worldTime": 6000, "frameCounter": 7, "eyeBrightnessSmooth": (0, 240), "renderStage": 0,
+    "isEyeInWater": int(preset.get("eyeInWater", 0)), "biome_precipitation": int(preset.get("biomePrecip", 0)), "lensWet": float(preset.get("lensWet", 0.0)), "worldTime": 6000, "frameCounter": 7, "eyeBrightnessSmooth": (0, 240), "renderStage": 0,
     "entityColor": np.zeros(4),
 }
 SAMPLERS = {"texture": (0, blocktex), "tex": (0, blocktex), "noisetex": (1, noise), "colortex0": (2, ct0), "colortex1": (3, ct1),

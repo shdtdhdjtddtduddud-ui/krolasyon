@@ -158,7 +158,7 @@ void main() {
 				float sigmaS = 0.045 / WATER_CLARITY;
 				vec3 trans = exp(-(sigmaA + sigmaS) * thick);
 
-				float surfShadow = sampleShadowSingle(feet0 + vec3(0.0, 0.1, 0.0));
+				float surfShadow = sampleShadowSingle(feet0 + vec3(0.0, 0.1, 0.0)) * cloudShadow(wp0, lightDirWorld());
 				surfShadow *= smoothstep(0.4, 0.9, skyLm);
 				vec3 deepCol = ambientCol * vec3(0.045, 0.085, 0.085) * (0.3 + 0.7 * skyLm)
 				             + lightCol * vec3(0.02, 0.05, 0.05) * surfShadow;
@@ -193,6 +193,16 @@ void main() {
 				foam = saturate(foam * FOAM_AMOUNT) * (1.0 - smoothstep(80.0, 200.0, length(view0)));
 				vec3 foamCol = ambientCol * 0.95 * (0.3 + 0.7 * skyLm) + lightCol * 0.6 * surfShadow;
 				color = mix(color, foamCol, foam * 0.92);
+		#ifdef BIOLUMINESCENCE
+				// glowing plankton: at night, every breaking wave, foam line and
+				// disturbance of the water lights up in electric blue
+				float nightB = 1.0 - smoothstep(-0.12, 0.02, getSunElevation());
+				if (nightB > 0.0) {
+					float sparkle = smoothstep(0.82, 0.97, noise2D(wp0.xz * 6.0 + vec2(t * 0.9, -t * 0.7))) * smoothstep(0.4, 0.8, n1);
+					float plankton = foam * 0.9 + edge * 0.6 + sparkle * shoreZone * 0.8 + crest * 0.25;
+					color += vec3(0.05, 0.55, 1.0) * plankton * nightB * BIOLUM_STRENGTH * 0.22;
+				}
+		#endif
 	#endif
 				// light from a torch held by the player glitters on the water
 				float held = float(max(heldBlockLightValue, heldBlockLightValue2));
@@ -203,10 +213,13 @@ void main() {
 	#ifdef RAIN_RIPPLES
 				// tiny white splashes where raindrops hit the surface
 				float splashDist = length(view0);
-				if (rainStrength > 0.05 && splashDist < 28.0) {
+				if (rainStrength > 0.05 && splashDist < 28.0 && biome_precipitation != 2) {
 					float splash = saturate(rainDrops(wp0.xz, rainStrength).z) * rainStrength * (1.0 - smoothstep(10.0, 28.0, splashDist));
 					vec3 splashCol = ambientCol * (0.7 + 0.5 * skyLm) + lightCol * 0.4 * surfShadow;
 					color = mix(color, splashCol, splash * 0.75);
+		#ifdef BIOLUMINESCENCE
+					color += vec3(0.05, 0.55, 1.0) * splash * (1.0 - smoothstep(-0.12, 0.02, getSunElevation())) * BIOLUM_STRENGTH * 0.4;
+		#endif
 				}
 	#endif
 			}

@@ -1,6 +1,8 @@
 // Atmospheric haze, low lying mist over water, drifting mid-mountain mist
 // bands and volumetric sun shafts. Needs common.glsl, sky.glsl, shadow.glsl.
 
+#include "/lib/clouds.glsl"
+
 float mistDensity(vec3 p, float oc, float dawn) {
 	float t = frameTimeCounter * WIND_SPEED;
 	// thin uniform haze: it is what makes distant mountains fade to gray-blue
@@ -43,6 +45,7 @@ vec4 traceFog(vec3 dirW, float dist, vec3 lightDirW, vec3 lightCol, vec3 ambient
 
 	vec3 scatter = vec3(0.0);
 	float T = 1.0;
+	float cloudSh = 1.0;
 	for (int i = 0; i < 32; i++) {
 		if (i >= MIST_STEPS) break;
 		// quadratic distribution: more samples close to the camera
@@ -59,6 +62,11 @@ vec4 traceFog(vec3 dirW, float dist, vec3 lightDirW, vec3 lightCol, vec3 ambient
 		float sh = 1.0;
 #if defined VOLUMETRIC_LIGHT && defined SHADOW_SAMPLING && !defined NETHER
 		if (t0 < shadowDistance) sh = sampleShadowSingle(feet);
+#endif
+#ifdef VOLUMETRIC_LIGHT
+		// light shafts break through gaps in the clouds (updated every 3 steps)
+		if (mod(float(i), 3.0) < 0.5) cloudSh = cloudShadow(p, lightDirW);
+		sh *= cloudSh;
 #endif
 		float stepT = exp(-d * ds);
 		scatter += T * (sunScatter * sh + ambScatter) * (1.0 - stepT);

@@ -112,6 +112,25 @@ vec3 getSky(vec3 dirView, vec3 lightCol, vec3 zenithCol, vec3 horizonCol, bool w
 		sky += sunGlowCol * disc * 22.0 * pow(clearAmt, 3.0);
 	}
 
+#ifdef TWILIGHT_BELT
+	// twilight: the dark blue shadow of the Earth rises in the east (opposite
+	// the sun), topped by the pink "belt of Venus"
+	{
+		float twilight = exp(-sq((e + 0.04) * 11.0)) * (1.0 - oc * 0.85);
+		vec3 dW = mat3(gbufferModelViewInverse) * dirView;
+		vec3 sW = mat3(gbufferModelViewInverse) * sunDir;
+		vec2 dh = normalize(dW.xz + 1e-5);
+		vec2 sh = normalize(sW.xz + 1e-5);
+		float anti = saturate(dot(dh, -sh));
+		float alt = dW.y;
+		float shadowBand = smoothstep(0.12, 0.0, alt) * smoothstep(-0.05, 0.02, alt);
+		float belt = exp(-sq((alt - 0.16) * 9.0));
+		float k = twilight * pow(anti, 1.5);
+		sky = mix(sky, sky * vec3(0.55, 0.62, 0.85), shadowBand * k);
+		sky += vec3(0.95, 0.55, 0.62) * belt * k * 0.18 * luma(horizonCol + vec3(0.05));
+	}
+#endif
+
 	// night sky: stars, milky way, shooting stars, northern lights
 	vec3 dirW = mat3(gbufferModelViewInverse) * dirView;
 	float nightAmt = 1.0 - smoothstep(-0.18, 0.02, e);

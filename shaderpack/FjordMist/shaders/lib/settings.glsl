@@ -62,6 +62,19 @@
 #define RAINBOW
 #define LIGHTNING_FLASH
 #define LENS_FLARE
+#define TWILIGHT_BELT
+#define CLOUD_SHADOWS
+#define FIREFLIES
+#define FIREFLY_AMOUNT 1.0      // [0.25 0.5 1.0 1.5 2.0 3.0]
+#define BIOLUMINESCENCE
+#define BIOLUM_STRENGTH 1.0     // [0.25 0.5 1.0 1.5 2.0 3.0]
+#define UNDERWATER_RAYS
+#define SHORE_WETNESS
+#define WET_GLINTS
+#define SNOW_COVER
+#define LENS_WATER
+#define PURKINJE
+#define PURKINJE_STRENGTH 1.0   // [0.0 0.25 0.5 0.75 1.0]
 #define LENS_FLARE_STRENGTH 1.0 // [0.25 0.5 0.75 1.0 1.5 2.0]
 
 // ------------------------------------------------------------------ Lighting

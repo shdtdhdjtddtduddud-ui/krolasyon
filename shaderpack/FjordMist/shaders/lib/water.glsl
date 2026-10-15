@@ -91,7 +91,7 @@ vec3 waterNormal(vec2 p, float distanceFade, float rippleFade) {
 	vec2 grad = vec2(hx - h0, hz - h0) / e * strength * 0.35;
 
 #ifdef RAIN_RIPPLES
-	if (rainStrength > 0.01 && rippleFade > 0.01) {
+	if (rainStrength > 0.01 && rippleFade > 0.01 && biome_precipitation != 2) {
 		vec3 drops = rainDrops(p, rainStrength);
 		grad += drops.xy * rainStrength * 0.22 * rippleFade;
 	}

@@ -29,6 +29,8 @@ void main() {
 
 #ifdef FSH
 uniform sampler2D colortex0;
+#include "/lib/particles.glsl"
+#include "/lib/water.glsl"
 uniform sampler2D colortex4;
 uniform sampler2D colortex5;
 uniform sampler2D colortex1;
@@ -99,6 +101,27 @@ void main() {
 		vec3 trans = exp(-sigma * min(dist, 96.0));
 		vec3 waterCol = (ambientCol * vec3(0.06, 0.12, 0.12) + lightCol * vec3(0.02, 0.05, 0.05)) * outside;
 		color = color * trans + waterCol * (1.0 - trans);
+	#ifdef UNDERWATER_RAYS
+		// god rays: light focused by the waves above streams down through the water
+		vec3 lightDirW = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
+		if (lightDirW.y > 0.05) {
+			float rayLen = min(dist, 28.0);
+			float rays = 0.0;
+			float dither = interleavedGradient(gl_FragCoord.xy);
+			for (int i = 0; i < 10; i++) {
+				float tt = (float(i) + dither) / 10.0 * rayLen;
+				vec3 p = cameraPosition + dirW * tt;
+				float depthBelow = max(SEA_LEVEL - 0.1 - p.y, 0.0);
+				vec2 surf = p.xz + lightDirW.xz / lightDirW.y * depthBelow;   // where this light entered
+				float c = waterCaustics(surf * 0.6);
+				rays += c * exp(-tt * 0.09 - depthBelow * 0.08);
+			}
+			float phase = 0.4 + 0.6 * pow(saturate(dot(dirW, lightDirW)), 3.0);
+			color += lightCol * vec3(0.35, 0.8, 0.85) * rays / 10.0 * phase * rayLen * 0.035 * outside;
+		}
+		// marine snow: tiny particles drifting in the water
+		color += particleField(dirW, min(dist, 14.0), 1.2, 0.35, 0.012, (ambientCol * 0.4 + lightCol * 0.15) * vec3(0.6, 0.9, 0.9) * 3.0, -999.0, 999.0, 5.0, 0.0);
+	#endif
 	} else if (isEyeInWater == 2) {
 		color = mix(color, vec3(1.6, 0.45, 0.08), 1.0 - exp(-dist * 0.9));
 	} else if (isEyeInWater == 3) {
@@ -145,6 +168,16 @@ void main() {
 #endif
 	}
 
+#ifdef FIREFLIES
+	// fireflies dance above the grass on calm, dry nights
+	if (isEyeInWater == 0 && eyeSky > 0.5) {
+		float nightF = (1.0 - smoothstep(-0.15, 0.0, getSunElevation())) * (1.0 - saturate(rainStrength * 4.0));
+		if (nightF > 0.01) {
+			color += particleField(dirW, min(dist, 32.0), 3.0, 0.15 * FIREFLY_AMOUNT, 0.03, vec3(0.75, 1.0, 0.25) * 6.0 * nightF,
+			                       SEA_LEVEL + 1.0, SEA_LEVEL + 24.0, 0.0, 1.0);
+		}
+	}
+#endif
 	// rain streaks (premultiplied)
 	vec4 rain = texture2D(colortex5, uv);
 	color = color * (1.0 - saturate(rain.a)) + rain.rgb;

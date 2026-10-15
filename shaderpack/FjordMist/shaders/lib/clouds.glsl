@@ -1,3 +1,5 @@
+#ifndef CLOUDS_GLSL
+#define CLOUDS_GLSL
 // Ray-marched volumetric cloud layer. Needs common.glsl and sky.glsl (hgPhase).
 // The layer is low enough that tall mountains poke into it, like in a fjord.
 
@@ -96,3 +98,24 @@ vec4 traceClouds(vec3 dirW, float maxDist, vec3 lightDirW, vec3 lightCol, vec3 a
 	float fade = exp(-tNear * 0.00028);
 	return vec4(scatter * fade, mix(1.0, T, fade));
 }
+
+// Shadow of the cloud layer on a world position: how much direct sunlight
+// gets through the clouds above it. Shadows drift with the wind.
+float cloudShadow(vec3 worldPos, vec3 lightDirW) {
+#if defined CLOUD_SHADOWS && defined VOLUMETRIC_CLOUDS && !defined NETHER && !defined END
+	if (lightDirW.y < 0.05) return 1.0;
+	float coverage = cloudCoverage();
+	float od = 0.0;
+	for (int i = 0; i < 3; i++) {
+		float h = cloudBottom() + CLOUD_THICKNESS * (0.2 + 0.3 * float(i));
+		float t = (h - worldPos.y) / lightDirW.y;
+		if (t < 0.0) continue;
+		od += cloudDensity(worldPos + lightDirW * t, coverage, 2);
+	}
+	float sh = exp(-od * CLOUD_THICKNESS * 0.055 * 0.45);
+	return mix(0.12, 1.0, sh);
+#else
+	return 1.0;
+#endif
+}
+#endif
