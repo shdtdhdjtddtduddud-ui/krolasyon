@@ -447,7 +447,7 @@ public class XenomorphEntity extends Monster {
     /** wandering states that make no progress for 10 s: slip into the ducts (or hop somewhere free) instead. */
     private boolean unstick(ServerLevel level) {
         boolean wandering = state == State.ROAM || state == State.INVESTIGATE || state == State.SEARCH || state == State.FLEE && stateLen <= 0;
-        if (!wandering || isHidden() || searchPause > 0) { stuckTicks = 0; stuckPos = this.position(); return false; }
+        if (!wandering || isHidden()) { stuckTicks = 0; stuckPos = this.position(); return false; }
         if (this.position().distanceToSqr(stuckPos) > 2.0) { stuckPos = this.position(); stuckTicks = 0; return false; }
         if (++stuckTicks < 200) return false;
         stuckTicks = 0;
