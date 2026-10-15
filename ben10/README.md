@@ -26,7 +26,7 @@ Dönüşüm varsayılan olarak 5 dakika sürer. Süre dolunca Omnitrix 20 saniye
 | Diamondhead | Kristal Mermiler | Kristal Dikenler | Kristal Duvar (geçici bloklar) | Kristal Yağmuru | Kristal Kalkan (okları geri yansıtır) | Çok yüksek zırh |
 | XLR8 | Hız Atılımı | Kasırga (çeker, savurur) | Şimşek Kombosu (7 hedef) | Aşırı Hız (etraf yavaşlar) | Kaçınma | Süper hız, suda koşar |
 | Goop | Asit Tükürüğü (asit birikintisi) | Sümük Kırbacı (çeker) | Yutma | Sümük Dalgası | Sıvı Beden (mermiler geçer) | Düşme/zehir bağışıklığı |
-| Blowpoke | Yuvarlanma | Gülle Atışı | Sekme Bombası (3 zıplama) | Bilardo Sekmesi | Zırhlı Kabuk (%90) | Ağır zırh |
+| Blowpoke | Rüzgar Patlaması | Hortum (ilerleyen kasırga) | Pervane Dönüşü (uçarak döner) | Kasırga (dev girdap) | Rüzgar Kabuğu (%85, okları savurur) | Rüzgârla uçar, ateşi söndürür |
 | Big Chill | Buz Nefesi (suyu dondurur, lavı obsidyen yapar) | Buz Hapsi | Buz Mızrağı | Kar Fırtınası | Kanat Pelerini (saldıranı dondurur) | Uçar, donmaya bağışık |
 | Ultimate Echo Echo | Ses Diskleri (yapışıp titreşir) | Sonik Işın | Disk Yağmuru (güdümlü) | Sonik Kıyamet | Disk Duvarı | Süzülür/uçar |
 | Ghostfreak | Gölge Pençe | Korku Bakışı (yaratıklar kaçar) | Ele Geçirme (yaratığı müttefiklerine saldırtır) | Hayalet Formu (hasar almaz) | Hayalet Kaçış (%50) | Uçar, gece görür |

@@ -12,7 +12,7 @@ public enum Alien {
     DIAMONDHEAD(0x7CF0B0, 2.3F, 0.8F, 14, 0.95F, 6, 14, 0.6F, 0, 0.85F, new int[]{24, 140, 260, 400}, new int[]{12, 24, 16, 50}),
     XLR8(0x2EA8C8, 1.8F, 0.7F, 4, 2.6F, 4, 4, 0.2F, Flag.WATER_RUN | Flag.HALF_FALL, 0.5F, new int[]{60, 260, 200, 600}, new int[]{8, 60, 36, 120}),
     GOOP(0x7EE030, 2.0F, 0.7F, 10, 1.0F, 3, 2, 0.5F, Flag.NO_FALL | Flag.POISON_IMMUNE, 0.7F, new int[]{20, 80, 260, 300}, new int[]{12, 14, 60, 30}),
-    BLOWPOKE(0x9AAE4E, 1.9F, 0.9F, 16, 0.9F, 5, 12, 0.9F, Flag.NO_FALL, 0.9F, new int[]{200, 160, 220, 300}, new int[]{100, 30, 60, 50}),
+    BLOWPOKE(0x9AAE4E, 1.9F, 0.9F, 14, 0.95F, 5, 10, 0.8F, Flag.NO_FALL | Flag.FLY, 0.85F, new int[]{40, 220, 240, 500}, new int[]{20, 30, 80, 70}),
     BIGCHILL(0x2878B8, 2.2F, 0.8F, 8, 1.1F, 4, 4, 0.2F, Flag.FLY | Flag.FREEZE_IMMUNE | Flag.NO_FALL, 0.7F, new int[]{140, 240, 40, 420}, new int[]{50, 20, 14, 100}),
     ECHOECHO(0x2E80E0, 2.3F, 0.8F, 10, 1.05F, 4, 6, 0.4F, Flag.FLY | Flag.NO_FALL, 0.75F, new int[]{60, 160, 260, 500}, new int[]{14, 50, 30, 50}),
     GHOSTFREAK(0xB0B0B0, 2.0F, 0.7F, 4, 1.1F, 5, 2, 0.3F, Flag.FLY | Flag.NO_FALL | Flag.NIGHT_VISION, 0.6F, new int[]{40, 260, 400, 300}, new int[]{14, 30, 120, 100});

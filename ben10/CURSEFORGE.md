@@ -31,7 +31,7 @@ Initial release
 - 9 aliens: Heatblast, Four Arms, Diamondhead, XLR8, Goop, Blowpoke, Big Chill, Ultimate Echo Echo, Ghostfreak
 - 36 unique abilities (4 per alien) + 9 unique guards
 - Custom models, textures, glowing details and keyframe animations for every alien
-- Procedural walk / run / fly / float / roll animations
+- Procedural walk / run / fly / float / spin animations
 - Abilities affect the world: melting, freezing, crystal walls, ice prisons, shattering glass, flying debris
 - Omnitrix timer, recharge and HUD with ability cooldowns
 - Configurable duration, recharge, damage, cooldowns and world griefing
@@ -51,7 +51,7 @@ Initial release
 - **Omnitrix menu** - rotating selection wheel with alien portraits and ability previews
 - **9 playable aliens** with custom models, textures and glowing details
 - **36 abilities + 9 guards** with animations, particles, sounds and camera shake
-- **Smooth animations** - walking, sprinting, flying, ghost floating, rolling, punching
+- **Smooth animations** - walking, sprinting, flying, ghost floating, propeller spinning, punching
 - **World interaction** - melt ice, freeze lakes, turn lava into obsidian, bake sand into glass, raise crystal walls, rip boulders from the ground, shatter glass with sound waves
 - **Unique stats** - health, armour, speed, strength, reach and hitbox size per alien
 - **Omnitrix timer** - the watch beeps, times out and recharges (configurable)
@@ -81,12 +81,12 @@ Rebind in *Options → Controls → Ben 10 Omnitrix*.
 | 💎 **Diamondhead** | Crystal Shards · Crystal Spikes · Crystal Wall · Crystal Storm | Crystal Shield (reflects projectiles) |
 | ⚡ **XLR8** | Speed Dash · Cyclone · Blitz Combo · Overdrive | Evasion |
 | 🟢 **Goop** | Acid Spit · Slime Whip · Engulf · Goo Wave | Liquid Body (projectiles pass through) |
-| 🛡️ **Blowpoke** | Rolling Charge · Cannonball Launch · Bounce Bomb · Ricochet | Armoured Shell (90% block) |
+| 🌪️ **Blowpoke** | Wind Blast · Tornado · Propeller Spin · Hurricane | Wind Shell (85% block, blows projectiles away) |
 | ❄️ **Big Chill** | Ice Breath · Ice Prison · Ice Spear · Blizzard | Wing Cloak (freezes attackers) |
 | 🔊 **Ultimate Echo Echo** | Sonic Discs · Sonic Beam · Disc Barrage · Sonic Doom | Disc Wall |
 | 👻 **Ghostfreak** | Shadow Claw · Fear Gaze · Possession · Phantom Form | Ghostly Evasion (50% dodge) |
 
-**Passives:** Heatblast flies and is fire-immune (but water hurts him) · Four Arms jumps very high · Diamondhead has huge armour · XLR8 runs on water · Goop takes no fall damage and is poison-immune · Blowpoke is almost impossible to knock back · Big Chill flies and freezes water beneath him · Echo Echo hovers · Ghostfreak flies and sees in the dark.
+**Passives:** Heatblast flies and is fire-immune (but water hurts him) · Four Arms jumps very high · Diamondhead has huge armour · XLR8 runs on water · Goop takes no fall damage and is poison-immune · Blowpoke hovers on wind from his shell and puts out fires · Big Chill flies and freezes water beneath him · Echo Echo hovers · Ghostfreak flies and sees in the dark.
 
 ## 📦 Getting the Omnitrix
 

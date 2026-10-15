@@ -42,7 +42,7 @@ public final class CommonEvents {
         if (d == null || d.alien == null) return;
         Alien a = d.alien;
         float h = a.height, w = a.width;
-        if (a == Alien.BLOWPOKE && (d.has(OmniData.F_ROLLING) || d.blocking)) {
+        if (a == Alien.BLOWPOKE && d.blocking) {
             h = 1.3F;
             w = 0.9F;
         }

@@ -29,7 +29,7 @@ Initial release
 - 9 aliens: Heatblast, Four Arms, Diamondhead, XLR8, Goop, Blowpoke, Big Chill, Ultimate Echo Echo, Ghostfreak
 - 36 unique abilities (4 per alien) + 9 unique guards
 - Custom models, textures, glowing details and keyframe animations for every alien
-- Procedural walk / run / fly / float / roll animations
+- Procedural walk / run / fly / float / spin animations
 - Abilities affect the world: melting, freezing, crystal walls, ice prisons, shattering glass, flying debris
 - Omnitrix timer, recharge and HUD with ability cooldowns
 - Configurable duration, recharge, damage, cooldowns and world griefing
@@ -51,7 +51,7 @@ Initial release
 - **Omnitrix menu** - a rotating selection wheel with alien portraits and ability previews
 - **9 playable aliens** with custom models, textures, glowing eyes and details
 - **36 abilities + 9 guards** with keyframe animations, particles, sounds and camera shake
-- **Procedural animations** - walking, sprinting, flying, ghostly floating, rolling, punching
+- **Procedural animations** - walking, sprinting, flying, ghostly floating, propeller spinning, punching
 - **World interaction** - melt ice, freeze lakes, turn lava to obsidian, bake sand into glass, raise crystal walls, rip boulders out of the ground, shatter glass with sound waves
 - **Alien stats** - extra health, armour, speed, strength, step height, reach and hitbox size per alien
 - **Omnitrix timer** - transformations time out, the watch beeps and needs to recharge (fully configurable)
@@ -104,10 +104,10 @@ Passive: super speed, runs across water, steps up blocks. Overdrive slows down e
 Guard: *Liquid Body* - projectiles pass right through.
 Passive: no fall damage, immune to poison, punches poison, floats with his anti-gravity UFO. Acid leaves damaging puddles and dissolves plants.
 
-### 🛡️ Blowpoke
-**Rolling Charge** · **Cannonball Launch** · **Bounce Bomb** · **Ricochet**
-Guard: *Armoured Shell* - curls into a ball and blocks 90% of damage.
-Passive: heavy armour, hard to knock back, no fall damage. Crushes everything in his path while rolling.
+### 🌪️ Blowpoke
+**Wind Blast** · **Tornado** · **Propeller Spin** · **Hurricane**
+Guard: *Wind Shell* - withdraws into his shell; a wind barrier blows projectiles away and pushes attackers back.
+Passive: hovers and flies on air blown out of his shell vents, no fall damage, tough shell. His wind puts out fires, tears up leaves and plants and blows away items and arrows. Tornadoes keep travelling and pick up mobs.
 
 ### ❄️ Big Chill
 **Ice Breath** · **Ice Prison** · **Ice Spear** · **Blizzard**

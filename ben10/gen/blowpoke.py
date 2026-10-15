@@ -1,5 +1,5 @@
 """Blowpoke: huge olive shell with five dark ports, pale green flipper arms with black spots, small peeking head.
-Two rigs in one model: 'stand' (walking) and 'ball' (curled up for rolling/guard)."""
+A Geochelone Aerio: wind from the shell vents, flippers as propeller blades. The old 'ball' rig stays hidden."""
 import math, numpy as np
 from core import Model, Anim
 from paint import Painter, noise2, lerp
@@ -150,24 +150,69 @@ P.mats['ball_band'] = lambda c, f, W, H, r: ball(c, f, W, H, r, True)
 # ---------------- animations ----------------
 A = {}
 B = ['body', 'head', 'right_arm', 'left_arm', 'right_fore', 'left_fore', 'right_leg', 'left_leg', 'right_shin', 'left_shin', 'base']
-# rolling / launch / bounce / ricochet are all shown with the ball (spun procedurally); the stand clips are short wind-ups
-a = Anim('roll', 5.0)
-pose_seq(a, [(0, {}), (5.0, {})], B)
-a.scl('ball', (0, (0.7, 0.7, 0.7)), (0.15, (1.08, 1.08, 1.08)), (0.25, (1, 1, 1)), (5.0, (1, 1, 1)))
+LEGS = ['right_leg', 'left_leg']
+ARMS = ['right_arm', 'left_arm']
+
+
+def tuck(a, t_in, t_hold, t_out, legs=0.4, arms=None, head=True, drop=0):
+    """pull head (and legs / arms) into the shell between t_in..t_hold, back out at t_out"""
+    one, z = (1, 1, 1), (0, 0, 0)
+    for b in LEGS:
+        a.scl(b, (0, one), (t_in, (1, legs, 1)), (t_hold, (1, legs, 1)), (t_out, one))
+    if arms:
+        for b in ARMS:
+            a.scl(b, (0, one), (t_in, (arms, arms, arms)), (t_hold, (arms, arms, arms)), (t_out, one))
+    if head:
+        a.pos('head', (0, z), (t_in, (0, 0, 5.5)), (t_hold, (0, 0, 5.5)), (t_out, z))
+        a.scl('head', (0, one), (t_in, (0.8, 0.8, 0.8)), (t_hold, (0.8, 0.8, 0.8)), (t_out, one))
+    if drop:
+        a.pos('base', (0, z), (t_in, (0, -drop, 0)), (t_hold, (0, -drop, 0)), (t_out, z))
+
+
+# ab1 wind blast: inhale (shell swells, flippers sweep back), then lean in and blast out of the vents
+a = Anim('wind_blast', 1.0)
+IN = {'body': (-14, 0, 0), 'head': (-10, 0, 0), 'right_arm': (25, 0, 45), 'left_arm': (25, 0, -45), 'right_fore': (0, 0, 15), 'left_fore': (0, 0, -15),
+      'right_leg': (-10, 0, 0), 'left_leg': (12, 0, 0), 'left_shin': (10, 0, 0)}
+OUT = {'body': (20, 0, 0), 'head': (-18, 0, 0), 'right_arm': (-55, 0, 35), 'left_arm': (-55, 0, -35), 'right_fore': (0, 0, -10), 'left_fore': (0, 0, 10),
+       'right_leg': (-18, 0, 0), 'left_leg': (20, 0, 0), 'left_shin': (12, 0, 0)}
+pose_seq(a, [(0, {}), (0.38, IN), (0.48, OUT), (0.8, OUT), (1.0, {})], B)
+a.scl('body', (0, (1, 1, 1)), (0.38, (1.08, 1.06, 1.12)), (0.47, (0.94, 0.97, 0.9)), (0.6, (1, 1, 1)), (1.0, (1, 1, 1)))
 A['ab1'] = a
-a = Anim('launch', 1.5)
-pose_seq(a, [(0, {}), (1.5, {})], B)
-a.scl('ball', (0, (0.7, 0.7, 0.7)), (0.25, (0.85, 1.2, 0.85)), (0.32, (1.15, 0.85, 1.15)), (0.45, (1, 1, 1)), (1.5, (1, 1, 1)))
+
+# ab2 tornado: flippers whirl overhead, then both swing forward to send the twister away
+a = Anim('tornado', 1.5)
+W1 = {'body': (-6, -30, 0), 'right_arm': (-150, 0, 30), 'left_arm': (-30, 0, -70), 'right_fore': (-20, 0, 0)}
+W2 = {'body': (-6, 30, 0), 'right_arm': (-30, 0, 70), 'left_arm': (-150, 0, -30), 'left_fore': (-20, 0, 0)}
+THR = {'body': (18, 0, 0), 'head': (-15, 0, 0), 'right_arm': (-70, -20, 25), 'left_arm': (-70, 20, -25), 'right_leg': (-15, 0, 0), 'left_leg': (15, 0, 0)}
+pose_seq(a, [(0, {}), (0.18, W1), (0.36, W2), (0.54, W1), (0.66, W2), (0.76, THR), (1.2, THR), (1.5, {})], B)
 A['ab2'] = a
-a = Anim('bounce', 3.0)
-pose_seq(a, [(0, {}), (3.0, {})], B)
-a.scl('ball', (0, (0.7, 0.7, 0.7)), (0.18, (1.25, 0.75, 1.25)), (0.3, (0.9, 1.15, 0.9)), (0.45, (1, 1, 1)), (3.0, (1, 1, 1)))
+
+# ab3 propeller spin: head and legs in, flippers straight out as blades, tilted into the flight (spun procedurally)
+a = Anim('propeller', 4.0)
+SP = {'body': (14, 0, 0), 'right_arm': (0, 0, 66), 'left_arm': (0, 0, -66), 'right_fore': (0, 0, 14), 'left_fore': (0, 0, -14)}
+pose_seq(a, [(0, {}), (0.25, SP), (3.75, SP), (4.0, {})], B)
+tuck(a, 0.25, 3.75, 4.0, legs=0.35)
 A['ab3'] = a
-a = Anim('ricochet', 2.5)
-pose_seq(a, [(0, {}), (2.5, {})], B)
-a.scl('ball', (0, (0.7, 0.7, 0.7)), (0.2, (1, 1, 1)), (2.5, (1, 1, 1)))
+
+# ab4 hurricane: same spinning top, flippers raised, flung wide at the burst (t=3.2s)
+a = Anim('hurricane', 3.5)
+HU = {'right_arm': (0, 0, 58), 'left_arm': (0, 0, -58), 'right_fore': (0, 0, 25), 'left_fore': (0, 0, -25)}
+BU = {'body': (-12, 0, 0), 'right_arm': (0, 0, 95), 'left_arm': (0, 0, -95), 'right_fore': (0, 0, -10), 'left_fore': (0, 0, 10)}
+pose_seq(a, [(0, {}), (0.3, HU), (3.1, HU), (3.22, BU), (3.4, BU), (3.5, {})], B)
+tuck(a, 0.3, 3.3, 3.5, legs=0.35)
 A['ab4'] = a
-a = Anim('block', 1.0, loop=True)
-pose_seq(a, [(0, {}), (1.0, {})], B)
-a.scl('ball', (0, (1.0, 1.0, 1.0)), (0.5, (1.03, 0.98, 1.03)), (1.0, (1.0, 1.0, 1.0)))
+
+# guard: withdraw into the shell (head, legs and flippers pulled in, shell resting on the ground)
+a = Anim('shell', 1.0, loop=True)
+SH = {'right_arm': (-20, 0, -12), 'left_arm': (-20, 0, 12)}
+pose_seq(a, [(0, SH), (1.0, SH)], B)
+one = (1, 1, 1)
+for b in LEGS:
+    a.scl(b, (0, (1, 0.3, 1)), (1.0, (1, 0.3, 1)))
+for b in ARMS:
+    a.scl(b, (0, (0.5, 0.5, 0.5)), (1.0, (0.5, 0.5, 0.5)))
+a.pos('head', (0, (0, 0, 5.5)), (1.0, (0, 0, 5.5)))
+a.scl('head', (0, (0.8, 0.8, 0.8)), (1.0, (0.8, 0.8, 0.8)))
+a.pos('base', (0, (0, -15.5, 0)), (1.0, (0, -15.5, 0)))
+a.scl('body', (0, one), (0.5, (1.02, 0.99, 1.02)), (1.0, one))
 A['block'] = a

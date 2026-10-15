@@ -52,7 +52,7 @@ public final class Animator {
     /** effect-only bones are hidden unless their state is active */
     public static void hideFx(AlienModel m, OmniData d, float guard) {
         Alien a = d.alien;
-        boolean ball = a == Alien.BLOWPOKE && (d.has(OmniData.F_ROLLING) || guard > 0.5F || (d.ability >= 1));
+        boolean ball = false;
         vis(m.bone("shield"), guard > 0.25F);
         vis(m.bone("disc_wall"), guard > 0.25F);
         vis(m.bone("ball"), ball);
@@ -217,10 +217,19 @@ public final class Animator {
                 }
             }
             case BLOWPOKE -> {
-                ModelPart ball = m.bone("ball");
-                if (ball != null && ball.visible) {
-                    float spin = d.has(OmniData.F_ROLLING) || d.ability >= 1 ? age * 0.9F : limb * 0.4F;
-                    ball.xRot += spin;
+                // propeller spin / hurricane: the whole turtle turns like a top (the pose comes from the clip)
+                if (d.ability == 2 || d.ability == 3) {
+                    ModelPart st = m.bone("stand");
+                    float t = d.abilityTick + pt;
+                    float ramp = Math.min(1F, t / 8F) * (d.ability == 3 ? 1.7F : 1.25F);
+                    if (st != null) st.yRot += ramp * t;
+                } else if (flying && guard < 0.1F) {
+                    // hovering: flippers out, fluttering like rotor blades
+                    float fl = Mth.sin(age * 0.9F) * 0.18F;
+                    rz(ra, 0.75F + fl);
+                    rz(la, -0.75F - fl);
+                    rx(ra, -0.2F);
+                    rx(la, -0.2F);
                 }
             }
             case BIGCHILL -> {
