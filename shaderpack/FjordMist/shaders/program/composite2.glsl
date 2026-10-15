@@ -3,6 +3,8 @@
 
 /*
 const int colortex4Format = RGBA16F;
+const int colortex5Format = RGBA16F;
+const vec4 colortex5ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
 */
 
 #include "/lib/settings.glsl"
@@ -26,6 +28,7 @@ void main() {
 #ifdef FSH
 uniform sampler2D colortex0;
 uniform sampler2D colortex4;
+uniform sampler2D colortex5;
 uniform sampler2D depthtex0;
 
 // depth aware blur of the noisy ray-marched fog
@@ -44,6 +47,30 @@ vec4 denoiseFog(vec2 uv, float centerDist) {
 		}
 	}
 	return sum / max(wsum, 0.0001);
+}
+
+// Distant curtains of falling rain. Anchored to world directions so they
+// stay put when the camera turns; only visible in front of distant objects.
+float rainCurtain(vec3 dirW, float dist) {
+	float az = atan(dirW.z, dirW.x);
+	float el = asin(clamp(dirW.y, -1.0, 1.0));
+	float t = frameTimeCounter;
+	float sum = 0.0;
+	for (int k = 0; k < 2; k++) {
+		float cols = k == 0 ? 260.0 : 410.0;
+		float speed = k == 0 ? 7.0 : 5.0;
+		vec2 g = vec2(az / (2.0 * PI) * cols + el * 6.0, el * cols * 0.18 + t * speed);
+		float column = floor(g.x);
+		float r = hash12(vec2(column, float(k) * 13.1));
+		float r2 = hash12(vec2(column + 0.5, float(k) * 7.7));
+		float x = fract(g.x) - 0.5;
+		float y = fract(g.y * 0.35 + r * 7.0);
+		float streak = smoothstep(0.16, 0.0, abs(x)) * smoothstep(0.0, 0.05, y) * smoothstep(0.45, 0.1, y) * step(0.45, r2);
+		sum += streak * (k == 0 ? 1.0 : 0.6);
+	}
+	float depthMask = smoothstep(6.0, 30.0, dist);
+	float angleMask = 1.0 - smoothstep(0.55, 0.9, abs(dirW.y));
+	return sum * depthMask * angleMask;
 }
 
 void main() {
@@ -89,8 +116,18 @@ void main() {
 			vec3 skyCol = getSky(dirView, lightCol, zenithCol, horizonCol, false);
 			color = mix(color, skyCol * mix(1.0, fog.a, 0.5) + fog.rgb * 0.5, border);
 		}
+	#ifdef RAIN_STREAKS
+		if (rainStrength > 0.01 && eyeSky > 0.3) {
+			float streaks = rainCurtain(dirW, dist) * rainStrength * 0.07 * RAIN_VISIBILITY;
+			color = mix(color, ambientCol * 1.5 + lightCol * 0.15, saturate(streaks) * outside);
+		}
+	#endif
 #endif
 	}
+
+	// rain streaks (premultiplied)
+	vec4 rain = texture2D(colortex5, uv);
+	color = color * (1.0 - saturate(rain.a)) + rain.rgb;
 
 	/* DRAWBUFFERS:0 */
 	gl_FragData[0] = vec4(color, 1.0);

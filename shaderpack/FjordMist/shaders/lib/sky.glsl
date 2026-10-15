@@ -30,8 +30,8 @@ void getAtmosphereColors(out vec3 lightCol, out vec3 ambientCol, out vec3 zenith
 #endif
 
 	// ---- direct light
-	vec3 sunNoon   = vec3(1.00, 0.93, 0.84) * 3.0;
-	vec3 sunLow    = vec3(1.00, 0.52, 0.22) * 2.0;
+	vec3 sunNoon   = vec3(1.00, 0.94, 0.86) * 2.3;
+	vec3 sunLow    = vec3(1.00, 0.52, 0.22) * 1.6;
 	vec3 sunCol    = mix(sunNoon, sunLow, saturate(sunset * 1.3 + (1.0 - day) * 0.5));
 	vec3 moonCol   = vec3(0.50, 0.62, 0.90) * 0.14;
 	float crossFade = smoothstep(0.0, 0.07, abs(e));   // hide the sun/moon swap
@@ -56,7 +56,7 @@ void getAtmosphereColors(out vec3 lightCol, out vec3 ambientCol, out vec3 zenith
 	horizonCol += nightHor * night;
 
 	// storms are darker
-	float storm = 1.0 - rainStrength * 0.2;
+	float storm = 1.0 - rainStrength * 0.2 - thunderStrength * 0.15;
 	zenithCol  *= storm;
 	horizonCol *= storm;
 
@@ -96,11 +96,11 @@ vec3 getSky(vec3 dirView, vec3 lightCol, vec3 zenithCol, vec3 horizonCol, bool w
 	float clearAmt = 1.0 - oc;
 
 	// mie halo around the sun, fully diffused under clouds
-	sky += sunGlowCol * (hgPhase(cs, 0.76) * 0.06 * clearAmt + pow(saturate(cs * 0.5 + 0.5), 4.0) * 0.07);
+	sky += sunGlowCol * (hgPhase(cs, 0.76) * 0.045 * clearAmt + pow(saturate(cs * 0.5 + 0.5), 4.0) * 0.07);
 
 	if (withSun) {
 		float disc = smoothstep(0.99955, 0.99975, cs);
-		sky += sunGlowCol * disc * 40.0 * pow(clearAmt, 3.0);
+		sky += sunGlowCol * disc * 22.0 * pow(clearAmt, 3.0);
 	}
 
 	// moon halo

@@ -178,11 +178,26 @@ void main() {
 				float edge = 1.0 - smoothstep(0.0, 0.35, depthBelow);
 				float bands = sin(depthBelow * 5.5 - t * 2.4 + n1 * 5.0) * 0.5 + 0.5;
 				float lines = smoothstep(0.72, 0.95, bands) * shoreZone;
-				float crest = smoothstep(0.32, 0.5, waterHeight(wp0.xz) * waterWaveStrength() * 0.85) * (0.15 + rainStrength * 0.3 + getOvercast() * 0.15);
+				float crest = smoothstep(0.32, 0.5, waterHeight(wp0.xz) * waterWaveStrength() * 0.85) * (0.15 + rainStrength * 0.3 + getOvercast() * 0.15 + thunderStrength * 0.9);
 				float foam = edge * smoothstep(0.25, 0.6, pattern) + lines * smoothstep(0.4, 0.7, pattern) + crest * smoothstep(0.55, 0.8, pattern);
 				foam = saturate(foam * FOAM_AMOUNT) * (1.0 - smoothstep(80.0, 200.0, length(view0)));
 				vec3 foamCol = ambientCol * 0.95 * (0.3 + 0.7 * skyLm) + lightCol * 0.6 * surfShadow;
 				color = mix(color, foamCol, foam * 0.92);
+	#endif
+				// light from a torch held by the player glitters on the water
+				float held = float(max(heldBlockLightValue, heldBlockLightValue2));
+				if (held > 0.5) {
+					float handLm = saturate((held - length(feet0)) / 15.0);
+					color += vec3(1.0, 0.55, 0.24) * pow(handLm, 3.0) * TORCH_BRIGHTNESS * (0.015 + F * 0.3);
+				}
+	#ifdef RAIN_RIPPLES
+				// tiny white splashes where raindrops hit the surface
+				float splashDist = length(view0);
+				if (rainStrength > 0.05 && splashDist < 28.0) {
+					float splash = saturate(rainDrops(wp0.xz, rainStrength).z) * rainStrength * (1.0 - smoothstep(10.0, 28.0, splashDist));
+					vec3 splashCol = ambientCol * (0.7 + 0.5 * skyLm) + lightCol * 0.4 * surfShadow;
+					color = mix(color, splashCol, splash * 0.75);
+				}
 	#endif
 			}
 		} else if (abs(material - MAT_HAND) > 0.5 && abs(material - MAT_GLASS) > 0.5) {

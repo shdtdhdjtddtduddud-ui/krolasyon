@@ -1,53 +1,88 @@
-// Procedural fjord water: long wind-driven swells, chop and rain ripples.
-// Needs common.glsl.
+// Procedural fjord water: long wind-driven swells, chop, storm waves and
+// physically inspired raindrop ripples. Needs common.glsl.
+
+float stormWaves() {
+	return saturate(rainStrength * 0.5 + thunderStrength);
+}
 
 float waterWaveStrength() {
-	// waves grow with wind and rain
-	return WATER_WAVE_HEIGHT * (0.7 + getOvercast() * 0.5 + rainStrength * 0.4);
+	// calm on clear days, rough under rain, big rolling waves in thunderstorms
+	return WATER_WAVE_HEIGHT * (0.7 + getOvercast() * 0.4 + rainStrength * 0.4 + thunderStrength * 1.8);
 }
 
 // Height field in blocks (roughly -1..1 scaled by strength)
 float waterHeight(vec2 p) {
-	float t = frameTimeCounter * WATER_WAVE_SPEED;
+	float storm = stormWaves();
+	float t = frameTimeCounter * WATER_WAVE_SPEED * (1.0 + storm * 0.7);
 	vec2 wind = normalize(vec2(0.8, 0.6));
 	mat2 rot = mat2(wind.x, -wind.y, wind.y, wind.x);
 	vec2 q = rot * p;
 
 	float h = 0.0;
-	// long swells (stretched across the wind direction)
-	h += (noise2D(q * vec2(0.055, 0.14) + vec2(t * 0.11, 0.0)) - 0.5) * 1.00;
-	h += (noise2D(q * vec2(0.11, 0.24) + vec2(t * 0.17, t * 0.02)) - 0.5) * 0.55;
+	// long swells (stretched across the wind direction); storms make them longer
+	float swellScale = mix(1.0, 0.7, storm);
+	h += (noise2D(q * vec2(0.055, 0.14) * swellScale + vec2(t * 0.11, 0.0)) - 0.5) * 1.00;
+	h += (noise2D(q * vec2(0.11, 0.24) * swellScale + vec2(t * 0.17, t * 0.02)) - 0.5) * 0.55;
+	// sharper crests in storms
+	float crest = noise2D(q * vec2(0.08, 0.2) + vec2(t * 0.14, 0.3));
+	h += (1.0 - abs(crest * 2.0 - 1.0) - 0.5) * 0.6 * storm;
 	// chop
-	h += (noise2D(p * 0.42 + vec2(t * 0.28, -t * 0.15)) - 0.5) * 0.22;
-	h += (noise2D(p * 0.85 + vec2(-t * 0.35, t * 0.31)) - 0.5) * 0.10;
+	h += (noise2D(p * 0.42 + vec2(t * 0.28, -t * 0.15)) - 0.5) * (0.22 + storm * 0.15);
+	h += (noise2D(p * 0.85 + vec2(-t * 0.35, t * 0.31)) - 0.5) * (0.10 + storm * 0.08);
 	h += (noise2D(p * 1.90 + vec2(t * 0.52, t * 0.47)) - 0.5) * 0.045;
 	return h;
 }
 
 // Cheap analytic version for vertex displacement (no texture reads)
 float waterHeightVertex(vec2 p) {
-	float t = frameTimeCounter * WATER_WAVE_SPEED;
-	float h = sin(dot(p, vec2(0.21, 0.13)) + t * 1.1) * 0.5;
+	float storm = stormWaves();
+	float t = frameTimeCounter * WATER_WAVE_SPEED * (1.0 + storm * 0.7);
+	float h = sin(dot(p, vec2(0.21, 0.13)) * mix(1.0, 0.6, storm) + t * 1.1) * 0.5;
 	h += sin(dot(p, vec2(-0.17, 0.29)) + t * 1.4) * 0.3;
 	h += sin(dot(p, vec2(0.37, -0.31)) + t * 2.1) * 0.15;
 	return h;
 }
 
-vec2 rainRipple(vec2 p, float t) {
+// One layer of raindrop impacts. Every cell receives one drop per cycle at a
+// random moment. A drop makes a short splash, then a packet of capillary
+// waves expands outwards (~0.3 blocks/s), losing energy as it spreads.
+// Returns xy = surface slope, z = splash intensity.
+vec3 rainDropLayer(vec2 p, float t) {
 	vec2 cell = floor(p);
-	vec2 f = p - cell;
-	float r = hash12(cell);
-	vec2 center = 0.3 + 0.4 * hash22(cell + 7.31);
-	float phase = fract(t * 0.9 + r);
-	float radius = phase * 0.3;
-	vec2 d = f - center;
-	float dist = length(d);
-	float ring = sin((dist - radius) * 40.0) * smoothstep(0.07, 0.0, abs(dist - radius)) * sq(1.0 - phase);
-	return d / max(dist, 0.0001) * ring;
+	vec3 acc = vec3(0.0);
+	for (int i = -1; i <= 1; i++) {
+		for (int j = -1; j <= 1; j++) {
+			vec2 c = cell + vec2(float(i), float(j));
+			vec2 h = hash22(c);
+			float r = hash12(c + 3.7);
+			vec2 center = c + 0.15 + 0.7 * h;
+			float life = fract(t * (0.75 + r * 0.3) + r);   // 0..1 over ~1.2 s
+			vec2 d = p - center;
+			float dist = length(d);
+			float radius = life * 0.85;
+			float x = dist - radius;
+			// wave packet: a few crests trailing the leading front
+			float packet = smoothstep(-0.32, -0.03, x) * smoothstep(0.03, -0.01, x);
+			float energy = sq(1.0 - life) / sqrt(0.15 + radius * 4.0);
+			float slope = cos(x * 42.0) * packet * energy;
+			acc.xy += d / max(dist, 0.0001) * slope;
+			// impact splash in the first moments
+			acc.z += smoothstep(0.08, 0.0, dist) * smoothstep(0.08, 0.0, life);
+		}
+	}
+	return acc;
+}
+
+vec3 rainDrops(vec2 p, float rain) {
+	float t = frameTimeCounter;
+	vec3 r = rainDropLayer(p * 1.6, t);
+	if (rain > 0.35) r += rainDropLayer(p * 2.1 + 17.3, t * 1.07 + 0.37) * saturate((rain - 0.35) * 3.0);
+	if (rain > 0.7)  r += rainDropLayer(p * 2.7 + 41.9, t * 0.93 + 0.71) * saturate((rain - 0.7) * 3.0);
+	return r;
 }
 
 // World-space normal of the water surface at world position p (xz)
-vec3 waterNormal(vec2 p, float distanceFade) {
+vec3 waterNormal(vec2 p, float distanceFade, float rippleFade) {
 	float strength = waterWaveStrength() * distanceFade;
 	const float e = 0.08;
 	float h0 = waterHeight(p);
@@ -56,10 +91,9 @@ vec3 waterNormal(vec2 p, float distanceFade) {
 	vec2 grad = vec2(hx - h0, hz - h0) / e * strength * 0.35;
 
 #ifdef RAIN_RIPPLES
-	if (rainStrength > 0.01) {
-		float t = frameTimeCounter;
-		vec2 rip = rainRipple(p * 1.3, t) + rainRipple(p * 1.7 + 13.7, t * 1.13 + 0.4);
-		grad += rip * rainStrength * 0.12 * sq(distanceFade);
+	if (rainStrength > 0.01 && rippleFade > 0.01) {
+		vec3 drops = rainDrops(p, rainStrength);
+		grad += drops.xy * rainStrength * 0.22 * rippleFade;
 	}
 #endif
 

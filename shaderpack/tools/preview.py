@@ -22,6 +22,9 @@ PRESETS = {
     "sunset": dict(time="sunset", sunElev=0.06, rain=0.0, wet=0.0),
     "night":  dict(time="night", sunElev=-0.5, rain=0.0, wet=0.0),
     "morning": dict(time="day", sunElev=0.2, rain=0.3, wet=0.5),
+    "storm":  dict(time="day", sunElev=0.45, rain=1.0, wet=1.0, thunder=1.0),
+    "torch":  dict(time="night", sunElev=-0.5, rain=0.0, wet=0.0, held=14),
+    "sunny":  dict(time="day", sunElev=0.7, rain=0.0, wet=0.0, overcast_off=True),
 }
 preset = PRESETS[sys.argv[2] if len(sys.argv) > 2 else "rain"]
 extra_defines = sys.argv[3].split(",") if len(sys.argv) > 3 and sys.argv[3] else []
@@ -236,6 +239,17 @@ def draw(buf):
 
 import ctypes
 opaque_buf = vbo(opaque); water_buf = vbo(water)
+rain_quads = []
+if preset["rain"] > 0:
+    for _ in range(260):
+        a = rng.uniform(0, 2 * math.pi); r = rng.uniform(1.0, 10.0)
+        x, z = math.cos(a) * r, math.sin(a) * r
+        dx, dz = -math.sin(a) * 0.5, math.cos(a) * 0.5
+        y0 = -2.0; y1 = 8.0; v0 = rng.uniform(0, 4)
+        for (px, py, pz, u, v) in ((x - dx, y0, z - dz, 0, v0 + 2.5), (x + dx, y0, z + dz, 1, v0 + 2.5), (x + dx, y1, z + dz, 1, v0),
+                                   (x - dx, y0, z - dz, 0, v0 + 2.5), (x + dx, y1, z + dz, 1, v0), (x - dx, y1, z - dz, 0, v0)):
+            rain_quads.append([px, py, pz, 1, 1, 1, 1, 0, 1, 0, u, v, 0.03, 0.97, 0, 0])
+rain_buf = vbo(np.array(rain_quads, np.float32)) if rain_quads else None
 
 def tex2d(fmt, w, h, ext_fmt=GL_RGBA, typ=GL_FLOAT, data=None, filt=GL_LINEAR, wrap=GL_CLAMP_TO_EDGE):
     t = glGenTextures(1); glBindTexture(GL_TEXTURE_2D, t)
@@ -246,7 +260,7 @@ def tex2d(fmt, w, h, ext_fmt=GL_RGBA, typ=GL_FLOAT, data=None, filt=GL_LINEAR, w
     return t
 
 ct0 = tex2d(GL_RGBA16F, W, H); ct0b = tex2d(GL_RGBA16F, W, H)
-ct1 = tex2d(GL_RGBA16, W, H); ct2 = tex2d(GL_RGBA8, W, H); ct3 = tex2d(GL_R11F_G11F_B10F, W, H, GL_RGB)
+ct5 = tex2d(GL_RGBA16F, W, H); ct1 = tex2d(GL_RGBA16, W, H); ct2 = tex2d(GL_RGBA8, W, H); ct3 = tex2d(GL_R11F_G11F_B10F, W, H, GL_RGB)
 dt0 = tex2d(GL_DEPTH_COMPONENT32F, W, H, GL_DEPTH_COMPONENT, GL_FLOAT, filt=GL_NEAREST)
 dt1 = tex2d(GL_DEPTH_COMPONENT32F, W, H, GL_DEPTH_COMPONENT, GL_FLOAT, filt=GL_NEAREST)
 st0 = tex2d(GL_DEPTH_COMPONENT32F, SHADOW_RES, SHADOW_RES, GL_DEPTH_COMPONENT, GL_FLOAT)
@@ -260,6 +274,13 @@ noise = tex2d(GL_RGBA8, 256, 256, GL_RGBA, GL_UNSIGNED_BYTE, np.array(img).tobyt
 bt = (rng.uniform(0.82, 1.0, (16, 16, 1)) * 255).astype(np.uint8)
 bt = np.concatenate([bt, bt, bt, np.full((16, 16, 1), 255, np.uint8)], -1)
 blocktex = tex2d(GL_RGBA8, 16, 16, GL_RGBA, GL_UNSIGNED_BYTE, bt.tobytes(), GL_NEAREST, GL_REPEAT)
+# rain texture: a few thin drops per column, like the vanilla rain.png
+rt = np.zeros((256, 64, 4), np.uint8)
+for col in range(64):
+    for _ in range(1):
+        if rng.random() < 0.12:
+            y = rng.integers(0, 240); rt[y:y + 14, col] = (200, 210, 230, 170)
+raintex = tex2d(GL_RGBA8, 64, 256, GL_RGBA, GL_UNSIGNED_BYTE, rt.tobytes(), GL_NEAREST, GL_REPEAT)
 
 def fbo(colors, depth):
     f = glGenFramebuffers(1); glBindFramebuffer(GL_FRAMEBUFFER, f)
@@ -269,7 +290,7 @@ def fbo(colors, depth):
     assert glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE
     return f
 
-main_fbo = fbo([ct0, ct1, ct2, ct3], dt0)
+main_fbo = fbo([ct0, ct1, ct2, ct3, None, ct5], dt0)
 shadow_fbo = fbo([sc0], st0)
 comp_fbo_a = fbo([ct0b], None)
 comp_fbo_b = fbo([ct0], None)
@@ -308,12 +329,13 @@ U = {
     "gbufferProjection": proj, "gbufferProjectionInverse": np.linalg.inv(proj),
     "shadowModelView": shadow_mv, "shadowModelViewInverse": np.linalg.inv(shadow_mv), "shadowProjection": shadow_proj,
     "frameTimeCounter": 123.4, "rainStrength": preset["rain"], "wetness": preset["wet"],
+    "thunderStrength": float(preset.get("thunder", 0.0)), "heldBlockLightValue": int(preset.get("held", 0)), "heldBlockLightValue2": 0,
     "viewWidth": float(W), "viewHeight": float(H), "near": 0.05, "far": FAR, "sunAngle": 0.25,
     "isEyeInWater": 0, "worldTime": 6000, "frameCounter": 7, "eyeBrightnessSmooth": (0, 240), "renderStage": 0,
     "entityColor": np.zeros(4),
 }
 SAMPLERS = {"texture": (0, blocktex), "tex": (0, blocktex), "noisetex": (1, noise), "colortex0": (2, ct0), "colortex1": (3, ct1),
-            "colortex2": (4, ct2), "colortex3": (5, ct3), "depthtex0": (6, dt0), "depthtex1": (7, dt1), "shadowtex0": (8, st0)}
+            "colortex2": (4, ct2), "colortex5": (10, ct5), "colortex3": (5, ct3), "depthtex0": (6, dt0), "depthtex1": (7, dt1), "shadowtex0": (8, st0)}
 
 def use(p, overrides={}):
     glUseProgram(p)
@@ -354,7 +376,7 @@ use(P["shadow"]); set_matrices(shadow_mv, shadow_proj); draw(opaque_buf)
 
 # gbuffers
 glBindFramebuffer(GL_FRAMEBUFFER, main_fbo); glViewport(0, 0, W, H)
-glDrawBuffers(4, [GL_COLOR_ATTACHMENT0 + i for i in range(4)])
+glDrawBuffers(6, [GL_COLOR_ATTACHMENT0 + i if i != 4 else GL_NONE for i in range(6)])
 glClearColor(0, 0, 0, 0); glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 # sky: big box with depth writes off
 glDepthMask(False); glDisable(GL_DEPTH_TEST)
@@ -375,6 +397,12 @@ glBindTexture(GL_TEXTURE_2D, dt1); glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0
 glEnablei(GL_BLEND, 0); glDisablei(GL_BLEND, 1); glDisablei(GL_BLEND, 2)
 glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA)
 use(P["gbuffers_water"]); set_matrices(view, proj); draw(water_buf)
+if rain_buf:
+    glDepthMask(False); glDrawBuffers(1, [GL_COLOR_ATTACHMENT5])
+    glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA)
+    SAMPLERS["texture"] = (0, raintex)
+    use(P["gbuffers_weather"]); set_matrices(view, proj); draw(rain_buf)
+    SAMPLERS["texture"] = (0, blocktex); glDepthMask(True)
 glDisable(GL_BLEND)
 glDisable(GL_DEPTH_TEST)
 

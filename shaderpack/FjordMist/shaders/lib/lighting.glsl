@@ -48,6 +48,16 @@ vec3 computeLighting(
 	ambientDir = mix(ambientDir, 0.85, getOvercast() * 0.5);
 	vec3 ambient = ambientCol * skyL * ambientDir;
 
+	// ---- handheld light (torch, lantern, glowstone... in either hand)
+	float held = float(max(heldBlockLightValue, heldBlockLightValue2));
+	if (held > 0.5) {
+		float dist = length(feetPos);
+		float handLm = saturate((held - dist) / 15.0);
+		// falls off like real block light, a bit softer up close
+		handLm *= smoothstep(held, held * 0.4, dist) * 0.25 + 0.75;
+		lm.x = max(lm.x, handLm);
+	}
+
 	// ---- block light
 	float torch = pow(lm.x, 3.2) * 1.4 + pow(lm.x, 12.0) * 2.0;
 	vec3 block = TORCH_COLOR * torch * TORCH_BRIGHTNESS;

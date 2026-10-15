@@ -36,6 +36,8 @@
 #define WATER_FOAM
 #define FOAM_AMOUNT 1.0         // [0.0 0.5 0.75 1.0 1.5 2.0]
 #define RAIN_RIPPLES
+#define RAIN_STREAKS
+#define RAIN_VISIBILITY 1.0     // [0.25 0.5 0.75 1.0 1.25 1.5 2.0]
 #define SSR_STEPS 22            // [8 12 16 22 28 36 48]
 #define WET_REFLECTIONS
 #define PUDDLES

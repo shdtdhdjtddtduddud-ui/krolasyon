@@ -34,7 +34,7 @@ void main() {
 #if defined WATER_VERTEX_WAVES && !defined HAND_WATER
 	if (idIs(blockId, ID_WATER) && gl_Normal.y > 0.5) {
 		vec3 wp = feet + cameraPosition;
-		feet.y += waterHeightVertex(wp.xz) * 0.06 * waterWaveStrength() * smoothstep(0.5, 0.9, lmcoord.y);
+		feet.y += waterHeightVertex(wp.xz) * 0.065 * waterWaveStrength() * smoothstep(0.5, 0.9, lmcoord.y);
 		viewPos = gbufferModelView * vec4(feet, 1.0);
 	}
 #endif
@@ -67,7 +67,9 @@ void main() {
 		if (abs(nWorld.y) > 0.5) {
 			float dist = length(feetPos);
 			float fade = 1.0 - smoothstep(60.0, 220.0, dist) * 0.7;
-			vec3 wn = waterNormal(feetPos.xz + cameraPosition.xz, fade);
+			// ripples are only a few pixels wide far away: fade them out to avoid shimmering
+			float rippleFade = 1.0 - smoothstep(12.0, 40.0, dist);
+			vec3 wn = waterNormal(feetPos.xz + cameraPosition.xz, fade, rippleFade);
 			if (nWorld.y < 0.0) wn.y = -wn.y;   // seen from below
 			normal = normalize(mat3(gbufferModelView) * wn);
 		}

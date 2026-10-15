@@ -20,10 +20,10 @@ sabah ya da öğleden sonra görürsün.
 |---|---|
 | Atmosfer | Yükseklikle yoğunlaşan pus, su üstünde alçak sis, dağ yamaçlarında sürüklenen sis kuşağı, gölgeli hacimsel ışık huzmeleri, sis için derinliğe duyarlı gürültü giderme |
 | Bulutlar | Hacimsel bulutlar; yağmurda alçalıp kalınlaşıyor, yüksek dağların zirveleri bulutun içinde kayboluyor |
-| Su | Rüzgar yönünde uzun dalgalar + kısa dalgacıklar, kırılma, derinliğe göre renk kaybı (koyu yeşil-gri fiyort suyu), ekran uzayı yansımaları (SSR), güneş parıltısı, kıyıya doğru yuvarlanan köpük şeritleri, yağmur halkaları, hareketli su yüzeyi |
-| Yağmur | Islanınca koyulaşan yüzeyler, düz zeminlerde su birikintileri ve yansımaları, gökyüzü ışığını yansıtan yağmur çizgileri, lense düşen yağmur damlaları |
-| Bitkiler | Rüzgarda sallanan çimen, çiçek, ekin, uzun bitkiler, yapraklar ve sarmaşıklar (gölgeleri de sallanır), yapraklardan ışık geçmesi |
-| Işık | Yumuşak gölgeler, kapalı havada dağınık gri ışık, sıcak meşale ışığı, gündoğumu/günbatımı renkleri, ay ışığı |
+| Su | Fırtınada büyüyen, tepeleri köpüren dalgalar; rüzgar yönünde uzun dalgalar + kısa dalgacıklar, kırılma, derinliğe göre renk kaybı (koyu yeşil-gri fiyort suyu), ekran uzayı yansımaları (SSR), güneş parıltısı, kıyıya doğru yuvarlanan köpük şeritleri, hareketli su yüzeyi |
+| Yağmur | Suya düşen her damla için sıçrama ve yayılıp sönen dalga halkaları, hareket bulanıklıklı yağmur çizgileri, uzakta yağmur perdeleri (yansımalarda ve siste bozulmaz), ıslanınca koyulaşan yüzeyler, düz zeminlerde su birikintileri ve yansımaları, gökyüzü ışığını yansıtan yağmur çizgileri, lense düşen yağmur damlaları |
+| Bitkiler | Katmanlı rüzgar: araziyi dalga dalga geçen esintiler, ağaç taçlarının birlikte salınması, dalların hareketi ve yaprak titremesi; fırtınada hepsi şiddetlenir. Çimen, çiçek, ekin, uzun bitkiler ve sarmaşıklar rüzgar yönünde eğilir (gölgeleri de sallanır), yapraklardan ışık geçmesi |
+| Işık | Elde tutulan meşale/fener/ışık taşı etrafı aydınlatır, yumuşak gölgeler, kapalı havada dağınık gri ışık, sıcak meşale ışığı, gündoğumu/günbatımı renkleri, ay ışığı |
 | Kamera | Otomatik pozlama, bloom, ACES tonlama, serin "fiyort" renk tonu, vinyet, film greni |
 
 **Fiyort Havası (kapalı gök)** ayarı yağmur yokken bile gökyüzünün ne kadar gri ve
