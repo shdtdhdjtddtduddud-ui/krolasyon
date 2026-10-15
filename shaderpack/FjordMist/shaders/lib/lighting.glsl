@@ -48,9 +48,12 @@ vec3 computeLighting(
 
 	// ---- sky ambient (overcast light is very soft and comes from everywhere)
 	float skyL = lm.y * lm.y;
-	float ambientDir = 0.62 + 0.38 * NdotU;
-	ambientDir = mix(ambientDir, 0.85, getOvercast() * 0.5);
+	// sky light comes from above: tops are bright, sides darker, undersides dark
+	float ambientDir = 0.5 + 0.5 * saturate(NdotU * 0.5 + 0.5);
+	ambientDir = mix(ambientDir * ambientDir, 0.8, getOvercast() * 0.3) * 1.2;
 	vec3 ambient = ambientCol * skyL * ambientDir;
+	// light bounced off the sunlit ground fills in faces turned away from the sky
+	ambient += (lightCol * 0.06 * saturate(dot(upDir, lightDir)) + ambientCol * 0.12) * skyL * saturate(0.6 - NdotU * 0.6);
 
 	// ---- handheld light (torch, lantern, glowstone... in either hand)
 	float held = float(max(heldBlockLightValue, heldBlockLightValue2));

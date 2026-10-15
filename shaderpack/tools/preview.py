@@ -78,6 +78,7 @@ def load_program(name):
     for sh in srcs: glAttachShader(p, sh)
     glBindAttribLocation(p, 10, "mc_Entity")
     glBindAttribLocation(p, 11, "mc_midTexCoord")
+    glBindAttribLocation(p, 12, "at_tangent")
     glLinkProgram(p)
     if not glGetProgramiv(p, GL_LINK_STATUS):
         raise RuntimeError(name + glGetProgramInfoLog(p).decode())
@@ -267,6 +268,7 @@ def draw(buf):
     glClientActiveTexture(GL_TEXTURE1); glEnableClientState(GL_TEXTURE_COORD_ARRAY); glTexCoordPointer(2, GL_FLOAT, stride, ctypes.c_void_p(48))
     glEnableVertexAttribArray(10); glVertexAttribPointer(10, 1, GL_FLOAT, False, stride, ctypes.c_void_p(56))
     glEnableVertexAttribArray(11); glVertexAttribPointer(11, 2, GL_FLOAT, False, stride, ctypes.c_void_p(56))
+    glDisableVertexAttribArray(12); glVertexAttrib4f(12, 1.0, 0.0, 0.0, 1.0)
     glDrawArrays(GL_TRIANGLES, 0, n)
 
 import ctypes
@@ -303,7 +305,7 @@ sc0 = tex2d(GL_RGBA8, SHADOW_RES, SHADOW_RES)
 img = Image.open(os.path.join(ROOT, "textures/noise.png")).convert("RGBA")
 noise = tex2d(GL_RGBA8, 256, 256, GL_RGBA, GL_UNSIGNED_BYTE, np.array(img).tobytes(), GL_LINEAR, GL_REPEAT)
 # block texture: subtle grain
-bt = (rng.uniform(0.82, 1.0, (16, 16, 1)) * 255).astype(np.uint8)
+bt = (rng.uniform(0.5, 1.0, (16, 16, 1)) * 255).astype(np.uint8)
 bt = np.concatenate([bt, bt, bt, np.full((16, 16, 1), 255, np.uint8)], -1)
 blocktex = tex2d(GL_RGBA8, 16, 16, GL_RGBA, GL_UNSIGNED_BYTE, bt.tobytes(), GL_NEAREST, GL_REPEAT)
 # rain texture: a few thin drops per column, like the vanilla rain.png
@@ -373,7 +375,7 @@ U = {
     "lightningBoltPosition": np.array(list(preset["bolt"]) + [1.0]) if "bolt" in preset else np.zeros(4), "heldBlockLightValue": int(preset.get("held", 0)), "heldBlockLightValue2": 0,
     "viewWidth": float(W), "viewHeight": float(H), "near": 0.05, "far": FAR, "sunAngle": float(preset.get("sunAngle", 0.25)), "moonPhase": int(preset.get("moonPhase", 0)),
     "isEyeInWater": int(preset.get("eyeInWater", 0)), "biome_precipitation": int(preset.get("biomePrecip", 0)), "lensWet": float(preset.get("lensWet", 0.0)), "worldTime": 6000, "frameCounter": 7, "eyeBrightnessSmooth": (0, 240), "renderStage": 0,
-    "entityColor": np.zeros(4),
+    "entityColor": np.zeros(4), "atlasSize": (16, 16),
 }
 SAMPLERS = {"texture": (0, blocktex), "tex": (0, blocktex), "noisetex": (1, noise), "colortex0": (2, ct0), "colortex1": (3, ct1),
             "colortex2": (4, ct2), "colortex5": (10, ct5), "colortex3": (5, ct3), "depthtex0": (6, dt0), "depthtex1": (7, dt1), "shadowtex0": (8, st0)}

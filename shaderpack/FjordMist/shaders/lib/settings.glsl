@@ -4,10 +4,10 @@
 // ============================================================================
 
 // ---------------------------------------------------------------- Atmosphere
-#define OVERCAST 0.45           // [0.0 0.1 0.2 0.3 0.35 0.4 0.45 0.5 0.6 0.7 0.8 0.9 1.0]
-#define FOG_DENSITY 1.0         // [0.0 0.25 0.5 0.75 1.0 1.25 1.5 2.0 2.5 3.0 4.0]
+#define OVERCAST 0.2            // [0.0 0.1 0.2 0.3 0.35 0.4 0.45 0.5 0.6 0.7 0.8 0.9 1.0]
+#define FOG_DENSITY 0.5         // [0.0 0.25 0.5 0.75 1.0 1.25 1.5 2.0 2.5 3.0 4.0]
 #define MIST
-#define MIST_DENSITY 1.0        // [0.25 0.5 0.75 1.0 1.25 1.5 2.0 2.5 3.0]
+#define MIST_DENSITY 0.6        // [0.25 0.5 0.75 1.0 1.25 1.5 2.0 2.5 3.0]
 #define MIST_HEIGHT 72.0        // [50.0 56.0 60.0 64.0 68.0 72.0 80.0 90.0 100.0 120.0]
 #define MIST_BAND
 #define MIST_BAND_LOW 85.0      // [60.0 70.0 80.0 85.0 90.0 100.0 110.0 120.0]
@@ -93,6 +93,12 @@
 #define PURKINJE_STRENGTH 1.0   // [0.0 0.25 0.5 0.75 1.0]
 #define LENS_FLARE_STRENGTH 1.0 // [0.25 0.5 0.75 1.0 1.5 2.0]
 
+// ---------------------------------------------------------------- 3D depth
+#define AUTO_NORMALS            // relief on every block texture, generated from the texture itself
+#define NORMAL_STRENGTH 1.0     // [0.25 0.5 0.75 1.0 1.5 2.0 3.0]
+#define BLOCK_EDGES             // subtle darkening along block edges
+#define EDGE_STRENGTH 1.0       // [0.25 0.5 1.0 1.5 2.0]
+
 // ------------------------------------------------------------------ Lighting
 const int shadowMapResolution = 2048;   // [1024 1536 2048 3072 4096 6144 8192]
 const float shadowDistance = 128.0;     // [64.0 96.0 128.0 160.0 192.0 256.0 320.0]
@@ -103,7 +109,7 @@ const float sunPathRotation = -25.0;    // [-45.0 -40.0 -35.0 -30.0 -25.0 -20.0 
 #define TORCH_BRIGHTNESS 1.0    // [0.25 0.5 0.75 1.0 1.25 1.5 2.0 3.0]
 #define MIN_LIGHT 1.0           // [0.0 0.5 1.0 2.0 3.0 5.0]
 #define SSAO
-#define AO_STRENGTH 1.0         // [0.25 0.5 0.75 1.0 1.25 1.5 2.0]
+#define AO_STRENGTH 1.5         // [0.25 0.5 0.75 1.0 1.25 1.5 2.0]
 #define CAUSTICS
 #define WETNESS_STRENGTH 1.0    // [0.0 0.25 0.5 0.75 1.0 1.5]
 
@@ -113,8 +119,8 @@ const float sunPathRotation = -25.0;    // [-45.0 -40.0 -35.0 -30.0 -25.0 -20.0 
 #define BLOOM
 #define BLOOM_STRENGTH 1.0      // [0.0 0.25 0.5 0.75 1.0 1.5 2.0 3.0]
 #define FJORD_GRADE
-#define SATURATION 0.88         // [0.5 0.6 0.7 0.8 0.88 0.95 1.0 1.1 1.2 1.3]
-#define CONTRAST 1.05           // [0.8 0.9 0.95 1.0 1.05 1.1 1.2 1.3]
-#define VIGNETTE 0.35           // [0.0 0.15 0.25 0.35 0.5 0.75 1.0]
-#define FILM_GRAIN 0.5          // [0.0 0.25 0.5 1.0 1.5 2.0]
+#define SATURATION 1.05         // [0.5 0.6 0.7 0.8 0.88 0.95 1.0 1.1 1.2 1.3]
+#define CONTRAST 1.12           // [0.8 0.9 0.95 1.0 1.05 1.1 1.2 1.3]
+#define VIGNETTE 0.25           // [0.0 0.15 0.25 0.35 0.5 0.75 1.0]
+#define FILM_GRAIN 0.25         // [0.0 0.25 0.5 1.0 1.5 2.0]
 #define RAIN_ON_LENS

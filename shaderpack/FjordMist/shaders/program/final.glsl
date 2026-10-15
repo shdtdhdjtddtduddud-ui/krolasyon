@@ -76,7 +76,7 @@ vec2 lensWater(vec2 uv, out float mask) {
 }
 
 vec3 acesFitted(vec3 v) {
-	v *= 0.6;
+	v *= 0.72;
 	const float a = 2.51, b = 0.03, c = 2.43, d = 0.59, e = 0.14;
 	return saturate((v * (a * v + b)) / (v * (c * v + d) + e));
 }
@@ -163,7 +163,7 @@ void main() {
 	bloom += texture2D(colortex0, uv, 5.0).rgb * 0.22;
 	bloom += texture2D(colortex0, uv, 6.5).rgb * 0.23;
 	// a lot of soft glow through mist and rain
-	float bloomAmt = 0.045 * (1.0 + getOvercast() * 0.8 + rainStrength) * BLOOM_STRENGTH;
+	float bloomAmt = 0.025 * (1.0 + getOvercast() * 0.5 + rainStrength) * BLOOM_STRENGTH;
 	color = mix(color, bloom, bloomAmt);
 #endif
 	// lens drops blur what is behind them
@@ -186,14 +186,15 @@ void main() {
 #ifdef FJORD_GRADE
 	// cool, slightly green shadows; neutral misty highlights
 	float l = luma(color);
-	vec3 shadowTint = vec3(0.90, 1.00, 1.03);
+	vec3 shadowTint = vec3(0.94, 1.00, 1.02);
 	vec3 highTint   = vec3(1.00, 1.00, 0.98);
 	color *= mix(shadowTint, highTint, smoothstep(0.0, 0.6, l));
-	color += vec3(0.004, 0.008, 0.010) * (1.0 - l);       // lifted, airy blacks
+
 #endif
 	color = mix(vec3(luma(color)), color, SATURATION);
 	color = pow(saturate(color), vec3(1.0 / 2.2));
-	color = saturate((color - 0.5) * CONTRAST + 0.5);
+	// S-curve contrast that keeps detail in the shadows (no crushed blacks)
+	color = saturate(mix(color, color * color * (3.0 - 2.0 * color), saturate((CONTRAST - 1.0) * 2.5)));
 
 	// vignette
 	vec2 vc = texcoord - 0.5;

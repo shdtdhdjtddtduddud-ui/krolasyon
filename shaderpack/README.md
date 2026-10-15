@@ -23,7 +23,7 @@ sabah ya da öğleden sonra görürsün.
 | Su | Fırtınada büyüyen, tepeleri köpüren dalgalar; rüzgar yönünde uzun dalgalar + kısa dalgacıklar, kırılma, derinliğe göre renk kaybı (koyu yeşil-gri fiyort suyu), ekran uzayı yansımaları (SSR), güneş parıltısı, kıyıya doğru yuvarlanan köpük şeritleri, hareketli su yüzeyi |
 | Yağmur | Suya düşen her damla için sıçrama ve yayılıp sönen dalga halkaları, hareket bulanıklıklı yağmur çizgileri, uzakta yağmur perdeleri (yansımalarda ve siste bozulmaz), ıslanınca koyulaşan yüzeyler, düz zeminlerde su birikintileri ve yansımaları, gökyüzü ışığını yansıtan yağmur çizgileri, lense düşen yağmur damlaları |
 | Bitkiler | Katmanlı rüzgar: araziyi dalga dalga geçen esintiler, ağaç taçlarının birlikte salınması, dalların hareketi ve yaprak titremesi; fırtınada hepsi şiddetlenir. Çimen, çiçek, ekin, uzun bitkiler ve sarmaşıklar rüzgar yönünde eğilir (gölgeleri de sallanır), yapraklardan ışık geçmesi |
-| Işık | Elde tutulan meşale/fener/ışık taşı etrafı aydınlatır, yumuşak gölgeler, kapalı havada dağınık gri ışık, sıcak meşale ışığı, gündoğumu/günbatımı renkleri, ay ışığı |
+| Işık | 3D blok kabartması (her doku girinti-çıkıntılı görünür) ve blok kenarı derinliği; üstten aydınlık, yanlardan koyu yönlü gökyüzü ışığı ve zeminden yansıyan dolgu ışığı; elde tutulan meşale/fener/ışık taşı etrafı aydınlatır, yumuşak gölgeler, kapalı havada dağınık gri ışık, sıcak meşale ışığı, gündoğumu/günbatımı renkleri, ay ışığı |
 | Gökyüzü | Fotoğraf gibi gece göğü: binlerce farklı parlaklık ve renkte parıldayan yıldız, mor-pembe-mavi tonlarda parlak çekirdekli Samanyolu (karanlık toz şeritleri ve pembe bulutsularla), ufukta pembe-turuncu gece parıltısı, gökyüzüyle birlikte dönen yıldızlar, yağmursuz gecelerde açılan bulutlar; evreleri olan, kraterli gerçekçi ay ve hilale göre değişen ay ışığı; ara sıra kayan yıldızlar; bazı açık gecelerde dalgalanan kuzey ışıkları (aurora, suda da yansır); yağmur dinince güneşin karşısında çift gökkuşağı; şimşek çakınca bulutlar ve dünya bir anlığına aydınlanır, şimşeğin kendisi göz kamaştırır |
 | Gerçekçilik | Ortam gölgelendirmesi (köşeler, ağaç altları, çimen araları kararır), sığ suyun dibinde ve su altında dalgalanan ışık desenleri (kostik), su birikintilerinde de yağmur halkaları |
 | Canlı dünya | Hareket eden bulutların araziye düşen gölgeleri ve bulut aralarından süzülen huzmeler; sakin gecelerde çimenlerin üstünde yanıp sönen ateşböcekleri; gece dalgalarda, köpükte ve yağmur damlalarında mavi parlayan plankton; su altında dalgaların odakladığı ışık huzmeleri ve süzülen parçacıklar; dalgaların ıslattığı kıyı şeridi; güneşte parıldayan ıslak taş ve yapraklar; karlı biyomlarda kar yağarken biriken kar ve yumuşak kar taneleri; alacakaranlıkta Dünya'nın gölgesi ve pembe Venüs kuşağı |
@@ -31,7 +31,8 @@ sabah ya da öğleden sonra görürsün.
 | Kamera | Otomatik pozlama, bloom, ACES tonlama, güneşe bakınca lens parlaması, sudan çıkınca lensten süzülen damlalar, karanlıkta gerçek göz gibi renklerin solması (Purkinje), serin "fiyort" renk tonu, vinyet, film greni |
 
 **Fiyort Havası (kapalı gök)** ayarı yağmur yokken bile gökyüzünün ne kadar gri ve
-kasvetli olacağını belirler (`0` = açık hava, `1.0` = sürekli fırtına). Tüm ayarlar
+kasvetli olacağını belirler (`0` = açık hava, `1.0` = sürekli fırtına; varsayılan `0.2`).
+Daha sisli, kasvetli bir görünüm için bunu ve Pus/Sis yoğunluğunu artırabilirsin. Tüm ayarlar
 Türkçe ve İngilizce menüde mevcut.
 
 Nether ve End için de ayrı (sadeleştirilmiş) atmosfer var.

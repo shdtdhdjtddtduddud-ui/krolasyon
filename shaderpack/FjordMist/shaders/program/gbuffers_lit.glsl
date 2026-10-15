@@ -17,11 +17,14 @@ varying vec3 feetPos;
 varying float blockId;
 varying vec3 lightCol;
 varying vec3 ambientCol;
+varying vec4 tileInfo;     // xy = centre of this block's texture in the atlas, zw = half size
+varying vec4 tangentView;  // xyz = view space tangent, w = handedness
 
 // ============================================================== VERTEX
 #ifdef VSH
 attribute vec4 mc_Entity;
 attribute vec4 mc_midTexCoord;
+attribute vec4 at_tangent;
 
 void main() {
 	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
@@ -29,6 +32,9 @@ void main() {
 	glcolor  = gl_Color;
 	normalView = normalize(gl_NormalMatrix * gl_Normal);
 	blockId = 0.0;
+	vec2 midUV = (gl_TextureMatrix[0] * vec4(mc_midTexCoord.xy, 0.0, 1.0)).xy;
+	tileInfo = vec4(midUV, abs(texcoord - midUV));
+	tangentView = vec4(gl_NormalMatrix * at_tangent.xyz, at_tangent.w);
 
 	vec4 viewPos = gl_ModelViewMatrix * gl_Vertex;
 	vec3 feet = viewToFeet(viewPos.xyz);
@@ -64,6 +70,49 @@ void main() {
 
 uniform sampler2D texture;
 uniform vec4 entityColor;
+uniform ivec2 atlasSize;
+
+float texHeight(vec2 uv) {
+	vec2 lo = tileInfo.xy - tileInfo.zw;
+	vec2 hi = tileInfo.xy + tileInfo.zw;
+	return luma(texture2D(texture, clamp(uv, lo, hi)).rgb);
+}
+
+// Relief from the block texture itself: brighter texels stand out, darker
+// cracks and gaps sink in, so stone, wood and dirt catch the light in 3D.
+vec3 autoNormal(vec3 n, float dist) {
+#ifdef AUTO_NORMALS
+	if (atlasSize.x <= 0 || dot(tangentView.xyz, tangentView.xyz) < 0.01 || tileInfo.z <= 0.0) return n;
+	float fade = 1.0 - smoothstep(20.0, 64.0, dist);
+	if (fade <= 0.0) return n;
+	vec2 texel = 1.0 / vec2(atlasSize);
+	float h0 = texHeight(texcoord);
+	float hx = texHeight(texcoord + vec2(texel.x, 0.0));
+	float hy = texHeight(texcoord + vec2(0.0, texel.y));
+	float hx2 = texHeight(texcoord - vec2(texel.x, 0.0));
+	float hy2 = texHeight(texcoord - vec2(0.0, texel.y));
+	vec2 grad = vec2(hx2 - hx, hy - hy2) * 0.5;
+	vec3 t = normalize(tangentView.xyz);
+	vec3 b = normalize(cross(t, n)) * (tangentView.w < 0.0 ? -1.0 : 1.0);
+	vec3 nt = normalize(vec3(grad * 4.0 * NORMAL_STRENGTH * fade, 1.0));
+	return normalize(t * nt.x + b * nt.y + n * nt.z);
+#else
+	return n;
+#endif
+}
+
+// How close a point is to the edge of the block face it lies on (0 = edge).
+float blockEdge(vec3 wp, vec3 nWorld) {
+	vec3 f = fract(wp + 0.0001);
+	vec3 d = min(f, 1.0 - f);
+	vec3 an = abs(nWorld);
+	// ignore the axis the face is facing
+	float e = 1.0;
+	if (an.x < 0.5) e = min(e, d.x);
+	if (an.y < 0.5) e = min(e, d.y);
+	if (an.z < 0.5) e = min(e, d.z);
+	return e;
+}
 
 #ifdef BASIC
 // lines, outlines, leashes: unlit
@@ -87,6 +136,7 @@ void main() {
 	if (!gl_FrontFacing) normal = -normal;
 	vec2 lm = lmcoord;
 	float dither = interleavedGradient(gl_FragCoord.xy);
+	vec3 geoNormal = normal;
 
 	float translucency = 0.0;
 	float emissive = 0.0;
@@ -258,6 +308,23 @@ void main() {
 	normal = normalize(upPosition);
 #endif
 
+#ifdef TERRAIN
+	if (!isFoliageId(blockId) && snow < 0.5) {
+		float dist = length(feetPos);
+		normal = autoNormal(normal, dist);
+	#ifdef BLOCK_EDGES
+		// soft bevel: block faces darken slightly towards their edges, so
+		// every block reads as a solid cube
+		vec3 nW = mat3(gbufferModelViewInverse) * geoNormal;
+		if (max(abs(nW.x), max(abs(nW.y), abs(nW.z))) > 0.95) {
+			float e = blockEdge(feetPos + cameraPosition, nW);
+			float bevel = smoothstep(0.0, 0.07, e);
+			float edgeFade = 1.0 - smoothstep(12.0, 36.0, dist);
+			color *= mix(1.0 - 0.16 * EDGE_STRENGTH * edgeFade, 1.0, bevel);
+		}
+	#endif
+	}
+#endif
 	float shadow;
 	vec3 lit = computeLighting(color, normal, feetPos, lm, translucency, emissive, lightCol, ambientCol, dither, shadow);
 
