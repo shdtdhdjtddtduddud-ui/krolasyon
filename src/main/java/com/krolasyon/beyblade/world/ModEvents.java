@@ -87,9 +87,9 @@ public final class ModEvents {
         if (SPECIAL_TABLES.contains(path)) {
             // the photo wheel sets (Big Bang, Phoenix, Inferno): rare finds in the hardest structures
             LootPool.Builder wb = LootPool.lootPool().name("librabeyblade_wheels").setRolls(ConstantValue.exactly(1));
-            for (String id : List.of("wheel_bigbang", "wheel_phoenix", "wheel_inferno", "ring_bigbang", "ring_phoenix", "ring_inferno",
+            for (String pid : List.of("wheel_bigbang", "wheel_phoenix", "wheel_inferno", "ring_bigbang", "ring_phoenix", "ring_inferno",
                     "bolt_bigbang", "bolt_phoenix", "bolt_inferno", "track_th170", "track_230", "tip_fd", "tip_xf"))
-                wb.add(LootItem.lootTableItem(ModItems.part(id)).setWeight(id.startsWith("wheel") ? 1 : 2));
+                wb.add(LootItem.lootTableItem(ModItems.part(pid)).setWeight(pid.startsWith("wheel") ? 1 : 2));
             wb.add(EmptyLootItem.emptyItem().setWeight(path.contains("ancient_city") || path.contains("end_city") ? 40 : 110));
             event.getTable().addPool(wb.build());
         }
