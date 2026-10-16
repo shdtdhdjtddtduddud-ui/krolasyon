@@ -89,14 +89,14 @@ public final class AutoTest {
         String[][] pairs = {{"pegasus", "5", "ldrago", "3", "0"}, {"variares", "5", "beffal", "5", "4"}, {"tempo", "5", "eagle", "5", "12"}};
         for (int k = 0; k < pairs.length; k++) {
             String[] pr = pairs[k];
-            cmd(2, null, CLEAR, "weather clear", "tp @a 0.5 -51 1 180 34",
+            cmd(2, null, CLEAR, "weather clear", "tp @a 0.5 -53.5 -4.5 180 38",
                     "summon librabeyblade:" + pr[0] + " -3.5 -57.5 -14.5 {Tags:[\"a\"]}", "summon librabeyblade:" + pr[2] + " 4.5 -57.5 -14.5 {Tags:[\"b\"]}");
             wait(24, null);
             final int ia = Integer.parseInt(pr[1]), ib = Integer.parseInt(pr[3]), lag = Integer.parseInt(pr[4]);
             server(lag, null, s -> each(s, "a", b -> b.debugForceAbility(ia)));
             server(1, null, s -> each(s, "b", b -> b.debugForceAbility(ib)));
-            wait(14, "sclash_" + k + "_start");
-            wait(14, "sclash_" + k + "_push");
+            wait(12, "sclash_" + k + "_start");
+            wait(10, "sclash_" + k + "_push");
             wait(12, "sclash_" + k + "_boom");
             wait(40, "sclash_" + k + "_after");
         }
@@ -232,8 +232,8 @@ public final class AutoTest {
         if (tick - stepStart >= st.delay()) {
             if (st.shot() != null) {
                 MinecraftServer srv = mc.getSingleplayerServer();
-                srv.execute(() -> each(srv, null, b -> LOG.info("[AUTOTEST] state pos={} spin={} state={} ability={} rival={} shot={}",
-                        b.position(), b.getSpin(), b.getState(), b.getAbility(), b.isRival(), st.shot())));
+                srv.execute(() -> each(srv, null, b -> LOG.info("[AUTOTEST] state pos={} spin={} state={} ability={} rival={} sclash={} shot={}",
+                        b.position(), b.getSpin(), b.getState(), b.getAbility(), b.isRival(), b.getSpecialClashPartner(), st.shot())));
                 if (st.shot().equals("END")) {
                     writer.shutdown();
                     try { writer.awaitTermination(60, java.util.concurrent.TimeUnit.SECONDS); } catch (InterruptedException ignored) {}

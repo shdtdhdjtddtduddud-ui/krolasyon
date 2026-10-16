@@ -1028,10 +1028,12 @@ public class BeybladeEntity extends Entity {
             return;
         }
         sclashTicks--;
-        // both hold their ground, facing each other, pouring power into the clash
+        // first they spring apart to a few blocks, then both hold their ground, pouring power into the clash
         Vec3 to = flat(o.position().subtract(position()));
-        Vec3 dir = to.lengthSqr() < 1.0E-4 ? new Vec3(1, 0, 0) : to.normalize();
-        setDeltaMovement(getDeltaMovement().multiply(0.4, 1, 0.4).add(dir.scale(0.015)));
+        double dist = to.length();
+        Vec3 dir = dist < 1.0E-3 ? new Vec3(1, 0, 0) : to.scale(1 / dist);
+        if (dist < 5.0 && SCLASH_TICKS - sclashTicks < 10) setDeltaMovement(dir.scale(-0.32).add(0, getDeltaMovement().y, 0));
+        else setDeltaMovement(getDeltaMovement().multiply(0.4, 1, 0.4).add(dir.scale(0.015)));
         if (sclashLeader) {
             if (sclashTicks % 6 == 0) {
                 play(ModSounds.GRIND.get(), 1.4F, 1.4F + this.random.nextFloat() * 0.3F);
