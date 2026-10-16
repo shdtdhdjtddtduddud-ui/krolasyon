@@ -125,6 +125,8 @@ public class BeybladeEntity extends Entity {
     private int retreatTicks, lockTicks;
     /** thrown out of a lock: flies freely (no steering) for a moment */
     private int flungTicks;
+    /** still in the air after the launch */
+    private boolean launchFlight;
     @Nullable private BeybladeEntity lockPartner;
     /** who last hurt us and when an enemy special move last hit us (match scoring: ability finish) */
     @Nullable private BeybladeEntity lastAttacker;
@@ -185,6 +187,7 @@ public class BeybladeEntity extends Entity {
         b.entityData.set(DATA_MAX_SPIN, max);
         b.entityData.set(DATA_SPIN, max * Mth.clamp(power, 0.35F, 1F));
         b.home = pos;
+        b.launchFlight = true;
         level.addFreshEntity(b);
         return b;
     }
@@ -565,6 +568,11 @@ public class BeybladeEntity extends Entity {
         if (flungTicks > 0) {
             flungTicks--;
             controlled = true;
+        }
+        // the launch arc flies free until the first touch of the floor (no steering back towards the owner)
+        if (launchFlight) {
+            if (onGround() || this.tickCount > 80) launchFlight = false;
+            else controlled = true;
         }
         if (!controlled && !frozen) steer(owner);
         if (frozen && onGround()) setDeltaMovement(getDeltaMovement().multiply(0.7, 1, 0.7));
