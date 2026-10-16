@@ -118,6 +118,8 @@ public class BeybladeEntity extends Entity {
     private int rushPhase, trainTicks;
     /** hit-and-run: back off after a clash before charging again; lock: two tops pressed together, grinding */
     private int retreatTicks, lockTicks;
+    /** thrown out of a lock: flies freely (no steering) for a moment */
+    private int flungTicks;
     @Nullable private BeybladeEntity lockPartner;
     /** who last hurt us and when an enemy special move last hit us (match scoring: ability finish) */
     @Nullable private BeybladeEntity lastAttacker;
@@ -543,6 +545,10 @@ public class BeybladeEntity extends Entity {
             controlled = true;
             setDeltaMovement(getDeltaMovement().multiply(0.6, 1, 0.6));
         }
+        if (flungTicks > 0) {
+            flungTicks--;
+            controlled = true;
+        }
         if (!controlled && !frozen) steer(owner);
         if (frozen && onGround()) setDeltaMovement(getDeltaMovement().multiply(0.7, 1, 0.7));
         physics();
@@ -939,15 +945,15 @@ public class BeybladeEntity extends Entity {
         Vec3 dir = flat(lose.position().subtract(win.position()));
         dir = dir.lengthSqr() < 1.0E-4 ? new Vec3(1, 0, 0) : dir.normalize();
         if (lose.tryDodge(win)) return;
-        double power = Mth.clamp(0.95 + 0.7 * (margin - 1F), 0.95, 1.9) * Mth.clamp(lose.knockMul(), 0.4, 1.4);
-        lose.setDeltaMovement(dir.scale(power).add(0, 0.28, 0));
+        double power = Mth.clamp(1.5 + 0.9 * (margin - 1F), 1.5, 2.6) * Mth.clamp(lose.knockMul(), 0.55, 1.4);
+        lose.setDeltaMovement(dir.scale(power).add(0, 0.32, 0));
         lose.hurtMarked = true;
-        lose.stun(10);
+        lose.flungTicks = 14;
         lose.damageSpin(Mth.clamp(45F * margin, 45F, 120F) * win.powerMul(), win);
         lose.shockwave(win, 1.0);
-        // the winner is pushed back a little by the release
-        win.setDeltaMovement(win.getDeltaMovement().add(dir.scale(-0.25)));
-        win.retreatTicks = 8;
+        // the winner holds its ground at the centre of the clash
+        win.setDeltaMovement(win.getDeltaMovement().multiply(0.2, 1, 0.2));
+        win.retreatTicks = 0;
         win.addSpirit(8);
         double cx = (getX() + o.getX()) / 2, cy = getY() + 0.4, cz = (getZ() + o.getZ()) / 2;
         ServerLevel sl = (ServerLevel) this.level();
