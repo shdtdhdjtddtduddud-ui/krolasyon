@@ -62,10 +62,12 @@ jobs:
           sudo apt-get update -qq && sudo apt-get install -y -qq xvfb libgl1-mesa-dri libglx-mesa0 mesa-utils pulseaudio pulseaudio-utils ffmpeg > /dev/null
           Xvfb :99 -screen 0 960x540x24 > /dev/null 2>&1 &
           export DISPLAY=:99
-          pulseaudio -D --exit-idle-time=-1 || true
+          export ALSOFT_DRIVERS=pulse
+          pulseaudio --start --exit-idle-time=-1 || pulseaudio -D --exit-idle-time=-1 || true
           sleep 2
           pactl load-module module-null-sink sink_name=rec || true
           pactl set-default-sink rec || true
+          pactl info > pulse_info.log 2>&1 || true
           mkdir -p run
           printf "onboardAccessibility:false\nrenderDistance:6\nsimulationDistance:6\npauseOnLostFocus:false\ntutorialStep:none\njoinedFirstServer:true\nskipMultiplayerWarning:true\nmaxFps:60\nlang:tr_tr\nguiScale:2\nsoundCategory_master:1.0\nsoundCategory_music:0.0\n" > run/options.txt
           set +e
@@ -76,7 +78,7 @@ jobs:
             -c:v libx264 -preset veryfast -crf 22 -pix_fmt yuv420p -c:a aac -b:a 160k gameplay.mp4
           wait $GPID
           ls -la gameplay.mp4
-          grep -E "VIDEO|Exception|OpenAL|Sound" client.log | head -60 > video_summary.log
+          { cat pulse_info.log; grep -E "VIDEO|Exception|OpenAL|Sound" client.log | head -60; } > video_summary.log
       - name: Publish release
         if: always()
         shell: bash

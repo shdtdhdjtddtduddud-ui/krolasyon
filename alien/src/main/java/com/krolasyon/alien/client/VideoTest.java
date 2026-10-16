@@ -391,10 +391,11 @@ public final class VideoTest {
             for (XenomorphEntity x : mc.level.getEntitiesOfClass(XenomorphEntity.class, p.getBoundingBox().inflate(30))) near = x;
             if (near != null && !near.isHidden()) {
                 lookAt = near.position().add(0, 1.4, 0);
-                boolean fire = near.distanceTo(p) < 7.0F && near.getClientState() != XenomorphEntity.State.FLEE;
+                boolean fire = near.distanceTo(p) < 4.2F && near.getClientState() != XenomorphEntity.State.FLEE;
                 mc.options.keyUse.setDown(fire);
             } else {
                 mc.options.keyUse.setDown(false);
+                if (console != null && t > S6 + 120) lookAt = console.add(0, 0.6, 0);
             }
             if (t == S6 + 180) server(s -> each(s, x -> {
                 ServerPlayer sp = player(s);
