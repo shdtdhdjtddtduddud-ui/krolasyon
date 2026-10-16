@@ -24,7 +24,7 @@ import static com.krolasyon.beyblade.entity.StadiumEntity.*;
  * between them, and a two-tier octagonal base. Texture atlas: textures/entity/stadium.png (gen/beyblade/stadium_tex.py).
  */
 public class StadiumRenderer extends EntityRenderer<StadiumEntity> {
-    private static final ResourceLocation TEX = new ResourceLocation(LibraBeyblade.MODID, "textures/entity/stadium.png");
+    private static final ResourceLocation TEX = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/entity/stadium.png");
     private static final int SEGS = 128;
     private static float[] mesh;
 
@@ -41,15 +41,15 @@ public class StadiumRenderer extends EntityRenderer<StadiumEntity> {
         Matrix3f n = pose.last().normal();
         float[] d = mesh;
         for (int i = 0; i < d.length; i += 8) {
-            vc.vertex(m, d[i], d[i + 1], d[i + 2]).color(1F, 1F, 1F, 1F).uv(d[i + 3], d[i + 4]).overlayCoords(OverlayTexture.NO_OVERLAY)
-                    .uv2(light).normal(n, d[i + 5], d[i + 6], d[i + 7]).endVertex();
+            com.krolasyon.beyblade.compat.VClient.vertex(vc, m, n, d[i], d[i + 1], d[i + 2], 1F, 1F, 1F, 1F, d[i + 3], d[i + 4],
+                    OverlayTexture.NO_OVERLAY, light, d[i + 5], d[i + 6], d[i + 7]);
         }
         renderPads(e, partial, pose, buf);
         renderScars(e, partial, pose, buf);
         super.render(e, yaw, partial, pose, buf, light);
     }
 
-    private static final ResourceLocation CRACKS = new ResourceLocation(LibraBeyblade.MODID, "textures/fx/cracks.png");
+    private static final ResourceLocation CRACKS = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/fx/cracks.png");
 
     /** impact cracks in the bowl floor, following its curve; they fade away over a minute and a half */
     private void renderScars(StadiumEntity e, float partial, PoseStack pose, MultiBufferSource buf) {

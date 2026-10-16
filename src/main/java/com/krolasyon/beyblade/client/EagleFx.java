@@ -19,9 +19,9 @@ import static com.krolasyon.beyblade.entity.EagleEntity.*;
 public final class EagleFx {
     private EagleFx() {}
 
-    public static final ResourceLocation EAGLE = new ResourceLocation(LibraBeyblade.MODID, "textures/fx/eagle.png");
-    public static final ResourceLocation FEATHER = new ResourceLocation(LibraBeyblade.MODID, "textures/fx/feather.png");
-    public static final ResourceLocation CLAW = new ResourceLocation(LibraBeyblade.MODID, "textures/fx/claw.png");
+    public static final ResourceLocation EAGLE = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/fx/eagle.png");
+    public static final ResourceLocation FEATHER = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/fx/feather.png");
+    public static final ResourceLocation CLAW = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/fx/claw.png");
 
     private static final float[] VIOLET = {0.65F, 0.35F, 1F};
     private static final float[] SILVER = {0.85F, 0.85F, 1F};

@@ -10,8 +10,6 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -38,9 +36,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkHooks;
 import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
@@ -171,7 +166,7 @@ public class BeybladeEntity extends Entity {
         if (owner != null) b.entityData.set(DATA_OWNER, Optional.of(owner.getUUID()));
         b.stored = stack.copy();
         b.initFromItem(stack);
-        CompoundTag t = stack.getTag();
+        CompoundTag t = com.krolasyon.beyblade.compat.V.tag(stack);
         int lvl = t != null && t.contains("BeyLevel") ? Mth.clamp(t.getInt("BeyLevel"), 1, MAX_LEVEL) : 1;
         b.entityData.set(DATA_LEVEL, lvl);
         b.entityData.set(DATA_XP, t != null ? t.getInt("BeyXp") : 0);
@@ -1450,7 +1445,7 @@ public class BeybladeEntity extends Entity {
     public static int heldLevel(Player p) {
         int best = 1;
         for (ItemStack st : p.getInventory().items) {
-            if (st.getItem() instanceof com.krolasyon.beyblade.item.LibraItem && st.hasTag()) best = Math.max(best, st.getTag().getInt("BeyLevel"));
+            if (st.getItem() instanceof com.krolasyon.beyblade.item.LibraItem) best = Math.max(best, com.krolasyon.beyblade.item.LibraItem.level(st));
         }
         return best;
     }
@@ -1469,22 +1464,26 @@ public class BeybladeEntity extends Entity {
             }
         }
         if (target.isEmpty()) return;
-        CompoundTag t = target.getOrCreateTag();
-        int lvl = Math.max(1, t.getInt("BeyLevel")), xp = t.getInt("BeyXp") + amount;
+        CompoundTag t0 = com.krolasyon.beyblade.compat.V.tag(target);
+        int lvl = t0 == null ? 1 : Math.max(1, t0.getInt("BeyLevel")), xp = (t0 == null ? 0 : t0.getInt("BeyXp")) + amount;
         int before = lvl;
         while (lvl < MAX_LEVEL && xp >= xpNeeded(lvl)) { xp -= xpNeeded(lvl); lvl++; }
-        t.putInt("BeyLevel", lvl);
-        t.putInt("BeyXp", lvl >= MAX_LEVEL ? 0 : xp);
+        final int nl = lvl, nx = lvl >= MAX_LEVEL ? 0 : xp;
+        com.krolasyon.beyblade.compat.V.editTag(target, t -> {
+            t.putInt("BeyLevel", nl);
+            t.putInt("BeyXp", nx);
+        });
         if (lvl > before) p.displayClientMessage(Component.translatable("msg.librabeyblade.level_up", target.getHoverName(), lvl).withStyle(net.minecraft.ChatFormatting.GOLD), false);
     }
 
     /** the launched item with this beyblade's level, experience and mode written back */
     public ItemStack itemWithProgress() {
         ItemStack s = stored.isEmpty() ? defaultItem() : stored.copy();
-        CompoundTag t = s.getOrCreateTag();
-        t.putInt("BeyLevel", getLevel());
-        t.putInt("BeyXp", getXp());
-        t.putInt("BeyMode", getMode());
+        com.krolasyon.beyblade.compat.V.editTag(s, t -> {
+            t.putInt("BeyLevel", getLevel());
+            t.putInt("BeyXp", getXp());
+            t.putInt("BeyMode", getMode());
+        });
         return s;
     }
 
@@ -1652,7 +1651,7 @@ public class BeybladeEntity extends Entity {
         }
         if (!soundStarted) {
             soundStarted = true;
-            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> com.krolasyon.beyblade.client.ClientHooks.startSpinSound(this));
+            com.krolasyon.beyblade.client.ClientHooks.startSpinSound(this);
         }
         float ratio = spinRatio();
         int state = getState();
@@ -1777,7 +1776,7 @@ public class BeybladeEntity extends Entity {
         this.entityData.set(DATA_ORDER, Mth.clamp(tag.getInt("Order"), 0, ORDER_COUNT - 1));
         this.entityData.set(DATA_SPIRIT, Mth.clamp(tag.getInt("Spirit"), 0, SPIRIT_MAX));
         if (tag.contains("Level") && !tag.contains("MaxSpin")) this.entityData.set(DATA_MAX_SPIN, maxSpinFor(getLevel()));
-        if (tag.contains("Item")) stored = ItemStack.of(tag.getCompound("Item"));
+        if (tag.contains("Item")) stored = com.krolasyon.beyblade.compat.V.loadStack(level(), tag.getCompound("Item"));
         if (tag.contains("HomeX")) home = new Vec3(tag.getDouble("HomeX"), tag.getDouble("HomeY"), tag.getDouble("HomeZ"));
         long now = this.level() == null ? 0 : this.level().getGameTime();
         for (int i = 0; i < ABILITY_COUNT; i++) {
@@ -1799,7 +1798,7 @@ public class BeybladeEntity extends Entity {
         tag.putInt("Mode", getMode());
         tag.putInt("Order", getOrder());
         tag.putInt("Spirit", getSpirit());
-        if (!stored.isEmpty()) tag.put("Item", stored.save(new CompoundTag()));
+        if (!stored.isEmpty()) tag.put("Item", com.krolasyon.beyblade.compat.V.saveStack(level(), stored));
         if (home != null) {
             tag.putDouble("HomeX", home.x);
             tag.putDouble("HomeY", home.y);
@@ -1808,10 +1807,6 @@ public class BeybladeEntity extends Entity {
         for (int i = 1; i <= ABILITY_COUNT; i++) tag.putInt("Cooldown" + i, cooldownRemaining(i));
     }
 
-    @Override
-    public Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
 
     /** test hook: force an ability regardless of cooldown */
     public void debugForceAbility(int id) {

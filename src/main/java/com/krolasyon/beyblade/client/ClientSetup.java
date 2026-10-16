@@ -6,7 +6,6 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -50,11 +49,5 @@ public final class ClientSetup {
         event.register(MODE_KEY);
         event.register(SPIRIT_KEY);
         for (KeyMapping k : ABILITY_KEYS) event.register(k);
-    }
-
-    @SubscribeEvent
-    public static void registerOverlays(RegisterGuiOverlaysEvent event) {
-        event.registerAboveAll("libra_hud", new LibraHud());
-        event.registerAboveAll("match_hud", new MatchHud());
     }
 }

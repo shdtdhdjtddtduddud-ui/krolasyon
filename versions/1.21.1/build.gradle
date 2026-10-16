@@ -1,0 +1,48 @@
+// Minecraft 1.21.1 Forge build. The sources are generated from src/main by versions/port.py (build-src/ is not committed).
+plugins {
+    id 'eclipse'
+    id 'net.minecraftforge.gradle' version '[6.0.24,6.2)'
+}
+
+version = findProperty('modVersion') ?: '0'
+group = 'com.krolasyon.beyblade'
+base { archivesName = 'beyblade_mod-1.21.1-forge' }
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+minecraft {
+    mappings channel: 'official', version: '1.21.1'
+    reobf = false
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.console.level', 'info'
+            property 'libra.autotest', 'true'
+            args '--width', '1280', '--height', '720'
+            mods {
+                librabeyblade {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+sourceSets.main.java.srcDirs = ['build-src/java']
+sourceSets.main.resources.srcDirs = ['build-src/resources']
+
+repositories {}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:1.21.1-${forgeVersion}"
+}
+
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+
+tasks.named('jar', Jar).configure {
+    manifest {
+        attributes(["Specification-Title": "librabeyblade", "Specification-Vendor": "krolasyon",
+                    "Specification-Version": "1", "Implementation-Title": project.name,
+                    "Implementation-Version": project.jar.archiveVersion])
+    }
+}

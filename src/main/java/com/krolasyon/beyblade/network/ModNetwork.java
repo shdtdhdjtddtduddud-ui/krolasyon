@@ -1,10 +1,8 @@
 package com.krolasyon.beyblade.network;
 
 import com.krolasyon.beyblade.LibraBeyblade;
-import com.krolasyon.beyblade.entity.BeybladeEntity;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
@@ -16,7 +14,7 @@ public final class ModNetwork {
 
     private static final String VERSION = "1";
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
-            new ResourceLocation(LibraBeyblade.MODID, "main"), () -> VERSION, VERSION::equals, VERSION::equals);
+            com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "main"), () -> VERSION, VERSION::equals, VERSION::equals);
 
     /** command ids sent from the key bindings */
     public static final int CMD_RECALL = 0;   // 1..5 = abilities
@@ -39,21 +37,7 @@ public final class ModNetwork {
 
         static void handle(Command m, Supplier<NetworkEvent.Context> ctx) {
             NetworkEvent.Context c = ctx.get();
-            c.enqueueWork(() -> {
-                ServerPlayer player = c.getSender();
-                if (player == null) return;
-                BeybladeEntity bey = BeybladeEntity.findActive(player);
-                if (bey == null) {
-                    player.displayClientMessage(net.minecraft.network.chat.Component.translatable("msg.librabeyblade.none_active"), true);
-                    return;
-                }
-                if (m.cmd == CMD_RECALL) bey.recall();
-                else if (m.cmd >= CMD_ORDER && m.cmd < CMD_ORDER + BeybladeEntity.ORDER_COUNT) bey.setOrder(m.cmd - CMD_ORDER);
-                else if (m.cmd == CMD_SPIRIT) bey.releaseSpirit();
-                else if (m.cmd == CMD_MODE_CYCLE) bey.setMode(bey.getMode() + 1);
-                else if (m.cmd >= CMD_MODE && m.cmd < CMD_MODE + BeybladeEntity.MODE_COUNT) bey.setMode(m.cmd - CMD_MODE);
-                else if (m.cmd >= 1 && m.cmd <= BeybladeEntity.ABILITY_COUNT) bey.tryAbility(m.cmd, true);
-            });
+            c.enqueueWork(() -> CommandHandler.handle(c.getSender(), m.cmd));
             c.setPacketHandled(true);
         }
     }

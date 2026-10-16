@@ -4,3 +4,4 @@ run/
 *.log
 dist/
 __pycache__/
+versions/*/build-src/

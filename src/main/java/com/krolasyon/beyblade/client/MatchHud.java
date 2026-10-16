@@ -5,15 +5,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.client.gui.overlay.ForgeGui;
-import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 
 import java.util.List;
 
 /** Scoreboard at the top of the screen while a stadium match is running nearby. */
-public class MatchHud implements IGuiOverlay {
-    @Override
-    public void render(ForgeGui gui, GuiGraphics g, float partial, int width, int height) {
+public class MatchHud {
+    public void render(GuiGraphics g, float partial, int width, int height) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null || mc.options.hideGui) return;
         List<StadiumEntity> list = mc.level.getEntitiesOfClass(StadiumEntity.class, mc.player.getBoundingBox().inflate(48),

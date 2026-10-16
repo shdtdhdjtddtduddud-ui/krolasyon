@@ -13,7 +13,7 @@ public final class ModSounds {
     public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, LibraBeyblade.MODID);
 
     private static RegistryObject<SoundEvent> reg(String name) {
-        return SOUNDS.register(name, () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(LibraBeyblade.MODID, name)));
+        return SOUNDS.register(name, () -> SoundEvent.createVariableRangeEvent(com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, name)));
     }
 
     public static final RegistryObject<SoundEvent> LAUNCH = reg("launch");

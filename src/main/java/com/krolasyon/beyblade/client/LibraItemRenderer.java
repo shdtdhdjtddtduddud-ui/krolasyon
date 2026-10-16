@@ -26,7 +26,7 @@ public class LibraItemRenderer extends BlockEntityWithoutLevelRenderer {
     @Override
     public void renderByItem(ItemStack stack, ItemDisplayContext ctx, PoseStack pose, MultiBufferSource buf, int light, int overlay) {
         Minecraft mc = Minecraft.getInstance();
-        float time = (mc.level != null ? mc.level.getGameTime() : 0) + mc.getFrameTime();
+        float time = (mc.level != null ? mc.level.getGameTime() : 0) + com.krolasyon.beyblade.compat.VClient.partialTick();
         pose.pushPose();
         pose.translate(0.5, 0.5, 0.5);
         float s;

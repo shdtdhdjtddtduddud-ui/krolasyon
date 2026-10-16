@@ -56,7 +56,7 @@ public class LibraItem extends Item {
     }
 
     public static int level(ItemStack s) {
-        CompoundTag t = s.getTag();
+        CompoundTag t = com.krolasyon.beyblade.compat.V.tag(s);
         return t != null && t.contains("BeyLevel") ? Math.max(1, t.getInt("BeyLevel")) : 1;
     }
 
@@ -67,7 +67,7 @@ public class LibraItem extends Item {
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tip, TooltipFlag flag) {
         String base = getDescriptionId();
         int lvl = level(stack);
-        CompoundTag t = stack.getTag();
+        CompoundTag t = com.krolasyon.beyblade.compat.V.tag(stack);
         int xp = t != null ? t.getInt("BeyXp") : 0;
         int mode = t != null && t.contains("BeyMode") ? t.getInt("BeyMode") : -1;
         if (variant >= 0) {

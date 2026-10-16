@@ -22,10 +22,10 @@ import static com.krolasyon.beyblade.entity.LeoneEntity.*;
 public final class LeoneFx {
     private LeoneFx() {}
 
-    public static final ResourceLocation LION = new ResourceLocation(LibraBeyblade.MODID, "textures/fx/lion.png");
-    public static final ResourceLocation FANG = new ResourceLocation(LibraBeyblade.MODID, "textures/fx/fang.png");
-    private static final ResourceLocation STONE = new ResourceLocation("minecraft", "textures/block/stone.png");
-    private static final ResourceLocation ROCK = new ResourceLocation("minecraft", "textures/block/cobblestone.png");
+    public static final ResourceLocation LION = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/fx/lion.png");
+    public static final ResourceLocation FANG = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/fx/fang.png");
+    private static final ResourceLocation STONE = com.krolasyon.beyblade.compat.V.rl("minecraft", "textures/block/stone.png");
+    private static final ResourceLocation ROCK = com.krolasyon.beyblade.compat.V.rl("minecraft", "textures/block/cobblestone.png");
 
     private static final float[] WIND = {0.62F, 1F, 0.72F};
     private static final float[] EMERALD = {0.2F, 1F, 0.45F};
@@ -231,7 +231,7 @@ public final class LeoneFx {
     }
 
     private static void sv(VertexConsumer vc, Matrix4f m, Matrix3f n, float x, float y, float z, float u, float v, float nx, float ny, float nz, int light) {
-        vc.vertex(m, x, y, z).color(1F, 1F, 1F, 1F).uv(u, v).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(n, nx, ny, nz).endVertex();
+        com.krolasyon.beyblade.compat.VClient.vertex(vc, m, n, x, y, z, 1F, 1F, 1F, 1F, u, v, OverlayTexture.NO_OVERLAY, light, nx, ny, nz);
     }
 
     // ================= KING LION STORM CAGE =================

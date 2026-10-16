@@ -19,7 +19,7 @@ import static com.krolasyon.beyblade.entity.TempoEntity.*;
 public final class TempoFx {
     private TempoFx() {}
 
-    public static final ResourceLocation CLOCK = new ResourceLocation(LibraBeyblade.MODID, "textures/fx/clock.png");
+    public static final ResourceLocation CLOCK = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/fx/clock.png");
     private static final float[] SILVER = {0.75F, 0.85F, 1F};
     private static final float[] ICE = {0.45F, 0.75F, 1F};
     private static final float[] GOLD = {1F, 0.85F, 0.45F};

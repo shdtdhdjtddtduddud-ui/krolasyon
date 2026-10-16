@@ -79,9 +79,9 @@ public final class BeyMesh {
 
     private BeyMesh(String name, String meshName, float topY, float height, float ghostHalf) {
         this.name = meshName;
-        this.FACE = new ResourceLocation(LibraBeyblade.MODID, "textures/entity/" + name + "_face.png");
-        this.GLOW = new ResourceLocation(LibraBeyblade.MODID, "textures/entity/" + name + "_glow.png");
-        this.PARTS = new ResourceLocation(LibraBeyblade.MODID, "textures/entity/" + name + "_parts.png");
+        this.FACE = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/entity/" + name + "_face.png");
+        this.GLOW = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/entity/" + name + "_glow.png");
+        this.PARTS = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/entity/" + name + "_parts.png");
         this.TOP_Y = topY;
         this.HEIGHT = height;
         this.ghostHalf = ghostHalf;
@@ -144,15 +144,15 @@ public final class BeyMesh {
     }
 
     private static void gv(VertexConsumer vc, Matrix4f m, Matrix3f n, float x, float y, float z, float u, float v, int light, float a) {
-        vc.vertex(m, x, y, z).color(1F, 1F, 1F, a).uv(u, v).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(n, 0, 1, 0).endVertex();
+        com.krolasyon.beyblade.compat.VClient.vertex(vc, m, n, x, y, z, 1F, 1F, 1F, a, u, v, OverlayTexture.NO_OVERLAY, light, 0, 1, 0);
     }
 
     private static void emit(PoseStack pose, VertexConsumer vc, float[] d, int light, int overlay, float r, float g, float b, float a) {
         Matrix4f m = pose.last().pose();
         Matrix3f n = pose.last().normal();
         for (int i = 0; i < d.length; i += 8) {
-            vc.vertex(m, d[i], d[i + 1], d[i + 2]).color(r, g, b, a).uv(d[i + 3], d[i + 4]).overlayCoords(overlay).uv2(light)
-                    .normal(n, d[i + 5], d[i + 6], d[i + 7]).endVertex();
+            com.krolasyon.beyblade.compat.VClient.vertex(vc, m, n, d[i], d[i + 1], d[i + 2], r, g, b, a, d[i + 3], d[i + 4], overlay, light,
+                    d[i + 5], d[i + 6], d[i + 7]);
         }
     }
 }

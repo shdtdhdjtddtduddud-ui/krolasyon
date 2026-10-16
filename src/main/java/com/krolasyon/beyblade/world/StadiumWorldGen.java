@@ -44,7 +44,7 @@ public final class StadiumWorldGen {
     private static final Logger LOG = LogUtils.getLogger();
     public static final int CHANCE = 260, SPACING = 600, RADIUS = 19;
     private static final ConcurrentLinkedQueue<long[]> QUEUE = new ConcurrentLinkedQueue<>();
-    private static final ResourceLocation CHEST_LOOT = new ResourceLocation(LibraBeyblade.MODID, "chests/stadium");
+    private static final ResourceLocation CHEST_LOOT = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "chests/stadium");
 
     @SubscribeEvent
     public static void onChunkLoad(ChunkEvent.Load event) {

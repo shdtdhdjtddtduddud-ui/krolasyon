@@ -24,7 +24,7 @@ public final class Fx {
             FLARE = tex("flare"), SIGIL = tex("sigil"), BOLT = tex("bolt"), SMOKE = tex("smoke");
 
     private static ResourceLocation tex(String n) {
-        return new ResourceLocation(LibraBeyblade.MODID, "textures/fx/" + n + ".png");
+        return com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/fx/" + n + ".png");
     }
 
     /** vertex alpha, only meaningful for translucent buffers (see {@link #bufT}); reset to 1 after use */
@@ -42,8 +42,8 @@ public final class Fx {
     }
 
     public static void v(VertexConsumer vc, Matrix4f m, float x, float y, float z, float r, float g, float b, float u, float v) {
-        vc.vertex(m, x, y, z).color(clamp(r), clamp(g), clamp(b), alpha).uv(u, v).overlayCoords(OverlayTexture.NO_OVERLAY)
-                .uv2(LightTexture.FULL_BRIGHT).normal(0F, 1F, 0F).endVertex();
+        com.krolasyon.beyblade.compat.VClient.vertex(vc, m, null, x, y, z, clamp(r), clamp(g), clamp(b), alpha, u, v,
+                OverlayTexture.NO_OVERLAY, LightTexture.FULL_BRIGHT, 0F, 1F, 0F);
     }
 
     private static float clamp(float c) { return Mth.clamp(c, 0F, 1F); }

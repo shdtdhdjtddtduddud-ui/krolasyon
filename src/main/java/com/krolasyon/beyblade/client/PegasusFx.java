@@ -19,8 +19,8 @@ import static com.krolasyon.beyblade.entity.PegasusEntity.*;
 public final class PegasusFx {
     private PegasusFx() {}
 
-    public static final ResourceLocation PEGASUS = new ResourceLocation(LibraBeyblade.MODID, "textures/fx/pegasus.png");
-    public static final ResourceLocation STAR = new ResourceLocation(LibraBeyblade.MODID, "textures/fx/star.png");
+    public static final ResourceLocation PEGASUS = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/fx/pegasus.png");
+    public static final ResourceLocation STAR = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/fx/star.png");
 
     private static final float[] SKY = {0.4F, 0.75F, 1F};
     private static final float[] WHITE = {1F, 1F, 1F};

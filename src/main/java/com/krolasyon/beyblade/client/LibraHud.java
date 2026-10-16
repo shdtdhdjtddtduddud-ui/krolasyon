@@ -9,27 +9,24 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraftforge.client.gui.overlay.ForgeGui;
-import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 
 import java.util.List;
 
 /** Spin gauge + ability cooldowns for the player's active Libra. */
-public class LibraHud implements IGuiOverlay {
-    private static final ResourceLocation ICON = new ResourceLocation(LibraBeyblade.MODID, "textures/item/libra_icon.png");
-    private static final ResourceLocation ICON_LDRAGO = new ResourceLocation(LibraBeyblade.MODID, "textures/item/ldrago_icon.png");
-    private static final ResourceLocation ICON_LEONE = new ResourceLocation(LibraBeyblade.MODID, "textures/item/leone_icon.png");
+public class LibraHud {
+    private static final ResourceLocation ICON = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/item/libra_icon.png");
+    private static final ResourceLocation ICON_LDRAGO = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/item/ldrago_icon.png");
+    private static final ResourceLocation ICON_LEONE = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/item/leone_icon.png");
     private static final int[] LE_COLORS = {0xFF9CFFB0, 0xFF6CFF6A, 0xFF40E080, 0xFFE0C070, 0xFFB0FFD0, 0xFFD8D8D8};
-    private static final ResourceLocation ICON_EAGLE = new ResourceLocation(LibraBeyblade.MODID, "textures/item/eagle_icon.png");
+    private static final ResourceLocation ICON_EAGLE = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/item/eagle_icon.png");
     private static final int[] EA_COLORS = {0xFFE0C0FF, 0xFFC0A0FF, 0xFFFF7070, 0xFFD0D0E0, 0xFFFFD060};
-    private static final ResourceLocation ICON_PEGASUS = new ResourceLocation(LibraBeyblade.MODID, "textures/item/pegasus_icon.png");
+    private static final ResourceLocation ICON_PEGASUS = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/item/pegasus_icon.png");
     private static final int[] PG_COLORS = {0xFFA0D8FF, 0xFF70B0FF, 0xFFFFF080, 0xFF60C0FF, 0xFFFFFFFF};
     private static final int[] DR_COLORS = {0xFFFF4060, 0xFFE040A0, 0xFFFF8A2A, 0xFFFF3050, 0xFFFFB040};
     private static final int[] MODE_COLORS = {0xFFFF6050, 0xFF60A0FF, 0xFF70FF90, 0xFFFFD050};
     private static final int[] AB_COLORS = {0xFF6CFF9A, 0xFF5CFFB0, 0xFFFF8A2A, 0xFF7AFFF0, 0xFFFFD25A};
 
-    @Override
-    public void render(ForgeGui gui, GuiGraphics g, float partial, int width, int height) {
+    public void render(GuiGraphics g, float partial, int width, int height) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null || mc.options.hideGui) return;
         BeybladeEntity bey = null;
@@ -43,9 +40,9 @@ public class LibraHud implements IGuiOverlay {
         boolean tempo = bey.kindId().equals("tempo"), variares = bey.kindId().equals("variares");
         boolean drago = bey.kindId().equals("ldrago"), leone = bey.kindId().equals("leone"), eagle = bey.kindId().equals("eagle"), pegasus = bey.kindId().equals("pegasus");
         com.krolasyon.beyblade.entity.CommonBeybladeEntity common = bey instanceof com.krolasyon.beyblade.entity.CommonBeybladeEntity c ? c : null;
-        if (common != null) g.blit(new ResourceLocation(LibraBeyblade.MODID, "textures/item/common_" + common.getVariant() + "_icon.png"), x, y, 0, 0, 24, 24, 24, 24);
-        else if (variares) g.blit(new ResourceLocation(LibraBeyblade.MODID, "textures/item/variares_icon.png"), x, y, 0, 0, 24, 24, 24, 24);
-        else if (tempo) g.blit(new ResourceLocation(LibraBeyblade.MODID, "textures/item/tempo_icon.png"), x, y, 0, 0, 24, 24, 24, 24);
+        if (common != null) g.blit(com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/item/common_" + common.getVariant() + "_icon.png"), x, y, 0, 0, 24, 24, 24, 24);
+        else if (variares) g.blit(com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/item/variares_icon.png"), x, y, 0, 0, 24, 24, 24, 24);
+        else if (tempo) g.blit(com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/item/tempo_icon.png"), x, y, 0, 0, 24, 24, 24, 24);
         else g.blit(drago ? ICON_LDRAGO : (leone ? ICON_LEONE : (eagle ? ICON_EAGLE : (pegasus ? ICON_PEGASUS : ICON))), x, y, 0, 0, 24, 24, 24, 24);
         g.drawString(font, Component.translatable(bey.titleKey()), x + 29, y + 2, common != null ? 0xFF000000 | common.variant().primary() : tempo ? 0xFFD0E4FF : variares ? 0xFFFF4040 : drago ? 0xFFFF5070 : (leone ? 0xFF60FF90 : (eagle ? 0xFFC890FF : (pegasus ? 0xFF70B8FF : 0xFFB6FF6A))), true);
         String state = switch (bey.getState()) {

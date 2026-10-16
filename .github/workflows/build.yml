@@ -12,7 +12,9 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: |
+            21
+            17
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.8'
@@ -21,7 +23,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          gradle build --no-daemon --stacktrace 2>&1 | tee build.log
+          JAVA_HOME=$JAVA_HOME_17_X64 gradle build --no-daemon --stacktrace 2>&1 | tee build.log
           echo "status=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
       - name: Visual self-test (headless client)
         id: vt
@@ -36,7 +38,7 @@ jobs:
           mkdir -p run
           printf "onboardAccessibility:false\nrenderDistance:5\nsimulationDistance:5\npauseOnLostFocus:false\ntutorialStep:none\njoinedFirstServer:true\nskipMultiplayerWarning:true\nmaxFps:60\nfov:-0.45\n" > run/options.txt
           set +e
-          timeout 2400 xvfb-run -a -s "-screen 0 1280x720x24" gradle runClient --no-daemon > client.log 2>&1
+          JAVA_HOME=$JAVA_HOME_17_X64 timeout 2400 xvfb-run -a -s "-screen 0 1280x720x24" gradle runClient --no-daemon > client.log 2>&1
           echo "client exit $?"
           mkdir -p vtest
           cp run/screenshots/ktest_*.png vtest/ 2>/dev/null
@@ -48,6 +50,31 @@ jobs:
             ls -la video.mp4
           fi
           cd vtest && zip -q ../vtest.zip * ; ls -la
+      - name: Port builds (newer Minecraft versions)
+        id: port
+        if: always()
+        shell: bash
+        env:
+          MSG: ${{ github.event.head_commit.message }}
+        run: |
+          set +e
+          VER=$(grep -oP "^version = '\K[^']+" build.gradle)
+          META=$(curl -s https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml)
+          ALL=0
+          for MC in $(ls versions | grep -E '^[0-9]'); do
+            FV=$(echo "$META" | grep -oP "<version>${MC//./\\.}-\K[^<]+" | sort -V | tail -1)
+            echo "== $MC forge $FV" | tee port-$MC.log
+            python3 versions/port.py $MC >> port-$MC.log 2>&1 || { ALL=1; continue; }
+            (cd versions/$MC && JAVA_HOME=$JAVA_HOME_21_X64 gradle build --no-daemon --stacktrace -PforgeVersion=$FV -PmodVersion=$VER) >> port-$MC.log 2>&1 || ALL=1
+            tail -60 port-$MC.log
+            if [[ "$MSG" == *"[apidump]"* ]]; then
+              JAR=$(find ~/.gradle/caches/forge_gradle -name "forge-$MC-$FV*.jar" ! -name '*sources*' | head -1)
+              echo "jar: $JAR" > api-$MC.txt
+              unzip -l "$JAR" | awk '{print $4}' | grep -E '^net/minecraftforge/(client/event|client/gui|event|network|fml|common)/' | grep -v '\$.*\$' >> api-$MC.txt
+              for C in $(cat versions/$MC/apidump.txt 2>/dev/null); do javap -cp "$JAR" -public "$C" >> api-$MC.txt 2>&1; done
+            fi
+          done
+          echo "status=$ALL" >> "$GITHUB_OUTPUT"
       - name: Publish release
         if: always()
         shell: bash
@@ -56,10 +83,10 @@ jobs:
         run: |
           TAG="build-${{ github.run_number }}"
           FILES="build.log"
-          for f in build/libs/*.jar; do [ -f "$f" ] && FILES="$FILES $f"; done
+          for f in build/libs/*.jar versions/*/build/libs/*.jar port-*.log api-*.txt; do [ -f "$f" ] && FILES="$FILES $f"; done
           [ -f vtest.zip ] && FILES="$FILES vtest.zip"
           [ -f video.mp4 ] && FILES="$FILES video.mp4"
-          gh release create "$TAG" $FILES --title "Build ${{ github.run_number }} (status ${{ steps.b.outputs.status }})" --notes "commit ${{ github.sha }}" --prerelease --target "${{ github.sha }}"
+          gh release create "$TAG" $FILES --title "Build ${{ github.run_number }} (status ${{ steps.b.outputs.status }}, ports ${{ steps.port.outputs.status }})" --notes "commit ${{ github.sha }}" --prerelease --target "${{ github.sha }}"
       - name: Fail on build error
         if: steps.b.outputs.status != '0'
         run: exit 1

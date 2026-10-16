@@ -19,8 +19,8 @@ import static com.krolasyon.beyblade.entity.LDragoEntity.*;
 public final class LDragoFx {
     private LDragoFx() {}
 
-    public static final ResourceLocation DRAGON = new ResourceLocation(LibraBeyblade.MODID, "textures/fx/dragon.png");
-    public static final ResourceLocation CLAW = new ResourceLocation(LibraBeyblade.MODID, "textures/fx/claw.png");
+    public static final ResourceLocation DRAGON = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/fx/dragon.png");
+    public static final ResourceLocation CLAW = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/fx/claw.png");
 
     private static final float[] CRIMSON = {1F, 0.1F, 0.22F};
     private static final float[] MAGENTA = {1F, 0.25F, 0.65F};
@@ -224,7 +224,7 @@ public final class LDragoFx {
         }
     }
 
-    public static final ResourceLocation DRAGON_FLIGHT = new ResourceLocation(LibraBeyblade.MODID, "textures/fx/dragon_flight.png");
+    public static final ResourceLocation DRAGON_FLIGHT = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/fx/dragon_flight.png");
 
     /** camera-facing dragon sprite rotated so its head points along the given world direction on screen */
     private static void dragonSilhouette(MultiBufferSource buf, PoseStack pose, Quaternionf cam, double x, double y, double z, float size, float a,

@@ -17,7 +17,7 @@ import static com.krolasyon.beyblade.entity.VariaresEntity.*;
 public final class VariaresFx {
     private VariaresFx() {}
 
-    public static final ResourceLocation SWORD = new ResourceLocation(LibraBeyblade.MODID, "textures/fx/sword.png");
+    public static final ResourceLocation SWORD = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/fx/sword.png");
     private static final float[] CRIMSON = {1F, 0.12F, 0.12F};
     private static final float[] GOLD = {1F, 0.8F, 0.3F};
     private static final float[] VOLT = {1F, 0.95F, 0.6F};
