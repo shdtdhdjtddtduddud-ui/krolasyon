@@ -86,7 +86,7 @@ public final class AutoTest {
         record(true);
         wait(50, "lineup_front");
         // ---- launches by the player: a clean one, then a sloppy one (too steep, shaky aim, weak pull)
-        cmd(2, null, CLEAR, "gamemode survival @a", "effect give @a minecraft:resistance 600 9 true", "tp @a 0.5 -59 -1 180 30");
+        cmd(2, null, CLEAR, "gamemode survival @a", "effect give @a minecraft:resistance 600 9 true", "tp @a 0.5 -60 5 180 30");
         for (int k = 0; k < 2; k++) {
             final boolean good = k == 0;
             server(4, null, s -> {
@@ -99,7 +99,9 @@ public final class AutoTest {
                 mc.player.getInventory().selected = 0;
                 mc.player.setYRot(180F);
                 mc.player.setXRot(good ? 30F : 80F);
-                mc.gameMode.useItem(mc.player, net.minecraft.world.InteractionHand.MAIN_HAND);
+                // hold right click like a player would
+                net.minecraft.client.KeyMapping.click(mc.options.keyUse.getKey());
+                mc.options.keyUse.setDown(true);
             });
             client(0, null, mc -> showGui = true);
             if (good) {
@@ -113,7 +115,11 @@ public final class AutoTest {
                 }
                 wait(1, "launch_gauge_bad");
             }
-            client(0, null, mc -> mc.gameMode.releaseUsingItem(mc.player));
+            client(0, null, mc -> {
+                mc.options.keyUse.setDown(false);
+                mc.player.setXRot(12F);
+                mc.player.setYRot(180F);
+            });
             wait(30, good ? "launch_good_flying" : "launch_bad_flying");
             wait(30, good ? "launch_good_spinning" : "launch_bad_wobbling");
             client(0, null, mc -> showGui = false);
