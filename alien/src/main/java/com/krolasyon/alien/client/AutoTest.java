@@ -1,6 +1,7 @@
 package com.krolasyon.alien.client;
 
 import com.krolasyon.alien.ai.HidingManager;
+import com.krolasyon.alien.ai.Objectives;
 import com.krolasyon.alien.block.LockerBlock;
 import com.krolasyon.alien.entity.XenomorphEntity;
 import com.krolasyon.alien.registry.ModItems;
@@ -60,6 +61,28 @@ public final class AutoTest {
         cmd(40, null, false, "sevastopol olustur");
         cmd(60, "room_a", false, "kill @e[type=alienisolation:xenomorph]", "tp @a 0 -60 0 225 0");
         cmd(20, "room_b", false, "tp @a 0 -60 0 45 10");
+        // objective chain: fuses -> power -> keycard -> launch -> escape
+        cmd(10, "obj_start", true, "kill @e[type=alienisolation:xenomorph]");
+        server(20, "obj_generator", true, s -> {
+            ServerPlayer p = player(s);
+            BlockPos g = Objectives.get(s.overworld()).generatorPos();
+            LOG.info("[AUTOTEST] generator at {} console at {}", g, Objectives.get(s.overworld()).consolePos());
+            if (g == null) return;
+            p.teleportTo(s.overworld(), g.getX() + 0.5, g.getY(), g.getZ() + 2.5, 180F, 20F);
+            p.getInventory().setItem(0, new ItemStack(ModItems.FUSE.get(), 3));
+            p.getInventory().selected = 0;
+            for (int i = 0; i < 3; i++) Objectives.onGeneratorUsed(s.overworld(), p, g, net.minecraft.world.InteractionHand.MAIN_HAND);
+        });
+        server(30, "obj_keycard", true, s -> player(s).getInventory().setItem(1, new ItemStack(ModItems.KEYCARD.get())));
+        server(20, "obj_launch", true, s -> {
+            ServerPlayer p = player(s);
+            BlockPos c = Objectives.get(s.overworld()).consolePos();
+            if (c == null) return;
+            p.teleportTo(s.overworld(), c.getX() + 0.5, c.getY(), c.getZ() + 0.5, 0F, 10F);
+            Objectives.onConsoleUsed(s.overworld(), p, c);
+        });
+        wait(320, "obj_escaped", true);
+        cmd(10, null, false, "tp @a 0 -60 0 0 0");
         // close look at the creature
         cmd(30, "xeno_front", false, "tp @a 0 -60 2 180 -8", "summon alienisolation:xenomorph 0 -60 -2 {NoAI:1b,Rotation:[0f,0f]}");
         cmd(20, "xeno_side", false, "tp @a 3.5 -60 -2 90 -5");
@@ -159,6 +182,7 @@ public final class AutoTest {
                     for (XenomorphEntity x : srv.overworld().getEntitiesOfClass(XenomorphEntity.class, new AABB(-120, -80, -120, 120, 0, 120)))
                         LOG.info("[AUTOTEST] {} alien {}", st.shot(), x.debugState());
                     ServerPlayer p = player(srv);
+                    LOG.info("[AUTOTEST] {} objective stage={}", st.shot(), Objectives.get(srv.overworld()).stage());
                     LOG.info("[AUTOTEST] {} player pos={} hp={} alive={}", st.shot(), p.blockPosition().toShortString(), p.getHealth(), p.isAlive());
                 });
                 if (st.shot().equals("END")) {

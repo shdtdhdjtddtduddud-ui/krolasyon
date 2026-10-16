@@ -53,6 +53,9 @@ public class TerminalBlock extends HorizontalDirectionalBlock {
         player.sendSystemMessage(Component.literal("> SEEGSON TERMINAL // ").withStyle(ChatFormatting.DARK_GREEN)
                 .append(Component.translatable("terminal.alienisolation.title." + (id % 4)).withStyle(ChatFormatting.GREEN)));
         player.sendSystemMessage(Component.translatable("terminal.alienisolation.log." + id).withStyle(ChatFormatting.GREEN));
+        int stage = com.krolasyon.alien.ai.Objectives.get((ServerLevel) level).stage();
+        if (stage > 0 && stage < 5)
+            player.sendSystemMessage(Component.translatable("terminal.alienisolation.hint." + stage).withStyle(ChatFormatting.YELLOW));
         NoiseSystem.emit((ServerLevel) level, pos, 5, NoiseSystem.Kind.DEVICE, player);
         return InteractionResult.CONSUME;
     }

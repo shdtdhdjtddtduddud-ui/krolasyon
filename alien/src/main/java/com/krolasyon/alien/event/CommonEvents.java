@@ -119,6 +119,22 @@ public final class CommonEvents {
         if (below != null && AlienMod.MODID.equals(below.getNamespace())) e.setResult(Event.Result.DENY);
     }
 
+    // ------------------------------------------------------------------ objectives
+    @SubscribeEvent
+    public static void onLevelTick(TickEvent.LevelTickEvent e) {
+        if (e.phase == TickEvent.Phase.END && e.level instanceof ServerLevel sl) Objectives.tick(sl);
+    }
+
+    @SubscribeEvent
+    public static void onLogin(PlayerEvent.PlayerLoggedInEvent e) {
+        if (e.getEntity() instanceof ServerPlayer p) Objectives.sync(p);
+    }
+
+    @SubscribeEvent
+    public static void onRespawn(PlayerEvent.PlayerRespawnEvent e) {
+        if (e.getEntity() instanceof ServerPlayer p) Objectives.sync(p);
+    }
+
     // ------------------------------------------------------------------ cleanup
     @SubscribeEvent
     public static void onDeath(LivingDeathEvent e) {
@@ -144,6 +160,7 @@ public final class CommonEvents {
         if (e.getEntity() instanceof ServerPlayer p) {
             HidingManager.release(p);
             FlashlightTracker.remove(p);
+            Objectives.sync(p);
         }
     }
 

@@ -560,7 +560,7 @@ public class XenomorphEntity extends Monster {
         List<NoiseSystem.Noise> noises = NoiseSystem.since(level, lastNoise);
         lastNoise = now;
         if (noises.isEmpty()) return;
-        double mult = AlienConfig.HEARING.get() * (isHidden() ? 0.85 : 1.0);
+        double mult = AlienConfig.HEARING.get() * (isHidden() ? 0.85 : 1.0) * (1.0 + 0.15 * com.krolasyon.alien.ai.Objectives.get(level).aggression());
         NoiseSystem.Noise best = null;
         double bestScore = 0;
         for (NoiseSystem.Noise n : noises) {
@@ -646,7 +646,7 @@ public class XenomorphEntity extends Monster {
         Player focus = level.getNearestPlayer(this.getX(), this.getY(), this.getZ(), 120, e -> e instanceof Player p && isValidPrey(p));
         if (focus != null) {
             // stay around the players: closer when tension is low, further away when it is high
-            int radius = (int) Mth.lerp(menace / 100F, 9F, 26F);
+            int radius = (int) Mth.lerp(menace / 100F, 9F, 26F) - com.krolasyon.alien.ai.Objectives.get(level).aggression() * 2;
             Vec3 v = standableNear(level, focus.position(), radius, 6);
             if (v != null) return v;
         }

@@ -1,5 +1,6 @@
 package com.krolasyon.alien.world;
 
+import com.krolasyon.alien.ai.Objectives;
 import com.krolasyon.alien.block.CeilingLightBlock;
 import com.krolasyon.alien.block.LockerBlock;
 import com.krolasyon.alien.entity.XenomorphEntity;
@@ -69,6 +70,21 @@ public final class StationGenerator {
             for (int j = 0; j < N; j++)
                 rooms[i][j] = new Room(i, j, (i == 0 && j == 0) ? Theme.CREW : themes[R.nextInt(themes.length)]);
 
+        // special rooms: escape pod bay in the far corner, a sealed security room and the generator room
+        int podX = N - 1, podZ = N - 1;
+        int[] keyRoom, genRoom;
+        do { keyRoom = new int[]{R.nextInt(N), R.nextInt(N)}; }
+        while ((keyRoom[0] == 0 && keyRoom[1] == 0) || (keyRoom[0] == podX && keyRoom[1] == podZ));
+        do { genRoom = new int[]{R.nextInt(N), R.nextInt(N)}; }
+        while ((genRoom[0] == 0 && genRoom[1] == 0) || (genRoom[0] == podX && genRoom[1] == podZ)
+                || (genRoom[0] == keyRoom[0] && genRoom[1] == keyRoom[1]));
+        rooms[genRoom[0]][genRoom[1]] = new Room(genRoom[0], genRoom[1], Theme.MAINTENANCE);
+        rooms[keyRoom[0]][keyRoom[1]] = new Room(keyRoom[0], keyRoom[1], Theme.OFFICE);
+        rooms[podX][podZ] = new Room(podX, podZ, Theme.LAB);
+        boolean[][] special = new boolean[N][N];
+        special[podX][podZ] = true;
+        special[keyRoom[0]][keyRoom[1]] = true;
+
         // ---------------------------------------------------------------- shell
         for (int x = 0; x <= size; x++) {
             for (int z = 0; z <= size; z++) {
@@ -91,6 +107,7 @@ public final class StationGenerator {
         // ---------------------------------------------------------------- connections (random spanning tree + loops)
         Set<String> edges = new HashSet<>();
         boolean[][] seen = new boolean[N][N];
+        for (int i = 0; i < N; i++) for (int j = 0; j < N; j++) seen[i][j] = special[i][j];
         Deque<int[]> stack = new ArrayDeque<>();
         stack.push(new int[]{0, 0});
         seen[0][0] = true;
@@ -112,19 +129,41 @@ public final class StationGenerator {
             int ax = R.nextInt(N), az = R.nextInt(N);
             int[] d = dirs[R.nextInt(4)];
             int bx = ax + d[0], bz = az + d[1];
-            if (bx >= 0 && bz >= 0 && bx < N && bz < N) edges.add(key(ax, az, bx, bz));
+            if (bx >= 0 && bz >= 0 && bx < N && bz < N && !special[ax][az] && !special[bx][bz]) edges.add(key(ax, az, bx, bz));
         }
         for (String e : edges) {
             String[] s = e.split(",");
             opening(x0, y0, z0, Integer.parseInt(s[0]), Integer.parseInt(s[1]), Integer.parseInt(s[2]), Integer.parseInt(s[3]));
+        }
+        // the two special rooms hang off the network through a single sealed bulkhead each
+        List<BlockPos> powerSeals = new ArrayList<>();
+        for (int[] room : new int[][]{keyRoom, {podX, podZ}}) {
+            List<int[]> nb = new ArrayList<>();
+            for (int[] d : dirs) {
+                int nx = room[0] + d[0], nz = room[1] + d[1];
+                if (nx >= 0 && nz >= 0 && nx < N && nz < N && !special[nx][nz]) nb.add(new int[]{nx, nz});
+            }
+            int[] n = nb.get(R.nextInt(nb.size()));
+            boolean pod = room[0] == podX && room[1] == podZ;
+            List<BlockPos> seal = sealed(x0, y0, z0, room[0], room[1], n[0], n[1], pod ? ModBlocks.KEYCARD_SEAL.get() : ModBlocks.POWER_SEAL.get());
+            if (!pod) powerSeals.addAll(seal);
         }
 
         // ---------------------------------------------------------------- furnish every room
         List<BlockPos> ventPositions = new ArrayList<>();
         BlockPos startSave = null;
         int farX = N - 1, farZ = N - 1;
-        int flameX = R.nextInt(N), flameZ = R.nextInt(N);
-        if (flameX == 0 && flameZ == 0) { flameX = N - 1; flameZ = N / 2; }
+        int flameX, flameZ;
+        do { flameX = R.nextInt(N); flameZ = R.nextInt(N); }
+        while ((flameX == 0 && flameZ == 0) || special[flameX][flameZ]);
+        // three fuses hidden in three different ordinary rooms (never the start room or the generator room)
+        List<int[]> fuseRooms = new ArrayList<>();
+        for (int i = 0; i < N; i++)
+            for (int j = 0; j < N; j++)
+                if (!(i == 0 && j == 0) && !special[i][j] && !(i == genRoom[0] && j == genRoom[1])) fuseRooms.add(new int[]{i, j});
+        Collections.shuffle(fuseRooms, new Random(R.nextLong()));
+        fuseRooms = fuseRooms.subList(0, Math.min(Objectives.FUSES_NEEDED, fuseRooms.size()));
+        BlockPos generatorPos = null, consolePos = null;
         int saves = 0;
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
@@ -143,10 +182,20 @@ public final class StationGenerator {
                     saveStation(rx, y0, rz);
                     saves++;
                 }
+                boolean fuseHere = false;
+                for (int[] f : fuseRooms) fuseHere |= f[0] == i && f[1] == j;
+                if (fuseHere) fill(forcedChest(rx, y0, rz), new ItemStack(ModItems.FUSE.get()), new ItemStack(ModItems.FLARE.get()));
+                if (i == genRoom[0] && j == genRoom[1]) generatorPos = fixture(rx, y0, rz, ModBlocks.GENERATOR.get().defaultBlockState());
+                if (i == keyRoom[0] && j == keyRoom[1])
+                    fill(forcedChest(rx, y0, rz), new ItemStack(ModItems.KEYCARD.get()), new ItemStack(ModItems.MEDKIT.get()), new ItemStack(ModItems.FUEL.get()));
+                if (i == podX && j == podZ) consolePos = fixture(rx, y0, rz, ModBlocks.ESCAPE_CONSOLE.get().defaultBlockState());
                 if (i == flameX && j == flameZ) flameChest(rx, y0, rz);
-                else if (room.theme() == Theme.STORAGE || R.nextInt(4) == 0) supplyChest(rx, y0, rz);
+                else if (!fuseHere && !special[i][j] && (room.theme() == Theme.STORAGE || R.nextInt(4) == 0)) supplyChest(rx, y0, rz);
             }
         }
+
+        Objectives.get(level).begin(level, new BlockPos(x0, y0, z0), new BlockPos(x0 + size, y0 + H + 1, z0 + size),
+                generatorPos, consolePos, powerSeals);
 
         // ---------------------------------------------------------------- players in, alien released far away
         List<ServerPlayer> crew = new ArrayList<>();
@@ -256,6 +305,53 @@ public final class StationGenerator {
                 for (int y = 1; y <= 4; y++) set(new BlockPos(x, y0 + y, z), st(ModBlocks.STATION_TRIM));
             }
         }
+    }
+
+    /** sealed bulkhead between rooms a and b: 2x2 seal blocks in the doorway, framed. */
+    private static List<BlockPos> sealed(int x0, int y0, int z0, int ax, int az, int bx, int bz, Block seal) {
+        if (ax > bx || (ax == bx && az > bz)) { int t = ax; ax = bx; bx = t; t = az; az = bz; bz = t; }
+        boolean alongX = ax != bx;
+        int wx = alongX ? x0 + bx * CELL : x0 + ax * CELL + CELL / 2;
+        int wz = alongX ? z0 + az * CELL + CELL / 2 : z0 + bz * CELL;
+        List<BlockPos> out = new ArrayList<>();
+        for (int k = 0; k < 2; k++) {
+            int x = alongX ? wx : wx - 1 + k, z = alongX ? wz - 1 + k : wz;
+            for (int y = 1; y <= 2; y++) {
+                BlockPos p = new BlockPos(x, y0 + y, z);
+                set(p, seal.defaultBlockState());
+                out.add(p);
+            }
+            set(new BlockPos(x, y0 + 3, z), st(ModBlocks.HAZARD_PANEL));
+        }
+        for (int k : new int[]{-2, 2}) {
+            int x = alongX ? wx : wx + (k < 0 ? -2 : 1), z = alongX ? wz + (k < 0 ? -2 : 1) : wz;
+            for (int y = 1; y <= 3; y++) set(new BlockPos(x, y0 + y, z), st(ModBlocks.HAZARD_PANEL));
+        }
+        return out;
+    }
+
+    /** a wall-facing block that must exist: tries the walls, falls back to the room centre. */
+    private static BlockPos fixture(int rx, int y0, int rz, BlockState state) {
+        for (int tries = 0; tries < 30; tries++) {
+            Object[] s = wallSpot(rx, y0, rz);
+            BlockPos p = (BlockPos) s[0];
+            if (!free(p, 2, (Direction) s[1])) continue;
+            set(p, state.setValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING, (Direction) s[1]));
+            return p;
+        }
+        BlockPos p = new BlockPos(rx + CELL / 2, y0 + 1, rz + CELL / 2);
+        set(p.above(), Blocks.AIR.defaultBlockState());
+        set(p, state);
+        return p;
+    }
+
+    private static ChestBlockEntity forcedChest(int rx, int y0, int rz) {
+        ChestBlockEntity c = chest(rx, y0, rz);
+        if (c != null) return c;
+        BlockPos p = new BlockPos(rx + CELL / 2 + 1, y0 + 1, rz + CELL / 2);
+        set(p.above(), Blocks.AIR.defaultBlockState());
+        set(p, Blocks.CHEST.defaultBlockState());
+        return L.getBlockEntity(p) instanceof ChestBlockEntity ce ? ce : null;
     }
 
     // ------------------------------------------------------------------ fixtures

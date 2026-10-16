@@ -322,6 +322,60 @@ def door(color, part):
     return grime(a, 0.3)
 
 
+def generator(part, fuses=0):
+    a = base((150, 128, 40), 8)
+    bevel(a, 0, 0, S, S, 1.15, 0.5)
+    if part == 'front':
+        rect(a, 3, 3, S - 3, 9, (30, 30, 28), 1)
+        for i in range(3):
+            x = 5 + i * 8
+            rect(a, x, 12, x + 6, 26, (25, 25, 25), 1)
+            if i < fuses:
+                rect(a, x + 1, 13, x + 5, 25, (200, 200, 190), 1)
+                rect(a, x + 2, 15, x + 4, 23, (240, 120, 40), 1)
+            lit = (90, 255, 110) if i < fuses else (120, 20, 20)
+            rect(a, x + 2, 5, x + 4, 7, lit, 1)
+        for y in range(28, 31):
+            rect(a, 3, y, S - 3, y + 1, (20, 20, 20) if y % 2 else (210, 180, 50), 1)
+    elif part == 'side':
+        for y in range(5, S - 5, 3):
+            rect(a, 5, y, S - 5, y + 1, (60, 52, 20), 0.9)
+    else:
+        rect(a, 6, 6, S - 6, S - 6, (70, 66, 50), 1)
+        bevel(a, 6, 6, S - 6, S - 6, inset=True)
+    return grime(a, 0.3)
+
+
+def seal(kind):
+    if kind == 'power':
+        a = hazard_panel()
+        rect(a, 8, 10, S - 8, S - 10, (40, 40, 42), 1)
+        bevel(a, 8, 10, S - 8, S - 10, inset=True)
+        rect(a, 12, 13, S - 12, S - 13, (200, 30, 25), 1)
+        return a
+    a = base((52, 70, 110), 6)
+    bevel(a, 0, 0, S, S, 1.15, 0.5)
+    for y in (4, S - 6):
+        rect(a, 2, y, S - 2, y + 2, (220, 190, 50), 1)
+    rect(a, 11, 11, 21, 21, (20, 22, 26), 1)
+    rect(a, 13, 13, 19, 14, (60, 60, 60), 1)
+    rect(a, 14, 17, 18, 19, (230, 60, 40), 1)
+    return grime(a, 0.25)
+
+
+def console(part):
+    a = base((170, 172, 168), 6)
+    bevel(a, 0, 0, S, S, 1.12, 0.55)
+    if part == 'front':
+        rect(a, 3, 3, S - 3, 15, (8, 14, 10), 1)
+        rect(a, 5, 5, 20, 7, (90, 255, 120), 0.9)
+        rect(a, 5, 9, 14, 11, (90, 255, 120), 0.7)
+        rect(a, 4, 18, S - 4, 21, (220, 190, 50), 1)
+        rect(a, 12, 23, 20, 29, (200, 30, 30), 1)
+        bevel(a, 12, 23, 20, 29, 1.3, 0.6)
+    return grime(a, 0.2)
+
+
 # ------------------------------------------------------------------ items (32x32 transparent)
 def canvas():
     return Image.new('RGBA', (S, S), (0, 0, 0, 0))
@@ -407,6 +461,26 @@ def item_station_core():
     d.ellipse((12, 12, 20, 20), outline=(90, 255, 120, 255))
     d.line((16, 6, 16, 9), fill=(200, 40, 40, 255))
     d.rectangle((15, 15, 17, 17), fill=(200, 255, 210, 255))
+    return im
+
+
+def item_fuse():
+    im = canvas(); d = ImageDraw.Draw(im)
+    d.rectangle((11, 5, 21, 27), fill=(210, 210, 200, 255), outline=(60, 60, 60, 255))
+    d.rectangle((13, 9, 19, 23), fill=(240, 120, 40, 255))
+    d.rectangle((11, 2, 21, 5), fill=(150, 150, 150, 255))
+    d.rectangle((11, 27, 21, 30), fill=(150, 150, 150, 255))
+    d.line((16, 10, 16, 22), fill=(255, 220, 120, 255))
+    return im
+
+
+def item_keycard():
+    im = canvas(); d = ImageDraw.Draw(im)
+    d.rounded_rectangle((4, 8, 28, 24), 2, fill=(225, 225, 215, 255), outline=(70, 70, 70, 255))
+    d.rectangle((4, 11, 28, 14), fill=(40, 40, 40, 255))
+    d.rectangle((7, 17, 13, 21), fill=(220, 180, 50, 255))
+    d.rectangle((16, 17, 25, 18), fill=(90, 90, 120, 255))
+    d.rectangle((16, 20, 22, 21), fill=(90, 90, 120, 255))
     return im
 
 
@@ -514,6 +588,11 @@ def save_all(root):
         'desk_top': desk('top'), 'desk_side': desk('side'), 'debris': debris(),
         'lab_door_top': door((88, 128, 70), 'top'), 'lab_door_bottom': door((88, 128, 70), 'bottom'),
         'security_door_top': door((200, 120, 40), 'top'), 'security_door_bottom': door((200, 120, 40), 'bottom'),
+        'generator_side': generator('side'), 'generator_top': generator('top'),
+        'generator_front_0': generator('front', 0), 'generator_front_1': generator('front', 1),
+        'generator_front_2': generator('front', 2), 'generator_front_3': generator('front', 3),
+        'power_seal': seal('power'), 'keycard_seal': seal('keycard'),
+        'escape_console_front': console('front'), 'escape_console_side': console('side'),
         'tracker_body': tracker_body(), 'tracker_screen': tracker_screen(), 'tracker_grip': tracker_grip(),
     }
     for k, v in blocks.items():
@@ -521,6 +600,7 @@ def save_all(root):
     items = {'motion_tracker': item_tracker(), 'flamethrower': item_flamethrower(), 'fuel': item_fuel(),
              'noisemaker': item_noisemaker(), 'flare': item_flare(), 'flashlight': item_flashlight(False),
              'flashlight_on': item_flashlight(True), 'medkit': item_medkit(), 'station_core': item_station_core(),
+             'fuse': item_fuse(), 'keycard': item_keycard(),
              'lab_door': door_item((88, 128, 70)), 'security_door': door_item((200, 120, 40))}
     for k, v in items.items():
         v.save(os.path.join(it, k + '.png'))

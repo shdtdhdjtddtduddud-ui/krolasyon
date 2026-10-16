@@ -62,7 +62,7 @@ public final class XenoAnimations {{
 
 # ------------------------------------------------------------------ block / item json
 CUBES = ['station_wall', 'station_wall_dark', 'station_wall_dirty', 'station_wall_green', 'station_floor', 'floor_grate',
-         'station_ceiling', 'hazard_panel', 'station_trim', 'emergency_light', 'vent']
+         'station_ceiling', 'hazard_panel', 'station_trim', 'emergency_light', 'vent', 'power_seal', 'keycard_seal']
 FACING_Y = {'north': 0, 'east': 90, 'south': 180, 'west': 270}
 
 
@@ -166,8 +166,22 @@ def gen_json():
         wj(f'{bs}/{door}.json', {'variants': v})
         wj(f'{im}/{door}.json', {'parent': 'minecraft:item/generated', 'textures': {'layer0': f'{M}:item/{door}'}})
 
+    # generator (front shows inserted fuses) and escape console
+    for f in range(4):
+        wj(f'{bm}/generator_{f}.json', {'parent': 'minecraft:block/orientable',
+                                         'textures': {'front': f'{M}:block/generator_front_{f}', 'side': f'{M}:block/generator_side',
+                                                      'top': f'{M}:block/generator_top'}})
+    wj(f'{bs}/generator.json', {'variants': {f'facing={fa},fuses={f}': {'model': f'{M}:block/generator_{f}', 'y': y}
+                                             for fa, y in FACING_Y.items() for f in range(4)}})
+    wj(f'{im}/generator.json', {'parent': f'{M}:block/generator_0'})
+    wj(f'{bm}/escape_console.json', {'parent': 'minecraft:block/orientable',
+                                      'textures': {'front': f'{M}:block/escape_console_front', 'side': f'{M}:block/escape_console_side',
+                                                   'top': f'{M}:block/escape_console_side'}})
+    wj(f'{bs}/escape_console.json', {'variants': {f'facing={fa}': {'model': f'{M}:block/escape_console', 'y': y} for fa, y in FACING_Y.items()}})
+    wj(f'{im}/escape_console.json', {'parent': f'{M}:block/escape_console'})
+
     # items
-    for it in ('fuel', 'noisemaker', 'flare', 'medkit', 'station_core'):
+    for it in ('fuse', 'keycard', 'fuel', 'noisemaker', 'flare', 'medkit', 'station_core'):
         wj(f'{im}/{it}.json', {'parent': 'minecraft:item/generated', 'textures': {'layer0': f'{M}:item/{it}'}})
     wj(f'{im}/flamethrower.json', {'parent': 'minecraft:item/handheld', 'textures': {'layer0': f'{M}:item/flamethrower'}})
     wj(f'{im}/flashlight_on.json', {'parent': 'minecraft:item/handheld', 'textures': {'layer0': f'{M}:item/flashlight_on'}})
@@ -266,7 +280,7 @@ TR = {
     'message.alienisolation.save_cancel': 'Kayıt iptal edildi!',
     'message.alienisolation.saved': 'Oyun kaydedildi. Burada yeniden doğacaksın.',
     'message.alienisolation.intro': 'Bir şey seni dinliyor...',
-    'message.alienisolation.help': '[Sevastopol] Yavaş ve eğilerek yürü. Koşmak sesi uzaklara taşır. Dolaplara saklan (SHIFT = nefesini tut, BOŞLUK = çık). Hareket sensörünü kullan. Ateş tek korkusudur.',
+    'message.alienisolation.help': '[Sevastopol] Amaç: 3 sigortayı bul, jeneratörü çalıştır, güvenlik odasından kartı al, kaçış kapsülüyle kaç. Yavaş ve eğilerek yürü. Koşmak sesi uzaklara taşır. Dolaplara saklan (SHIFT = nefesini tut, BOŞLUK = çık). Hareket sensörünü kullan. Ateş tek korkusudur.',
     'message.alienisolation.released': 'Uzaylı serbest bırakıldı.',
     'hud.alienisolation.hold_breath': 'NEFESİNİ TUT! [SHIFT]',
     'hud.alienisolation.breath': 'Nefes',
@@ -369,7 +383,7 @@ EN = {
     'message.alienisolation.save_cancel': 'Save cancelled!',
     'message.alienisolation.saved': 'Game saved. You will respawn here.',
     'message.alienisolation.intro': 'Something is listening...',
-    'message.alienisolation.help': '[Sevastopol] Move slowly and crouch. Running carries far. Hide in lockers (SHIFT = hold breath, SPACE = leave). Use the motion tracker. Fire is the only thing it fears.',
+    'message.alienisolation.help': '[Sevastopol] Goal: find 3 fuses, restart the generator, take the keycard from the security room and escape in the pod. Move slowly and crouch. Running carries far. Hide in lockers (SHIFT = hold breath, SPACE = leave). Use the motion tracker. Fire is the only thing it fears.',
     'message.alienisolation.released': 'The alien has been released.',
     'hud.alienisolation.hold_breath': 'HOLD YOUR BREATH! [SHIFT]',
     'hud.alienisolation.breath': 'Breath',
@@ -424,6 +438,74 @@ EN = {
     'terminal.alienisolation.log.12': 'Someone called Ripley was asking around. Looking for her daughter...',
     'terminal.alienisolation.log.13': 'Sevastopol Log 14: Lab A access restricted. Specimen missing.',
 }
+
+
+TR.update({
+    'item.alienisolation.fuse': 'Sigorta',
+    'item.alienisolation.keycard': 'Güvenlik Anahtar Kartı',
+    'block.alienisolation.generator': 'Acil Durum Jeneratörü',
+    'block.alienisolation.power_seal': 'Mühürlü Kapı (Güç)',
+    'block.alienisolation.keycard_seal': 'Kapsül Kapısı (Anahtar Kart)',
+    'block.alienisolation.escape_console': 'Kaçış Kapsülü Konsolu',
+    'objective.alienisolation.head': 'HEDEF',
+    'objective.alienisolation.1': 'Sigortaları bul ve jeneratöre tak (%s/%s)',
+    'objective.alienisolation.2': 'Güç geldi! Güvenlik odasından anahtar kartı al',
+    'objective.alienisolation.3': 'Kaçış kapsülü bölmesine git, kartla kapıyı aç',
+    'objective.alienisolation.4': 'KALKIŞ: %s sn — kapsülün yanında kal!',
+    'objective.alienisolation.5': "Sevastopol'den kaçtın",
+    'terminal.alienisolation.hint.1': 'Hedef ipucu: Sigortalar odalardaki sandıklarda. Jeneratör bakım bölümünde (sarı makine).',
+    'terminal.alienisolation.hint.2': 'Hedef ipucu: Güç gelince kırmızı mühürlü güvenlik kapısı açıldı. Kart orada.',
+    'terminal.alienisolation.hint.3': 'Hedef ipucu: Kapsül bölmesi istasyonun en uzak köşesinde. Mavi kapıya kartla sağ tıkla.',
+    'terminal.alienisolation.hint.4': 'KALKIŞ BAŞLADI. KONSOLUN YANINDA KAL.',
+    'message.alienisolation.need_power': 'Güç yok. Önce jeneratörü çalıştır.',
+    'message.alienisolation.need_keycard': 'Güvenlik anahtar kartı gerekli.',
+    'message.alienisolation.generator_need': 'Jeneratör: %s/%s sigorta. Elinde sigortayla sağ tıkla.',
+    'message.alienisolation.generator_running': 'Jeneratör çalışıyor.',
+    'message.alienisolation.power_on_title': 'GÜÇ GERİ GELDİ',
+    'message.alienisolation.power_on': 'Jeneratörün sesi tüm istasyonda yankılandı... o da duydu.',
+    'message.alienisolation.keycard_title': 'ANAHTAR KART ALINDI',
+    'message.alienisolation.keycard': 'Kaçış kapsülü bölmesine git.',
+    'message.alienisolation.launch_title': 'KALKIŞ SAYIMI',
+    'message.alienisolation.launch': '15 saniye dayan! Alarm onu buraya çekiyor.',
+    'message.alienisolation.launch_wait': 'Kalkışa %s sn...',
+    'message.alienisolation.already_escaped': 'Kapsül zaten fırlatıldı.',
+    'message.alienisolation.win_title': 'HAYATTA KALDIN',
+    'message.alienisolation.left_title': 'GERİDE KALDIN',
+    'message.alienisolation.win': "Sevastopol'den kaçış süresi: %s",
+})
+EN.update({
+    'item.alienisolation.fuse': 'Fuse',
+    'item.alienisolation.keycard': 'Security Keycard',
+    'block.alienisolation.generator': 'Emergency Generator',
+    'block.alienisolation.power_seal': 'Sealed Door (Power)',
+    'block.alienisolation.keycard_seal': 'Pod Bay Door (Keycard)',
+    'block.alienisolation.escape_console': 'Escape Pod Console',
+    'objective.alienisolation.head': 'OBJECTIVE',
+    'objective.alienisolation.1': 'Find the fuses and fit them in the generator (%s/%s)',
+    'objective.alienisolation.2': 'Power restored! Take the keycard from the security room',
+    'objective.alienisolation.3': 'Reach the escape pod bay and open it with the keycard',
+    'objective.alienisolation.4': 'LAUNCH: %s s — stay next to the pod!',
+    'objective.alienisolation.5': 'You escaped Sevastopol',
+    'terminal.alienisolation.hint.1': 'Objective hint: fuses are in chests around the rooms. The generator is in maintenance (yellow machine).',
+    'terminal.alienisolation.hint.2': 'Objective hint: the red sealed security door opened with the power. The keycard is there.',
+    'terminal.alienisolation.hint.3': 'Objective hint: the pod bay is in the far corner of the station. Use the keycard on the blue door.',
+    'terminal.alienisolation.hint.4': 'LAUNCH SEQUENCE STARTED. STAY AT THE CONSOLE.',
+    'message.alienisolation.need_power': 'No power. Get the generator running first.',
+    'message.alienisolation.need_keycard': 'Security keycard required.',
+    'message.alienisolation.generator_need': 'Generator: %s/%s fuses. Use it with a fuse in hand.',
+    'message.alienisolation.generator_running': 'The generator is running.',
+    'message.alienisolation.power_on_title': 'POWER RESTORED',
+    'message.alienisolation.power_on': "The generator's roar echoed through the station... it heard it too.",
+    'message.alienisolation.keycard_title': 'KEYCARD ACQUIRED',
+    'message.alienisolation.keycard': 'Head to the escape pod bay.',
+    'message.alienisolation.launch_title': 'LAUNCH COUNTDOWN',
+    'message.alienisolation.launch': 'Hold out for 15 seconds! The alarm is drawing it here.',
+    'message.alienisolation.launch_wait': 'Launch in %s s...',
+    'message.alienisolation.already_escaped': 'The pod has already launched.',
+    'message.alienisolation.win_title': 'YOU SURVIVED',
+    'message.alienisolation.left_title': 'LEFT BEHIND',
+    'message.alienisolation.win': 'Escaped Sevastopol in %s',
+})
 
 
 def gen_lang():

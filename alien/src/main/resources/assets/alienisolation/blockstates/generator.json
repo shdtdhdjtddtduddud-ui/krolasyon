@@ -1,0 +1,68 @@
+{
+  "variants": {
+    "facing=north,fuses=0": {
+      "model": "alienisolation:block/generator_0",
+      "y": 0
+    },
+    "facing=north,fuses=1": {
+      "model": "alienisolation:block/generator_1",
+      "y": 0
+    },
+    "facing=north,fuses=2": {
+      "model": "alienisolation:block/generator_2",
+      "y": 0
+    },
+    "facing=north,fuses=3": {
+      "model": "alienisolation:block/generator_3",
+      "y": 0
+    },
+    "facing=east,fuses=0": {
+      "model": "alienisolation:block/generator_0",
+      "y": 90
+    },
+    "facing=east,fuses=1": {
+      "model": "alienisolation:block/generator_1",
+      "y": 90
+    },
+    "facing=east,fuses=2": {
+      "model": "alienisolation:block/generator_2",
+      "y": 90
+    },
+    "facing=east,fuses=3": {
+      "model": "alienisolation:block/generator_3",
+      "y": 90
+    },
+    "facing=south,fuses=0": {
+      "model": "alienisolation:block/generator_0",
+      "y": 180
+    },
+    "facing=south,fuses=1": {
+      "model": "alienisolation:block/generator_1",
+      "y": 180
+    },
+    "facing=south,fuses=2": {
+      "model": "alienisolation:block/generator_2",
+      "y": 180
+    },
+    "facing=south,fuses=3": {
+      "model": "alienisolation:block/generator_3",
+      "y": 180
+    },
+    "facing=west,fuses=0": {
+      "model": "alienisolation:block/generator_0",
+      "y": 270
+    },
+    "facing=west,fuses=1": {
+      "model": "alienisolation:block/generator_1",
+      "y": 270
+    },
+    "facing=west,fuses=2": {
+      "model": "alienisolation:block/generator_2",
+      "y": 270
+    },
+    "facing=west,fuses=3": {
+      "model": "alienisolation:block/generator_3",
+      "y": 270
+    }
+  }
+}

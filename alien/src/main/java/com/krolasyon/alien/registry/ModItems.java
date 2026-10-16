@@ -43,6 +43,8 @@ public final class ModItems {
     public static final RegistryObject<Item> NOISEMAKER = reg("noisemaker", () -> new ThrowableDeviceItem(new Item.Properties().stacksTo(8), ThrownDeviceEntity.NOISEMAKER));
     public static final RegistryObject<Item> FLARE = reg("flare", () -> new ThrowableDeviceItem(new Item.Properties().stacksTo(8), ThrownDeviceEntity.FLARE));
     public static final RegistryObject<Item> FLASHLIGHT = reg("flashlight", () -> new FlashlightItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> FUSE = reg("fuse", () -> new Item(new Item.Properties().stacksTo(3)));
+    public static final RegistryObject<Item> KEYCARD = reg("keycard", () -> new Item(new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON)));
     public static final RegistryObject<Item> MEDKIT = reg("medkit", () -> new MedkitItem(new Item.Properties().stacksTo(4)));
 
     public static final RegistryObject<Item> STATION_WALL = block(ModBlocks.STATION_WALL);
@@ -62,6 +64,10 @@ public final class ModItems {
     public static final RegistryObject<Item> TERMINAL = block(ModBlocks.TERMINAL);
     public static final RegistryObject<Item> DESK = block(ModBlocks.DESK);
     public static final RegistryObject<Item> DEBRIS = block(ModBlocks.DEBRIS);
+    public static final RegistryObject<Item> GENERATOR = block(ModBlocks.GENERATOR);
+    public static final RegistryObject<Item> POWER_SEAL = block(ModBlocks.POWER_SEAL);
+    public static final RegistryObject<Item> KEYCARD_SEAL = block(ModBlocks.KEYCARD_SEAL);
+    public static final RegistryObject<Item> ESCAPE_CONSOLE = block(ModBlocks.ESCAPE_CONSOLE);
     public static final RegistryObject<Item> LAB_DOOR = reg("lab_door", () -> new DoubleHighBlockItem(ModBlocks.LAB_DOOR.get(), new Item.Properties()));
     public static final RegistryObject<Item> SECURITY_DOOR = reg("security_door", () -> new DoubleHighBlockItem(ModBlocks.SECURITY_DOOR.get(), new Item.Properties()));
 

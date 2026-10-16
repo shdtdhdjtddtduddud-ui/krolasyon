@@ -38,6 +38,7 @@ public final class ClientSetup {
         e.registerAboveAll("locker", Hud::locker);
         e.registerAboveAll("tracker", Hud::tracker);
         e.registerAboveAll("kill", Hud::kill);
+        e.registerAboveAll("objective", Hud::objective);
     }
 
     @SubscribeEvent

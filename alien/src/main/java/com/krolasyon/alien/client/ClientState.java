@@ -11,6 +11,16 @@ public final class ClientState {
     public static boolean danger;
     public static boolean holding;
 
+    public static int objStage;
+    public static int objFuses;
+    public static int objCountdown;
+
+    public static void onObjective(Net.ObjectiveState s) {
+        objStage = s.stage();
+        objFuses = s.fuses();
+        objCountdown = s.countdown();
+    }
+
     public static void onHideState(Net.HideState s) {
         hidden = s.hidden();
         breath = s.breath();

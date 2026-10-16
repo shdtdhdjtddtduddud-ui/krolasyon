@@ -26,6 +26,8 @@ public final class Net {
         int id = 0;
         CHANNEL.messageBuilder(HideState.class, id++, NetworkDirection.PLAY_TO_CLIENT)
                 .encoder(HideState::encode).decoder(HideState::decode).consumerMainThread(HideState::handle).add();
+        CHANNEL.messageBuilder(ObjectiveState.class, id++, NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(ObjectiveState::encode).decoder(ObjectiveState::decode).consumerMainThread(ObjectiveState::handle).add();
         CHANNEL.messageBuilder(LeaveHiding.class, id++, NetworkDirection.PLAY_TO_SERVER)
                 .encoder((m, b) -> {}).decoder(b -> new LeaveHiding()).consumerMainThread(LeaveHiding::handle).add();
     }
@@ -46,6 +48,22 @@ public final class Net {
 
         void handle(Supplier<NetworkEvent.Context> ctx) {
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> com.krolasyon.alien.client.ClientState.onHideState(this));
+            ctx.get().setPacketHandled(true);
+        }
+    }
+
+    /** server -> client: current escape objective (stage, fuses inserted, launch countdown ticks). */
+    public record ObjectiveState(int stage, int fuses, int countdown) {
+        void encode(FriendlyByteBuf b) {
+            b.writeVarInt(stage); b.writeVarInt(fuses); b.writeVarInt(countdown);
+        }
+
+        static ObjectiveState decode(FriendlyByteBuf b) {
+            return new ObjectiveState(b.readVarInt(), b.readVarInt(), b.readVarInt());
+        }
+
+        void handle(Supplier<NetworkEvent.Context> ctx) {
+            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> com.krolasyon.alien.client.ClientState.onObjective(this));
             ctx.get().setPacketHandled(true);
         }
     }

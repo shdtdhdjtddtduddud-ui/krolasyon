@@ -57,6 +57,14 @@ public final class ModBlocks {
     public static final RegistryObject<Block> DESK = reg("desk", () -> new DeskBlock(metal(MapColor.COLOR_LIGHT_GRAY).noOcclusion()));
     public static final RegistryObject<Block> DEBRIS = reg("debris", () -> new DebrisBlock(BlockBehaviour.Properties.of()
             .mapColor(MapColor.TERRACOTTA_WHITE).strength(0.1F).sound(SoundType.WOOL).noCollission().noOcclusion()));
+    public static final RegistryObject<Block> GENERATOR = reg("generator", () -> new GeneratorBlock(metal(MapColor.COLOR_YELLOW)
+            .lightLevel(s -> s.getValue(GeneratorBlock.FUSES) == 3 ? 10 : 2)));
+    public static final RegistryObject<Block> POWER_SEAL = reg("power_seal", () -> new SealedDoorBlock(BlockBehaviour.Properties.of()
+            .mapColor(MapColor.COLOR_RED).strength(-1.0F, 3600000.0F).sound(SoundType.METAL).noLootTable(), false));
+    public static final RegistryObject<Block> KEYCARD_SEAL = reg("keycard_seal", () -> new SealedDoorBlock(BlockBehaviour.Properties.of()
+            .mapColor(MapColor.COLOR_BLUE).strength(-1.0F, 3600000.0F).sound(SoundType.METAL).noLootTable(), true));
+    public static final RegistryObject<Block> ESCAPE_CONSOLE = reg("escape_console", () -> new EscapeConsoleBlock(metal(MapColor.COLOR_LIGHT_GRAY)
+            .lightLevel(s -> 6)));
     public static final RegistryObject<Block> LAB_DOOR = reg("lab_door", () -> new StationDoorBlock(metal(MapColor.COLOR_GREEN)
             .noOcclusion().pushReaction(PushReaction.DESTROY), STATION_DOOR_TYPE));
     public static final RegistryObject<Block> SECURITY_DOOR = reg("security_door", () -> new StationDoorBlock(metal(MapColor.COLOR_ORANGE)

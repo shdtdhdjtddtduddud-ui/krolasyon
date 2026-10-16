@@ -208,6 +208,26 @@ public final class Hud {
         g.drawString(mc.font, txt, x + 4, y + 4, nearest < 8 ? 0xFFFF6A50 : 0xFF7CFF96, false);
     }
 
+    // ------------------------------------------------------------------ objective
+    public static void objective(ForgeGui gui, GuiGraphics g, float pt, int w, int h) {
+        Minecraft mc = Minecraft.getInstance();
+        int stage = ClientState.objStage;
+        if (stage <= 0 || mc.options.hideGui || mc.player == null) return;
+        Component line = switch (stage) {
+            case 1 -> Component.translatable("objective.alienisolation.1", ClientState.objFuses, 3);
+            case 4 -> Component.translatable("objective.alienisolation.4", (ClientState.objCountdown + 19) / 20);
+            default -> Component.translatable("objective.alienisolation." + Math.min(stage, 5));
+        };
+        Component head = Component.translatable("objective.alienisolation.head");
+        int tw = Math.max(mc.font.width(line), mc.font.width(head)) + 12;
+        int x = 6, y = 6;
+        g.fill(x, y, x + tw, y + 28, 0xA0050806);
+        g.fill(x, y, x + 2, y + 28, stage == 4 ? 0xFFFF4030 : stage == 5 ? 0xFF60FF80 : 0xFFE0C040);
+        g.drawString(mc.font, head, x + 7, y + 4, 0xFF8A938A, false);
+        boolean blink = stage == 4 && (mc.player.tickCount / 5) % 2 == 0;
+        g.drawString(mc.font, line, x + 7, y + 15, blink ? 0xFFFF6050 : 0xFFE8EDE6, false);
+    }
+
     // ------------------------------------------------------------------ death close-up
     public static void kill(ForgeGui gui, GuiGraphics g, float pt, int w, int h) {
         Minecraft mc = Minecraft.getInstance();
