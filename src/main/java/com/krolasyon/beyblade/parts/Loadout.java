@@ -123,7 +123,7 @@ public final class Loadout {
 
     /** which battle type this combination leans to: 0 attack, 1 defense, 2 stamina, 3 balance */
     public int leaning() {
-        float a = attack() + speed() * 0.5F, d = defense(), s = stamina();
+        float a = attack() + speed() * 0.4F, d = defense(), s = stamina();
         float max = Math.max(a, Math.max(d, s)), min = Math.min(a, Math.min(d, s));
         if (max - min < 10) return 3;
         return max == a ? 0 : max == d ? 1 : 2;

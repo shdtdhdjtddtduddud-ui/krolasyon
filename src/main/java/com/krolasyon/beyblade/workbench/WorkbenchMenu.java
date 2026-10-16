@@ -29,8 +29,8 @@ import net.minecraft.world.item.Items;
 public class WorkbenchMenu extends AbstractContainerMenu {
     public static final int BEY = 0, PART0 = 1, MATERIAL = 6, SIZE = 7;
     /** slot positions in the screen (x, y) */
-    public static final int[][] POS = {{62, 62}, {62, 18}, {26, 40}, {98, 40}, {26, 84}, {98, 84}, {62, 112}};
-    public static final int INV_X = 48, INV_Y = 148;
+    public static final int[][] POS = {{62, 76}, {62, 30}, {22, 54}, {102, 54}, {22, 100}, {102, 100}, {62, 128}};
+    public static final int INV_X = 48, INV_Y = 166;
 
     /** upgrade material for each level step (0->1 ... 4->5) and how many it takes */
     public static final Item[] UPGRADE_ITEM = {Items.IRON_INGOT, Items.GOLD_INGOT, Items.DIAMOND, Items.EMERALD, Items.NETHERITE_INGOT};

@@ -20,9 +20,9 @@ import java.util.List;
 
 /** The Beyblade Workbench screen: parts around the beyblade, upgrade buttons, live stats and a turning 3D preview. */
 public class WorkbenchScreen extends AbstractContainerScreen<WorkbenchMenu> {
-    private static final int W = 258, H = 232;
+    private static final int W = 258, H = 250;
     /** where each part slot's upgrade button sits, relative to the slot */
-    private static final int[][] BTN = {{19, 4}, {-13, 4}, {19, 4}, {-13, 4}, {19, 4}};
+    private static final int[][] BTN = {{19, 4}, {-1, 19}, {6, 19}, {-1, 19}, {6, 19}};
     private final Button[] upgrade = new Button[5];
     private static final String[] STATS = {"atk", "def", "sta", "spd"};
     private static final int[] STAT_COL = {0xFFFF5A4A, 0xFF5A9AFF, 0xFF5AE07A, 0xFF5AE8F0};
@@ -79,8 +79,8 @@ public class WorkbenchScreen extends AbstractContainerScreen<WorkbenchMenu> {
         // frame and panels
         g.fill(x, y, x + W, y + H, 0xFF1A1428);
         g.fill(x + 1, y + 1, x + W - 1, y + H - 1, 0xFF2A2140);
-        g.fillGradient(x + 4, y + 16, x + 126, y + 134, 0xFF3A2E5A, 0xFF231A38);
-        g.fillGradient(x + 130, y + 16, x + W - 4, y + 134, 0xFF2C2446, 0xFF1E1830);
+        g.fillGradient(x + 4, y + 16, x + 128, y + 152, 0xFF3A2E5A, 0xFF231A38);
+        g.fillGradient(x + 131, y + 16, x + W - 4, y + 152, 0xFF2C2446, 0xFF1E1830);
         // spokes from the beyblade to its parts
         int cx = x + WorkbenchMenu.POS[0][0] + 8, cy = y + WorkbenchMenu.POS[0][1] + 8;
         for (int i = 1; i <= 5; i++) line(g, cx, cy, x + WorkbenchMenu.POS[i][0] + 8, y + WorkbenchMenu.POS[i][1] + 8, 0x66B080FF);
@@ -125,11 +125,11 @@ public class WorkbenchScreen extends AbstractContainerScreen<WorkbenchMenu> {
         }
         // turning 3D preview
         g.pose().pushPose();
-        g.pose().translate(W - 30, py + 4, 100);
-        g.pose().scale(1.6F, 1.6F, 1.6F);
+        g.pose().translate(W - 26, py - 2, 100);
+        g.pose().scale(1.3F, 1.3F, 1.3F);
         g.renderItem(bey, 0, 0);
         g.pose().popPose();
-        g.drawString(this.font, trim(bey.getHoverName(), 86), px, py, 0xFFFFFFFF, false);
+        g.drawString(this.font, trim(bey.getHoverName(), 94), px, py, 0xFFFFFFFF, false);
         String[] lean = {"attack", "defense", "stamina", "balance"};
         g.drawString(this.font, Component.translatable("screen.librabeyblade.workbench.type",
                 Component.translatable("mode.librabeyblade." + lean[l.leaning()])), px, py + 11, 0xFFFFC870, false);
@@ -147,10 +147,17 @@ public class WorkbenchScreen extends AbstractContainerScreen<WorkbenchMenu> {
         int iy = py + 80;
         g.drawString(this.font, Component.translatable("stat.librabeyblade.weight", String.format(java.util.Locale.ROOT, "%.1f", l.weight())), px, iy, 0xFFD0D0D8, false);
         g.drawString(this.font, Component.translatable("stat.librabeyblade.height", String.format(java.util.Locale.ROOT, "%.1f", l.height() / 10F)), px, iy + 10, 0xFFD0D0D8, false);
+        // tip and track specials, small and wrapped so the whole sentence fits
+        g.pose().pushPose();
+        g.pose().translate(px, iy + 21, 0);
+        g.pose().scale(0.7F, 0.7F, 1F);
+        int ty = 0;
         Component tip = Component.translatable("tip.librabeyblade." + l.tip().name().toLowerCase(java.util.Locale.ROOT));
-        g.drawString(this.font, trim(tip, 118), px, iy + 20, 0xFF80E0F0, false);
+        g.drawWordWrap(this.font, tip, 0, ty, 168, 0xFF80E0F0);
+        ty += this.font.wordWrapHeight(tip, 168) + 2;
         if (l.trackTrait() != BeyPart.Trait.NONE)
-            g.drawString(this.font, trim(Component.translatable("trait.librabeyblade." + l.trackTrait().name().toLowerCase(java.util.Locale.ROOT)), 118), px, iy + 30, 0xFF80E0F0, false);
+            g.drawWordWrap(this.font, Component.translatable("trait.librabeyblade." + l.trackTrait().name().toLowerCase(java.util.Locale.ROOT)), 0, ty, 168, 0xFFFFB0E0);
+        g.pose().popPose();
     }
 
     private Component trim(Component c, int w) {

@@ -363,7 +363,7 @@ public class BeybladeEntity extends Entity {
         double m = switch (getMode()) { case MODE_ATTACK -> 1.1; case MODE_DEFENSE -> 0.45; case MODE_STAMINA -> 1.0; default -> 0.8; };
         com.krolasyon.beyblade.parts.Loadout l = parts();
         // heavier combos are pushed around less; some tracks hold the ground
-        m *= Mth.clamp(40.0 / Math.max(20F, l.weight()), 0.72, 1.35);
+        m *= Mth.clamp(46.0 / Math.max(20F, l.weight()), 0.72, 1.35);
         switch (l.trackTrait()) {
             case BOOST_DISK -> m *= 0.8;
             case RUBBER_RING -> m *= 0.85;
