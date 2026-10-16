@@ -64,6 +64,7 @@ jobs:
           for MC in $(ls versions | grep -E '^[0-9]'); do
             FV=$(echo "$META" | grep -oP "<version>${MC//./\\.}-\K[^<]+" | sort -V | tail -1)
             echo "== $MC forge $FV" | tee port-$MC.log
+            echo "$FV" > versions/$MC/forge-version.txt
             python3 versions/port.py $MC >> port-$MC.log 2>&1 || { ALL=1; continue; }
             (cd versions/$MC && JAVA_HOME=$JAVA_HOME_21_X64 gradle build --no-daemon --stacktrace -PforgeVersion=$FV -PmodVersion=$VER) >> port-$MC.log 2>&1 || ALL=1
             tail -60 port-$MC.log
@@ -76,6 +77,36 @@ jobs:
             fi
           done
           echo "status=$ALL" >> "$GITHUB_OUTPUT"
+      - name: Visual self-test of the ports
+        if: always() && (contains(github.event.head_commit.message, '[vtest]') || contains(github.event.head_commit.message, '[vtestport]'))
+        continue-on-error: true
+        shell: bash
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          MESA_GL_VERSION_OVERRIDE: '4.5'
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq xvfb libgl1-mesa-dri libglx-mesa0 mesa-utils ffmpeg zip > /dev/null
+          set +e
+          VER=$(grep -oP "^version = '\K[^']+" build.gradle)
+          for MC in $(ls versions | grep -E '^[0-9]'); do
+            ls versions/$MC/build/libs/*.jar > /dev/null 2>&1 || continue
+            FV=$(cat versions/$MC/forge-version.txt)
+            D=versions/$MC
+            mkdir -p $D/run
+            printf "onboardAccessibility:false\nrenderDistance:5\nsimulationDistance:5\npauseOnLostFocus:false\ntutorialStep:none\njoinedFirstServer:true\nskipMultiplayerWarning:true\nmaxFps:60\nfov:-0.45\n" > $D/run/options.txt
+            (cd $D && JAVA_HOME=$JAVA_HOME_21_X64 timeout 2400 xvfb-run -a -s "-screen 0 1280x720x24" gradle runClient --no-daemon -PforgeVersion=$FV -PmodVersion=$VER > client.log 2>&1)
+            echo "$MC client exit $?"
+            O=vtest-$MC; mkdir -p $O
+            cp $D/run/screenshots/ktest_*.png $O/ 2>/dev/null
+            cp $D/run/logs/latest.log $O/latest.log 2>/dev/null
+            tail -c 200000 $D/client.log > $O/client_tail.log
+            grep -E "AUTOTEST|Exception|ERROR" $D/client.log | head -300 > $O/summary.log
+            if [ -f $D/run/frames/list.txt ]; then
+              (cd $D/run/frames && ffmpeg -y -loglevel error -f concat -safe 0 -i list.txt -vf "fps=30,scale=1280:720,format=yuv420p" -c:v libx264 -preset medium -crf 23 -movflags +faststart $GITHUB_WORKSPACE/video-$MC.mp4)
+            fi
+            (cd $O && zip -q ../$O.zip *)
+            ls -la $O | head
+          done
       - name: Publish release
         if: always()
         shell: bash
@@ -84,7 +115,7 @@ jobs:
         run: |
           TAG="build-${{ github.run_number }}"
           FILES="build.log"
-          for f in build/libs/*.jar versions/*/build/libs/*.jar port-*.log api-*.txt; do [ -f "$f" ] && FILES="$FILES $f"; done
+          for f in build/libs/*.jar versions/*/build/libs/*.jar port-*.log api-*.txt vtest-*.zip video-*.mp4; do [ -f "$f" ] && FILES="$FILES $f"; done
           [ -f vtest.zip ] && FILES="$FILES vtest.zip"
           [ -f video.mp4 ] && FILES="$FILES video.mp4"
           gh release create "$TAG" $FILES --title "Build ${{ github.run_number }} (status ${{ steps.b.outputs.status }}, ports ${{ steps.port.outputs.status }})" --notes "commit ${{ github.sha }}" --prerelease --target "${{ github.sha }}"
