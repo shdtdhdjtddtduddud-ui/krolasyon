@@ -593,6 +593,8 @@ public class BeybladeEntity extends Entity {
             setDeltaMovement(v.add((desired.x - v.x) * 0.4, 0, (desired.z - v.z) * 0.4));
             clashCooldown = Math.max(clashCooldown, 2);
             if (this.tickCount % 2 == 0) this.level().broadcastEntityEvent(this, EV_GRIND);
+            // the lock breaks: whoever pushes harder throws the other one across the stadium
+            if (lockTicks == 0) resolveLock(lockPartner);
             return;
         }
         lockTicks = 0;
@@ -902,7 +904,7 @@ public class BeybladeEntity extends Entity {
         o.addSpirit(heavy ? 6 : 3);
         // what happens next: sometimes they lock and grind, often they bounce back and charge again
         float r = this.random.nextFloat();
-        if (r < 0.24F && lockTicks == 0 && o.lockTicks == 0) {
+        if (r < 0.3F && lockTicks == 0 && o.lockTicks == 0) {
             int n = 24 + this.random.nextInt(18);
             lockTicks = n;
             o.lockTicks = n;
@@ -915,6 +917,51 @@ public class BeybladeEntity extends Entity {
         }
         if (o.target == null) o.target = this;
         if (target == null) target = o;
+    }
+
+    /** pushing power in a lock: spin, attack, weight of the parts, Blader Spirit, plus some luck */
+    private float lockPower() {
+        float p = getSpin() * powerMul() * (float) Math.sqrt(Math.max(20F, parts().weight()) / 40F);
+        if (isSpiritActive()) p *= 1.25F;
+        if (isShielded()) p *= 1.1F;
+        return p * (0.85F + 0.3F * this.random.nextFloat());
+    }
+
+    /** end of a lock: the stronger beyblade launches the other one away */
+    private void resolveLock(@Nullable BeybladeEntity o) {
+        lockPartner = null;
+        if (o == null || !o.isAlive() || o.getState() != STATE_BATTLE || getState() != STATE_BATTLE) return;
+        o.lockTicks = 0;
+        o.lockPartner = null;
+        float a = lockPower(), b = o.lockPower();
+        BeybladeEntity win = a >= b ? this : o, lose = win == this ? o : this;
+        float margin = Math.max(a, b) / Math.max(1F, Math.min(a, b));
+        Vec3 dir = flat(lose.position().subtract(win.position()));
+        dir = dir.lengthSqr() < 1.0E-4 ? new Vec3(1, 0, 0) : dir.normalize();
+        if (lose.tryDodge(win)) return;
+        double power = Mth.clamp(0.95 + 0.7 * (margin - 1F), 0.95, 1.9) * Mth.clamp(lose.knockMul(), 0.4, 1.4);
+        lose.setDeltaMovement(dir.scale(power).add(0, 0.28, 0));
+        lose.hurtMarked = true;
+        lose.stun(10);
+        lose.damageSpin(Mth.clamp(45F * margin, 45F, 120F) * win.powerMul(), win);
+        lose.shockwave(win, 1.0);
+        // the winner is pushed back a little by the release
+        win.setDeltaMovement(win.getDeltaMovement().add(dir.scale(-0.25)));
+        win.retreatTicks = 8;
+        win.addSpirit(8);
+        double cx = (getX() + o.getX()) / 2, cy = getY() + 0.4, cz = (getZ() + o.getZ()) / 2;
+        ServerLevel sl = (ServerLevel) this.level();
+        Px.send(sl, ParticleTypes.ELECTRIC_SPARK, cx, cy, cz, 30, 0.1, 0.1, 0.1, 0.8);
+        Px.send(sl, ParticleTypes.CRIT, cx, cy, cz, 16, 0.08, 0.08, 0.08, 0.7);
+        this.level().playSound(null, cx, cy, cz, ModSounds.CLASH_HEAVY.get(), SoundSource.NEUTRAL, 2.6F, 0.55F);
+        this.level().playSound(null, cx, cy, cz, ModSounds.WALL_HIT.get(), SoundSource.NEUTRAL, 1.6F, 0.7F);
+        this.level().broadcastEntityEvent(lose, EV_HEAVY_HIT);
+        this.level().broadcastEntityEvent(win, EV_HEAVY_HIT);
+        Player wo = win.getOwner(), lo = lose.getOwner();
+        if (wo != null) wo.displayClientMessage(Component.translatable("msg.librabeyblade.lock_win", Component.translatable(win.titleKey()))
+                .withStyle(net.minecraft.ChatFormatting.GOLD), true);
+        if (lo != null && lo != wo) lo.displayClientMessage(Component.translatable("msg.librabeyblade.lock_lose", Component.translatable(lose.titleKey()))
+                .withStyle(net.minecraft.ChatFormatting.RED), true);
     }
 
     /** a strong hit: a shock wave travels away from the attacker, shoving whatever stands in its way */
@@ -1891,6 +1938,14 @@ public class BeybladeEntity extends Entity {
             m *= t == com.krolasyon.beyblade.parts.BeyPart.Trait.GRAVITY ? 1.2F : t == com.krolasyon.beyblade.parts.BeyPart.Trait.CLAW ? 1.18F : 1.1F;
         }
         return Mth.clamp(m, 0.7F, 1.4F);
+    }
+
+    /** test hook: lock two beyblades together right now */
+    public void debugLock(BeybladeEntity o, int ticks) {
+        lockTicks = ticks;
+        o.lockTicks = ticks + 5;
+        lockPartner = o;
+        o.lockPartner = this;
     }
 
     /** test hook: hold still (as the Frozen NBT flag) */

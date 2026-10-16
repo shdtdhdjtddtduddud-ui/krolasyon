@@ -540,5 +540,7 @@
  "trait.librabeyblade.twin_height": "Twin Height: counts as taller against anything up to 14.5",
  "trait.librabeyblade.gravity": "Gravity (23 mm): crushing upper attacks, but easier to knock over",
  "trait.librabeyblade.spirit": "Bit-beast: rarer bolts raise the Blader Spirit faster",
- "trait.librabeyblade.four_d": "4D system"
+ "trait.librabeyblade.four_d": "4D system",
+ "msg.librabeyblade.lock_win": "%s overpowered the lock and launched its rival!",
+ "msg.librabeyblade.lock_lose": "%s lost the lock and was sent flying!"
 }

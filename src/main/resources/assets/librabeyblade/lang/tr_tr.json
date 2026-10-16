@@ -540,5 +540,7 @@
  "trait.librabeyblade.twin_height": "Çift Yükseklik: 14.5 mm'ye kadar her şeye karşı uzun sayılır",
  "trait.librabeyblade.gravity": "Yerçekimi (23 mm): ezici üstten saldırı, ama devrilmesi kolay",
  "trait.librabeyblade.spirit": "Bit-beast: nadir cıvatalar Blader Ruhunu daha hızlı doldurur",
- "trait.librabeyblade.four_d": "4D sistem"
+ "trait.librabeyblade.four_d": "4D sistem",
+ "msg.librabeyblade.lock_win": "%s kilitlenmeyi kazandı ve rakibini fırlattı!",
+ "msg.librabeyblade.lock_lose": "%s kilitlenmeyi kaybetti ve fırlatıldı!"
 }
