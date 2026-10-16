@@ -15,8 +15,11 @@ minecraft {
         client {
             workingDirectory project.file('run')
             property 'forge.logging.console.level', 'info'
-            property 'alien.autotest', 'true'
-            args '--width', '1280', '--height', '720'
+            boolean video = System.getenv('ALIEN_VIDEO') != null
+            property 'alien.autotest', video ? 'false' : 'true'
+            property 'alien.video', video ? 'true' : 'false'
+            if (video) args '--width', '960', '--height', '540'
+            else args '--width', '1280', '--height', '720'
             mods {
                 alienisolation {
                     source sourceSets.main

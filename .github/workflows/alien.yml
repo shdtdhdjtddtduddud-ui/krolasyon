@@ -50,6 +50,33 @@ jobs:
           tail -c 200000 client.log > vtest/client_tail.log
           grep -E "AUTOTEST|Exception|ERROR" client.log | head -400 > vtest/summary.log
           cd vtest && zip -q ../vtest.zip * ; ls -la
+      - name: Gameplay video
+        if: steps.b.outputs.status == '0' && contains(github.event.head_commit.message, '[video]')
+        continue-on-error: true
+        shell: bash
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          MESA_GL_VERSION_OVERRIDE: '4.5'
+          ALIEN_VIDEO: '1'
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq xvfb libgl1-mesa-dri libglx-mesa0 mesa-utils pulseaudio pulseaudio-utils ffmpeg > /dev/null
+          Xvfb :99 -screen 0 960x540x24 > /dev/null 2>&1 &
+          export DISPLAY=:99
+          pulseaudio -D --exit-idle-time=-1 || true
+          sleep 2
+          pactl load-module module-null-sink sink_name=rec || true
+          pactl set-default-sink rec || true
+          mkdir -p run
+          printf "onboardAccessibility:false\nrenderDistance:6\nsimulationDistance:6\npauseOnLostFocus:false\ntutorialStep:none\njoinedFirstServer:true\nskipMultiplayerWarning:true\nmaxFps:60\nlang:tr_tr\nguiScale:2\nsoundCategory_master:1.0\nsoundCategory_music:0.0\n" > run/options.txt
+          set +e
+          timeout 1500 gradle runClient --no-daemon > client.log 2>&1 &
+          GPID=$!
+          for i in $(seq 1 1200); do [ -f run/REC_START ] && break; sleep 1; done
+          ffmpeg -y -loglevel error -f x11grab -framerate 25 -video_size 960x540 -i :99.0 -f pulse -i rec.monitor -t 91 \
+            -c:v libx264 -preset veryfast -crf 22 -pix_fmt yuv420p -c:a aac -b:a 160k gameplay.mp4
+          wait $GPID
+          ls -la gameplay.mp4
+          grep -E "VIDEO|Exception|OpenAL|Sound" client.log | head -60 > video_summary.log
       - name: Publish release
         if: always()
         shell: bash
@@ -60,6 +87,7 @@ jobs:
           FILES="build.log errors.log"
           for f in build/libs/*.jar; do [ -f "$f" ] && FILES="$FILES $f"; done
           [ -f vtest.zip ] && FILES="$FILES vtest.zip"
+          [ -f gameplay.mp4 ] && FILES="$FILES gameplay.mp4 video_summary.log"
           gh release create "$TAG" $FILES --title "Alien Isolation build ${{ github.run_number }} (status ${{ steps.b.outputs.status }})" --notes "commit ${{ github.sha }}" --prerelease --target "${{ github.sha }}"
       - name: Fail on build error
         if: steps.b.outputs.status != '0'
