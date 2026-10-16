@@ -770,7 +770,12 @@ public class BeybladeEntity extends Entity {
 
     protected static Vec3 flat(Vec3 v) { return new Vec3(v.x, 0, v.z); }
 
+    /** test only: log the first ticks of every launched beyblade's flight */
+    public static boolean debugFlight;
+
     private void physics() {
+        if (debugFlight && this.tickCount < 40 && this.tickCount % 2 == 0 && getOwnerId() != null)
+            com.mojang.logging.LogUtils.getLogger().info("[AUTOTEST] flight t={} pos={} vel={} ground={} hcol={}", this.tickCount, position(), getDeltaMovement(), onGround(), horizontalCollision);
         Vec3 v = getDeltaMovement();
         if (!isNoGravity()) v = v.add(0, -0.06, 0);
         Vec3 before = v;

@@ -86,6 +86,7 @@ public final class AutoTest {
         record(true);
         wait(50, "lineup_front");
         // ---- launches by the player: a clean one, then a sloppy one (too steep, shaky aim, weak pull)
+        server(0, null, s -> BeybladeEntity.debugFlight = true);
         cmd(2, null, CLEAR, "gamemode survival @a", "effect give @a minecraft:resistance 600 9 true", "tp @a 0.5 -60 5 180 30");
         for (int k = 0; k < 2; k++) {
             final boolean good = k == 0;
