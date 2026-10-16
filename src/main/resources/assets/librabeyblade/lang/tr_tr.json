@@ -313,5 +313,21 @@
  "hud.librabeyblade.ldrago_ready": "Çalınan güç: %s - DİRİLİŞ HAZIR",
  "hud.librabeyblade.ldrago_revived": "Diriliş kullanıldı",
  "ability.librabeyblade.leone.6": "Kral Aslan Dev Kasırga",
- "key.librabeyblade.ability6": "Özel yetenek 6"
+ "key.librabeyblade.ability6": "Özel yetenek 6",
+ "item.librabeyblade.evil_beffal": "Evil Befall UW145EWD",
+ "entity.librabeyblade.beffal": "Evil Befall",
+ "hud.librabeyblade.title.beffal": "Evil Befall",
+ "item.librabeyblade.evil_beffal.desc": "Efsanevi denge tipi - kara tavus kuşu",
+ "item.librabeyblade.evil_beffal.desc2": "Befall Fırlatıcı ile fırlat. Özel yetenekler:",
+ "item.librabeyblade.beffal_launcher": "Befall Fırlatıcı",
+ "item.librabeyblade.beffal_launcher.desc": "Sağ tık basılı tut: güç topla, bırak: Evil Befall'ı fırlat",
+ "item.librabeyblade.rival_beffal": "Rakip Evil Befall",
+ "item.librabeyblade.rival_beffal.desc": "Önüne kendi kendine savaşan rakip bir Evil Befall fırlatır",
+ "ability.librabeyblade.beffal.1": "Tavus Tüyü Kalkanı",
+ "ability.librabeyblade.beffal.2": "Kötü Göz Hipnozu",
+ "ability.librabeyblade.beffal.3": "Yüz Tüy Fırtınası",
+ "ability.librabeyblade.beffal.4": "Gökkuşağı Serabı",
+ "ability.librabeyblade.beffal.5": "Kara Tavus Ağıtı",
+ "msg.librabeyblade.ability.beffal": "§d§lEVIL BEFALL! §r§5%s!",
+ "dodge.librabeyblade.beffal": "Tavus Hayalet Adımı!"
 }

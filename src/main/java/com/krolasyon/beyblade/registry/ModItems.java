@@ -69,6 +69,13 @@ public final class ModItems {
     public static final RegistryObject<Item> RIVAL_VARIARES = ITEMS.register("rival_variares",
             () -> new RivalLibraItem(new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON), ModEntities.VARIARES));
 
+    public static final RegistryObject<Item> BEFFAL = ITEMS.register("evil_beffal",
+            () -> new LibraItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC).fireResistant(), "beffal"));
+    public static final RegistryObject<Item> BEFFAL_LAUNCHER = ITEMS.register("beffal_launcher",
+            () -> new LauncherItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE), BEFFAL, ModEntities.BEFFAL));
+    public static final RegistryObject<Item> RIVAL_BEFFAL = ITEMS.register("rival_beffal",
+            () -> new RivalLibraItem(new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON), ModEntities.BEFFAL));
+
     /** the ten ordinary beyblades, in {@link com.krolasyon.beyblade.entity.CommonBeybladeEntity#VARIANTS} order */
     public static final java.util.List<RegistryObject<Item>> COMMONS = new java.util.ArrayList<>();
 
@@ -113,6 +120,9 @@ public final class ModItems {
                 output.accept(VARIARES.get());
                 output.accept(VARIARES_LAUNCHER.get());
                 output.accept(RIVAL_VARIARES.get());
+                output.accept(BEFFAL.get());
+                output.accept(BEFFAL_LAUNCHER.get());
+                output.accept(RIVAL_BEFFAL.get());
                 output.accept(STADIUM.get());
             })
             .build());

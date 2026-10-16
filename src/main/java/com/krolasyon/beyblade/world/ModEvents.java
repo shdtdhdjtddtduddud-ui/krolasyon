@@ -64,7 +64,7 @@ public final class ModEvents {
             // about a 5% chance (15% in the hardest structures) of one legendary beyblade
             int empty = path.contains("ancient_city") || path.contains("end_city") || path.contains("bastion") ? 28 : 95;
             LootPool.Builder b = LootPool.lootPool().name("librabeyblade_legendary").setRolls(ConstantValue.exactly(1));
-            for (Item it : List.of(ModItems.LIBRA.get(), ModItems.LDRAGO.get(), ModItems.LEONE.get(), ModItems.EAGLE.get(), ModItems.PEGASUS.get(), ModItems.TEMPO.get(), ModItems.VARIARES.get()))
+            for (Item it : List.of(ModItems.LIBRA.get(), ModItems.LDRAGO.get(), ModItems.LEONE.get(), ModItems.EAGLE.get(), ModItems.PEGASUS.get(), ModItems.TEMPO.get(), ModItems.VARIARES.get(), ModItems.BEFFAL.get()))
                 b.add(LootItem.lootTableItem(it).setWeight(1));
             b.add(EmptyLootItem.emptyItem().setWeight(empty));
             event.getTable().addPool(b.build());

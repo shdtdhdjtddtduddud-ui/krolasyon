@@ -76,38 +76,28 @@ public final class AutoTest {
     private AutoTest() {
         cmd(0, null, "gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false",
                 "time set 5000", "weather clear", "difficulty peaceful", "gamemode spectator @a", "kill @e[type=!player]", ST);
-        // ---- the seven legends spinning side by side
+        // ---- the eight legends spinning side by side
         cmd(10, null, "tp @a 0.5 -57.4 -9.2 180 26",
-                "summon librabeyblade:leone -5.5 -58 -14.5 {Frozen:1b}", "summon librabeyblade:eagle -3.7 -58 -14.5 {Frozen:1b}",
-                "summon librabeyblade:ldrago -1.8 -58 -14.5 {Frozen:1b}", "summon librabeyblade:pegasus 0 -58 -14.5 {Frozen:1b}",
-                "summon librabeyblade:variares 1.8 -58 -14.5 {Frozen:1b}", "summon librabeyblade:libra 3.7 -58 -14.5 {Frozen:1b}",
-                "summon librabeyblade:tempo 5.5 -58 -14.5 {Frozen:1b}");
+                "summon librabeyblade:leone -6.2 -58 -14.5 {Frozen:1b}", "summon librabeyblade:eagle -4.4 -58 -14.5 {Frozen:1b}",
+                "summon librabeyblade:ldrago -2.6 -58 -14.5 {Frozen:1b}", "summon librabeyblade:pegasus -0.8 -58 -14.5 {Frozen:1b}",
+                "summon librabeyblade:beffal 1.0 -58 -14.5 {Frozen:1b}", "summon librabeyblade:variares 2.8 -58 -14.5 {Frozen:1b}",
+                "summon librabeyblade:libra 4.6 -58 -14.5 {Frozen:1b}", "summon librabeyblade:tempo 6.4 -58 -14.5 {Frozen:1b}");
         record(true);
         wait(50, "lineup_front");
-        cmd(40, "lineup_low", "tp @a -3 -58.3 -11 205 14");
-        cmd(40, "lineup_high", "tp @a 0.5 -53.5 -8.5 180 55");
-        // ---- free battle, wide then close
+        cmd(40, "beffal_close", "tp @a 1.0 -57.2 -12.4 180 50");
+        // ---- Evil Befall in a free battle
         server(2, null, s -> BeybladeEntity.rivalAbilities = true);
-        cmd(2, null, CLEAR, "tp @a 0.5 -49.5 3 180 36",
-                "summon librabeyblade:pegasus -5 -57 -14.5", "summon librabeyblade:ldrago 6 -57 -14.5",
-                "summon librabeyblade:leone 0.5 -57 -20", "summon librabeyblade:variares 0.5 -57 -9");
-        wait(70, "battle_wide_1");
-        wait(70, "battle_wide_2");
-        cmd(2, null, "tp @a -1 -55.8 -6.5 170 30");
-        wait(60, "battle_close_1");
-        wait(60, "battle_close_2");
+        cmd(2, null, CLEAR, "tp @a 0.5 -51 0 180 36",
+                "summon librabeyblade:beffal -5 -57 -14.5", "summon librabeyblade:ldrago 6 -57 -14.5", "summon librabeyblade:pegasus 0.5 -57 -20");
+        wait(80, "battle_1");
+        wait(80, "battle_2");
         server(2, null, s -> BeybladeEntity.rivalAbilities = false);
-        // ---- special moves
-        showcase("leone", 6, "tp @a 0.5 -45 26 180 4", 200, "leone_cyclone_1", "leone_cyclone_2", "leone_cyclone_3");
-        showcase("leone", 5, "tp @a 0.5 -47 10 180 15", 110, "leone_tornadoes_1", "leone_tornadoes_2");
-        showcase("ldrago", 3, "tp @a 0.5 -53 13 180 -8", 130, "ldrago_dive_1", "ldrago_dive_2", "ldrago_dive_3");
-        showcase("pegasus", 5, "tp @a 0.5 -47 8 180 25", 110, "pegasus_booster_1", "pegasus_booster_2", "pegasus_booster_3");
-        showcase("variares", 5, "tp @a 0.5 -50 10 180 3", 90, "variares_sword_1", "variares_sword_2");
-        showcase("tempo", 5, "tp @a 0.5 -47 8 180 18", 120, "tempo_clock_1", "tempo_clock_2");
-        showcase("libra", 3, "tp @a 0.5 -51 4 180 25", 100, "libra_inferno_1", "libra_inferno_2");
-        showcase("eagle", 5, "tp @a 0.5 -49 6 180 15", 130, "eagle_buster_1", "eagle_buster_2");
-        showcase("variares", 4, "tp @a 0.5 -54 -4 180 30", 60, "variares_blades");
-        showcase("tempo", 3, "tp @a 0.5 -52 -3 180 40", 50, "tempo_hands");
+        // ---- its five special moves
+        showcase("beffal", 1, "tp @a 0.5 -53 -2 180 25", 60, "plumage");
+        showcase("beffal", 2, "tp @a 0.5 -52 -3 180 30", 60, "gaze_1", "gaze_2");
+        showcase("beffal", 3, "tp @a 0.5 -51 -1 180 32", 50, "feathers_1", "feathers_2");
+        showcase("beffal", 4, "tp @a 0.5 -53 -4 180 35", 80, "mirage_1", "mirage_2");
+        showcase("beffal", 5, "tp @a 0.5 -48 8 180 12", 100, "requiem_1", "requiem_2", "requiem_3");
         record(false);
         wait(20, "END");
     }

@@ -55,12 +55,16 @@ public final class BeyMesh {
     /** Variares: radius 250 px, texture window half size 262 px */
     public static final BeyMesh VARIARES = new BeyMesh("variares", 1.28F, 1.48F, 262F / 250F);
 
+    /** Evil Befall: radius 348 px, texture window half size 364 px */
+    public static final BeyMesh BEFFAL = new BeyMesh("beffal", 1.28F, 1.48F, 364F / 348F);
+
     public static BeyMesh of(String kind) {
         if (kind.startsWith("common_")) return common(Integer.parseInt(kind.substring(7)));
         return switch (kind) {
             case "pegasus" -> PEGASUS;
             case "tempo" -> TEMPO;
             case "variares" -> VARIARES;
+            case "beffal" -> BEFFAL;
             case "eagle" -> EAGLE;
             case "ldrago" -> LDRAGO;
             case "leone" -> LEONE;

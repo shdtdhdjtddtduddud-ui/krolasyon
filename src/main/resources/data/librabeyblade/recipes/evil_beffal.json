@@ -1,0 +1,22 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "GDG",
+  "DXD",
+  "GDG"
+ ],
+ "key": {
+  "G": {
+   "item": "minecraft:crying_obsidian"
+  },
+  "D": {
+   "item": "minecraft:diamond"
+  },
+  "X": {
+   "item": "minecraft:dragon_breath"
+  }
+ },
+ "result": {
+  "item": "librabeyblade:evil_beffal"
+ }
+}

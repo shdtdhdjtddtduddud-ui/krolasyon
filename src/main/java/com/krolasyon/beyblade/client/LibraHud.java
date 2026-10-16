@@ -37,14 +37,15 @@ public class LibraHud {
         Font font = mc.font;
         int x = 8, y = height / 2 - 66;
         g.fill(x - 4, y - 4, x + 168, y + 174, 0x88000000);
-        boolean tempo = bey.kindId().equals("tempo"), variares = bey.kindId().equals("variares");
+        boolean tempo = bey.kindId().equals("tempo"), variares = bey.kindId().equals("variares"), beffal = bey.kindId().equals("beffal");
         boolean drago = bey.kindId().equals("ldrago"), leone = bey.kindId().equals("leone"), eagle = bey.kindId().equals("eagle"), pegasus = bey.kindId().equals("pegasus");
         com.krolasyon.beyblade.entity.CommonBeybladeEntity common = bey instanceof com.krolasyon.beyblade.entity.CommonBeybladeEntity c ? c : null;
         if (common != null) g.blit(com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/item/common_" + common.getVariant() + "_icon.png"), x, y, 0, 0, 24, 24, 24, 24);
+        else if (beffal) g.blit(com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/item/beffal_icon.png"), x, y, 0, 0, 24, 24, 24, 24);
         else if (variares) g.blit(com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/item/variares_icon.png"), x, y, 0, 0, 24, 24, 24, 24);
         else if (tempo) g.blit(com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/item/tempo_icon.png"), x, y, 0, 0, 24, 24, 24, 24);
         else g.blit(drago ? ICON_LDRAGO : (leone ? ICON_LEONE : (eagle ? ICON_EAGLE : (pegasus ? ICON_PEGASUS : ICON))), x, y, 0, 0, 24, 24, 24, 24);
-        g.drawString(font, Component.translatable(bey.titleKey()), x + 29, y + 2, common != null ? 0xFF000000 | common.variant().primary() : tempo ? 0xFFD0E4FF : variares ? 0xFFFF4040 : drago ? 0xFFFF5070 : (leone ? 0xFF60FF90 : (eagle ? 0xFFC890FF : (pegasus ? 0xFF70B8FF : 0xFFB6FF6A))), true);
+        g.drawString(font, Component.translatable(bey.titleKey()), x + 29, y + 2, common != null ? 0xFF000000 | common.variant().primary() : tempo ? 0xFFD0E4FF : variares ? 0xFFFF4040 : beffal ? 0xFFFF70C8 : drago ? 0xFFFF5070 : (leone ? 0xFF60FF90 : (eagle ? 0xFFC890FF : (pegasus ? 0xFF70B8FF : 0xFFB6FF6A))), true);
         String state = switch (bey.getState()) {
             case BeybladeEntity.STATE_DEFEATED -> "hud.librabeyblade.state.defeated";
             case BeybladeEntity.STATE_RECALL -> "hud.librabeyblade.state.recall";
@@ -71,7 +72,7 @@ public class LibraHud {
             int cd = bey.cooldownRemaining(i);
             boolean active = bey.getAbility() == i || (i == bey.buffAbility() && bey.isShielded());
             boolean locked = !bey.abilityAvailable(i);
-            int c = active ? 0xFFFFFFFF : (cd > 0 || locked ? 0xFF808080 : common != null ? 0xFF000000 | common.variant().secondary() : tempo ? 0xFFC8DCFF : variares ? 0xFFFF6A50 : (drago ? DR_COLORS : (leone ? LE_COLORS : (eagle ? EA_COLORS : (pegasus ? PG_COLORS : AB_COLORS))))[i - 1]);
+            int c = active ? 0xFFFFFFFF : (cd > 0 || locked ? 0xFF808080 : common != null ? 0xFF000000 | common.variant().secondary() : tempo ? 0xFFC8DCFF : variares ? 0xFFFF6A50 : beffal ? 0xFFE890FF : (drago ? DR_COLORS : (leone ? LE_COLORS : (eagle ? EA_COLORS : (pegasus ? PG_COLORS : AB_COLORS))))[i - 1]);
             String keyName = key.getTranslatedKeyMessage().getString();
             g.drawString(font, "[" + keyName + "]", x, ay, 0xFFFFE070, true);
             g.drawString(font, Component.translatable(bey.abilityKey(i)), x + 22, ay, c, true);

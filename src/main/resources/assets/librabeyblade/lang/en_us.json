@@ -313,5 +313,21 @@
  "hud.librabeyblade.ldrago_ready": "Stolen power: %s - REVIVAL READY",
  "hud.librabeyblade.ldrago_revived": "Revival used",
  "ability.librabeyblade.leone.6": "King Lion Colossal Cyclone",
- "key.librabeyblade.ability6": "Special move 6"
+ "key.librabeyblade.ability6": "Special move 6",
+ "item.librabeyblade.evil_beffal": "Evil Befall UW145EWD",
+ "entity.librabeyblade.beffal": "Evil Befall",
+ "hud.librabeyblade.title.beffal": "Evil Befall",
+ "item.librabeyblade.evil_beffal.desc": "Legendary balance type - the dark peacock",
+ "item.librabeyblade.evil_beffal.desc2": "Launch it with the Befall Launcher. Special moves:",
+ "item.librabeyblade.beffal_launcher": "Befall Launcher",
+ "item.librabeyblade.beffal_launcher.desc": "Hold right click to wind, release to launch Evil Befall",
+ "item.librabeyblade.rival_beffal": "Rival Evil Befall",
+ "item.librabeyblade.rival_beffal.desc": "Launches a rival Evil Befall that fights on its own",
+ "ability.librabeyblade.beffal.1": "Peacock Plumage Guard",
+ "ability.librabeyblade.beffal.2": "Evil Eye Hypnosis",
+ "ability.librabeyblade.beffal.3": "Hundred Feather Storm",
+ "ability.librabeyblade.beffal.4": "Rainbow Mirage",
+ "ability.librabeyblade.beffal.5": "Dark Peacock Requiem",
+ "msg.librabeyblade.ability.beffal": "§d§lEVIL BEFALL! §r§5%s!",
+ "dodge.librabeyblade.beffal": "Peacock Phantom Step!"
 }
