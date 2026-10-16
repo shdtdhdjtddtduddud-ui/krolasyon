@@ -83,7 +83,7 @@ public class BeybladeEntity extends Entity {
             "zigzag", "berserk", "conserve", "flank", "upper"};
     public static final int MAX_LEVEL = 30;
 
-    public static final byte EV_HIT = 60, EV_HEAVY_HIT = 61, EV_LAND = 62, EV_SHIELD_HIT = 63, EV_WALL = 64, EV_IMPACT = 65, EV_STRIKE = 66, EV_GRIND = 67, EV_SHOCK = 68, EV_SPIRIT = 69, EV_EVADE = 110;
+    public static final byte EV_HIT = 60, EV_HEAVY_HIT = 61, EV_LAND = 62, EV_SHIELD_HIT = 108, EV_WALL = 64, EV_IMPACT = 65, EV_STRIKE = 66, EV_GRIND = 67, EV_SHOCK = 68, EV_SPIRIT = 69, EV_EVADE = 110;
 
     private static final EntityDataAccessor<Optional<UUID>> DATA_OWNER = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.OPTIONAL_UUID);
     private static final EntityDataAccessor<Float> DATA_SPIN = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.FLOAT);
