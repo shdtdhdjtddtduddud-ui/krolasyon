@@ -71,7 +71,8 @@ jobs:
               JAR=$(find ~/.gradle/caches/forge_gradle -name "forge-$MC-$FV*.jar" ! -name '*sources*' | head -1)
               echo "jar: $JAR" > api-$MC.txt
               unzip -l "$JAR" | awk '{print $4}' | grep -E '^net/minecraftforge/(client/event|client/gui|event|network|fml|common)/' | grep -v '\$.*\$' >> api-$MC.txt
-              for C in $(cat versions/$MC/apidump.txt 2>/dev/null); do javap -cp "$JAR" -public "$C" >> api-$MC.txt 2>&1; done
+              CP=$(find ~/.gradle/caches/forge_gradle ~/.gradle/caches/modules-2 -name '*.jar' ! -name '*sources*' | tr '\n' ':')
+              for C in $(cat versions/$MC/apidump.txt 2>/dev/null); do javap -cp "$CP" -public "$C" >> api-$MC.txt 2>&1; done
             fi
           done
           echo "status=$ALL" >> "$GITHUB_OUTPUT"

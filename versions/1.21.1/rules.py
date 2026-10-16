@@ -15,9 +15,20 @@ GLOBAL = [
     # client interpolation lost the teleport flag
     (r'public void lerpTo\(double x, double y, double z, float yRot, float xRot, int steps, boolean teleport\)',
      'public void lerpTo(double x, double y, double z, float yRot, float xRot, int steps)', 1),
+    (r'\.setSecondsOnFire\(', '.igniteForSeconds(', 4),
+    (r'Player\.PERSISTED_NBT_TAG', '"PlayerPersisted"', 2),
 ]
 
 FILES = {
+    'entity/BeybladeEntity.java': [
+        ('        this.setMaxUpStep(0.6F);\n', ''),
+        ('    /** test hook: force an ability regardless of cooldown */',
+         '    @Override\n    public float maxUpStep() { return 0.6F; }\n\n    /** test hook: force an ability regardless of cooldown */'),
+    ],
+    'client/AutoTest.java': [
+        ('reg -> reg.registryOrThrow(Registries.WORLD_PRESET).getHolderOrThrow(WorldPresets.FLAT).value().createWorldDimensions());',
+         'reg -> reg.lookupOrThrow(Registries.WORLD_PRESET).getOrThrow(WorldPresets.FLAT).value().createWorldDimensions(), new net.minecraft.client.gui.screens.TitleScreen());'),
+    ],
     'item/LauncherItem.java': [
         ('public int getUseDuration(ItemStack stack) {', 'public int getUseDuration(ItemStack stack, LivingEntity holder) {'),
         ('int used = getUseDuration(stack) - remaining;', 'int used = getUseDuration(stack, entity) - remaining;'),
