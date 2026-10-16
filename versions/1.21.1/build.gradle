@@ -30,6 +30,12 @@ minecraft {
 
 sourceSets.main.java.srcDirs = ['build-src/java']
 sourceSets.main.resources.srcDirs = ['build-src/resources']
+// the dev runtime needs classes and resources in one folder to find the mod
+sourceSets.each {
+    def dir = layout.buildDirectory.dir("sourcesSets/$it.name")
+    it.output.resourcesDir = dir
+    it.java.destinationDirectory = dir
+}
 
 repositories {}
 
