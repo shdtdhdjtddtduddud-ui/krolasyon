@@ -1,0 +1,2 @@
+-- Roblox'un varsayılan Animate betiğini devre dışı bırakır.
+-- Tüm animasyonlar StarterPlayerScripts/AnimationController tarafından prosedürel olarak yapılır.

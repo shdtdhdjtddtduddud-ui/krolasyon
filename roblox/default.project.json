@@ -1,0 +1,33 @@
+{
+  "name": "ItachiArena",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "$path": "src/ReplicatedStorage"
+    },
+    "ServerScriptService": {
+      "$path": "src/ServerScriptService"
+    },
+    "StarterPlayer": {
+      "$properties": {
+        "EnableMouseLockOption": true
+      },
+      "StarterPlayerScripts": {
+        "$path": "src/StarterPlayer/StarterPlayerScripts"
+      },
+      "StarterCharacterScripts": {
+        "$path": "src/StarterPlayer/StarterCharacterScripts"
+      }
+    },
+    "Workspace": {
+      "$properties": {
+        "StreamingEnabled": false
+      }
+    },
+    "Lighting": {
+      "$properties": {
+        "Technology": "Future"
+      }
+    }
+  }
+}
