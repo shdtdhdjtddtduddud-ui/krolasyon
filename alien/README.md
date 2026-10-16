@@ -11,6 +11,14 @@ Hazir jar: GitHub **Releases** sayfasindaki en son `alien-build-*` surumu (`alie
    Alev silahi baska bir odadaki sandikta.
 3. Hayatta kalma modunda oyna. Blok kirma kapali (ayarlardan acilabilir).
 
+## Amac (kacis)
+1. Odalardaki sandiklarda 3 **Sigorta** var. Bakim odasindaki sari **Acil Durum Jeneratoru**ne elinde sigortayla sag tikla.
+2. 3. sigortayla guc gelir: isiklar yanar, kirmizi muhurlu guvenlik odasi acilir. Jeneratorun sesi uzayliyi oraya ceker.
+3. Guvenlik odasindaki sandiktan **Anahtar Kart**i al.
+4. Istasyonun en uzak kosesindeki mavi kapsul kapisina kartla sag tikla, **Kacis Kapsulu Konsolu**nu kullan.
+5. 15 saniyelik kalkis sayimi boyunca alarm uzayliyi cagirir. Konsolun 10 blok yakininda hayatta kalan herkes kacar.
+Her asamadan sonra uzayli daha iyi duyar ve daha yakindan dolasir. Sol ustteki kutu o anki hedefi gosterir; terminaller ipucu verir.
+
 ## Uzayli nasil davranir
 - **Gorme:** isik, egilme, hareket ve mesafe onemli. Karanlikta egilerek duran oyuncuyu zor fark eder; el feneri seni ele verir.
 - **Duyma:** kosmak, kapi acmak, alev silahi, dusme, nefes nefese kalmak... hepsi sesi yayar. Egilerek yurumek sessizdir.
