@@ -85,23 +85,20 @@ public final class AutoTest {
                 "summon librabeyblade:libra 4.6 -58 -14.5 {Frozen:1b}", "summon librabeyblade:tempo 6.4 -58 -14.5 {Frozen:1b}");
         record(true);
         wait(50, "lineup_front");
-        // ---- locks: two beyblades grind together, then the stronger one throws the other away
-        for (int k = 0; k < 3; k++) {
-            final int round = k;
-            cmd(2, null, CLEAR, "tp @a 0.5 -52.5 -6 180 40");
-            server(2, null, s -> {
-                // a strong Big Bang Pegasus against a stock Leone, then two equal ones, then Leone on a heavy combo
-                ItemStack a = round == 2 ? custom(ModItems.LEONE.get(), "bolt_leone:3", "ring_leone:3", "wheel_leone:3", "track_bd145:3", "tip_wb:3")
-                        : custom(ModItems.PEGASUS.get(), "bolt_bigbang:3", "ring_bigbang:3", "wheel_bigbang:3", "track_c145:3", "tip_fd:3");
-                BeybladeEntity x = BeybladeEntity.launch(round == 2 ? ModEntities.LEONE.get() : ModEntities.PEGASUS.get(), s.overworld(), null, a,
-                        new Vec3(-0.2, -57.5, -14.5), Vec3.ZERO, 1F);
-                BeybladeEntity y = BeybladeEntity.launch(round == 1 ? ModEntities.PEGASUS.get() : ModEntities.VARIARES.get(), s.overworld(), null,
-                        ItemStack.EMPTY, new Vec3(1.2, -57.5, -14.5), Vec3.ZERO, round == 0 ? 0.5F : 1F);
-                x.debugLock(y, 30);
-            });
-            wait(16, "lock_" + round + "_grind");
-            wait(20, "lock_" + round + "_throw");
-            wait(30, null);
+        // ---- special move clashes: both beyblades fire a special move at the same moment
+        String[][] pairs = {{"pegasus", "5", "ldrago", "3", "0"}, {"variares", "5", "beffal", "5", "4"}, {"tempo", "5", "eagle", "5", "12"}};
+        for (int k = 0; k < pairs.length; k++) {
+            String[] pr = pairs[k];
+            cmd(2, null, CLEAR, "weather clear", "tp @a 0.5 -51 1 180 34",
+                    "summon librabeyblade:" + pr[0] + " -3.5 -57.5 -14.5 {Tags:[\"a\"]}", "summon librabeyblade:" + pr[2] + " 4.5 -57.5 -14.5 {Tags:[\"b\"]}");
+            wait(24, null);
+            final int ia = Integer.parseInt(pr[1]), ib = Integer.parseInt(pr[3]), lag = Integer.parseInt(pr[4]);
+            server(lag, null, s -> each(s, "a", b -> b.debugForceAbility(ia)));
+            server(1, null, s -> each(s, "b", b -> b.debugForceAbility(ib)));
+            wait(14, "sclash_" + k + "_start");
+            wait(14, "sclash_" + k + "_push");
+            wait(12, "sclash_" + k + "_boom");
+            wait(40, "sclash_" + k + "_after");
         }
         record(false);
         wait(20, "END");

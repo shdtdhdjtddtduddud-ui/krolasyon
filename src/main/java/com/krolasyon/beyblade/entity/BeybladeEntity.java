@@ -100,6 +100,9 @@ public class BeybladeEntity extends Entity {
     private static final EntityDataAccessor<Integer> DATA_XP = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.INT);
     /** the assembled parts ("wheel;track;tip;ring;bolt"), for the renderer */
     private static final EntityDataAccessor<String> DATA_PARTS = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.STRING);
+    /** special move clash: the other beyblade's id (-1 = none) and this one's share of the total power (0..1) */
+    private static final EntityDataAccessor<Integer> DATA_SCLASH = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Float> DATA_SCLASH_RATIO = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.FLOAT);
     @SuppressWarnings("unchecked")
     private static final EntityDataAccessor<Integer>[] DATA_COOLDOWN = new EntityDataAccessor[ABILITY_COUNT];
 
@@ -198,6 +201,8 @@ public class BeybladeEntity extends Entity {
         this.entityData.define(DATA_LEVEL, 1);
         this.entityData.define(DATA_XP, 0);
         this.entityData.define(DATA_PARTS, "");
+        this.entityData.define(DATA_SCLASH, -1);
+        this.entityData.define(DATA_SCLASH_RATIO, 0.5F);
         this.entityData.define(DATA_SPIRIT, 0);
         this.entityData.define(DATA_SPIRIT_END, 0);
         for (EntityDataAccessor<Integer> a : DATA_COOLDOWN) this.entityData.define(a, 0);
@@ -525,7 +530,12 @@ public class BeybladeEntity extends Entity {
         if (tid != getTargetId()) this.entityData.set(DATA_TARGET, tid);
 
         boolean controlled = false;
-        if (pendingAbility != 0) {
+        if (sclashCooldown > 0) sclashCooldown--;
+        if (sclashTicks > 0 || startSpecialClash()) {
+            // two special moves met head on: everything waits until the clash is decided
+            controlled = true;
+            tickSpecialClash();
+        } else if (pendingAbility != 0) {
             controlled = tickRam(owner);
         } else if (ab != AB_NONE) {
             abilityTicks++;
@@ -925,6 +935,175 @@ public class BeybladeEntity extends Entity {
         if (target == null) target = o;
     }
 
+    // ---------------- special move clash ----------------
+    public static final int SCLASH_TICKS = 30;
+    public static final byte EV_SCLASH_BOOM = 104;
+    /** server: when this beyblade's current special move was started */
+    private long specialStart = -1000;
+    private int sclashTicks, sclashCooldown;
+    @Nullable private BeybladeEntity sclashPartner;
+    private boolean sclashLeader, sclashPerfect;
+    private float sclashPower;
+    /** client */
+    public int sclashClientStart = -1000, sclashBoomTime = -1000;
+    public double boomX, boomY, boomZ;
+    public boolean boomDraw;
+
+    public int getSpecialClashPartner() { return this.entityData.get(DATA_SCLASH); }
+
+    /** where the two moves meet, as a fraction of the way from this beyblade to the other (k = 0..1 of the clash) */
+    public static double sclashMeet(float ratio, float k) {
+        double end = Mth.clamp(ratio, 0.15, 0.85);
+        double e = k * k * (3 - 2 * k);
+        return 0.5 + (end - 0.5) * e;
+    }
+    public float getSpecialClashRatio() { return this.entityData.get(DATA_SCLASH_RATIO); }
+
+    /** the special move in progress (charging in or already running), or 0 */
+    private int specialMove() {
+        if (pendingAbility != 0) return pendingAbility;
+        int ab = getAbility();
+        return ab != AB_NONE && ab != buffAbility() ? ab : 0;
+    }
+
+    /**
+     * Power of the special move in a clash: the move itself (the final, strongest move counts most), how hard it is
+     * hitting (attack, level, parts, spin left), how fast the beyblade is moving, and the timing.
+     */
+    private float specialPower(boolean initiative, boolean perfect) {
+        int id = specialMove();
+        float tier = id >= abilityCount() ? 1.35F : 1F + 0.06F * id;
+        double v = Math.sqrt(getDeltaMovement().x * getDeltaMovement().x + getDeltaMovement().z * getDeltaMovement().z);
+        float speed = 0.85F + 0.3F * (float) Mth.clamp(v / 0.6, 0, 1) + 0.1F * (float) (modeSpeed() - 1);
+        float p = tier * powerMul() * (0.55F + 0.45F * spinRatio()) * speed;
+        if (perfect) p *= 1.1F;
+        else if (initiative) p *= 1.12F;
+        if (isSpiritActive()) p *= 1.2F;
+        return p * (0.9F + 0.2F * this.random.nextFloat());
+    }
+
+    /** looks for an enemy using its own special move at the same moment */
+    private boolean startSpecialClash() {
+        if (sclashCooldown > 0 || specialMove() == 0 || this.tickCount % 2 != 0) return false;
+        long now = this.level().getGameTime();
+        if (now - specialStart > 60) return false;
+        BeybladeEntity best = null;
+        double bd = 14 * 14;
+        for (BeybladeEntity b : this.level().getEntitiesOfClass(BeybladeEntity.class, getBoundingBox().inflate(14, 6, 14))) {
+            if (b == this || !isEnemy(b) || b.sclashTicks > 0 || b.sclashCooldown > 0 || b.specialMove() == 0) continue;
+            if (Math.abs(b.specialStart - specialStart) > 40) continue;
+            double d = b.distanceToSqr(this);
+            if (d < bd) { bd = d; best = b; }
+        }
+        if (best == null) return false;
+        BeybladeEntity o = best;
+        long dt = specialStart - o.specialStart;
+        boolean perfect = Math.abs(dt) <= 4;
+        sclashPower = specialPower(!perfect && dt < 0, perfect);
+        o.sclashPower = o.specialPower(!perfect && dt > 0, perfect);
+        float ratio = sclashPower / Math.max(0.01F, sclashPower + o.sclashPower);
+        sclashPartner = o;
+        o.sclashPartner = this;
+        sclashLeader = true;
+        o.sclashLeader = false;
+        sclashPerfect = o.sclashPerfect = perfect;
+        sclashTicks = SCLASH_TICKS;
+        o.sclashTicks = SCLASH_TICKS + 3;
+        this.entityData.set(DATA_SCLASH, o.getId());
+        o.entityData.set(DATA_SCLASH, getId());
+        this.entityData.set(DATA_SCLASH_RATIO, ratio);
+        o.entityData.set(DATA_SCLASH_RATIO, 1F - ratio);
+        play(ModSounds.CLASH_HEAVY.get(), 2.6F, 0.5F);
+        play(ModSounds.THUNDER_STRIKE.get(), 1.8F, 1.3F);
+        announceNear(Component.translatable("msg.librabeyblade.sclash", Component.translatable(titleKey()), Component.translatable(o.titleKey()))
+                .append(perfect ? Component.literal(" ").append(Component.translatable("msg.librabeyblade.sclash_perfect")) : Component.empty())
+                .withStyle(net.minecraft.ChatFormatting.GOLD, net.minecraft.ChatFormatting.BOLD));
+        return true;
+    }
+
+    private void tickSpecialClash() {
+        BeybladeEntity o = sclashPartner;
+        if (o == null || !o.isAlive() || o.getState() != STATE_BATTLE || getState() != STATE_BATTLE) {
+            endSpecialClash();
+            return;
+        }
+        sclashTicks--;
+        // both hold their ground, facing each other, pouring power into the clash
+        Vec3 to = flat(o.position().subtract(position()));
+        Vec3 dir = to.lengthSqr() < 1.0E-4 ? new Vec3(1, 0, 0) : to.normalize();
+        setDeltaMovement(getDeltaMovement().multiply(0.4, 1, 0.4).add(dir.scale(0.015)));
+        if (sclashLeader) {
+            if (sclashTicks % 6 == 0) {
+                play(ModSounds.GRIND.get(), 1.4F, 1.4F + this.random.nextFloat() * 0.3F);
+                play(ModSounds.THUNDER_STRIKE.get(), 0.7F, 1.8F);
+            }
+            if (sclashTicks <= 0) resolveSpecialClash(o);
+        } else if (sclashTicks <= 0) {
+            endSpecialClash();
+        }
+    }
+
+    private void endSpecialClash() {
+        sclashTicks = 0;
+        sclashPartner = null;
+        sclashCooldown = 100;
+        this.entityData.set(DATA_SCLASH, -1);
+    }
+
+    private void resolveSpecialClash(BeybladeEntity o) {
+        float a = sclashPower, b = o.sclashPower;
+        float margin = Math.max(a, b) / Math.max(0.01F, Math.min(a, b));
+        boolean draw = margin < 1.07F;
+        BeybladeEntity win = a >= b ? this : o, lose = win == this ? o : this;
+        this.level().broadcastEntityEvent(this, draw ? (byte) (EV_SCLASH_BOOM + 1) : EV_SCLASH_BOOM);
+        double cx = (getX() + o.getX()) / 2, cy = getY() + 0.5, cz = (getZ() + o.getZ()) / 2;
+        ServerLevel sl = (ServerLevel) this.level();
+        Px.send(sl, ParticleTypes.EXPLOSION, cx, cy, cz, 3, 0.4, 0.2, 0.4, 0);
+        Px.send(sl, ParticleTypes.ELECTRIC_SPARK, cx, cy, cz, 40, 0.3, 0.3, 0.3, 1.0);
+        this.level().playSound(null, cx, cy, cz, ModSounds.METEOR_IMPACT.get(), SoundSource.NEUTRAL, 3.0F, draw ? 1.1F : 0.8F);
+        this.level().playSound(null, cx, cy, cz, ModSounds.CLASH_HEAVY.get(), SoundSource.NEUTRAL, 2.6F, 0.6F);
+        if (draw) {
+            // equal power: both moves are cancelled and both are blown back
+            for (BeybladeEntity e : List.of(this, o)) {
+                BeybladeEntity other = e == this ? o : this;
+                Vec3 away = flat(e.position().subtract(other.position()));
+                away = away.lengthSqr() < 1.0E-4 ? new Vec3(1, 0, 0) : away.normalize();
+                e.cancelSpecial();
+                e.damageSpin(70F * other.powerMul(), other);
+                e.setDeltaMovement(away.scale(1.1 * Mth.clamp(e.knockMul(), 0.5, 1.3)).add(0, 0.3, 0));
+                e.flungTicks = 10;
+            }
+            announceNear(Component.translatable("msg.librabeyblade.sclash_draw").withStyle(net.minecraft.ChatFormatting.YELLOW));
+        } else {
+            // the stronger move breaks through: it carries on, the other one is cancelled and its beyblade thrown back
+            Vec3 away = flat(lose.position().subtract(win.position()));
+            away = away.lengthSqr() < 1.0E-4 ? new Vec3(1, 0, 0) : away.normalize();
+            lose.cancelSpecial();
+            lose.damageSpin(Mth.clamp(80F + 140F * (margin - 1F), 80F, 260F) * win.powerMul(), win);
+            lose.setDeltaMovement(away.scale(Mth.clamp(1.2 + 0.8 * (margin - 1F), 1.2, 2.2) * Mth.clamp(lose.knockMul(), 0.55, 1.4)).add(0, 0.35, 0));
+            lose.flungTicks = 14;
+            lose.shockwave(win, 1.0);
+            win.addSpirit(15);
+            lose.lastAbilityHitTick = this.level().getGameTime();
+            announceNear(Component.translatable("msg.librabeyblade.sclash_win", Component.translatable(win.titleKey()),
+                    Component.translatable(win.abilityKey(win.specialMove())), Component.translatable(lose.titleKey()))
+                    .withStyle(net.minecraft.ChatFormatting.GOLD));
+        }
+        endSpecialClash();
+        o.endSpecialClash();
+    }
+
+    /** a special move lost in a clash: it stops (the cooldown is still spent) */
+    private void cancelSpecial() {
+        pendingAbility = 0;
+        if (getAbility() != AB_NONE) endAbility();
+    }
+
+    /** action bar message for the owners and everyone watching close by */
+    private void announceNear(Component c) {
+        for (Player p : this.level().getEntitiesOfClass(Player.class, getBoundingBox().inflate(32))) p.displayClientMessage(c, true);
+    }
+
     /** pushing power in a lock: spin, attack, weight of the parts, Blader Spirit, plus some luck */
     private float lockPower() {
         float p = getSpin() * powerMul() * (float) Math.sqrt(Math.max(20F, parts().weight()) / 40F);
@@ -1094,6 +1273,7 @@ public class BeybladeEntity extends Entity {
         }
         startCooldown(id);
         addXp(4);
+        specialStart = this.level().getGameTime();
         // special moves are delivered by crashing into the opponent: charge first, the move starts on contact
         Entity tg = target != null ? target : findTarget(owner);
         if (ramsInto(id) && tg instanceof BeybladeEntity b && b.getState() == STATE_BATTLE && !frozen && stunTicks == 0
@@ -1641,6 +1821,7 @@ public class BeybladeEntity extends Entity {
     public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
         super.onSyncedDataUpdated(key);
         if (this.level() != null && this.level().isClientSide()) {
+            if (DATA_SCLASH.equals(key) && getSpecialClashPartner() >= 0) sclashClientStart = this.tickCount;
             if (DATA_ABILITY.equals(key)) {
                 clientAbility = getAbility();
                 clientAbilityStart = this.tickCount;
@@ -1656,6 +1837,22 @@ public class BeybladeEntity extends Entity {
     @Override
     public void handleEntityEvent(byte id) {
         switch (id) {
+            case EV_SCLASH_BOOM, EV_SCLASH_BOOM + 1 -> {
+                // where the two moves met when the clash was decided
+                sclashBoomTime = this.tickCount;
+                boomDraw = id != EV_SCLASH_BOOM;
+                Entity o = this.level().getEntity(getSpecialClashPartner());
+                double f = boomDraw ? 0.5 : sclashMeet(getSpecialClashRatio(), 1F);
+                if (o != null) {
+                    boomX = getX() + (o.getX() - getX()) * f;
+                    boomY = getY() + (o.getY() - getY()) * f + 0.55;
+                    boomZ = getZ() + (o.getZ() - getZ()) * f;
+                    for (StadiumEntity st : this.level().getEntitiesOfClass(StadiumEntity.class, getBoundingBox().inflate(18, 6, 18))) {
+                        st.addScar(boomX, boomZ, 3.2F);
+                        break;
+                    }
+                }
+            }
             case EV_HIT, EV_WALL -> hitTime = this.tickCount;
             case EV_GRIND -> grindTime = this.tickCount;
             case EV_SPIRIT -> spiritTime = this.tickCount;

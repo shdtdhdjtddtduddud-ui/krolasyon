@@ -542,5 +542,9 @@
  "trait.librabeyblade.spirit": "Bit-beast: rarer bolts raise the Blader Spirit faster",
  "trait.librabeyblade.four_d": "4D system",
  "msg.librabeyblade.lock_win": "%s overpowered the lock and launched its rival!",
- "msg.librabeyblade.lock_lose": "%s lost the lock and was sent flying!"
+ "msg.librabeyblade.lock_lose": "%s lost the lock and was sent flying!",
+ "msg.librabeyblade.sclash": "SPECIAL MOVE CLASH! %s vs %s",
+ "msg.librabeyblade.sclash_perfect": "Perfect timing!",
+ "msg.librabeyblade.sclash_win": "%s's %s broke through %s!",
+ "msg.librabeyblade.sclash_draw": "The special moves cancelled each other out!"
 }

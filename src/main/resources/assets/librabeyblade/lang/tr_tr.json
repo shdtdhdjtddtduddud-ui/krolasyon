@@ -542,5 +542,9 @@
  "trait.librabeyblade.spirit": "Bit-beast: nadir cıvatalar Blader Ruhunu daha hızlı doldurur",
  "trait.librabeyblade.four_d": "4D sistem",
  "msg.librabeyblade.lock_win": "%s kilitlenmeyi kazandı ve rakibini fırlattı!",
- "msg.librabeyblade.lock_lose": "%s kilitlenmeyi kaybetti ve fırlatıldı!"
+ "msg.librabeyblade.lock_lose": "%s kilitlenmeyi kaybetti ve fırlatıldı!",
+ "msg.librabeyblade.sclash": "ÖZEL HAREKET ÇARPIŞMASI! %s - %s",
+ "msg.librabeyblade.sclash_perfect": "Mükemmel zamanlama!",
+ "msg.librabeyblade.sclash_win": "%s, %s ile %s'i yendi!",
+ "msg.librabeyblade.sclash_draw": "Özel hareketler birbirini yok etti!"
 }
