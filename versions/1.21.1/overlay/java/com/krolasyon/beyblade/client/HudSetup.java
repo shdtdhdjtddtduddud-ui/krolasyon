@@ -14,6 +14,7 @@ public final class HudSetup {
 
     private static final LibraHud LIBRA_HUD = new LibraHud();
     private static final MatchHud MATCH_HUD = new MatchHud();
+    private static final LaunchHud LAUNCH_HUD = new LaunchHud();
 
     @SubscribeEvent
     public static void addLayers(AddGuiOverlayLayersEvent event) {
@@ -21,5 +22,7 @@ public final class HudSetup {
                 (g, delta) -> LIBRA_HUD.render(g, delta.getGameTimeDeltaPartialTick(true), g.guiWidth(), g.guiHeight()));
         event.getLayeredDraw().add(V.rl(LibraBeyblade.MODID, "match_hud"),
                 (g, delta) -> MATCH_HUD.render(g, delta.getGameTimeDeltaPartialTick(true), g.guiWidth(), g.guiHeight()));
+        event.getLayeredDraw().add(V.rl(LibraBeyblade.MODID, "launch_hud"),
+                (g, delta) -> LAUNCH_HUD.render(g, delta.getGameTimeDeltaPartialTick(true), g.guiWidth(), g.guiHeight()));
     }
 }

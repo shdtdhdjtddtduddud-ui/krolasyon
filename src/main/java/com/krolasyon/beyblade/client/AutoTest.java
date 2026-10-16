@@ -85,21 +85,41 @@ public final class AutoTest {
                 "summon librabeyblade:libra 4.6 -58 -14.5 {Frozen:1b}", "summon librabeyblade:tempo 6.4 -58 -14.5 {Frozen:1b}");
         record(true);
         wait(50, "lineup_front");
-        // ---- special move clashes: both beyblades fire a special move at the same moment
-        String[][] pairs = {{"pegasus", "5", "ldrago", "3", "0"}, {"variares", "5", "beffal", "5", "4"}, {"tempo", "5", "eagle", "5", "12"}};
-        for (int k = 0; k < pairs.length; k++) {
-            String[] pr = pairs[k];
-            cmd(2, null, CLEAR, "weather clear", "tp @a 0.5 -53.5 -4.5 180 38",
-                    "summon librabeyblade:" + pr[0] + " -3.5 -57.5 -14.5 {Tags:[\"a\"]}", "summon librabeyblade:" + pr[2] + " 4.5 -57.5 -14.5 {Tags:[\"b\"]}");
-            wait(24, null);
-            final int ia = Integer.parseInt(pr[1]), ib = Integer.parseInt(pr[3]), lag = Integer.parseInt(pr[4]);
-            server(lag, null, s -> each(s, "a", b -> b.debugForceAbility(ia)));
-            server(1, null, s -> each(s, "b", b -> b.debugForceAbility(ib)));
-            wait(12, "sclash_" + k + "_start");
-            wait(10, "sclash_" + k + "_push");
-            wait(12, "sclash_" + k + "_boom");
-            wait(40, "sclash_" + k + "_after");
+        // ---- launches by the player: a clean one, then a sloppy one (too steep, shaky aim, weak pull)
+        cmd(2, null, CLEAR, "gamemode survival @a", "effect give @a minecraft:resistance 600 9 true", "tp @a 0.5 -59 -1 180 30");
+        for (int k = 0; k < 2; k++) {
+            final boolean good = k == 0;
+            server(4, null, s -> {
+                ServerPlayer p = s.getPlayerList().getPlayers().get(0);
+                p.getInventory().setItem(0, new ItemStack(ModItems.STANDARD_LAUNCHER.get()));
+                p.getInventory().setItem(1, new ItemStack(ModItems.PEGASUS.get()));
+                p.getInventory().selected = 0;
+            });
+            client(2, null, mc -> {
+                mc.player.getInventory().selected = 0;
+                mc.player.setYRot(180F);
+                mc.player.setXRot(good ? 30F : 80F);
+                mc.gameMode.useItem(mc.player, net.minecraft.world.InteractionHand.MAIN_HAND);
+            });
+            client(0, null, mc -> showGui = true);
+            if (good) {
+                wait(30, "launch_gauge_good");
+                wait(9, null);
+            } else {
+                // shaking the aim around while winding
+                for (int j2 = 0; j2 < 4; j2++) {
+                    final int jj = j2;
+                    client(2, null, mc -> mc.player.setYRot(180F + (jj % 2 == 0 ? 9F : -9F)));
+                }
+                wait(1, "launch_gauge_bad");
+            }
+            client(0, null, mc -> mc.gameMode.releaseUsingItem(mc.player));
+            wait(30, good ? "launch_good_flying" : "launch_bad_flying");
+            wait(30, good ? "launch_good_spinning" : "launch_bad_wobbling");
+            client(0, null, mc -> showGui = false);
+            cmd(30, null, CLEAR);
         }
+        cmd(2, null, "gamemode spectator @a");
         record(false);
         wait(20, "END");
     }

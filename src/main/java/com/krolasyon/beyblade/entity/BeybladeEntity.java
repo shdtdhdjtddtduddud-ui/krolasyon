@@ -103,6 +103,8 @@ public class BeybladeEntity extends Entity {
     /** special move clash: the other beyblade's id (-1 = none) and this one's share of the total power (0..1) */
     private static final EntityDataAccessor<Integer> DATA_SCLASH = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Float> DATA_SCLASH_RATIO = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.FLOAT);
+    /** how unsteady the beyblade is after a sloppy launch (0 = steady .. 1 = barely up), settles over time */
+    private static final EntityDataAccessor<Float> DATA_WOBBLE = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.FLOAT);
     @SuppressWarnings("unchecked")
     private static final EntityDataAccessor<Integer>[] DATA_COOLDOWN = new EntityDataAccessor[ABILITY_COUNT];
 
@@ -203,6 +205,7 @@ public class BeybladeEntity extends Entity {
         this.entityData.define(DATA_PARTS, "");
         this.entityData.define(DATA_SCLASH, -1);
         this.entityData.define(DATA_SCLASH_RATIO, 0.5F);
+        this.entityData.define(DATA_WOBBLE, 0F);
         this.entityData.define(DATA_SPIRIT, 0);
         this.entityData.define(DATA_SPIRIT_END, 0);
         for (EntityDataAccessor<Integer> a : DATA_COOLDOWN) this.entityData.define(a, 0);
@@ -368,6 +371,7 @@ public class BeybladeEntity extends Entity {
     /** how much of a collision knock this beyblade takes */
     public double knockMul() {
         double m = switch (getMode()) { case MODE_ATTACK -> 1.1; case MODE_DEFENSE -> 0.45; case MODE_STAMINA -> 1.0; default -> 0.8; };
+        m *= 1 + 0.6 * getWobble();
         com.krolasyon.beyblade.parts.Loadout l = parts();
         // heavier combos are pushed around less; some tracks hold the ground
         m *= Mth.clamp(46.0 / Math.max(20F, l.weight()), 0.72, 1.35);
@@ -500,7 +504,10 @@ public class BeybladeEntity extends Entity {
     }
 
     private void tickBattle(@Nullable Player owner) {
-        float decay = 0.2F * modeDecay() * (isInWater() ? 4F : 1F) * (isShielded() ? 1.15F : 1F);
+        float wobble = getWobble();
+        // an unsteady top scrubs off spin much faster until it settles
+        float decay = 0.2F * modeDecay() * (isInWater() ? 4F : 1F) * (isShielded() ? 1.15F : 1F) * (1F + 1.8F * wobble);
+        if (wobble > 0F) tickWobble(owner, wobble);
         // training: every 5 seconds spent spinning gives experience
         if (++trainTicks >= 100) {
             trainTicks = 0;
@@ -933,6 +940,43 @@ public class BeybladeEntity extends Entity {
         }
         if (o.target == null) o.target = this;
         if (target == null) target = o;
+    }
+
+    // ---------------- launch wobble ----------------
+    private boolean wobbleLanded;
+    /** server copy of the wobble (synced to the client every few ticks) */
+    private float wobbleNow;
+
+    public float getWobble() { return this.level().isClientSide() ? this.entityData.get(DATA_WOBBLE) : wobbleNow; }
+
+    /** set by the launcher from how clean the launch was */
+    public void setLaunchWobble(float w) {
+        wobbleNow = Mth.clamp(w, 0F, 1F);
+        this.entityData.set(DATA_WOBBLE, wobbleNow);
+        wobbleLanded = false;
+    }
+
+    private void tickWobble(@Nullable Player owner, float w) {
+        if (onGround()) {
+            // first touch of the floor: a badly tilted top scrapes and loses a chunk of spin
+            if (!wobbleLanded) {
+                wobbleLanded = true;
+                if (w > 0.55F) {
+                    setSpin(getSpin() - getMaxSpin() * 0.14F * w);
+                    play(ModSounds.WALL_HIT.get(), 1.0F, 0.6F);
+                    play(ModSounds.GRIND.get(), 1.2F, 0.7F);
+                    this.level().broadcastEntityEvent(this, EV_HIT);
+                    if (owner != null) owner.displayClientMessage(Component.translatable("msg.librabeyblade.wobble_land")
+                            .withStyle(net.minecraft.ChatFormatting.RED), true);
+                }
+            }
+            // it staggers around instead of going where it wants
+            Vec3 v = getDeltaMovement();
+            setDeltaMovement(v.add((this.random.nextFloat() - 0.5F) * 0.1F * w, 0, (this.random.nextFloat() - 0.5F) * 0.1F * w));
+        }
+        // and settles down over about fifteen seconds
+        wobbleNow = Math.max(0F, w - 0.0028F);
+        if (wobbleNow == 0F || this.tickCount % 5 == 0) this.entityData.set(DATA_WOBBLE, wobbleNow);
     }
 
     // ---------------- special move clash ----------------

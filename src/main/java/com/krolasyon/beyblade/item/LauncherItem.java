@@ -83,6 +83,7 @@ public class LauncherItem extends Item {
             return InteractionResultHolder.fail(stack);
         }
         player.startUsingItem(hand);
+        LaunchPlan.reset(player);
         if (!level.isClientSide()) level.playSound(null, player.getX(), player.getY(), player.getZ(), ModSounds.CHARGE.get(), SoundSource.PLAYERS, 0.8F, 1.0F);
         return InteractionResultHolder.consume(stack);
     }
@@ -90,14 +91,10 @@ public class LauncherItem extends Item {
     @Override
     public void onUseTick(Level level, LivingEntity entity, ItemStack stack, int remaining) {
         int used = getUseDuration(stack) - remaining;
+        if (entity instanceof Player pl) LaunchPlan.track(pl);
         if (entity instanceof Player p && !level.isClientSide()) {
-            float power = Math.min(1F, used / (float) FULL_CHARGE);
-            if (used % 4 == 0) {
-                int bars = Math.round(power * 20);
-                Component bar = Component.literal("█".repeat(bars)).withStyle(power >= 1F ? ChatFormatting.GOLD : ChatFormatting.GREEN)
-                        .append(Component.literal("█".repeat(20 - bars)).withStyle(ChatFormatting.DARK_GRAY));
-                p.displayClientMessage(Component.translatable("msg.librabeyblade.power", bar, Math.round(power * 100)), true);
-            }
+            // the launch gauge on the HUD shows power, angle and steadiness; here only the sounds
+            if (used == LaunchPlan.OVERCHARGE) level.playSound(null, p.getX(), p.getY(), p.getZ(), ModSounds.GRIND.get(), SoundSource.PLAYERS, 0.6F, 0.7F);
             if (used == FULL_CHARGE) {
                 level.playSound(null, p.getX(), p.getY(), p.getZ(), ModSounds.LAND.get(), SoundSource.PLAYERS, 0.8F, 1.6F);
                 Px.send((ServerLevel) level, ParticleTypes.ELECTRIC_SPARK, p.getX(), p.getEyeY() - 0.3, p.getZ(), 10, 0.3, 0.2, 0.3, 0.1);
@@ -112,7 +109,8 @@ public class LauncherItem extends Item {
         if (used < 4) return;
         int slot = findLibra(player);
         if (slot < 0 || BeybladeEntity.findActive(player) != null) return;
-        float power = Mth.clamp(used / (float) FULL_CHARGE, 0.25F, 1F);
+        LaunchPlan plan = LaunchPlan.of(player, used);
+        float power = plan.power;
         ItemStack libra = player.getInventory().getItem(slot);
         ItemStack libraType = libra.copy();
         ItemStack launched = libra.copy();
@@ -123,7 +121,8 @@ public class LauncherItem extends Item {
         if (flat.lengthSqr() < 1.0E-4) flat = new Vec3(0, 0, 1);
         flat = flat.normalize();
         Vec3 pos = player.getEyePosition().add(flat.scale(1.0)).add(0, -0.5, 0);
-        Vec3 vel = flat.scale(0.35 + 0.55 * power).add(0, 0.12, 0);
+        // direction from the look, arc from the launcher angle (pitch), sideways curve from strafing
+        Vec3 vel = plan.velocity(player);
         // standing outside a stadium: a higher arc so the beyblade clears the wall and lands in the bowl
         for (StadiumEntity st : level.getEntitiesOfClass(StadiumEntity.class, player.getBoundingBox().inflate(24))) {
             double r = Math.hypot(player.getX() - st.getX(), player.getZ() - st.getZ());
@@ -135,17 +134,24 @@ public class LauncherItem extends Item {
                 double vy = Math.sqrt(2 * 0.06 * h) + 0.05;
                 double ticks = vy / 0.06 * 2;
                 double vh = Math.min(0.95, Math.max(0.3, (d - 3.0) / ticks)) * (0.85 + 0.15 * power);
-                vel = flat.scale(vh).add(0, vy, 0);
+                vel = flat.scale(vh).add(0, vy, 0).add(plan.curve(player));
                 break;
             }
         }
         EntityType<? extends BeybladeEntity> type = isStandard() && libraType.getItem() instanceof LibraItem li ? li.spawnType() : beyType.get();
         // launch techniques: a pull released right at full charge is a Perfect Launch, a sneaking launch is a Power Launch
-        boolean perfect = used >= FULL_CHARGE && used <= FULL_CHARGE + 8;
-        boolean powerLaunch = player.isShiftKeyDown();
+        boolean perfect = plan.perfect;
+        boolean powerLaunch = plan.powerLaunch;
         if (powerLaunch) vel = vel.multiply(1.35, 1.0, 1.35);
         BeybladeEntity bey = BeybladeEntity.launch(type, level, player, launched, pos, vel, 0.55F + 0.45F * power);
         bey.launchBonus(perfect, powerLaunch);
+        bey.setLaunchWobble(plan.wobble);
+        // how clean was it: a sloppy launch leaves the beyblade wobbling
+        int steady = Math.round((1F - plan.wobble) * 100);
+        if (plan.wobble >= 0.6F) player.displayClientMessage(Component.translatable("msg.librabeyblade.launch_bad", steady,
+                Component.translatable("launch.librabeyblade.hint." + (plan.hint == null ? "shaky" : plan.hint))).withStyle(ChatFormatting.RED), false);
+        else if (plan.wobble >= 0.3F) player.displayClientMessage(Component.translatable("msg.librabeyblade.launch_shaky", steady,
+                Component.translatable("launch.librabeyblade.hint." + (plan.hint == null ? "shaky" : plan.hint))).withStyle(ChatFormatting.YELLOW), false);
         if (perfect) player.displayClientMessage(Component.translatable("msg.librabeyblade.perfect_launch").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD), false);
         if (powerLaunch) player.displayClientMessage(Component.translatable("msg.librabeyblade.power_launch").withStyle(ChatFormatting.RED), false);
         level.playSound(null, player.getX(), player.getY(), player.getZ(), ModSounds.LAUNCH.get(), SoundSource.PLAYERS, 1.2F, 0.95F + power * 0.1F);

@@ -546,5 +546,20 @@
  "msg.librabeyblade.sclash": "SPECIAL MOVE CLASH! %s vs %s",
  "msg.librabeyblade.sclash_perfect": "Perfect timing!",
  "msg.librabeyblade.sclash_win": "%s's %s broke through %s!",
- "msg.librabeyblade.sclash_draw": "The special moves cancelled each other out!"
+ "msg.librabeyblade.sclash_draw": "The special moves cancelled each other out!",
+ "launch.librabeyblade.power": "Power",
+ "launch.librabeyblade.angle": "Angle %s°",
+ "launch.librabeyblade.balance": "Balance",
+ "launch.librabeyblade.power_launch": "Power Launch: stronger, harder to keep steady",
+ "launch.librabeyblade.hint.good": "Clean launch - release!",
+ "launch.librabeyblade.hint.perfect": "PERFECT - release now!",
+ "launch.librabeyblade.hint.too_flat": "Too flat - aim lower (15-50°)",
+ "launch.librabeyblade.hint.too_steep": "Too steep - aim higher (15-50°)",
+ "launch.librabeyblade.hint.shaky": "Shaky hands - keep your aim still",
+ "launch.librabeyblade.hint.moving": "Don't run while launching",
+ "launch.librabeyblade.hint.weak": "Weak pull - wind it up more",
+ "launch.librabeyblade.hint.tired": "Held too long - your arm is tiring!",
+ "msg.librabeyblade.launch_bad": "Bad launch! Balance %s%% (%s) - it's wobbling badly",
+ "msg.librabeyblade.launch_shaky": "Shaky launch: balance %s%% (%s)",
+ "msg.librabeyblade.wobble_land": "It landed tilted and scraped the floor!"
 }

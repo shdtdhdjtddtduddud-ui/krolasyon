@@ -546,5 +546,20 @@
  "msg.librabeyblade.sclash": "ÖZEL HAREKET ÇARPIŞMASI! %s - %s",
  "msg.librabeyblade.sclash_perfect": "Mükemmel zamanlama!",
  "msg.librabeyblade.sclash_win": "%s, %s ile %s'i yendi!",
- "msg.librabeyblade.sclash_draw": "Özel hareketler birbirini yok etti!"
+ "msg.librabeyblade.sclash_draw": "Özel hareketler birbirini yok etti!",
+ "launch.librabeyblade.power": "Güç",
+ "launch.librabeyblade.angle": "Açı %s°",
+ "launch.librabeyblade.balance": "Denge",
+ "launch.librabeyblade.power_launch": "Güçlü Fırlatma: daha sert, dengede tutmak daha zor",
+ "launch.librabeyblade.hint.good": "Temiz fırlatma - bırak!",
+ "launch.librabeyblade.hint.perfect": "MÜKEMMEL - şimdi bırak!",
+ "launch.librabeyblade.hint.too_flat": "Çok yatık - biraz aşağı nişan al (15-50°)",
+ "launch.librabeyblade.hint.too_steep": "Çok dik - biraz yukarı nişan al (15-50°)",
+ "launch.librabeyblade.hint.shaky": "Elin titriyor - nişanını sabit tut",
+ "launch.librabeyblade.hint.moving": "Fırlatırken koşma",
+ "launch.librabeyblade.hint.weak": "Zayıf çekiş - biraz daha kur",
+ "launch.librabeyblade.hint.tired": "Çok uzun tuttun - kolun yoruluyor!",
+ "msg.librabeyblade.launch_bad": "Hatalı fırlatma! Denge %%%s (%s) - beyblade fena sallanıyor",
+ "msg.librabeyblade.launch_shaky": "Dengesiz fırlatma: denge %%%s (%s)",
+ "msg.librabeyblade.wobble_land": "Eğik düştü ve zemine sürttü!"
 }

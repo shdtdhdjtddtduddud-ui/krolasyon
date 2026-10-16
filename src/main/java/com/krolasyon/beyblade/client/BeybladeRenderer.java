@@ -67,6 +67,9 @@ public class BeybladeRenderer extends EntityRenderer<BeybladeEntity> {
             wob = 20F;
         } else {
             wob = ratio < 0.4F ? 2.5F + (0.4F - ratio) / 0.4F * 17F : 1.2F + (1F - ratio) * 2.5F;
+            // a sloppy launch: the top leans and wobbles hard until it settles
+            float lw = e.getWobble();
+            if (lw > 0F) wob += lw * (16F + 6F * Mth.sin(t * 0.9F));
         }
         float tx = Mth.cos(prec) * wob, tz = Mth.sin(prec) * wob;
         if (sp > 0.02F && state != STATE_RECALL) {
