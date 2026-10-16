@@ -1,0 +1,1 @@
+{"parent": "minecraft:block/cube_bottom_top", "textures": {"top": "librabeyblade:block/bey_workbench_top", "side": "librabeyblade:block/bey_workbench_side", "bottom": "librabeyblade:block/bey_workbench_bottom"}}

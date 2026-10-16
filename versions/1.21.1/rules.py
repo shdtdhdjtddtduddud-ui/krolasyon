@@ -11,12 +11,14 @@ GLOBAL = [
     (r'this\.entityData\.define\(', 'builder.define(', 20),
     # tooltips get a context instead of the level
     (r'appendHoverText\(ItemStack stack, @Nullable Level level, List<Component> tip, TooltipFlag flag\)',
-     'appendHoverText(ItemStack stack, %s tipContext, List<Component> tip, TooltipFlag flag)' % TOOLTIP, 4),
+     'appendHoverText(ItemStack stack, %s tipContext, List<Component> tip, TooltipFlag flag)' % TOOLTIP, 5),
     # client interpolation lost the teleport flag
     (r'public void lerpTo\(double x, double y, double z, float yRot, float xRot, int steps, boolean teleport\)',
      'public void lerpTo(double x, double y, double z, float yRot, float xRot, int steps)', 1),
     (r'\.setSecondsOnFire\(', '.igniteForSeconds(', 4),
     (r'Player\.PERSISTED_NBT_TAG', '"PlayerPersisted"', 2),
+    # Screen.render already draws the (blurred) background, a second call throws
+    (r'        renderBackground\(g\);\n', '', 2),
 ]
 
 FILES = {
@@ -37,8 +39,10 @@ FILES = {
         ('isPathfindable(BlockState state, BlockGetter level, BlockPos pos, PathComputationType type)',
          'isPathfindable(BlockState state, PathComputationType type)'),
     ],
-    # Screen.render already draws the (blurred) background, a second call throws
-    'client/CommandScreen.java': [('        renderBackground(g);\n', '')],
+    'workbench/WorkbenchBlock.java': [
+        ('public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit)',
+         'protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit)'),
+    ],
     'world/StadiumWorldGen.java': [
         ('computeIfAbsent(Sites::load, Sites::new, ', 'computeIfAbsent(new SavedData.Factory<>(Sites::new, Sites::load, null), '),
         ('static Sites load(CompoundTag tag) {', 'static Sites load(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {'),

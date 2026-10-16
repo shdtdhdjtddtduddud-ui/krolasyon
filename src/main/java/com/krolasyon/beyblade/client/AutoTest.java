@@ -2,6 +2,7 @@ package com.krolasyon.beyblade.client;
 
 import com.krolasyon.beyblade.entity.BeybladeEntity;
 import com.krolasyon.beyblade.registry.ModItems;
+import com.krolasyon.beyblade.registry.ModEntities;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
@@ -84,22 +85,91 @@ public final class AutoTest {
                 "summon librabeyblade:libra 4.6 -58 -14.5 {Frozen:1b}", "summon librabeyblade:tempo 6.4 -58 -14.5 {Frozen:1b}");
         record(true);
         wait(50, "lineup_front");
-        cmd(40, "beffal_close", "tp @a 1.0 -57.2 -12.4 180 50");
-        // ---- Evil Befall in a free battle
+        // ---- the Beyblade Workbench with a customised Pegasus (Big Bang wheel set, C145 track, F:D tip)
+        cmd(4, null, "setblock 3 -60 -2 librabeyblade:bey_workbench", "tp @a 3.5 -59 0.5 180 30");
+        server(6, null, s -> {
+            ServerPlayer p = s.getPlayerList().getPlayers().get(0);
+            p.setGameMode(GameType.SURVIVAL);
+            p.getAbilities().invulnerable = true;
+            p.openMenu(new net.minecraft.world.SimpleMenuProvider((id, inv, pl) -> new com.krolasyon.beyblade.workbench.WorkbenchMenu(id, inv,
+                    net.minecraft.world.inventory.ContainerLevelAccess.create(s.overworld(), new net.minecraft.core.BlockPos(3, -60, -2))),
+                    net.minecraft.network.chat.Component.translatable("container.librabeyblade.workbench")));
+            p.getInventory().add(new ItemStack(ModItems.part("tip_rf")));
+            p.getInventory().add(new ItemStack(ModItems.part("track_230")));
+            p.getInventory().add(new ItemStack(net.minecraft.world.item.Items.GOLD_INGOT, 8));
+            if (p.containerMenu instanceof com.krolasyon.beyblade.workbench.WorkbenchMenu m) {
+                m.getSlot(com.krolasyon.beyblade.workbench.WorkbenchMenu.BEY).set(custom(ModItems.PEGASUS.get(), "bolt_bigbang:1", "ring_bigbang:1", "wheel_bigbang:3", "track_c145:0", "tip_fd:1"));
+                m.getSlot(com.krolasyon.beyblade.workbench.WorkbenchMenu.MATERIAL).set(new ItemStack(net.minecraft.world.item.Items.GOLD_INGOT, 4));
+                m.broadcastChanges();
+            }
+        });
+        client(2, null, mc -> showGui = true);
+        wait(30, "workbench");
+        server(2, null, s -> {
+            ServerPlayer p = s.getPlayerList().getPlayers().get(0);
+            if (p.containerMenu instanceof com.krolasyon.beyblade.workbench.WorkbenchMenu m) {
+                // take the track out (the beyblade becomes incomplete) and upgrade the face bolt with the gold
+                m.clickMenuButton(p, 0);
+                m.getSlot(com.krolasyon.beyblade.workbench.WorkbenchMenu.PART0 + 3).set(ItemStack.EMPTY);
+                m.broadcastChanges();
+            }
+        });
+        wait(20, "workbench_incomplete");
+        server(2, null, s -> {
+            ServerPlayer p = s.getPlayerList().getPlayers().get(0);
+            if (p.containerMenu instanceof com.krolasyon.beyblade.workbench.WorkbenchMenu m) {
+                m.getSlot(com.krolasyon.beyblade.workbench.WorkbenchMenu.PART0 + 3).set(new ItemStack(ModItems.part("track_230")));
+                m.broadcastChanges();
+            }
+        });
+        wait(20, "workbench_230");
+        server(2, null, s -> s.getPlayerList().getPlayers().get(0).closeContainer());
+        client(2, null, mc -> { mc.setScreen(null); showGui = false; });
+        // ---- customised beyblades side by side: tall and low tracks, wide and sharp tips, the photo wheels
+        cmd(2, null, CLEAR, "gamemode spectator @a", "tp @a 0.5 -57.6 -9.6 180 22");
+        server(4, null, s -> {
+            launchCustom(s, ModEntities.PEGASUS.get(), -4.5, custom(ModItems.PEGASUS.get(), "bolt_bigbang:0", "ring_bigbang:0", "wheel_bigbang:0", "track_230:0", "tip_fd:0"), true);
+            launchCustom(s, ModEntities.BEFFAL.get(), -1.5, custom(ModItems.BEFFAL.get(), "bolt_phoenix:0", "ring_phoenix:0", "wheel_phoenix:0", "track_bd145:0", "tip_wb:0"), true);
+            launchCustom(s, ModEntities.VARIARES.get(), 1.5, custom(ModItems.VARIARES.get(), "bolt_inferno:0", "ring_inferno:0", "wheel_inferno:0", "track_w105:0", "tip_xf:0"), true);
+            launchCustom(s, ModEntities.LEONE.get(), 4.5, custom(ModItems.LEONE.get(), "bolt_leone:0", "ring_leone:0", "wheel_leone:0", "track_85:0", "tip_s:0"), true);
+        });
+        wait(40, "custom_lineup");
+        cmd(30, "custom_low", "tp @a -2 -58.4 -11.6 200 8");
+        // ---- and fighting
         server(2, null, s -> BeybladeEntity.rivalAbilities = true);
-        cmd(2, null, CLEAR, "tp @a 0.5 -51 0 180 36",
-                "summon librabeyblade:beffal -5 -57 -14.5", "summon librabeyblade:ldrago 6 -57 -14.5", "summon librabeyblade:pegasus 0.5 -57 -20");
-        wait(80, "battle_1");
-        wait(80, "battle_2");
+        cmd(2, null, CLEAR, "tp @a 0.5 -51 0 180 36");
+        server(2, null, s -> {
+            launchCustom(s, ModEntities.PEGASUS.get(), -5, custom(ModItems.PEGASUS.get(), "bolt_bigbang:3", "ring_bigbang:3", "wheel_bigbang:3", "track_c145:3", "tip_fd:3"), false);
+            launchCustom(s, ModEntities.BEFFAL.get(), 5, custom(ModItems.BEFFAL.get(), "bolt_phoenix:2", "ring_phoenix:2", "wheel_phoenix:2", "track_bd145:2", "tip_wb:2"), false);
+            launchCustom(s, ModEntities.VARIARES.get(), 0.5, custom(ModItems.VARIARES.get(), "bolt_inferno:1", "ring_inferno:1", "wheel_inferno:1", "track_230:1", "tip_rf:1"), false);
+        });
+        wait(80, "custom_battle_1");
+        wait(80, "custom_battle_2");
         server(2, null, s -> BeybladeEntity.rivalAbilities = false);
-        // ---- its five special moves
-        showcase("beffal", 1, "tp @a 0.5 -53 -2 180 25", 60, "plumage");
-        showcase("beffal", 2, "tp @a 0.5 -52 -3 180 30", 60, "gaze_1", "gaze_2");
-        showcase("beffal", 3, "tp @a 0.5 -51 -1 180 32", 50, "feathers_1", "feathers_2");
-        showcase("beffal", 4, "tp @a 0.5 -53 -4 180 35", 80, "mirage_1", "mirage_2");
-        showcase("beffal", 5, "tp @a 0.5 -48 8 180 12", 100, "requiem_1", "requiem_2", "requiem_3");
+        // ---- Evil Befall's five special moves
+        showcase("beffal", 1, "tp @a 0.5 -53 -2 180 25", 50, "plumage");
+        showcase("beffal", 2, "tp @a 0.5 -52 -3 180 30", 50, "gaze");
+        showcase("beffal", 3, "tp @a 0.5 -51 -1 180 32", 40, "feathers");
+        showcase("beffal", 4, "tp @a 0.5 -53 -4 180 35", 60, "mirage");
+        showcase("beffal", 5, "tp @a 0.5 -48 8 180 12", 90, "requiem_1", "requiem_2");
         record(false);
         wait(20, "END");
+    }
+
+    /** a beyblade item with the given parts ("part_id:level") */
+    private static ItemStack custom(net.minecraft.world.item.Item bey, String... parts) {
+        ItemStack st = new ItemStack(bey);
+        for (String p : parts) {
+            String[] a = p.split(":");
+            com.krolasyon.beyblade.parts.BeyPart part = com.krolasyon.beyblade.parts.BeyPart.get(a[0]);
+            com.krolasyon.beyblade.parts.Loadout.write(st, part.type(), part, Integer.parseInt(a[1]));
+        }
+        return st;
+    }
+
+    private static void launchCustom(MinecraftServer s, net.minecraft.world.entity.EntityType<? extends BeybladeEntity> type, double x, ItemStack st, boolean frozen) {
+        BeybladeEntity b = BeybladeEntity.launch(type, s.overworld(), null, st, new Vec3(x, -57.5, frozen ? -14.5 : -14.5 + (x > 0 ? -2 : 2)), Vec3.ZERO, 1F);
+        b.setFrozen(frozen);
     }
 
     private void record(boolean on) {
@@ -188,7 +258,7 @@ public final class AutoTest {
             return;
         }
         if (mc.level == null || mc.player == null || mc.getSingleplayerServer() == null) return;
-        if (mc.screen != null && !(mc.screen instanceof CommandScreen)) mc.setScreen(null);
+        if (mc.screen != null && !(mc.screen instanceof CommandScreen) && !(mc.screen instanceof WorkbenchScreen)) mc.setScreen(null);
         mc.options.hideGui = !showGui;
         if (inWorld < 0) {
             inWorld = tick;

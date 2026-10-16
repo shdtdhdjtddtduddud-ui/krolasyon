@@ -87,6 +87,21 @@ public final class ModItems {
         }
     }
 
+    /** every loose beyblade part, by part id */
+    public static final java.util.Map<String, RegistryObject<Item>> PARTS = new java.util.LinkedHashMap<>();
+
+    static {
+        for (com.krolasyon.beyblade.parts.BeyPart p : com.krolasyon.beyblade.parts.BeyPart.all()) {
+            Rarity r = switch (p.rarity()) { case 3 -> Rarity.EPIC; case 2 -> Rarity.RARE; case 1 -> Rarity.UNCOMMON; default -> Rarity.COMMON; };
+            PARTS.put(p.id(), ITEMS.register(p.itemId(), () -> new com.krolasyon.beyblade.item.PartItem(new Item.Properties().stacksTo(16).rarity(r), p)));
+        }
+    }
+
+    public static Item part(String id) { return PARTS.get(id).get(); }
+
+    public static final RegistryObject<Item> WORKBENCH = ITEMS.register("bey_workbench",
+            () -> new net.minecraft.world.item.BlockItem(com.krolasyon.beyblade.registry.ModBlocks.WORKBENCH.get(), new Item.Properties()));
+
     public static final RegistryObject<Item> STANDARD_LAUNCHER = ITEMS.register("standard_launcher",
             () -> new LauncherItem(new Item.Properties().stacksTo(1), null, null));
 
@@ -124,6 +139,8 @@ public final class ModItems {
                 output.accept(BEFFAL_LAUNCHER.get());
                 output.accept(RIVAL_BEFFAL.get());
                 output.accept(STADIUM.get());
+                output.accept(WORKBENCH.get());
+                for (RegistryObject<Item> p : PARTS.values()) output.accept(p.get());
             })
             .build());
 }

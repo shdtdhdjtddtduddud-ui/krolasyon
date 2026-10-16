@@ -217,6 +217,80 @@
      ]
     }
    ]
+  },
+  {
+   "rolls": 2,
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:part_track_85",
+     "weight": 3
+    },
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:part_track_100",
+     "weight": 3
+    },
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:part_track_125",
+     "weight": 3
+    },
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:part_track_bd145",
+     "weight": 2
+    },
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:part_track_c145",
+     "weight": 2
+    },
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:part_track_w105",
+     "weight": 2
+    },
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:part_tip_rf",
+     "weight": 2
+    },
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:part_tip_sf",
+     "weight": 3
+    },
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:part_tip_d",
+     "weight": 3
+    },
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:part_tip_wd",
+     "weight": 2
+    },
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:part_tip_mf",
+     "weight": 1
+    },
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:part_tip_es",
+     "weight": 1
+    },
+    {
+     "type": "minecraft:item",
+     "name": "librabeyblade:part_wheel_bigbang",
+     "weight": 1
+    },
+    {
+     "type": "minecraft:empty",
+     "weight": 6
+    }
+   ]
   }
  ]
 }

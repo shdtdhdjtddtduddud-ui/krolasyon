@@ -50,7 +50,9 @@ public class BeybladeRenderer extends EntityRenderer<BeybladeEntity> {
         boolean tempo = e instanceof TempoEntity;
         boolean variares = e instanceof VariaresEntity;
         boolean beffal = e instanceof BeffalEntity;
-        BeyMesh mesh = BeyMesh.of(e);
+        com.krolasyon.beyblade.parts.Loadout parts = e.parts();
+        BeyMesh mesh = BeyMesh.forLoadout(parts, BeyMesh.of(e));
+        float partLift = mesh.lift(parts);
         int dir = e.spinDir();
         double ex = Mth.lerp(partial, e.xo, e.getX()), ey = Mth.lerp(partial, e.yo, e.getY()), ez = Mth.lerp(partial, e.zo, e.getZ());
 
@@ -215,9 +217,9 @@ public class BeybladeRenderer extends EntityRenderer<BeybladeEntity> {
 
         pose.pushPose();
         pose.mulPose(Axis.YP.rotationDegrees(-spin * dir));
-        mesh.render(pose, buf, light, overlay, 1F, 1F, 1F);
+        mesh.renderAssembled(pose, buf, light, overlay, parts);
         float g = glow + flash * 0.8F;
-        mesh.renderGlow(pose, buf, glowCol[0] * g, glowCol[1] * g, glowCol[2] * g);
+        mesh.renderGlowAssembled(pose, buf, glowCol[0] * g, glowCol[1] * g, glowCol[2] * g, parts);
         pose.popPose();
 
         // ---- spin motion blur: translucent copies of the face trailing the rotation
@@ -228,7 +230,7 @@ public class BeybladeRenderer extends EntityRenderer<BeybladeEntity> {
             for (int k = 1; k <= 6; k++) {
                 pose.pushPose();
                 pose.mulPose(Axis.YP.rotationDegrees((-spin + speed * 0.09F * k) * dir));
-                mesh.renderGhostDisc(pose, buf, light, a * (1F - k * 0.14F), mesh.TOP_Y + 0.006F * k);
+                mesh.renderGhostDisc(pose, buf, light, a * (1F - k * 0.14F), mesh.TOP_Y + partLift + 0.006F * k);
                 pose.popPose();
             }
             // speed streaks around the rim

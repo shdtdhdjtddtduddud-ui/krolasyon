@@ -98,6 +98,8 @@ public class BeybladeEntity extends Entity {
     private static final EntityDataAccessor<Integer> DATA_SPIRIT = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_SPIRIT_END = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_XP = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.INT);
+    /** the assembled parts ("wheel;track;tip;ring;bolt"), for the renderer */
+    private static final EntityDataAccessor<String> DATA_PARTS = SynchedEntityData.defineId(BeybladeEntity.class, EntityDataSerializers.STRING);
     @SuppressWarnings("unchecked")
     private static final EntityDataAccessor<Integer>[] DATA_COOLDOWN = new EntityDataAccessor[ABILITY_COUNT];
 
@@ -166,12 +168,13 @@ public class BeybladeEntity extends Entity {
         if (owner != null) b.entityData.set(DATA_OWNER, Optional.of(owner.getUUID()));
         b.stored = stack.copy();
         b.initFromItem(stack);
+        b.refreshLoadout();
         CompoundTag t = com.krolasyon.beyblade.compat.V.tag(stack);
         int lvl = t != null && t.contains("BeyLevel") ? Mth.clamp(t.getInt("BeyLevel"), 1, MAX_LEVEL) : 1;
         b.entityData.set(DATA_LEVEL, lvl);
         b.entityData.set(DATA_XP, t != null ? t.getInt("BeyXp") : 0);
         if (t != null && t.contains("BeyMode")) b.entityData.set(DATA_MODE, Mth.clamp(t.getInt("BeyMode"), 0, MODE_COUNT - 1));
-        float max = maxSpinFor(lvl);
+        float max = maxSpinFor(lvl) * b.partsSpinMul();
         b.entityData.set(DATA_MAX_SPIN, max);
         b.entityData.set(DATA_SPIN, max * Mth.clamp(power, 0.35F, 1F));
         b.home = pos;
@@ -192,6 +195,7 @@ public class BeybladeEntity extends Entity {
         this.entityData.define(DATA_ORDER, OR_AUTO);
         this.entityData.define(DATA_LEVEL, 1);
         this.entityData.define(DATA_XP, 0);
+        this.entityData.define(DATA_PARTS, "");
         this.entityData.define(DATA_SPIRIT, 0);
         this.entityData.define(DATA_SPIRIT_END, 0);
         for (EntityDataAccessor<Integer> a : DATA_COOLDOWN) this.entityData.define(a, 0);
@@ -276,6 +280,10 @@ public class BeybladeEntity extends Entity {
     public int getSpirit() { return this.entityData.get(DATA_SPIRIT); }
     public void addSpirit(int n) {
         if (getState() != STATE_BATTLE || isSpiritActive()) return;
+        // the face bolt carries the bit-beast: rarer / upgraded bolts fire the Blader Spirit up faster
+        com.krolasyon.beyblade.parts.Loadout l = parts();
+        com.krolasyon.beyblade.parts.BeyPart bolt = l.get(com.krolasyon.beyblade.parts.PartType.BOLT);
+        if (bolt != null && n > 0) n = Math.round(n * (1F + 0.08F * bolt.rarity() + 0.06F * l.level(com.krolasyon.beyblade.parts.PartType.BOLT)));
         this.entityData.set(DATA_SPIRIT, Mth.clamp(getSpirit() + n, 0, SPIRIT_MAX));
     }
     /** Blader Spirit burst (anime "Get up!"): more power and speed, spin recovers, moves recharge faster */
@@ -316,7 +324,7 @@ public class BeybladeEntity extends Entity {
         if (getOrder() == OR_UPPER) m *= 0.9F;
         if (isSpiritActive()) m *= 1.3F;
         if (isFinalDrive()) m *= 1.15F;
-        return m * (1F + 0.03F * (getLevel() - 1));
+        return m * (1F + 0.03F * (getLevel() - 1)) * com.krolasyon.beyblade.parts.Loadout.mul(parts().attack());
     }
     /** multiplier on spin damage taken */
     public float guardMul() {
@@ -324,13 +332,18 @@ public class BeybladeEntity extends Entity {
         if (nativeBonus()) m *= 0.92F;
         if (getOrder() == OR_DEFEND) m *= 0.7F;
         if (getOrder() == OR_BERSERK) m *= 1.15F;
-        return m;
+        com.krolasyon.beyblade.parts.Loadout l = parts();
+        if (l.trackTrait() == com.krolasyon.beyblade.parts.BeyPart.Trait.DEFENSE_RING) m *= 0.92F;
+        return m / com.krolasyon.beyblade.parts.Loadout.mul(l.defense());
     }
     public double modeSpeed() {
         double m = switch (getMode()) { case MODE_ATTACK -> 1.25; case MODE_DEFENSE -> 0.85; case MODE_STAMINA -> 0.9; default -> 1.05; };
         if (isSpiritActive()) m *= 1.2;
         if (isFinalDrive()) m *= 1.25;
-        return m * (1.0 + 0.008 * (getLevel() - 1));
+        com.krolasyon.beyblade.parts.Loadout l = parts();
+        // Final Drive tips switch to a flat, faster mode when the spin runs low
+        if (l.tip() == com.krolasyon.beyblade.parts.BeyPart.Tip.FINAL_DRIVE && spinRatio() < 0.35F) m *= 1.2;
+        return m * (1.0 + 0.008 * (getLevel() - 1)) * com.krolasyon.beyblade.parts.Loadout.mul(l.speed());
     }
     public float modeDecay() {
         float m = switch (getMode()) { case MODE_ATTACK -> 1.25F; case MODE_DEFENSE -> 0.95F; case MODE_STAMINA -> 0.55F; default -> 0.85F; };
@@ -338,11 +351,25 @@ public class BeybladeEntity extends Entity {
         if (getOrder() == OR_CONSERVE) m *= 0.6F;
         if (getOrder() == OR_BERSERK) m *= 1.3F;
         if (isLifeAfterDeath()) m *= 0.4F;
-        return m;
+        com.krolasyon.beyblade.parts.Loadout l = parts();
+        com.krolasyon.beyblade.parts.BeyPart.Trait tr = l.trackTrait();
+        if (tr == com.krolasyon.beyblade.parts.BeyPart.Trait.WING) m *= 0.92F;
+        if (tr == com.krolasyon.beyblade.parts.BeyPart.Trait.TORNADO) m *= 0.9F;
+        if (l.tip() == com.krolasyon.beyblade.parts.BeyPart.Tip.FINAL_SURVIVE && spinRatio() < 0.3F) m *= 0.6F;
+        return m / com.krolasyon.beyblade.parts.Loadout.mul(l.stamina());
     }
     /** how much of a collision knock this beyblade takes */
     public double knockMul() {
         double m = switch (getMode()) { case MODE_ATTACK -> 1.1; case MODE_DEFENSE -> 0.45; case MODE_STAMINA -> 1.0; default -> 0.8; };
+        com.krolasyon.beyblade.parts.Loadout l = parts();
+        // heavier combos are pushed around less; some tracks hold the ground
+        m *= Mth.clamp(40.0 / Math.max(20F, l.weight()), 0.72, 1.35);
+        switch (l.trackTrait()) {
+            case BOOST_DISK -> m *= 0.8;
+            case RUBBER_RING -> m *= 0.85;
+            case GRAVITY -> m *= 1.15;
+            default -> {}
+        }
         return getOrder() == OR_DEFEND ? m * 0.5 : m;
     }
     public boolean isRamming() { return pendingAbility != 0; }
@@ -823,8 +850,11 @@ public class BeybladeEntity extends Entity {
         double impact = -rel;
         boolean heavy = impact > 0.42;
         float base = (float) (10 + 150 * impact);
-        float toO = base * (0.6F + 0.6F * spinRatio()) * buffAttackMul() * powerMul();
-        float toMe = base * (0.6F + 0.6F * o.spinRatio()) * o.buffAttackMul() * o.powerMul();
+        float toO = base * (0.6F + 0.6F * spinRatio()) * buffAttackMul() * powerMul() * partsClashMul(o);
+        float toMe = base * (0.6F + 0.6F * o.spinRatio()) * o.buffAttackMul() * o.powerMul() * o.partsClashMul(this);
+        // a taller spin track strikes the other one from above (upper attack)
+        if (heightEdge(o) && partsUpperKick()) o.setDeltaMovement(o.getDeltaMovement().add(0, 0.22, 0));
+        if (o.heightEdge(this) && o.partsUpperKick()) setDeltaMovement(getDeltaMovement().add(0, 0.22, 0));
         if (toO >= 15F) addXp(1);
         if (toMe >= 15F) o.addXp(1);
         if (o.tryDodge(this)) toO = 0F;
@@ -952,6 +982,8 @@ public class BeybladeEntity extends Entity {
     public void damageSpin(float amount, @Nullable Entity source) {
         if (getState() != STATE_BATTLE || amount <= 0) return;
         float taken = amount * incomingMul() * guardMul();
+        // eternal / 4D tips turn freely and lose less spin
+        if (parts().tip().freeSpin()) taken *= 0.86F;
         setSpin(getSpin() - taken);
         if (taken > 30F) addSpirit(4);
         // Defense types bounce part of a collision back at the attacker (counter)
@@ -1777,6 +1809,7 @@ public class BeybladeEntity extends Entity {
         this.entityData.set(DATA_SPIRIT, Mth.clamp(tag.getInt("Spirit"), 0, SPIRIT_MAX));
         if (tag.contains("Level") && !tag.contains("MaxSpin")) this.entityData.set(DATA_MAX_SPIN, maxSpinFor(getLevel()));
         if (tag.contains("Item")) stored = com.krolasyon.beyblade.compat.V.loadStack(level(), tag.getCompound("Item"));
+        refreshLoadout();
         if (tag.contains("HomeX")) home = new Vec3(tag.getDouble("HomeX"), tag.getDouble("HomeY"), tag.getDouble("HomeZ"));
         long now = this.level() == null ? 0 : this.level().getGameTime();
         for (int i = 0; i < ABILITY_COUNT; i++) {
@@ -1807,6 +1840,61 @@ public class BeybladeEntity extends Entity {
         for (int i = 1; i <= ABILITY_COUNT; i++) tag.putInt("Cooldown" + i, cooldownRemaining(i));
     }
 
+
+    // ---------------- parts (customisation) ----------------
+    @Nullable private com.krolasyon.beyblade.parts.Loadout loadout;
+    private String clientPartsKey;
+    private com.krolasyon.beyblade.parts.Loadout clientLoadout;
+
+    /** server: re-read the parts from the launched item */
+    public void refreshLoadout() {
+        loadout = com.krolasyon.beyblade.parts.Loadout.of(stored.isEmpty() ? defaultItem() : stored);
+        this.entityData.set(DATA_PARTS, loadout.encode());
+    }
+
+    /** the assembled parts (server: from the item, client: from the synced data) */
+    public com.krolasyon.beyblade.parts.Loadout parts() {
+        if (this.level().isClientSide()) {
+            String k = this.entityData.get(DATA_PARTS);
+            if (clientLoadout == null || !k.equals(clientPartsKey)) {
+                clientPartsKey = k;
+                clientLoadout = com.krolasyon.beyblade.parts.Loadout.decode(defaultItem().getItem() instanceof com.krolasyon.beyblade.item.LibraItem li ? li.kind() : kindId(), k);
+            }
+            return clientLoadout;
+        }
+        if (loadout == null) refreshLoadout();
+        return loadout;
+    }
+
+    /** stamina parts give a little more spin to start with */
+    public float partsSpinMul() { return 0.92F + 0.08F * com.krolasyon.beyblade.parts.Loadout.mul(parts().stamina()); }
+
+    /** taller track by at least 2 mm (Twin Height counts as tall against anything up to 14.5) */
+    public boolean heightEdge(BeybladeEntity o) {
+        int a = parts().height(), b = o.parts().height();
+        if (parts().trackTrait() == com.krolasyon.beyblade.parts.BeyPart.Trait.TWIN_HEIGHT && b <= 145) return true;
+        return a - b >= 20;
+    }
+
+    /** tracks built to lift the other beyblade when striking from above */
+    public boolean partsUpperKick() {
+        var t = parts().trackTrait();
+        return t == com.krolasyon.beyblade.parts.BeyPart.Trait.UPPER_WING || t == com.krolasyon.beyblade.parts.BeyPart.Trait.CLAW
+                || t == com.krolasyon.beyblade.parts.BeyPart.Trait.GRAVITY;
+    }
+
+    /** clash damage from weight and height against this opponent */
+    public float partsClashMul(BeybladeEntity o) {
+        float m = (float) Math.pow(Math.max(20F, parts().weight()) / Math.max(20F, o.parts().weight()), 0.35);
+        if (heightEdge(o)) {
+            var t = parts().trackTrait();
+            m *= t == com.krolasyon.beyblade.parts.BeyPart.Trait.GRAVITY ? 1.2F : t == com.krolasyon.beyblade.parts.BeyPart.Trait.CLAW ? 1.18F : 1.1F;
+        }
+        return Mth.clamp(m, 0.7F, 1.4F);
+    }
+
+    /** test hook: hold still (as the Frozen NBT flag) */
+    public void setFrozen(boolean f) { frozen = f; }
 
     /** test hook: force an ability regardless of cooldown */
     public void debugForceAbility(int id) {

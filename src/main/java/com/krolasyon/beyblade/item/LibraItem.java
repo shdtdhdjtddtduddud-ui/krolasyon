@@ -92,6 +92,20 @@ public class LibraItem extends Item {
         tip.add(Component.translatable("item.librabeyblade.level", lvl, xp, BeybladeEntity.xpNeeded(lvl)).withStyle(ChatFormatting.YELLOW));
         if (mode >= 0) tip.add(Component.translatable("item.librabeyblade.mode", Component.translatable("mode.librabeyblade." + BeybladeEntity.MODE_IDS[mode]))
                 .withStyle(ChatFormatting.BLUE));
+        // assembled parts and what they add up to
+        com.krolasyon.beyblade.parts.Loadout parts = com.krolasyon.beyblade.parts.Loadout.of(stack);
+        for (com.krolasyon.beyblade.parts.PartType pt : com.krolasyon.beyblade.parts.PartType.values()) {
+            com.krolasyon.beyblade.parts.BeyPart bp = parts.get(pt);
+            int pl = parts.level(pt);
+            tip.add(Component.literal(" ▪ ").withStyle(ChatFormatting.DARK_GRAY).append(Component.translatable(pt.nameKey()).withStyle(ChatFormatting.GRAY))
+                    .append(Component.literal(": ").withStyle(ChatFormatting.DARK_GRAY))
+                    .append(bp == null ? Component.translatable("item.librabeyblade.part.missing").withStyle(ChatFormatting.RED)
+                            : Component.translatable(bp.nameKey()).withStyle(ChatFormatting.WHITE))
+                    .append(Component.literal(pl > 0 ? " " + "★".repeat(pl) : "").withStyle(ChatFormatting.GOLD)));
+        }
+        tip.add(Component.translatable("item.librabeyblade.parts.stats", Math.round(parts.attack()), Math.round(parts.defense()),
+                Math.round(parts.stamina()), Math.round(parts.speed()), String.format(java.util.Locale.ROOT, "%.1f", parts.weight())).withStyle(ChatFormatting.DARK_AQUA));
+        if (!parts.complete()) tip.add(Component.translatable("msg.librabeyblade.incomplete").withStyle(ChatFormatting.RED));
         if (variant >= 0) {
             CommonBeybladeEntity.Variant v = CommonBeybladeEntity.VARIANTS[variant];
             tip.add(Component.translatable("item.librabeyblade.common.desc2").withStyle(ChatFormatting.GRAY));

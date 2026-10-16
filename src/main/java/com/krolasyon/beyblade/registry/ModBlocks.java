@@ -17,4 +17,8 @@ public final class ModBlocks {
     public static final RegistryObject<Block> STADIUM_BARRIER = BLOCKS.register("stadium_barrier",
             () -> new StadiumBarrierBlock(BlockBehaviour.Properties.of().strength(-1F, 3600000F).noLootTable().noOcclusion()
                     .isValidSpawn((s, l, p, t) -> false).pushReaction(PushReaction.BLOCK)));
+
+    public static final RegistryObject<Block> WORKBENCH = BLOCKS.register("bey_workbench",
+            () -> new com.krolasyon.beyblade.workbench.WorkbenchBlock(BlockBehaviour.Properties.of().strength(2.5F)
+                    .sound(net.minecraft.world.level.block.SoundType.METAL)));
 }

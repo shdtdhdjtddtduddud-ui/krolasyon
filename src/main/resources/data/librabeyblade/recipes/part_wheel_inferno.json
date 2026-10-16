@@ -1,0 +1,23 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "DGD",
+  "GBG",
+  "DGD"
+ ],
+ "key": {
+  "D": {
+   "item": "minecraft:diamond"
+  },
+  "G": {
+   "item": "minecraft:gold_block"
+  },
+  "B": {
+   "item": "minecraft:magma_cream"
+  }
+ },
+ "result": {
+  "item": "librabeyblade:part_wheel_inferno",
+  "count": 1
+ }
+}

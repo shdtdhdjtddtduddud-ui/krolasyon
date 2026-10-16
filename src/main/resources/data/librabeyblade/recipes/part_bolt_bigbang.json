@@ -1,0 +1,17 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "ingredients": [
+  {
+   "item": "minecraft:iron_ingot"
+  },
+  {
+   "item": "minecraft:blue_dye"
+  },
+  {
+   "item": "minecraft:lapis_block"
+  }
+ ],
+ "result": {
+  "item": "librabeyblade:part_bolt_bigbang"
+ }
+}

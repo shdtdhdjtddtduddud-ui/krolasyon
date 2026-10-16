@@ -58,9 +58,23 @@ public final class BeyMesh {
     /** Evil Befall: radius 348 px, texture window half size 364 px */
     public static final BeyMesh BEFFAL = new BeyMesh("beffal", 1.28F, 1.48F, 364F / 348F);
 
+    /** wheels from the parts system that are not a beyblade of their own */
+    public static final BeyMesh BIGBANG = new BeyMesh("bigbang", 1.30F, 1.50F, 1.05F);
+    public static final BeyMesh PHOENIX = new BeyMesh("phoenix", 1.30F, 1.50F, 1.05F);
+    public static final BeyMesh INFERNO = new BeyMesh("inferno", 1.30F, 1.50F, 1.05F);
+
+    /** the top that a beyblade's fusion wheel draws (falls back to the beyblade's own mesh) */
+    public static BeyMesh forLoadout(com.krolasyon.beyblade.parts.Loadout lo, BeyMesh fallback) {
+        com.krolasyon.beyblade.parts.BeyPart w = lo == null ? null : lo.get(com.krolasyon.beyblade.parts.PartType.WHEEL);
+        return w == null ? fallback : of(w.mesh());
+    }
+
     public static BeyMesh of(String kind) {
         if (kind.startsWith("common_")) return common(Integer.parseInt(kind.substring(7)));
         return switch (kind) {
+            case "bigbang" -> BIGBANG;
+            case "phoenix" -> PHOENIX;
+            case "inferno" -> INFERNO;
             case "pegasus" -> PEGASUS;
             case "tempo" -> TEMPO;
             case "variares" -> VARIARES;
@@ -75,6 +89,8 @@ public final class BeyMesh {
     public final ResourceLocation FACE, GLOW, PARTS;
     public final float TOP_Y, HEIGHT;
     private final String name;
+    /** beyblade kind whose stock track and tip this mesh was built with */
+    private final String kind;
     private final float ghostHalf;
 
     private BeyMesh(String name, float topY, float height, float ghostHalf) {
@@ -83,6 +99,7 @@ public final class BeyMesh {
 
     private BeyMesh(String name, String meshName, float topY, float height, float ghostHalf) {
         this.name = meshName;
+        this.kind = name;
         this.FACE = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/entity/" + name + "_face.png");
         this.GLOW = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/entity/" + name + "_glow.png");
         this.PARTS = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/entity/" + name + "_parts.png");
@@ -128,6 +145,89 @@ public final class BeyMesh {
         emit(pose, vc, gr[PART], light, overlay, r, g, b, 1F);
     }
 
+    // ================= assembled parts =================
+    public static final ResourceLocation PLAIN = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/entity/part_plain.png");
+    private float[] under, lathe;
+    private float wheelBottom;
+
+    /** splits the parts group into the wheel's underside and the stock track + tip lathe below it */
+    private void split() {
+        if (under != null) return;
+        float[] p = groups()[PART];
+        float wb = -1;
+        for (int q = 0; q < p.length; q += 32) {
+            boolean narrow = true;
+            float maxY = -9;
+            for (int v = 0; v < 4; v++) {
+                int o = q + v * 8;
+                if (Math.sqrt(p[o] * p[o] + p[o + 2] * p[o + 2]) > 0.305) narrow = false;
+                maxY = Math.max(maxY, p[o + 1]);
+            }
+            if (narrow) wb = Math.max(wb, maxY);
+        }
+        java.util.List<Float> u = new java.util.ArrayList<>(), l = new java.util.ArrayList<>();
+        float minUnder = 9;
+        for (int q = 0; q < p.length; q += 32) {
+            float minY = 9;
+            for (int v = 0; v < 4; v++) minY = Math.min(minY, p[q + v * 8 + 1]);
+            java.util.List<Float> dst = wb > 0 && minY < wb - 1.0E-4F ? l : u;
+            if (dst == u) minUnder = Math.min(minUnder, minY);
+            for (int k = 0; k < 32; k++) dst.add(p[q + k]);
+        }
+        wheelBottom = wb > 0 ? wb : (minUnder < 9 ? minUnder : 0.86F);
+        under = toArray(u);
+        lathe = toArray(l);
+    }
+
+    private static float[] toArray(java.util.List<Float> l) {
+        float[] a = new float[l.size()];
+        for (int i = 0; i < a.length; i++) a[i] = l.get(i);
+        return a;
+    }
+
+    /** whether these parts are exactly what the mesh was built with (then the original lathe is drawn) */
+    private boolean stockBottom(com.krolasyon.beyblade.parts.Loadout lo) {
+        split();
+        if (lathe.length == 0) return false;
+        String[] st = com.krolasyon.beyblade.parts.BeyPart.stock(kind);
+        var tr = lo.get(com.krolasyon.beyblade.parts.PartType.TRACK);
+        var tp = lo.get(com.krolasyon.beyblade.parts.PartType.TIP);
+        return tr != null && tp != null && tr.id().equals(st[3]) && tp.id().equals(st[4]);
+    }
+
+    /** how far the top is raised (or lowered) by the fitted track and tip, in model units */
+    public float lift(com.krolasyon.beyblade.parts.Loadout lo) {
+        if (lo == null || stockBottom(lo)) return 0F;
+        return PartLathe.wheelBottom(lo) - wheelBottom;
+    }
+
+    /** the beyblade as assembled: this wheel's top, then the fitted track and tip drawn from their shapes */
+    public void renderAssembled(PoseStack pose, MultiBufferSource buffers, int light, int overlay, com.krolasyon.beyblade.parts.Loadout lo) {
+        if (lo == null || stockBottom(lo)) {
+            render(pose, buffers, light, overlay, 1F, 1F, 1F);
+            return;
+        }
+        float dy = lift(lo);
+        pose.pushPose();
+        pose.translate(0, dy, 0);
+        float[][] gr = groups();
+        VertexConsumer vc = buffers.getBuffer(RenderType.entityCutoutNoCull(FACE));
+        emit(pose, vc, gr[TOP], light, overlay, 1F, 1F, 1F, 1F);
+        emit(pose, vc, gr[SIDE], light, overlay, 1F, 1F, 1F, 1F);
+        vc = buffers.getBuffer(RenderType.entityCutoutNoCull(PARTS));
+        emit(pose, vc, under, light, overlay, 1F, 1F, 1F, 1F);
+        pose.popPose();
+        PartLathe.render(pose, buffers.getBuffer(RenderType.entityCutoutNoCull(PLAIN)), light, overlay, lo);
+    }
+
+    public void renderGlowAssembled(PoseStack pose, MultiBufferSource buffers, float r, float g, float b, com.krolasyon.beyblade.parts.Loadout lo) {
+        float dy = lift(lo);
+        pose.pushPose();
+        pose.translate(0, dy, 0);
+        renderGlow(pose, buffers, r, g, b);
+        pose.popPose();
+    }
+
     /** additive emissive pass over the top surface (clear wheel + emblem glow) */
     public void renderGlow(PoseStack pose, MultiBufferSource buffers, float r, float g, float b) {
         if (r <= 0.003F && g <= 0.003F && b <= 0.003F) return;
@@ -151,7 +251,7 @@ public final class BeyMesh {
         com.krolasyon.beyblade.compat.VClient.vertex(vc, m, n, x, y, z, 1F, 1F, 1F, a, u, v, OverlayTexture.NO_OVERLAY, light, 0, 1, 0);
     }
 
-    private static void emit(PoseStack pose, VertexConsumer vc, float[] d, int light, int overlay, float r, float g, float b, float a) {
+    static void emit(PoseStack pose, VertexConsumer vc, float[] d, int light, int overlay, float r, float g, float b, float a) {
         Matrix4f m = pose.last().pose();
         Matrix3f n = pose.last().normal();
         for (int i = 0; i < d.length; i += 8) {

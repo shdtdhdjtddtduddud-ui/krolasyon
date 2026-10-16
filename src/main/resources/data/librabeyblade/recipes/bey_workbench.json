@@ -1,0 +1,29 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "pattern": [
+  "PRP",
+  "ICI",
+  "SSS"
+ ],
+ "key": {
+  "P": {
+   "item": "minecraft:purple_dye"
+  },
+  "R": {
+   "item": "minecraft:redstone"
+  },
+  "I": {
+   "item": "minecraft:iron_ingot"
+  },
+  "C": {
+   "item": "minecraft:crafting_table"
+  },
+  "S": {
+   "item": "minecraft:smooth_stone"
+  }
+ },
+ "result": {
+  "item": "librabeyblade:bey_workbench",
+  "count": 1
+ }
+}

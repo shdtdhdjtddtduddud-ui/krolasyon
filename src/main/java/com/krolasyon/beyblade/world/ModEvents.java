@@ -75,6 +75,23 @@ public final class ModEvents {
             b.add(LootItem.lootTableItem(ModItems.STANDARD_LAUNCHER.get()).setWeight(4));
             b.add(EmptyLootItem.emptyItem().setWeight(60));
             event.getTable().addPool(b.build());
+            // loose parts: tracks and tips, now and then a rare one
+            LootPool.Builder pb = LootPool.lootPool().name("librabeyblade_parts").setRolls(ConstantValue.exactly(1));
+            for (com.krolasyon.beyblade.parts.BeyPart part : com.krolasyon.beyblade.parts.BeyPart.all()) {
+                if (part.type() != com.krolasyon.beyblade.parts.PartType.TRACK && part.type() != com.krolasyon.beyblade.parts.PartType.TIP) continue;
+                pb.add(LootItem.lootTableItem(ModItems.part(part.id())).setWeight(part.rarity() == 0 ? 6 : part.rarity() == 1 ? 3 : 1));
+            }
+            pb.add(EmptyLootItem.emptyItem().setWeight(70));
+            event.getTable().addPool(pb.build());
+        }
+        if (SPECIAL_TABLES.contains(path)) {
+            // the photo wheel sets (Big Bang, Phoenix, Inferno): rare finds in the hardest structures
+            LootPool.Builder wb = LootPool.lootPool().name("librabeyblade_wheels").setRolls(ConstantValue.exactly(1));
+            for (String id : List.of("wheel_bigbang", "wheel_phoenix", "wheel_inferno", "ring_bigbang", "ring_phoenix", "ring_inferno",
+                    "bolt_bigbang", "bolt_phoenix", "bolt_inferno", "track_th170", "track_230", "tip_fd", "tip_xf"))
+                wb.add(LootItem.lootTableItem(ModItems.part(id)).setWeight(id.startsWith("wheel") ? 1 : 2));
+            wb.add(EmptyLootItem.emptyItem().setWeight(path.contains("ancient_city") || path.contains("end_city") ? 40 : 110));
+            event.getTable().addPool(wb.build());
         }
     }
 }

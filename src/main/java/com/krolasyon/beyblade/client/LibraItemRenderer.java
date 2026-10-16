@@ -59,8 +59,10 @@ public class LibraItemRenderer extends BlockEntityWithoutLevelRenderer {
             default -> s = 0.4F;
         }
         pose.scale(s, s, s);
-        pose.translate(0, -mesh.HEIGHT * 0.5, 0);
-        mesh.render(pose, buf, light, overlay, 1F, 1F, 1F);
+        com.krolasyon.beyblade.parts.Loadout parts = com.krolasyon.beyblade.parts.Loadout.of(stack);
+        BeyMesh m = BeyMesh.forLoadout(parts, mesh);
+        pose.translate(0, -(m.HEIGHT + m.lift(parts)) * 0.5, 0);
+        m.renderAssembled(pose, buf, light, overlay, parts);
         pose.popPose();
     }
 }

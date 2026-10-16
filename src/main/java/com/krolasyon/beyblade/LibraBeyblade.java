@@ -21,6 +21,7 @@ public class LibraBeyblade {
         ModItems.ITEMS.register(bus);
         ModItems.TABS.register(bus);
         ModSounds.SOUNDS.register(bus);
+        com.krolasyon.beyblade.registry.ModMenus.MENUS.register(bus);
         bus.addListener(this::commonSetup);
         if (Boolean.getBoolean("libra.autotest") && net.minecraftforge.fml.loading.FMLEnvironment.dist == Dist.CLIENT) {
             com.krolasyon.beyblade.client.AutoTest.init();

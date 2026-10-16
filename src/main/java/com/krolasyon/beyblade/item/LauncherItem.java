@@ -45,12 +45,24 @@ public class LauncherItem extends Item {
 
     public int findLibra(Player p) {
         int off = p.getInventory().getContainerSize() - 1;
-        if (isStandard() && p.getInventory().getItem(off).getItem() instanceof LibraItem) return off;
+        ItemStack offStack = p.getInventory().getItem(off);
+        if (isStandard() && offStack.getItem() instanceof LibraItem && complete(offStack)) return off;
         for (int i = 0; i < p.getInventory().getContainerSize(); i++) {
             ItemStack s = p.getInventory().getItem(i);
-            if (isStandard() ? s.getItem() instanceof LibraItem : s.is(beyItem.get())) return i;
+            if ((isStandard() ? s.getItem() instanceof LibraItem : s.is(beyItem.get())) && complete(s)) return i;
         }
         return -1;
+    }
+
+    /** a beyblade with a part missing (taken off at the workbench) cannot be launched */
+    private static boolean complete(ItemStack s) { return com.krolasyon.beyblade.parts.Loadout.of(s).complete(); }
+
+    private boolean hasIncomplete(Player p) {
+        for (int i = 0; i < p.getInventory().getContainerSize(); i++) {
+            ItemStack s = p.getInventory().getItem(i);
+            if ((isStandard() ? s.getItem() instanceof LibraItem : s.is(beyItem.get())) && !complete(s)) return true;
+        }
+        return false;
     }
 
     @Override
@@ -65,7 +77,8 @@ public class LauncherItem extends Item {
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
         }
         if (findLibra(player) < 0) {
-            if (!level.isClientSide()) player.displayClientMessage(isStandard() ? Component.translatable("msg.librabeyblade.no_bey_any")
+            if (!level.isClientSide() && hasIncomplete(player)) player.displayClientMessage(Component.translatable("msg.librabeyblade.incomplete").withStyle(ChatFormatting.RED), true);
+            else if (!level.isClientSide()) player.displayClientMessage(isStandard() ? Component.translatable("msg.librabeyblade.no_bey_any")
                     : Component.translatable("msg.librabeyblade.no_bey", beyItem.get().getDescription()), true);
             return InteractionResultHolder.fail(stack);
         }
