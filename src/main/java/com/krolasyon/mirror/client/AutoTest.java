@@ -47,6 +47,7 @@ public final class AutoTest {
     private final List<Step> steps = new ArrayList<>();
     private int stepIndex;
     private int stepStart;
+    private volatile boolean pending;
 
     record Step(int delay, String shot, Consumer<MinecraftServer> action) {}
 
@@ -157,13 +158,20 @@ public final class AutoTest {
         Step st = steps.get(stepIndex);
         if (tick == stepStart && st.action() != null) {
             MinecraftServer s = mc.getSingleplayerServer();
+            pending = true;
             s.execute(() -> {
                 try {
                     st.action().accept(s);
                 } catch (Throwable t) {
                     LOG.error("[AUTOTEST] step failed", t);
                 }
+                pending = false;
             });
+        }
+        if (pending) {
+            // the server may stall (e.g. generating mirror chunks): count the delay from when the action ran
+            stepStart = tick;
+            return;
         }
         if (tick - stepStart >= st.delay()) {
             if (st.shot() != null) {

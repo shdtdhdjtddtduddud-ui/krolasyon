@@ -39,9 +39,6 @@ def backdrop():
             shade = 0.82 + 0.18 * min(1.0, edge * 1.6)
             c = [clamp((a[i] + (b[i] - a[i]) * k) * shade + random.randint(-3, 3)) for i in range(3)]
             full.putpixel((x, y), (*c, 255))
-    for _ in range(9):
-        x, y = random.randint(2, 13), random.randint(1, 18)
-        full.putpixel((x, y), (235, 240, 255, 255))
     full.crop((0, 0, 16, 16)).save(OUT + "block/mirror_back_top.png")
     full.crop((0, 16, 16, 32)).save(OUT + "block/mirror_back_bottom.png")
 

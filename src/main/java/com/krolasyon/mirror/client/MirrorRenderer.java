@@ -49,7 +49,7 @@ public class MirrorRenderer implements BlockEntityRenderer<MirrorBlockEntity> {
     static final float GLASS_Z = -0.5F + 2.5F / 16F;
     static final float FIG_Z = -0.385F;
     static final float X_HALF = 0.375F, Y_MIN = 0.125F, Y_MAX = 1.875F;
-    static final float DIO_S = 0.068F, DIO_FLAT = 0.034F, DIO_Z = -0.405F;
+    static final float DIO_S = 0.082F, DIO_FLAT = 0.03F, DIO_Z = -0.405F;
     private static final int FOG = 0xD0E4F2FF;
     private static final BlockState GRASS = Blocks.GRASS_BLOCK.defaultBlockState();
 
@@ -157,13 +157,12 @@ public class MirrorRenderer implements BlockEntityRenderer<MirrorBlockEntity> {
                 text(ps, buf, Component.translatable("mirrorworld.glass.help"), 1.7F, 0.0092F, FOG);
             }
             case MirrorBlockEntity.DONE -> {
-                diorama(ps, buf, n0, inner, shown, p -> {
-                    reset(m);
-                    idle(m, t);
-                    wave(m, t);
-                    finish(m);
-                    drawFigure(p, buf, inner, m, skin, 0F, 0F, -1.9F, 1F, 0F, false, 1F);
-                });
+                diorama(ps, buf, n0, inner, shown, null);
+                reset(m);
+                idle(m, t);
+                wave(m, t);
+                finish(m);
+                drawFigure(ps, buf, inner, m, skin, -0.2F, 0.16F, FIG_Z, 0.4F, 0F, false, 0.12F);
                 int alpha = (int) (150 + 90 * Mth.sin(t * 0.08F));
                 text(ps, buf, Component.translatable("mirrorworld.glass.break"), 1.7F, 0.0072F, (alpha << 24) | 0xE4F2FF);
                 text(ps, buf, Component.translatable("mirrorworld.glass.break2"), 1.6F, 0.0042F, (alpha << 24) | 0xE4F2FF);
@@ -222,7 +221,7 @@ public class MirrorRenderer implements BlockEntityRenderer<MirrorBlockEntity> {
         ps.translate(0, Y_MIN + DIO_S, DIO_Z);
         ps.scale(DIO_S, DIO_S, DIO_S * DIO_FLAT);
         ps.last().normal().set(n0);
-        for (int x = -5; x <= 5; x++) {
+        for (int x = -4; x <= 4; x++) {
             for (int z = -1; z >= -11; z--) {
                 int fi = HouseBlueprint.foundationIndex(x, z);
                 if (fi >= 0 && fi < shown) continue;
