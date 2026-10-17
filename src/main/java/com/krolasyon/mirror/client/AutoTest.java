@@ -78,18 +78,15 @@ public final class AutoTest {
         cmd(2, null, "tp @a 0.5 -60 2.6 180 0");
         server(1, null, s -> be(s).debugAdvance());
         for (int i = 0; i < 6; i++) wait(45, "awaken_" + i);
-        server(10, "request_cobble", s -> be(s).debugAdvance());
-        server(12, "thanks", s -> be(s).debugAdvance());
-        for (String name : new String[]{"request_logs", "request_glass", "request_torch"}) {
-            server(10, null, s -> be(s).debugBuildUntilPause());
-            wait(30, name);
-            server(4, null, s -> be(s).debugAdvance());
-            server(30, name + "_build", s -> {
-                for (int i = 0; i < 25; i++) be(s).debugAdvance();
-            });
+        cmd(2, null, "tp @a 0.5 -60 3.2 180 22");
+        server(25, "request_cobble", s -> be(s).debugAdvance());
+        server(20, "clearing_land", s -> be(s).debugAdvance());
+        for (String name : new String[]{"logs", "glass", "torch"}) {
+            server(30, "request_" + name, s -> be(s).debugBuildUntilPause());
+            server(20, "thanks_" + name, s -> be(s).debugAdvance());
+            wait(60, "building_after_" + name);
         }
-        server(10, null, s -> be(s).debugBuildUntilPause());
-        wait(30, "done");
+        server(30, "done", s -> be(s).debugBuildUntilPause());
         cmd(20, "done_side", "tp @a 2.2 -60 2.2 140 -5");
         cmd(60, "mirror_world_front", "effect give @a night_vision 999 0 true",
                 "execute in mirrorworld:mirror run tp @a 0.5 -60 -1.6 180 -12");
