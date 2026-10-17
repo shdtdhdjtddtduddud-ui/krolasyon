@@ -1,0 +1,12 @@
+{
+  "variants": {
+    "facing=south,half=lower": { "model": "mirrorworld:block/magic_mirror_lower" },
+    "facing=west,half=lower": { "model": "mirrorworld:block/magic_mirror_lower", "y": 90 },
+    "facing=north,half=lower": { "model": "mirrorworld:block/magic_mirror_lower", "y": 180 },
+    "facing=east,half=lower": { "model": "mirrorworld:block/magic_mirror_lower", "y": 270 },
+    "facing=south,half=upper": { "model": "mirrorworld:block/magic_mirror_upper" },
+    "facing=west,half=upper": { "model": "mirrorworld:block/magic_mirror_upper", "y": 90 },
+    "facing=north,half=upper": { "model": "mirrorworld:block/magic_mirror_upper", "y": 180 },
+    "facing=east,half=upper": { "model": "mirrorworld:block/magic_mirror_upper", "y": 270 }
+  }
+}

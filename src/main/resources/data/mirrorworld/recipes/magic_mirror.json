@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": ["IAI", "IGI", "IGI"],
+  "key": {
+    "I": { "item": "minecraft:iron_ingot" },
+    "A": { "item": "minecraft:amethyst_shard" },
+    "G": { "item": "minecraft:glass" }
+  },
+  "result": { "item": "mirrorworld:magic_mirror" }
+}

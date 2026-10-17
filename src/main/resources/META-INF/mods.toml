@@ -3,23 +3,23 @@ loaderVersion="[47,)"
 license="All Rights Reserved"
 
 [[mods]]
-modId="krolasyonbosses"
-version="1.1.0"
-displayName="Krolasyon Bosses"
+modId="mirrorworld"
+version="1.0.0"
+displayName="Ayna Dunyasi (Mirror World)"
 authors="krolasyon"
 description='''
-Dort boss: Muhur Bekcisi, Kizil Cehennem Kurdu, Intikam ve Kalp Kirici Iblis.
-Her birinin 5 ozel yetenegi vardir ve etraftaki tum canavarlara saldirirlar.
+Urettigin aynanin icinde baska bir dunyadaki sen yasarsin. Once hareketlerini taklit eder, sonra kendi evini
+yapar ve cama vurarak senden yardim ister. Aynayi kirarsan iki dunya birlesir ve onun yaptigi her sey dunyana tasinir.
 '''
 
-[[dependencies.krolasyonbosses]]
+[[dependencies.mirrorworld]]
     modId="forge"
     mandatory=true
     versionRange="[47,)"
     ordering="NONE"
     side="BOTH"
 
-[[dependencies.krolasyonbosses]]
+[[dependencies.mirrorworld]]
     modId="minecraft"
     mandatory=true
     versionRange="[1.20.1,1.21)"
