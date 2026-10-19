@@ -9,6 +9,6 @@ public record Island(long seed, int cx, int cz, int baseY, int radius, int depth
 
     /** Horizontal distance beyond which nothing of this island (incl. tree canopy) can exist. */
     public int reach() {
-        return (int) Math.ceil(radius * 1.3) + (giantTree ? 18 : 8);
+        return (int) Math.ceil(radius * 1.3) + (giantTree ? 28 : 8);
     }
 }

@@ -52,7 +52,7 @@ public final class SkyIslandFeature extends Feature<NoneFeatureConfiguration> {
         int lowest = is.baseY() - is.depth() * 2 - 10;
         if (lowest > ground) return is;
         int baseY = ground + is.depth() * 2 + 12;
-        if (baseY + (is.giantTree() ? 45 : 20) > ctx.level().getMaxBuildHeight() - 2) return null;
+        if (baseY + (is.giantTree() ? 60 : 20) > ctx.level().getMaxBuildHeight() - 2) return null;
         return new Island(is.seed(), is.cx(), is.cz(), baseY, is.radius(), is.depth(), is.pond(), is.giantTree(), is.satellite());
     }
 }

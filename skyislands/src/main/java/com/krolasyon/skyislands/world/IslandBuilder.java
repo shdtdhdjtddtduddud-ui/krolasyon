@@ -118,7 +118,7 @@ public final class IslandBuilder {
         BlockPos below = new BlockPos(x, y, z);
         if (!sink.isAir(below)) return;
         double r = Noise.hash(is.seed() + 13, x, 1, z);
-        if (r < 0.07) {
+        if (r < 0.035) {
             // parlayan meyveli sarkan sarmaşıklar
             int len = 2 + (int) (Noise.hash(is.seed() + 14, x, 2, z) * 12);
             for (int i = 0; i < len; i++) {
@@ -130,9 +130,9 @@ public final class IslandBuilder {
                 sink.set(v, st);
                 if (last) break;
             }
-        } else if (r < 0.085) {
+        } else if (r < 0.05) {
             sink.set(below, Blocks.HANGING_ROOTS.defaultBlockState());
-        } else if (r < 0.088) {
+        } else if (r < 0.053) {
             sink.set(below, Blocks.SPORE_BLOSSOM.defaultBlockState());
         }
     }

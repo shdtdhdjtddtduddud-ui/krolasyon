@@ -38,7 +38,7 @@ public final class GiantTree {
         IslandShape.Column base = IslandShape.column(is, gx, gz);
         if (!base.inside()) return;
         int g0 = base.top() + 1;
-        int height = 20 + rnd.nextInt(10);
+        int height = 24 + is.radius() / 3 + rnd.nextInt(8);
         long s = is.seed() + 101;
 
         List<Capsule> branches = new ArrayList<>();
@@ -48,14 +48,14 @@ public final class GiantTree {
         for (int i = 0; i < nb; i++) {
             double hb = height * (0.5 + 0.45 * rnd.nextDouble());
             double ang = i * Math.PI * 2 / nb + rnd.nextDouble() * 0.6;
-            double len = 6 + rnd.nextDouble() * 6;
+            double len = 8 + rnd.nextDouble() * 7;
             double rise = 3 + rnd.nextDouble() * 4;
             double ex = gx + Math.cos(ang) * len, ey = g0 + hb + rise, ez = gz + Math.sin(ang) * len;
-            branches.add(new Capsule(gx + 0.5, g0 + hb, gz + 0.5, ex, ey, ez, 1.3, 0.7));
-            blobs.add(new Blob(ex, ey + 1, ez, 4.5 + rnd.nextDouble() * 2.0));
+            branches.add(new Capsule(gx + 0.5, g0 + hb, gz + 0.5, ex, ey, ez, 1.6, 0.8));
+            blobs.add(new Blob(ex, ey + 1, ez, 5.5 + rnd.nextDouble() * 2.5));
         }
-        blobs.add(new Blob(gx + 0.5, g0 + height + 1, gz + 0.5, 7.5));
-        blobs.add(new Blob(gx + 0.5 + rnd.nextDouble() * 4 - 2, g0 + height - 3, gz + 0.5 + rnd.nextDouble() * 4 - 2, 6.5));
+        blobs.add(new Blob(gx + 0.5, g0 + height + 1, gz + 0.5, 9.5));
+        blobs.add(new Blob(gx + 0.5 + rnd.nextDouble() * 4 - 2, g0 + height - 3, gz + 0.5 + rnd.nextDouble() * 4 - 2, 8.0));
         for (int i = 0; i < 6; i++) {
             double ang = i * Math.PI / 3 + rnd.nextDouble() * 0.5;
             double len = 5 + rnd.nextDouble() * 4;
@@ -67,10 +67,10 @@ public final class GiantTree {
         BlockState leaves = Blocks.OAK_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true);
         BlockState leaves2 = Blocks.AZALEA_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true);
 
-        int span = 21;
+        int span = 27;
         int x0 = Math.max(sink.minX(), gx - span), x1 = Math.min(sink.maxX(), gx + span);
         int z0 = Math.max(sink.minZ(), gz - span), z1 = Math.min(sink.maxZ(), gz + span);
-        int y0 = Math.max(sink.minY(), g0 - 4), y1 = Math.min(sink.maxY(), g0 + height + 10);
+        int y0 = Math.max(sink.minY(), g0 - 4), y1 = Math.min(sink.maxY(), g0 + height + 14);
         BlockPos.MutableBlockPos p = new BlockPos.MutableBlockPos();
         for (int x = x0; x <= x1; x++) {
             for (int z = z0; z <= z1; z++) {
@@ -81,7 +81,7 @@ public final class GiantTree {
                     if (dy >= -3 && dy <= height) {
                         double h = Math.max(0, dy) / (double) height;
                         double wx = Math.sin(dy * 0.18 + s % 7) * 0.9, wz = Math.cos(dy * 0.15 + s % 5) * 0.9;
-                        double rad = 1.4 + 1.3 * (1 - h) + 2.6 * Math.exp(-(dy + 1) / 2.0);
+                        double rad = 1.8 + 1.6 * (1 - h) + 3.0 * Math.exp(-(dy + 1) / 2.5);
                         double ddx = px - (gx + 0.5 + wx * h), ddz = pz - (gz + 0.5 + wz * h);
                         if (ddx * ddx + ddz * ddz <= rad * rad) {
                             sink.set(p.set(x, y, z), log);
