@@ -92,6 +92,17 @@ public final class AutoTest {
         wait(4, "volley_flight");
         client(2, null, mc -> net.minecraft.client.KeyMapping.set(mc.options.keyShift.getKey(), false));
         wait(30, null);
+        cmd(5, null, "fill -3 -61 -5 3 -57 -5 minecraft:target", "tp @a 0.5 -60 2 180 0");
+        client(2, null, mc -> {
+            net.minecraft.client.KeyMapping.set(mc.options.keyUse.getKey(), true);
+            mc.gameMode.useItem(mc.player, InteractionHand.MAIN_HAND);
+        });
+        wait(20, null);
+        client(1, null, mc -> net.minecraft.client.KeyMapping.set(mc.options.keyUse.getKey(), false));
+        wait(2, "close_flight");
+        wait(25, null);
+        cmd(20, "close_stuck_side", "tp @a 3.5 -58.6 -3.2 90 20");
+        cmd(5, null, "fill -3 -61 -5 3 -57 -5 minecraft:air");
         cmd(30, "arrows_stuck_side", "tp @a 7 -59 -14 90 10");
         cmd(20, "arrows_stuck_close", "tp @a 0.5 -59.5 -9.5 180 10");
         client(3, null, mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_BACK));

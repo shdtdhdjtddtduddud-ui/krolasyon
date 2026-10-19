@@ -31,17 +31,17 @@ public final class SylvanItemRenderer extends BlockEntityWithoutLevelRenderer {
             if (p != null && p.isUsingItem() && p.getUseItem() == stack) pull = SylvanBowItem.powerFor(p.getTicksUsingItem() + pt);
             // vanilya yay sprite'ı gibi: ok sol üste, kiriş köşegen boyunca
             ps.mulPose(Axis.ZP.rotationDegrees(135));
-            float s = ctx == ItemDisplayContext.GUI ? 0.42F : ctx == ItemDisplayContext.FIXED ? 0.6F : 0.5F;
+            float s = ctx == ItemDisplayContext.GUI ? 0.42F : ctx == ItemDisplayContext.FIXED ? 1.1F : 0.5F;
             ps.scale(s, s, s);
             BowModel.render(ps, buf, time, pull, light);
         } else if (stack.getItem() instanceof SylvanArrowItem) {
             ps.mulPose(Axis.ZP.rotationDegrees(45));
-            float s = ctx == ItemDisplayContext.GUI ? 0.72F : 0.8F;
+            float s = ctx == ItemDisplayContext.GUI ? 0.72F : ctx == ItemDisplayContext.FIXED ? 1.4F : 0.8F;
             ps.scale(s, s, s);
             ps.translate(-0.06, 0, 0);
             ArrowModel.render(buf.getBuffer(Mesh.TYPES[Mesh.CUT]), ps, light, time, 1);
         } else if (stack.getItem() instanceof QuiverItem) {
-            float s = ctx == ItemDisplayContext.GUI ? 1.0F : 1.1F;
+            float s = ctx == ItemDisplayContext.GUI ? 1.0F : ctx == ItemDisplayContext.FIXED ? 1.8F : 1.1F;
             ps.scale(s, s, s);
             ps.translate(0, -0.1, 0);
             int count = QuiverItem.count(stack);
