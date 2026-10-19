@@ -88,7 +88,7 @@ public final class ShaderTestMod {
             cmd(60, "underwater", "time set 6000", "tp @a 0 -62.5 -14 180 5");
             cmd(60, "noon_side", "tp @a 22 -57 -10 120 -12");
             cmd(80, "rain", "weather rain", "tp @a 0 -58.5 4 180 -10");
-            cmd(200, "nether", "weather clear", "execute in minecraft:the_nether run tp @a 0 80 0 0 10");
+            cmd(200, "nether", "weather clear", "gamemode spectator @a", "execute in minecraft:the_nether run tp @a 0 80 0 0 10");
             cmd(240, "end", "execute in minecraft:the_end run tp @a 100 52 0 90 5");
             wait(20, "END");
         }

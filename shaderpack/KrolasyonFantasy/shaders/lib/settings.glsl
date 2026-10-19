@@ -84,3 +84,18 @@ const float drynessHalflife = 60.0;
 #if defined SHADOWS && !defined WORLD_NETHER
     #define SHADOWS_ACTIVE
 #endif
+
+// Iris/Oculus, bileşik "#if defined" ifadelerindeki anahtarları menüde tanımayabilir;
+// her anahtarı basit bir #ifdef ile de anarak menüde görünmelerini sağla.
+#ifdef SHADOWS
+#endif
+#ifdef VOLUMETRIC_LIGHT
+#endif
+#ifdef AURORA
+#endif
+#ifdef CUSTOM_CLOUDS
+#endif
+#ifdef WAVING_PLANTS
+#endif
+#ifdef WAVING_LEAVES
+#endif

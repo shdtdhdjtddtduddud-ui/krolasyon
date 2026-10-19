@@ -139,7 +139,7 @@ vec3 aurora(vec3 d) {
         float ridge = 1.0 - abs(noise2(vec2(p.x * 0.8 + curtain * 2.5, p.y * 0.25) * 1.6 + t) * 2.0 - 1.0);
         float band = pow(ridge, 7.0);
         float mask = smoothstep(0.2, 0.6, noise2(p * 0.18 + 5.0 + t * 0.2));
-        col += mix(BIOLUM_A, BIOLUM_B, fi) * band * mask * (1.0 - fi) * 0.16;
+        col += mix(BIOLUM_A, BIOLUM_B, fi) * band * mask * (1.0 - fi) * 0.075;
     }
     float fade = smoothstep(0.03, 0.25, d.y) * smoothstep(0.85, 0.35, d.y);
     return col * fade;
@@ -212,7 +212,7 @@ vec3 celestial(vec3 d, vec3 col, bool drawSun) {
     // yıldızlar + nebula + aurora
     float horizonFade = smoothstep(-0.05, 0.15, d.y);
     col += (starField(sd) + nebula(sd)) * nightVis * clearSky * horizonFade;
-    col += aurora(d) * nightVis * clearSky;
+    col += aurora(d) * nightVis * nightVis * clearSky;
 
 #ifdef PLANETS
     // Büyük halkalı gezegen (gündüz bile soluk görünür)
