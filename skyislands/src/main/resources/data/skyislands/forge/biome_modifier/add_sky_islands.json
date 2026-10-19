@@ -1,0 +1,6 @@
+{
+  "type": "forge:add_features",
+  "biomes": "#minecraft:is_overworld",
+  "features": "skyislands:sky_islands",
+  "step": "top_layer_modification"
+}

@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [" F ", "GDG", " S "],
+  "key": {
+    "F": { "item": "minecraft:feather" },
+    "G": { "item": "minecraft:grass_block" },
+    "D": { "item": "minecraft:diamond" },
+    "S": { "tag": "minecraft:saplings" }
+  },
+  "result": { "item": "skyislands:island_seed", "count": 1 }
+}

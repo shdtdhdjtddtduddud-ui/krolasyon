@@ -1,0 +1,28 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="skyislands"
+version="1.0.0"
+displayName="Krolasyon Gök Adaları"
+authors="krolasyon"
+description='''
+Overworld gökyüzüne devasa uçan adalar ekler: aşağı sarkan kaya gövdeler, kenarlardan dökülen şelaleler,
+tepede göletler, dev hayat ağaçları, sarkan sarmaşıklar ve parıldayan meyveler, etraflarında süzülen küçük kaya adacıklar.
+Ada Tohumu ile istediğin yere kendi uçan adanı yarat!
+'''
+
+[[dependencies.skyislands]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.skyislands]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"
