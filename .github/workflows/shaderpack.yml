@@ -1,0 +1,82 @@
+name: Shader pack
+on:
+  push:
+    paths:
+      - 'shaderpack/**'
+      - '.github/workflows/shaderpack.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  shaderpack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Mesa + Python deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb libgl1-mesa-dri libglx-mesa0 mesa-utils zip > /dev/null
+          pip install -q moderngl numpy pillow
+      - name: Validate (compile + link every program)
+        env:
+          MESA_GL_VERSION_OVERRIDE: 4.5COMPAT
+        run: xvfb-run -a python3 shaderpack/tools/validate.py
+      - name: Offline preview renders
+        env:
+          MESA_GL_VERSION_OVERRIDE: 4.5COMPAT
+        run: |
+          for t in 0 1 2; do xvfb-run -a python3 shaderpack/tools/preview.py preview --theme $t; done
+          (cd preview && zip -q ../previews.zip *.png)
+      - name: Package
+        run: bash shaderpack/tools/package.sh KrolasyonFantasy.zip
+      - uses: actions/setup-java@v4
+        if: contains(github.event.head_commit.message, '[ingame]') || github.event_name == 'workflow_dispatch'
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        if: contains(github.event.head_commit.message, '[ingame]') || github.event_name == 'workflow_dispatch'
+        with:
+          gradle-version: '8.8'
+      - name: In-game test (Forge + Oculus, headless)
+        if: contains(github.event.head_commit.message, '[ingame]') || github.event_name == 'workflow_dispatch'
+        continue-on-error: true
+        shell: bash
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          MESA_GL_VERSION_OVERRIDE: '4.5'
+        run: |
+          latest() {
+            curl -s -G "https://api.modrinth.com/v2/project/$1/version" \
+              --data-urlencode 'loaders=["forge"]' --data-urlencode 'game_versions=["1.20.1"]' \
+              | python3 -c 'import json,sys; print(json.load(sys.stdin)[0]["version_number"])'
+          }
+          EMB=$(latest embeddium); OCU=$(latest oculus)
+          echo "embeddium=$EMB oculus=$OCU"
+          cd shaderpack/ingame-test
+          mkdir -p run/shaderpacks run/config
+          cp ../../KrolasyonFantasy.zip run/shaderpacks/
+          printf "enableShaders=true\nshaderPack=KrolasyonFantasy.zip\n" > run/config/oculus.properties
+          cp run/config/oculus.properties run/config/iris.properties
+          printf "onboardAccessibility:false\nrenderDistance:6\nsimulationDistance:5\npauseOnLostFocus:false\ntutorialStep:none\njoinedFirstServer:true\nskipMultiplayerWarning:true\nmaxFps:60\ngraphicsMode:1\n" > run/options.txt
+          set +e
+          timeout 2400 xvfb-run -a -s "-screen 0 960x540x24" gradle runClient --no-daemon -PembeddiumVersion="$EMB" -PoculusVersion="$OCU" > client.log 2>&1
+          echo "client exit $?"
+          mkdir -p ../../ingame
+          cp run/screenshots/shader_*.png ../../ingame/ 2>/dev/null
+          cp run/logs/latest.log ../../ingame/latest.log 2>/dev/null
+          tail -c 300000 client.log > ../../ingame/client_tail.log
+          grep -iE "SHADERTEST|oculus|iris|shader|Exception|ERROR" client.log | head -400 > ../../ingame/summary.log
+          cd ../../ingame && zip -q ../ingame.zip * ; ls -la
+      - name: Publish release
+        if: always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="shaderpack-${{ github.run_number }}"
+          FILES=""
+          for f in KrolasyonFantasy.zip previews.zip ingame.zip; do [ -f "$f" ] && FILES="$FILES $f"; done
+          [ -n "$FILES" ] && gh release create "$TAG" $FILES --title "Krolasyon Fantasy Shaders ${{ github.run_number }}" \
+            --notes "Minecraft 1.20.1 Forge (Oculus) shader paketi. KrolasyonFantasy.zip dosyasını .minecraft/shaderpacks klasörüne koyun. commit ${{ github.sha }}" \
+            --prerelease --target "${{ github.sha }}"
