@@ -29,7 +29,12 @@ public final class BladeItemRenderer extends BlockEntityWithoutLevelRenderer {
         ps.pushPose();
         ps.translate(0.5, 0.5, 0.5);
         switch (ctx) {
-            case GUI, GROUND, FIXED, HEAD, NONE -> {
+            case FIXED -> {
+                // eşya çerçevesi: dik ve büyük
+                ps.scale(0.95F, 0.95F, 0.95F);
+                ps.translate(0, -0.45, 0);
+            }
+            case GUI, GROUND, HEAD, NONE -> {
                 ps.mulPose(Axis.ZP.rotationDegrees(-45));
                 float s = ctx == ItemDisplayContext.GUI ? 0.44F : 0.5F;
                 ps.scale(s, s, s);

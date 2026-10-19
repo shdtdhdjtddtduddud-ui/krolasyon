@@ -55,23 +55,28 @@ public final class AutoTest {
                 "summon item_frame 1 -58 -6 {Facing:3b,Fixed:1b,Invisible:1b,ItemRotation:0b,Item:{id:\"emeraldblade:emerald_root_blade\",Count:1b}}");
         cmd(80, "frame_close", "tp @a -0.5 -58.3 -4.6 180 0");
         cmd(30, "frame_two", "tp @a 0.5 -58 -2.6 180 0");
-        cmd(5, null, "clear @a", "give @a emeraldblade:emerald_root_blade 1", "tp @a 0.5 -60 6 180 0");
+        cmd(5, null, "clear @a", "give @a emeraldblade:emerald_root_blade 1", "item replace entity @a weapon.offhand with minecraft:diamond_sword", "tp @a 0.5 -60 6 180 0");
         client(5, null, mc -> { gui = true; mc.player.getInventory().selected = 0; });
         wait(30, "hand_idle");
         client(5, null, mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT));
         wait(30, "third_front");
+        cmd(25, "third_side", "tp @a 0.5 -60 6 90 0");
         client(5, null, mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_BACK));
         wait(25, "third_back");
         // gerçek sağ tık ile şarj
         cmd(5, null, "summon husk 0.5 -60 -1 {NoAI:1b}", "summon husk 0.5 -60 -5 {NoAI:1b}", "summon husk 1.5 -60 -9 {NoAI:1b}",
                 "summon husk -0.5 -60 -13 {NoAI:1b}", "tp @a 0.5 -60 3.5 180 0");
-        client(5, null, mc -> mc.gameMode.useItem(mc.player, InteractionHand.MAIN_HAND));
+        client(5, null, mc -> {
+            // sağ tuşu gerçekten basılı tut (bırakılınca oyun kullanımı kendisi sonlandırır)
+            net.minecraft.client.KeyMapping.set(mc.options.keyUse.getKey(), true);
+            mc.gameMode.useItem(mc.player, InteractionHand.MAIN_HAND);
+        });
         wait(36, "charging_back");
         client(3, null, mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT));
         wait(3, "charging_front");
         client(1, null, mc -> {
             mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
-            mc.gameMode.releaseUsingItem(mc.player);
+            net.minecraft.client.KeyMapping.set(mc.options.keyUse.getKey(), false);
         });
         wait(5, "wave_a");
         wait(5, "wave_b");

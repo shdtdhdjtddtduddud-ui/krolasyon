@@ -148,10 +148,10 @@ public final class BladeModel {
         out.add(ring(0.01F, W + 0.035F, T + 0.03F, 0.045F, 14, 0.0F));
         out.add(ring(0.065F, W + 0.03F, T + 0.025F, 0.032F, 14, 1.3F));
         // bıçağa tırmanan ana kökler (yüzeyde sarmal)
-        out.add(climb(0.02F, 0.78F, 0.4F, 2.2F, 0.040F, 0.010F, time, 0, sway));
-        out.add(climb(0.04F, 0.58F, 3.3F, 1.5F, 0.030F, 0.007F, time, 1, sway));
-        out.add(climb(0.10F, 0.98F, 1.9F, 1.15F, 0.020F, 0.005F, time, 2, sway));
-        out.add(climb(0.06F, 0.42F, 5.0F, 0.9F, 0.026F, 0.008F, time, 3, sway));
+        out.add(climb(0.02F, 0.80F, 0.4F, 2.0F, 0.058F, 0.012F, time, 0, sway));
+        out.add(climb(0.04F, 0.60F, 3.3F, 1.4F, 0.044F, 0.009F, time, 1, sway));
+        out.add(climb(0.10F, 0.98F, 1.9F, 1.1F, 0.028F, 0.006F, time, 2, sway));
+        out.add(climb(0.06F, 0.45F, 5.0F, 0.85F, 0.038F, 0.009F, time, 3, sway));
         // ön ve arka yüzde ağ gibi bağlantılar
         float[] ys = {0.2F, 0.33F, 0.47F, 0.6F};
         for (int i = 0; i < ys.length; i++) {
@@ -159,8 +159,8 @@ public final class BladeModel {
                 float y = ys[i] + (f > 0 ? 0 : 0.06F);
                 float x0 = (i % 2 == 0 ? -1 : 1) * W * 0.95F;
                 out.add(Mesh.spline(new float[][]{
-                        {x0, y, f * (T + 0.012F), 0.016F}, {x0 * 0.3F, y + 0.03F, f * (T + 0.022F), 0.013F},
-                        {-x0 * 0.4F, y + 0.07F, f * (T + 0.018F), 0.011F}, {-x0 * 0.95F, y + 0.1F, f * (T + 0.01F), 0.008F}}, 4));
+                        {x0, y, f * (T + 0.016F), 0.022F}, {x0 * 0.3F, y + 0.03F, f * (T + 0.028F), 0.018F},
+                        {-x0 * 0.4F, y + 0.07F, f * (T + 0.022F), 0.015F}, {-x0 * 0.95F, y + 0.1F, f * (T + 0.012F), 0.010F}}, 4));
             }
         }
         return out;
@@ -185,7 +185,7 @@ public final class BladeModel {
             float s = i / (float) n;
             float y = y0 + (y1 - y0) * s;
             double a = a0 + turns * Math.PI * 2 * s + Math.sin(s * 9 + idx) * 0.15;
-            float r = r0 + (r1 - r0) * s;
+            float r = (r0 + (r1 - r0) * s) * (1 + 0.22F * (float) Math.sin(s * 37 + idx * 2.1));
             float ex = W + r * 0.7F + 0.006F, ez = T + r * 0.7F + 0.006F;
             float tipW = s > 0.75F ? (s - 0.75F) * 4 : 0;
             float sx = (float) Math.sin(time * 0.09 + idx * 1.7) * 0.03F * tipW * tipW * sway;
