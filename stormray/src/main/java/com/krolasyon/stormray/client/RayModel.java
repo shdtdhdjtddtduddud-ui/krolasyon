@@ -88,7 +88,7 @@ public final class RayModel {
             }
         } else {
             TextureAtlasSprite glow = Mesh.sprite(Mesh.GLOW_TEX);
-            float g = Math.min(1, 0.75F + 0.25F * (float) Math.sin(time * 0.15) + zap * 0.5F);
+            float g = Math.min(1, 0.42F + 0.14F * (float) Math.sin(time * 0.15) + zap * 0.5F);
             surface(vc, m, n, top, glow, g, g, g, 1, Mesh.FULL_BRIGHT, 1, false);
             surface(vc, m, n, top, glow, g, g, g, 1, Mesh.FULL_BRIGHT, 1, true);
         }
@@ -210,8 +210,8 @@ public final class RayModel {
             Mesh.sphere(vc, ps, s * 0.165F, 0.165F, 0.41F, 0.03F, 0.022F, 0.03F, 5, 8, eye, 1, 1, 1, 1, Mesh.FULL_BRIGHT);
         }
         // kuyruk boyunca ince parıltı
-        Mesh.tube(vc, ps, tailPoints(time), 7, glow, 0.8F, 0.8F, 0.8F, 1, Mesh.FULL_BRIGHT, 1.04F, false);
-        Mesh.tube(vc, ps, tailPoints(time), 7, glow, 0.8F, 0.8F, 0.8F, 1, Mesh.FULL_BRIGHT, 1.04F, true);
+        Mesh.tube(vc, ps, tailPoints(time), 7, glow, 0.3F, 0.3F, 0.3F, 1, Mesh.FULL_BRIGHT, 1.04F, false);
+        Mesh.tube(vc, ps, tailPoints(time), 7, glow, 0.3F, 0.3F, 0.3F, 1, Mesh.FULL_BRIGHT, 1.04F, true);
         // sarkan şimşek telleri (her ~2.5 tikte bir yeniden çakar)
         float[][] starts = {{0.30F, -0.07F, 0.05F}, {-0.22F, -0.07F, -0.08F}, {0.06F, -0.06F, -0.32F}, {-0.08F, -0.07F, 0.25F}};
         int seed = (int) (time / 2.5F);

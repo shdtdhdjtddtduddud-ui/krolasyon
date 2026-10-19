@@ -56,7 +56,7 @@ public final class AutoTest {
 
     private AutoTest() {
         cmd(0, null, "gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false",
-                "time set 6000", "weather clear", "gamemode creative @a", "difficulty normal",
+                "time set 6000", "weather clear", "gamemode spectator @a", "difficulty normal",
                 "summon stormray:storm_ray 0.5 -55 -12 {NoAI:1b,Rotation:[0f,0f],Tags:[\"show\"],PersistenceRequired:1b}");
         cmd(60, "front", "tp @a 0.5 -55.3 -6.5 180 8");
         wait(3, "front_b");
@@ -76,6 +76,7 @@ public final class AutoTest {
             r.tame(p);
             r.setSaddled(true);
             r.setNoAi(false);
+            p.setGameMode(net.minecraft.world.level.GameType.CREATIVE);
             p.teleportTo(r.getX(), r.getY() + 1, r.getZ());
             p.startRiding(r, true);
         });

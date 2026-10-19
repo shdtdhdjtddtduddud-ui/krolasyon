@@ -61,9 +61,9 @@ save(rim, "ray_rim")
 # biyolüminesan benekler ve damarlar (parlayan katman, animasyonlu yanıp sönme)
 F = 8
 glow = Image.new("RGBA", (S, S * F), (0, 0, 0, 0))
-spots = [(rnd.randint(0, S - 1), rnd.randint(0, S - 1), rnd.random(), rnd.choice([0, 0, 1, 1, 2])) for _ in range(70)]
+spots = [(rnd.randint(0, S - 1), rnd.randint(0, S - 1), rnd.random(), rnd.choice([0, 0, 0, 1, 1, 2])) for _ in range(38)]
 veins = []
-for i in range(7):
+for i in range(4):
     x, y = rnd.randint(0, S - 1), rnd.randint(0, S - 1)
     pts = [(x, y)]
     for k in range(8):
