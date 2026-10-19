@@ -18,8 +18,11 @@ public final class AetherCoreRenderer implements BlockEntityRenderer<AetherCoreB
         float time = be.getLevel().getGameTime() + pt + be.getPhase();
         float open = be.getOpen(pt), flash = be.getFlash(pt), dome = be.getDome(pt);
         pose.pushPose();
-        pose.translate(0.5, 0.5, 0.5);
+        pose.translate(0.5, 0.62, 0.5);
+        pose.pushPose();
+        pose.scale(1.3F, 1.3F, 1.3F);
         CoreModel.render(pose, buffers, time, open, flash, light, overlay);
+        pose.popPose();
         if (dome > 0.01F) {
             Vec3 cam = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
             Vector3f rel = new Vector3f((float) (cam.x - be.getBlockPos().getX() - 0.5), (float) (cam.y - be.getBlockPos().getY() - 0.5),
