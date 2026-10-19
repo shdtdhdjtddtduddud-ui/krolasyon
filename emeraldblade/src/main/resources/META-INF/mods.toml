@@ -1,0 +1,28 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="emeraldblade"
+version="1.0.0"
+displayName="Krolasyon Zümrüt Kök Kılıcı"
+authors="krolasyon"
+description='''
+Kadim bir ağacın kökleriyle sarılmış dev bir zümrüt kristal kılıç. Vurduğu düşmanları köklere hapseder ve can çalar;
+basılı tutup bırakınca ileri doğru yerden zümrüt dikenler fışkırtır. Toprağı büyütür, güneşte kendini onarır.
+Orman tapınaklarında, konaklarda ve antik şehirlerde bulunabilir ya da üretilebilir.
+'''
+
+[[dependencies.emeraldblade]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.emeraldblade]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"

@@ -1,0 +1,10 @@
+{
+  "item.emeraldblade.emerald_root_blade": "Zümrüt Kök Kılıcı",
+  "entity.emeraldblade.emerald_spike": "Zümrüt Diken",
+  "entity.emeraldblade.root_snare": "Kök Tuzağı",
+  "tooltip.emeraldblade.l1": "Kadim ağacın kökleriyle sarılmış zümrüt kristal.",
+  "tooltip.emeraldblade.l2": "Vuruş: %%35 kök tuzağı, can çalma",
+  "tooltip.emeraldblade.l3": "Basılı tut ve bırak: Zümrüt Diken Dalgası",
+  "tooltip.emeraldblade.l4": "Eğilip toprağa sağ tık: çevreyi büyüt",
+  "tooltip.emeraldblade.l5": "Güneş altında kendini onarır · Zümrütle tamir edilir"
+}

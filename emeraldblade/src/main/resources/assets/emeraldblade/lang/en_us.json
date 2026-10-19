@@ -1,0 +1,10 @@
+{
+  "item.emeraldblade.emerald_root_blade": "Emerald Root Blade",
+  "entity.emeraldblade.emerald_spike": "Emerald Spike",
+  "entity.emeraldblade.root_snare": "Root Snare",
+  "tooltip.emeraldblade.l1": "Emerald crystal bound by the roots of an ancient tree.",
+  "tooltip.emeraldblade.l2": "On hit: 35%% root snare, life steal",
+  "tooltip.emeraldblade.l3": "Hold and release: Emerald Spike Wave",
+  "tooltip.emeraldblade.l4": "Sneak + use on soil: grow the area",
+  "tooltip.emeraldblade.l5": "Repairs itself in sunlight · Repair with emeralds"
+}
