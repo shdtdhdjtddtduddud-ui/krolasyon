@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "equipment",
+  "pattern": [" DS", "E S", " DS"],
+  "key": { "D": { "item": "minecraft:dark_oak_log" }, "S": { "item": "minecraft:string" }, "E": { "item": "minecraft:emerald" } },
+  "result": { "item": "sylvanarchery:sylvan_bow", "count": 1 } }

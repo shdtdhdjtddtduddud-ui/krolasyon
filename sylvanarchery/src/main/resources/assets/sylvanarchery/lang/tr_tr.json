@@ -1,0 +1,14 @@
+{
+  "item.sylvanarchery.sylvan_bow": "Orman Bekçisi Yayı",
+  "item.sylvanarchery.sylvan_arrow": "Orman Oku",
+  "item.sylvanarchery.sylvan_quiver": "Orman Sadağı",
+  "entity.sylvanarchery.sylvan_arrow": "Orman Oku",
+  "tooltip.sylvanarchery.bow1": "Hızlı gerilir · %%50 daha güçlü atış",
+  "tooltip.sylvanarchery.bow2": "Tam gerildiğinde: Rüzgar Oku (2 düşmanı deler)",
+  "tooltip.sylvanarchery.bow3": "Eğilerek tam ger: üçlü yaylım",
+  "tooltip.sylvanarchery.bow4": "Okları önce Orman Sadağından çeker",
+  "tooltip.sylvanarchery.arrow1": "Uçarken en yakın düşmana yönelir",
+  "tooltip.sylvanarchery.quiver1": "Oklar: %s / %s",
+  "tooltip.sylvanarchery.quiver2": "Ok yığınını üzerine bırak: doldur · Sağ tık: bir yığın çıkar",
+  "tooltip.sylvanarchery.quiver3": "Envanterdeyken sırtında görünür · Orman Yayı ile %%25 ok tasarrufu"
+}

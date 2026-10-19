@@ -1,0 +1,14 @@
+{
+  "item.sylvanarchery.sylvan_bow": "Forest Warden Bow",
+  "item.sylvanarchery.sylvan_arrow": "Forest Arrow",
+  "item.sylvanarchery.sylvan_quiver": "Forest Quiver",
+  "entity.sylvanarchery.sylvan_arrow": "Forest Arrow",
+  "tooltip.sylvanarchery.bow1": "Fast draw · 50%% stronger shots",
+  "tooltip.sylvanarchery.bow2": "Full draw: Wind Arrow (pierces 2 enemies)",
+  "tooltip.sylvanarchery.bow3": "Sneak + full draw: triple volley",
+  "tooltip.sylvanarchery.bow4": "Draws arrows from the Forest Quiver first",
+  "tooltip.sylvanarchery.arrow1": "Seeks the nearest enemy in flight",
+  "tooltip.sylvanarchery.quiver1": "Arrows: %s / %s",
+  "tooltip.sylvanarchery.quiver2": "Drop arrows onto it to fill · Right-click a slot to take a stack",
+  "tooltip.sylvanarchery.quiver3": "Shown on your back while carried · 25%% arrow saving with the Forest Bow"
+}

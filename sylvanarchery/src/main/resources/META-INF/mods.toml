@@ -1,0 +1,28 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="sylvanarchery"
+version="1.0.0"
+displayName="Krolasyon Orman Bekçisi Okçuluk Seti"
+authors="krolasyon"
+description='''
+Kadim orman bekçilerinin yayı, oku ve sadağı. Taşlaşmış ahşaptan köşeli yay hızlı gerilir, tam gerildiğinde
+delici rüzgar okları atar, eğilerek üçlü yaylım yapar. Orman okları düşmana yönelir. Sadak 256 ok taşır,
+sırtınızda görünür ve yay okları önce sadaktan çeker.
+'''
+
+[[dependencies.sylvanarchery]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.sylvanarchery]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"
