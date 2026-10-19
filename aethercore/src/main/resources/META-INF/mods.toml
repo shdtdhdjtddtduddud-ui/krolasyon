@@ -1,0 +1,29 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="aethercore"
+version="1.0.0"
+displayName="Krolasyon Eterik Çekirdek"
+authors="krolasyon"
+description='''
+Kadim bir medeniyetten kalma, havada süzülen enerji çekirdeği. Etrafında dönen zırh plakaları açıldığında
+altıgen bir kalkan kubbesi kurar: düşman yaratıkları iter, okları ve ateş toplarını engeller,
+kubbe içinde canavar doğmasını önler ve oyuncuları iyileştirir. Dünyadaki Kadim Sunaklarda uyur halde bulunur
+ya da üretilebilir; ametist, elmas, yankı parçası veya nether yıldızıyla beslenir.
+'''
+
+[[dependencies.aethercore]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.aethercore]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"

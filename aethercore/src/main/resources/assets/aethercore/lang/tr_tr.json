@@ -1,0 +1,12 @@
+{
+  "block.aethercore.aether_core": "Eterik Çekirdek",
+  "tooltip.aethercore.desc1": "Kadim bir koruyucu. Beslendiğinde 16 blokluk altıgen kalkan kurar.",
+  "tooltip.aethercore.desc2": "Düşmanları iter, mermileri engeller, canavar doğmasını önler, oyuncuları iyileştirir.",
+  "tooltip.aethercore.desc3": "Yakıt: Ametist Parçası, Elmas, Yankı Parçası, Nether Yıldızı",
+  "message.aethercore.status": "Eterik Çekirdek: %s · enerji %s",
+  "message.aethercore.active": "AKTİF",
+  "message.aethercore.dormant": "UYKUDA",
+  "message.aethercore.charged": "Çekirdek beslendi (+%s). Enerji: %s",
+  "message.aethercore.empty": "Çekirdeğin enerjisi yok. Ametist, elmas, yankı parçası ya da nether yıldızı ile besle.",
+  "message.aethercore.full": "Çekirdek tamamen dolu."
+}

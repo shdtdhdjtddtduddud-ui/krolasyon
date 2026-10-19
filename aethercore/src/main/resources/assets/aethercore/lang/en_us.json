@@ -1,0 +1,12 @@
+{
+  "block.aethercore.aether_core": "Aether Core",
+  "tooltip.aethercore.desc1": "An ancient guardian. When fueled it raises a 16-block hexagonal shield.",
+  "tooltip.aethercore.desc2": "Repels hostiles, blocks projectiles, stops monster spawns, heals players.",
+  "tooltip.aethercore.desc3": "Fuel: Amethyst Shard, Diamond, Echo Shard, Nether Star",
+  "message.aethercore.status": "Aether Core: %s · energy %s",
+  "message.aethercore.active": "ACTIVE",
+  "message.aethercore.dormant": "DORMANT",
+  "message.aethercore.charged": "Core fueled (+%s). Energy: %s",
+  "message.aethercore.empty": "The core has no energy. Feed it amethyst, diamond, echo shard or nether star.",
+  "message.aethercore.full": "The core is fully charged."
+}
