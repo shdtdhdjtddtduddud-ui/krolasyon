@@ -1,0 +1,7 @@
+{
+  "entity.stormray.storm_ray": "Fırtına Vatozu",
+  "item.stormray.storm_ray_spawn_egg": "Fırtına Vatozu Çağırma Yumurtası",
+  "message.stormray.tamed": "Fırtına Vatozu sana güveniyor! Eyer tak ve bin.",
+  "message.stormray.need_saddle": "Binmek için bir eyer tak.",
+  "message.stormray.not_owner": "Bu vatoz başkasına ait."
+}

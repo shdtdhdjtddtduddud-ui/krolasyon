@@ -1,0 +1,27 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="stormray"
+version="1.0.0"
+displayName="Krolasyon Fırtına Vatozu"
+authors="krolasyon"
+description='''
+Okyanusların üzerinde süzülen biyolüminesan fırtına vatozları. Balıkla evcilleştir, eyerle ve baktığın yöne uç!
+Binerken ve yanındayken düşmanlara zincirleme şimşek çarptırır; indiğinde yavaş süzülürsün. Fırtınalarda daha sık görünürler.
+'''
+
+[[dependencies.stormray]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.stormray]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"

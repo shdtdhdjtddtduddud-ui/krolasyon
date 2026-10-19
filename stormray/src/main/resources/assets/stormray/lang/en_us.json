@@ -1,0 +1,7 @@
+{
+  "entity.stormray.storm_ray": "Storm Ray",
+  "item.stormray.storm_ray_spawn_egg": "Storm Ray Spawn Egg",
+  "message.stormray.tamed": "The Storm Ray trusts you! Put on a saddle and ride.",
+  "message.stormray.need_saddle": "Put a saddle on it to ride.",
+  "message.stormray.not_owner": "This ray belongs to someone else."
+}
