@@ -92,7 +92,7 @@ public final class AutoTest {
         });
         wait(80, "showcase");
         for (float cx : new float[]{-3.9F, -1.4F, 1.1F, 3.6F}) {
-            server(5, null, s -> tp(s, cx, Y + 1.4, 1.15, 0, -2));
+            server(5, null, s -> tp(s, cx, Y + 1.4, 1.15, 0, -15));
             wait(25, "close_" + (int) (cx + 5));
         }
         // envanterde 3D simgeler
@@ -105,9 +105,26 @@ public final class AutoTest {
         client(10, null, mc -> {
             allowScreen = true;
             gui = true;
-            mc.setScreen(new net.minecraft.client.gui.screens.inventory.InventoryScreen(mc.player));
+            java.util.List<Item> all = new java.util.ArrayList<>();
+            for (RegistryObject<Item> r : AdvGear.ALL) all.add(r.get());
+            mc.setScreen(new GalleryScreen(all, 8, 3.6F));
         });
-        wait(20, "inventory_icons");
+        wait(20, "gallery_all");
+        client(5, null, mc -> mc.setScreen(new GalleryScreen(java.util.List.of(AdvGear.HEART_TONIC.get(), AdvGear.OCEAN_DRAUGHT.get(),
+                AdvGear.BLACK_DEATH.get(), AdvGear.STARLIGHT_ELIXIR.get(), AdvGear.SUN_ESSENCE.get()), 5, 9F)));
+        wait(20, "gallery_potions");
+        client(5, null, mc -> mc.setScreen(new GalleryScreen(java.util.List.of(AdvGear.GOLD_BAND.get(), AdvGear.SAPPHIRE_RING.get(),
+                AdvGear.SKULL_RING.get(), AdvGear.BONE_HAND_RING.get(), AdvGear.EMERALD_EYE_RING.get()), 5, 9F)));
+        wait(20, "gallery_rings");
+        client(5, null, mc -> mc.setScreen(new GalleryScreen(java.util.List.of(AdvGear.EXPLORER_GOGGLES.get(), AdvGear.ENGINEER_GOGGLES.get(),
+                AdvGear.HUNTER_GOGGLES.get(), AdvGear.SATCHEL.get(), AdvGear.TRAVELER_PACK.get(), AdvGear.EXPEDITION_PACK.get()), 3, 7F)));
+        wait(20, "gallery_goggles_bags");
+        client(5, null, mc -> mc.setScreen(new GalleryScreen(java.util.List.of(AdvGear.APPRENTICE_SPELLBOOK.get(), AdvGear.TRAVELER_TOME.get(),
+                AdvGear.BLACK_GRIMOIRE.get(), AdvGear.TRAVELER_BELT.get(), AdvGear.TOOL_BELT.get(), AdvGear.ALCHEMIST_BELT.get()), 3, 7F)));
+        wait(20, "gallery_books_belts");
+        client(5, null, mc -> mc.setScreen(new GalleryScreen(java.util.List.of(AdvGear.IRON_KEY.get(), AdvGear.DUNGEON_KEY.get(),
+                AdvGear.HEART_KEY.get(), AdvGear.MECHANIC_KEY.get(), AdvGear.THORN_LOCKPICK.get(), AdvGear.CRYSTAL_KEY.get(), AdvGear.KEY_RING.get()), 4, 7F)));
+        wait(20, "gallery_keys");
         client(5, null, mc -> {
             mc.setScreen(null);
             allowScreen = false;
