@@ -109,7 +109,7 @@ public final class SwordShape {
             if (b * b + c * c <= gripR * gripR) {
                 double ang = Math.atan2(c, b);
                 boolean band = ((int) Math.floor((a - gEnd) * 0.9 + ang * 0.6)) % 2 == 0;
-                if (Noise.fbm2(seed + 6, a * 0.2, ang) > 0.62) return Blocks.MOSSY_COBBLESTONE.defaultBlockState();
+                if (Noise.fbm2(seed + 6, a * 0.2, ang, 2) > 0.62) return Blocks.MOSSY_COBBLESTONE.defaultBlockState();
                 return band ? Blocks.POLISHED_ANDESITE.defaultBlockState() : Blocks.STONE.defaultBlockState();
             }
         }
