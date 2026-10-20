@@ -35,6 +35,7 @@ public final class SkyIslandFeature extends Feature<NoneFeatureConfiguration> {
         BlockSink sink = new BlockSink(level, ctx.chunkGenerator(), minX, minZ, maxX, maxZ, 2);
         boolean any = false;
         for (Island is : islands) {
+            if (ElvenCities.blocks(seed, is)) continue;
             Island lifted = liftAboveTerrain(is, ctx, server, seed);
             if (lifted == null) continue;
             IslandBuilder.build(lifted, sink, ctx.random());

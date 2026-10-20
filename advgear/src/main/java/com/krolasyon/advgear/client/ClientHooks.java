@@ -120,6 +120,8 @@ public final class ClientHooks {
             float flip = using > 0 ? (time * 0.09F) % 1F : 0F;
             ps.pushPose();
             ps.translate(-3.5F * (1 - o), 0, 0);
+            // açılırken kitap döner: sayfalar (sırtın karşısı, +X) oyuncuya (+Z) bakar
+            ps.mulPose(Axis.YP.rotationDegrees(-90F * o));
             ps.scale(1.25F, 1.25F, 1.25F);
             VoxModels.book(ps, buf, light, sb.variant, o, flip);
             ps.popPose();

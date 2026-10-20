@@ -102,6 +102,7 @@ public final class ElvenRealm {
         MinecraftForge.EVENT_BUS.addListener(ElvenRealm::onDeath);
         MinecraftForge.EVENT_BUS.addListener(ElvenRealm::onAttack);
         MinecraftForge.EVENT_BUS.addListener(ElvenRealm::onJoin);
+        MinecraftForge.EVENT_BUS.addListener(ElvenRealm::noMonsters);
         MinecraftForge.EVENT_BUS.addListener(ElvenRealm::commands);
         if (FMLEnvironment.dist == Dist.CLIENT) {
             bus.addListener(ElvenRealm::clientSetup);
@@ -165,6 +166,23 @@ public final class ElvenRealm {
     }
 
     /** Oyuncu Sylvaren'e girince ekranda başlık. */
+    /** Kentin içinde canavar doğmaz (doğal doğum, devriye, takviye); spawner ve yumurtalar etkilenmez. */
+    private static void noMonsters(net.minecraftforge.event.entity.living.MobSpawnEvent.FinalizeSpawn event) {
+        if (!(event.getEntity() instanceof net.minecraft.world.entity.monster.Enemy)) return;
+        switch (event.getSpawnType()) {
+            case NATURAL, CHUNK_GENERATION, PATROL, REINFORCEMENT, JOCKEY, EVENT -> {}
+            default -> { return; }
+        }
+        ServerLevel level = event.getLevel().getLevel();
+        if (level.dimension() != Level.OVERWORLD) return;
+        int x = (int) Math.floor(event.getX()), z = (int) Math.floor(event.getZ());
+        CityLayout.City c = CityLayout.nearest(level.getSeed(), level.getChunkSource().getGenerator(), level.getChunkSource().randomState(), level, x, z, 1);
+        if (c == null) return;
+        int dx = x - c.cx(), dz = z - c.cz();
+        if (Math.abs(dx) <= CityLayout.MAX_X + CityLayout.BLEND + 16 && dz >= CityLayout.MIN_Z - CityLayout.BLEND - 16 && dz <= CityLayout.MAX_Z + 40)
+            event.setSpawnCancelled(true);
+    }
+
     private static void announce(TickEvent.PlayerTickEvent event) {
         if (event.phase != TickEvent.Phase.END || !(event.player instanceof ServerPlayer p) || p.tickCount % 40 != 0) return;
         if (!(p.level() instanceof ServerLevel level) || level.dimension() != Level.OVERWORLD) return;
