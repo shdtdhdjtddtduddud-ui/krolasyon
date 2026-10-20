@@ -1,114 +1,145 @@
 {
- "loader": "forge:separate_transforms",
- "gui_light": "front",
- "base": {
-  "parent": "minecraft:builtin/entity",
-  "display": {
-   "thirdperson_righthand": {
-    "rotation": [
-     0,
-     0,
-     0
-    ],
-    "translation": [
-     0,
-     3,
-     1
-    ],
-    "scale": [
-     0.45,
-     0.45,
-     0.45
-    ]
-   },
-   "thirdperson_lefthand": {
-    "rotation": [
-     0,
-     0,
-     0
-    ],
-    "translation": [
-     0,
-     3,
-     1
-    ],
-    "scale": [
-     0.45,
-     0.45,
-     0.45
-    ]
-   },
-   "firstperson_righthand": {
-    "rotation": [
-     0,
-     15,
-     0
-    ],
-    "translation": [
-     1.5,
-     2.5,
-     -3
-    ],
-    "scale": [
-     0.5,
-     0.5,
-     0.5
-    ]
-   },
-   "firstperson_lefthand": {
-    "rotation": [
-     0,
-     -15,
-     0
-    ],
-    "translation": [
-     -1.5,
-     2.5,
-     -3
-    ],
-    "scale": [
-     0.5,
-     0.5,
-     0.5
-    ]
-   },
-   "head": {
-    "rotation": [
-     0,
-     180,
-     0
-    ],
-    "translation": [
-     0,
-     13,
-     7
-    ],
-    "scale": [
-     1,
-     1,
-     1
-    ]
-   }
-  }
+ "parent": "minecraft:builtin/entity",
+ "gui_light": "side",
+ "textures": {
+  "particle": "advgear:item/traveler_tome"
  },
- "perspectives": {
+ "display": {
   "gui": {
-   "parent": "minecraft:item/generated",
-   "textures": {
-    "layer0": "advgear:item/traveler_tome"
-   }
+   "rotation": [
+    10,
+    -25,
+    0
+   ],
+   "translation": [
+    0,
+    0,
+    0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
   },
   "ground": {
-   "parent": "minecraft:item/generated",
-   "textures": {
-    "layer0": "advgear:item/traveler_tome"
-   }
+   "rotation": [
+    0,
+    0,
+    0
+   ],
+   "translation": [
+    0,
+    3,
+    0
+   ],
+   "scale": [
+    0.5,
+    0.5,
+    0.5
+   ]
   },
   "fixed": {
-   "parent": "minecraft:item/generated",
-   "textures": {
-    "layer0": "advgear:item/traveler_tome"
-   }
+   "rotation": [
+    0,
+    0,
+    0
+   ],
+   "translation": [
+    0,
+    0,
+    0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "head": {
+   "rotation": [
+    0,
+    0,
+    0
+   ],
+   "translation": [
+    0,
+    12,
+    0
+   ],
+   "scale": [
+    0.6,
+    0.6,
+    0.6
+   ]
+  },
+  "thirdperson_righthand": {
+   "rotation": [
+    0,
+    0,
+    0
+   ],
+   "translation": [
+    0,
+    3,
+    1.5
+   ],
+   "scale": [
+    0.45,
+    0.45,
+    0.45
+   ]
+  },
+  "thirdperson_lefthand": {
+   "rotation": [
+    0,
+    0,
+    0
+   ],
+   "translation": [
+    0,
+    3,
+    1.5
+   ],
+   "scale": [
+    0.45,
+    0.45,
+    0.45
+   ]
+  },
+  "firstperson_righthand": {
+   "rotation": [
+    0,
+    15,
+    0
+   ],
+   "translation": [
+    1.5,
+    2.5,
+    -3
+   ],
+   "scale": [
+    0.5,
+    0.5,
+    0.5
+   ]
+  },
+  "firstperson_lefthand": {
+   "rotation": [
+    0,
+    -15,
+    0
+   ],
+   "translation": [
+    1.5,
+    2.5,
+    -3
+   ],
+   "scale": [
+    0.5,
+    0.5,
+    0.5
+   ]
   }
  }
 }

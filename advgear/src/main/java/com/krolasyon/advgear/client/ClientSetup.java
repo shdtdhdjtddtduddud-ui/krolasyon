@@ -30,7 +30,6 @@ public final class ClientSetup {
 
     public static void init(IEventBus bus) {
         bus.addListener(ClientSetup::setup);
-        bus.addListener(ClientSetup::layers);
         bus.addListener(ClientSetup::addLayers);
         bus.addListener(ClientSetup::renderers);
         bus.addListener((RegisterKeyMappingsEvent e) -> {
@@ -38,6 +37,7 @@ public final class ClientSetup {
             e.register(BACKPACK_KEY);
         });
         MinecraftForge.EVENT_BUS.addListener(ClientSetup::keys);
+        MinecraftForge.EVENT_BUS.addListener(Slosh::tick);
         MinecraftForge.EVENT_BUS.addListener(OreSight::render);
         MinecraftForge.EVENT_BUS.addListener(ClientSetup::inventoryButton);
         MinecraftForge.EVENT_BUS.addListener((ClientPlayerNetworkEvent.LoggingOut e) -> ClientGear.clear());
@@ -57,14 +57,7 @@ public final class ClientSetup {
         return (net.minecraft.world.inventory.MenuType<net.minecraft.world.inventory.ChestMenu>) t;
     }
 
-    private static void layers(EntityRenderersEvent.RegisterLayerDefinitions e) {
-        e.registerLayerDefinition(GearModels.GOGGLES, GearModels::goggles);
-        e.registerLayerDefinition(GearModels.BACKPACK, GearModels::backpack);
-        e.registerLayerDefinition(GearModels.BELT, GearModels::belt);
-    }
-
     private static void addLayers(EntityRenderersEvent.AddLayers event) {
-        GearRender.bake(event.getEntityModels());
         for (String skin : event.getSkins()) {
             PlayerRenderer r = event.getSkin(skin);
             if (r != null) r.addLayer(new GearLayer(r));

@@ -880,6 +880,138 @@ def block_textures():
         im.save(os.path.join(ROOT, 'block', 'lock_%s.png' % name))
 
 
+def materials():
+    """3D modellerin malzeme dokuları (blok atlasına girer; çoğu gri tonlu, köşe rengiyle boyanır)."""
+    out = os.path.join(ROOT, 'block')
+    os.makedirs(out, exist_ok=True)
+    rng = random.Random(42)
+
+    def save(name, im):
+        im.save(os.path.join(out, 'm_' + name + '.png'))
+
+    def gray(n, fn):
+        im = Image.new('RGBA', (n, n))
+        p = im.load()
+        for y in range(n):
+            for x in range(n):
+                v = max(0, min(255, int(fn(x / n, y / n, x, y))))
+                p[x, y] = (v, v, v, 255)
+        return im
+
+    save('plain', gray(16, lambda u, v, x, y: 245 + rng.random() * 10))
+    streak = [rng.random() for _ in range(64)]
+    save('metal', gray(64, lambda u, v, x, y: 175 + 45 * math.exp(-((v - 0.32) / 0.12) ** 2) + 30 * math.exp(-((v - 0.75) / 0.08) ** 2)
+                       + 18 * (streak[y] - 0.5) + 8 * math.sin(u * 40 + streak[y] * 6)))
+
+    def engrave(u, v, x, y):
+        base = 185 + 40 * math.exp(-((v - 0.35) / 0.15) ** 2) + 10 * (streak[y] - 0.5)
+        gx = int(u * 16)
+        lx, ly = (u * 16) % 1, v
+        if 0.3 < ly < 0.7 and gx % 2 == 0:
+            k = (gx * 7) % 4
+            if (k == 0 and abs(lx - 0.5) < 0.12) or (k == 1 and abs(ly - 0.5) < 0.06) or (k == 2 and abs((lx - 0.2) - (ly - 0.3) * 1.5) < 0.12) \
+                    or (k == 3 and (abs(lx - 0.3) < 0.1 or abs(ly - 0.62) < 0.05)):
+                return 95
+        return base
+    save('engrave', gray(64, engrave))
+    save('bone', gray(32, lambda u, v, x, y: 232 + rng.random() * 18 - (30 if rng.random() < 0.04 else 0)))
+    save('cork', gray(32, lambda u, v, x, y: 205 + rng.random() * 50 - (70 if rng.random() < 0.12 else 0)))
+    save('paper', gray(32, lambda u, v, x, y: 238 + rng.random() * 14 - (25 if (y % 4 == 2 and 0.15 < u < 0.85 and rng.random() < 0.7) else 0)))
+    save('glass', gray(32, lambda u, v, x, y: 235 + 20 * math.exp(-((u - 0.25) / 0.05) ** 2) + rng.random() * 5))
+    save('liquid', gray(32, lambda u, v, x, y: 215 + 35 * (1 - v) + 10 * math.sin(u * 18 + v * 6)))
+    save('gem', gray(32, lambda u, v, x, y: 200 + 55 * (((int(u * 6) + int(v * 6)) % 3) / 2) - (40 if abs((u * 6) % 1 - 0.5) < 0.05 else 0)))
+    save('crystal', gray(32, lambda u, v, x, y: 215 + 40 * abs(math.sin(u * 9 + v * 3)) + rng.random() * 6))
+    grain = [[rng.random() for _ in range(64)] for _ in range(64)]
+    save('leather', gray(64, lambda u, v, x, y: 205 + 30 * (grain[y][x] - 0.5) - (35 if grain[(y * 3) % 64][(x * 5) % 64] < 0.04 else 0)))
+
+    def stitch(u, v, x, y):
+        b = 205 + 28 * (grain[y][x] - 0.5)
+        if (abs(v - 0.14) < 0.035 or abs(v - 0.86) < 0.035) and (x // 3) % 2 == 0:
+            return 255
+        if v < 0.05 or v > 0.95:
+            return b * 0.75
+        return b
+    save('stitch', gray(64, stitch))
+    save('canvas', gray(64, lambda u, v, x, y: 200 + (22 if (x + (y // 2) * 2) % 4 < 2 else -10) * (0.6 if y % 2 else 1) + 12 * (grain[y][x] - 0.5)))
+    save('cloth', gray(32, lambda u, v, x, y: 200 + (40 if (x // 4) % 3 == 0 else 0) - (50 if (y // 4) % 4 == 1 else 0) + rng.random() * 10))
+    save('pages', gray(32, lambda u, v, x, y: 245 if y % 3 else 200))
+
+    # renkli dokular
+    def colored(n, fn):
+        im = Image.new('RGBA', (n, n))
+        p = im.load()
+        for y in range(n):
+            for x in range(n):
+                p[x, y] = fn(x / n, y / n, x, y)
+        return im
+
+    parch = hx('#ead9a8')
+
+    def mapf(u, v, x, y):
+        c = shade(parch, 0.95 + rng.random() * 0.08)
+        coast = 0.5 + 0.18 * math.sin(u * 7 + 1) + 0.08 * math.sin(u * 17)
+        if v > coast:
+            c = mix(hx('#7fa8c8'), parch, 0.35)
+        if abs(v - coast) < 0.025:
+            c = hx('#5a4a32')
+        if 0.2 < u < 0.45 and abs(v - (0.3 + 0.1 * math.sin(u * 20))) < 0.02 and int(u * 60) % 2 == 0:
+            c = hx('#8a3a2a')
+        if abs(u - 0.68) < 0.05 and abs(v - 0.28) < 0.05 and (abs((u - 0.68) - (v - 0.28)) < 0.02 or abs((u - 0.68) + (v - 0.28)) < 0.02):
+            c = hx('#c02020')
+        if (u < 0.04 or u > 0.96 or v < 0.04 or v > 0.96):
+            c = shade(parch, 0.7)
+        return c
+    save('map', colored(64, mapf))
+
+    def tag(u, v, x, y):
+        c = shade(hx('#f4efe2'), 0.96 + rng.random() * 0.06)
+        if math.hypot(u - 0.5, v - 0.12) < 0.07:
+            return shade(c, 0.55)
+        hx_, hy = (u - 0.5) / 0.32, -(v - 0.58) / 0.32
+        if (hx_ ** 2 + hy ** 2 - 1) ** 3 - hx_ ** 2 * hy ** 3 < 0:
+            return hx('#d8304a')
+        if u < 0.05 or u > 0.95 or v > 0.96:
+            return shade(c, 0.8)
+        return c
+    save('tag', colored(32, tag))
+
+    # SPELLBOOK etiketi (3x5 piksel yazı tipi)
+    font = {'S': ['111', '100', '111', '001', '111'], 'P': ['111', '101', '111', '100', '100'], 'E': ['111', '100', '110', '100', '111'],
+            'L': ['100', '100', '100', '100', '111'], 'B': ['110', '101', '110', '101', '110'], 'O': ['111', '101', '101', '101', '111'],
+            'K': ['101', '110', '100', '110', '101']}
+    lab = Image.new('RGBA', (64, 32), hx('#f2ecdc'))
+    lp = lab.load()
+    for y in range(32):
+        for x in range(64):
+            lp[x, y] = shade(hx('#f2ecdc'), 0.95 + rng.random() * 0.07)
+            if x < 2 or x > 61 or y < 2 or y > 29:
+                lp[x, y] = shade(hx('#f2ecdc'), 0.78)
+    word = 'SPELLBOOK'
+    x0 = (64 - (len(word) * 4 * 1.5)) / 2
+    for i, ch in enumerate(word):
+        g = font[ch]
+        for ry in range(5):
+            for rx in range(3):
+                if g[ry][rx] == '1':
+                    for sy in range(2):
+                        for sx in range(1):
+                            X, Y = int(x0 + i * 6 + rx * 1.5) + sx, 12 + ry * 2 + sy
+                            if 0 <= X < 64:
+                                lp[X, Y] = hx('#2a2622')
+                                if X + 1 < 64:
+                                    lp[X + 1, Y] = hx('#2a2622')
+    save('label', lab)
+
+    def rune(u, v, x, y):
+        gx, gy = int(u * 6), int(v * 8)
+        lx, ly = (u * 6) % 1, (v * 8) % 1
+        k = (gx * 13 + gy * 7) % 5
+        on = (k == 0 and abs(lx - 0.5) < 0.12) or (k == 1 and abs(ly - 0.5) < 0.1 and 0.2 < lx < 0.8) or \
+             (k == 2 and abs(lx - ly) < 0.12) or (k == 3 and math.hypot(lx - 0.5, ly - 0.5) < 0.35 and math.hypot(lx - 0.5, ly - 0.5) > 0.2)
+        return (190, 90, 255, 255) if on and 0.15 < ly < 0.85 else (0, 0, 0, 255)
+    save('rune', colored(64, rune))
+
+
 def main():
     for f in (gold_band, sapphire_ring, skull_ring, bone_hand_ring, emerald_eye_ring, satchel, traveler_pack, expedition_pack,
               heart_tonic, ocean_draught, black_death, starlight_elixir, sun_essence, apprentice_spellbook, traveler_tome,
@@ -891,15 +1023,7 @@ def main():
     belt('traveler_belt', hx('#8a7258'), hx('#5a4836'), SILV)
     belt('tool_belt', hx('#7c8048'), hx('#4e5230'), BRASS, pouches=2)
     belt('alchemist_belt', hx('#6a4228'), hx('#3e2616'), BRASS, pouches=2, vials=True)
-    goggles_tex(0, hx('#8fd0f0', 150))
-    goggles_tex(1, hx('#30c0b0', 170))
-    goggles_tex(2, hx('#d02020', 190))
-    belt_tex(0, hx('#8a7258'), SILV)
-    belt_tex(1, hx('#7c8048'), BRASS)
-    belt_tex(2, hx('#6a4228'), BRASS)
-    for v in range(3):
-        backpack_tex(v)
-    make_books()
+    materials()
     block_textures()
     print('ok')
 

@@ -46,4 +46,9 @@ public class GearItem extends Item {
                 .withStyle(ChatFormatting.AQUA));
         tip.add(Component.translatable("tooltip.advgear.slot." + type.name().toLowerCase()).withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
     }
+
+    @Override
+    public void initializeClient(java.util.function.Consumer<net.minecraftforge.client.extensions.common.IClientItemExtensions> consumer) {
+        consumer.accept(com.krolasyon.advgear.client.ClientHooks.ITEM_EXTENSIONS);
+    }
 }

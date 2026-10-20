@@ -74,4 +74,9 @@ public class TonicItem extends Item {
                     .withStyle(m.getEffect().isBeneficial() ? ChatFormatting.BLUE : ChatFormatting.DARK_RED));
         }
     }
+
+    @Override
+    public void initializeClient(java.util.function.Consumer<net.minecraftforge.client.extensions.common.IClientItemExtensions> consumer) {
+        consumer.accept(com.krolasyon.advgear.client.ClientHooks.ITEM_EXTENSIONS);
+    }
 }

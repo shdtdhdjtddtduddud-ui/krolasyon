@@ -91,10 +91,48 @@ public final class AutoTest {
             tp(s, -0.5, Y, -1.5, 0, -17);
         });
         wait(80, "showcase");
-        server(5, null, s -> tp(s, -3.0, Y + 1, 1.0, 0, -12));
-        wait(30, "showcase_close_left");
-        server(5, null, s -> tp(s, 2.0, Y + 1, 1.0, 0, -12));
-        wait(30, "showcase_close_right");
+        for (float cx : new float[]{-3.9F, -1.4F, 1.1F, 3.6F}) {
+            server(5, null, s -> tp(s, cx, Y + 1.4, 1.15, 0, -2));
+            wait(25, "close_" + (int) (cx + 5));
+        }
+        // envanterde 3D simgeler
+        server(5, null, s -> {
+            ServerPlayer p = player(s);
+            int k = 9;
+            for (RegistryObject<Item> r : AdvGear.ALL) if (k < 36) p.getInventory().setItem(k++, new ItemStack(r.get()));
+            for (int h = 0; h < 9; h++) p.getInventory().setItem(h, new ItemStack(AdvGear.ALL.get(h + 10).get()));
+        });
+        client(10, null, mc -> {
+            allowScreen = true;
+            gui = true;
+            mc.setScreen(new net.minecraft.client.gui.screens.inventory.InventoryScreen(mc.player));
+        });
+        wait(20, "inventory_icons");
+        client(5, null, mc -> {
+            mc.setScreen(null);
+            allowScreen = false;
+            gui = false;
+        });
+        // elde iksir: oyuncu hızla dönünce sıvı çalkalanır
+        server(5, null, s -> {
+            ServerPlayer p = player(s);
+            for (int h = 0; h < 36; h++) p.getInventory().setItem(h, ItemStack.EMPTY);
+            p.getInventory().setItem(0, new ItemStack(AdvGear.OCEAN_DRAUGHT.get()));
+            p.getInventory().selected = 0;
+            tp(s, 0.5, Y, -5.5, 0, 10);
+        });
+        wait(30, "held_potion_still");
+        for (int i = 0; i < 5; i++) client(1, null, mc -> mc.player.setYRot(mc.player.getYRot() + 14F));
+        wait(2, "held_potion_slosh");
+        wait(6, "held_potion_slosh2");
+        server(5, null, s -> player(s).getInventory().setItem(0, new ItemStack(AdvGear.HEART_TONIC.get())));
+        wait(20, null);
+        for (int i = 0; i < 5; i++) client(1, null, mc -> mc.player.setYRot(mc.player.getYRot() - 14F));
+        wait(3, "held_tonic_slosh");
+        server(5, null, s -> player(s).getInventory().setItem(0, new ItemStack(AdvGear.KEY_RING.get())));
+        wait(15, null);
+        for (int i = 0; i < 4; i++) client(1, null, mc -> mc.player.setYRot(mc.player.getYRot() + 16F));
+        wait(2, "held_keyring_swing");
 
         // ------------------------------------------------ giyilen eşyalar (üçüncü şahıs)
         server(5, null, s -> {

@@ -28,14 +28,18 @@ public final class GearLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
             ps.pushPose();
             getParentModel().head.translateAndRotate(ps);
             if (!player.getItemBySlot(EquipmentSlot.HEAD).isEmpty()) ps.scale(1.18F, 1.18F, 1.18F);
-            GearRender.goggles(ps, buf, light, g.variant);
+            ps.scale(1 / 16F, 1 / 16F, 1 / 16F);
+            Models3D.goggles(new G(ps, buf, light), g.variant, true);
             ps.popPose();
         }
         if (!belt.isEmpty()) {
             ps.pushPose();
             getParentModel().body.translateAndRotate(ps);
             if (!player.getItemBySlot(EquipmentSlot.LEGS).isEmpty() || !player.getItemBySlot(EquipmentSlot.CHEST).isEmpty()) ps.scale(1.12F, 1F, 1.2F);
-            GearRender.belt(ps, buf, light, beltVariant(belt));
+            ps.scale(1 / 16F, 1 / 16F, 1 / 16F);
+            float wob = Mth.sin(limbSwing * 0.6662F) * limbSwingAmount;
+            Models3D.belt(new G(ps, buf, light), beltVariant(belt), new Models3D.Anim(age, wob * 0.35F, Mth.cos(limbSwing * 0.6662F) * limbSwingAmount * 0.2F,
+                    0.05F + limbSwingAmount * 0.3F, 0, 0));
             ps.popPose();
         }
         if (back.getItem() instanceof BackpackItem b) {
@@ -43,7 +47,8 @@ public final class GearLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
             getParentModel().body.translateAndRotate(ps);
             if (!player.getItemBySlot(EquipmentSlot.CHEST).isEmpty()) ps.translate(0, 0, 0.07F);
             float sway = Mth.sin(limbSwing * 0.6662F) * limbSwingAmount * 0.12F;
-            GearRender.backpack(ps, buf, light, b.variant, sway);
+            ps.scale(1 / 16F, 1 / 16F, 1 / 16F);
+            Models3D.backpack(new G(ps, buf, light), b.variant, sway);
             ps.popPose();
         }
     }

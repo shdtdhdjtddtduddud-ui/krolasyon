@@ -15,8 +15,4 @@ public class GogglesItem extends GearItem {
         this.variant = variant;
     }
 
-    @Override
-    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-
-    }
 }

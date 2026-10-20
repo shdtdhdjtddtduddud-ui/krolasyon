@@ -55,38 +55,33 @@ BOOKS = ['apprentice_spellbook', 'traveler_tome', 'black_grimoire']
 BAGS = ['satchel', 'traveler_pack', 'expedition_pack']
 GOGGLES = ['explorer_goggles', 'engineer_goggles', 'hunter_goggles']
 
-HELD = {"thirdperson_righthand": {"rotation": [0, -90, 55], "translation": [0, 4.0, 0.5], "scale": [0.85, 0.85, 0.85]},
-        "thirdperson_lefthand": {"rotation": [0, 90, -55], "translation": [0, 4.0, 0.5], "scale": [0.85, 0.85, 0.85]},
-        "firstperson_righthand": {"rotation": [0, -90, 25], "translation": [1.13, 3.2, 1.13], "scale": [0.68, 0.68, 0.68]},
-        "firstperson_lefthand": {"rotation": [0, 90, -25], "translation": [1.13, 3.2, 1.13], "scale": [0.68, 0.68, 0.68]}}
+def disp(gui, gui_s, tp_t, tp_s, fp_r, fp_t, fp_s, tp_r=(0, 0, 0)):
+    return {"gui": {"rotation": list(gui), "translation": [0, 0, 0], "scale": [gui_s] * 3},
+            "ground": {"rotation": [0, 0, 0], "translation": [0, 3, 0], "scale": [0.5] * 3},
+            "fixed": {"rotation": [0, 0, 0], "translation": [0, 0, 0], "scale": [gui_s] * 3},
+            "head": {"rotation": [0, 0, 0], "translation": [0, 12, 0], "scale": [0.6] * 3},
+            "thirdperson_righthand": {"rotation": list(tp_r), "translation": list(tp_t), "scale": [tp_s] * 3},
+            "thirdperson_lefthand": {"rotation": [tp_r[0], -tp_r[1], -tp_r[2]], "translation": list(tp_t), "scale": [tp_s] * 3},
+            "firstperson_righthand": {"rotation": list(fp_r), "translation": list(fp_t), "scale": [fp_s] * 3},
+            "firstperson_lefthand": {"rotation": [fp_r[0], -fp_r[1], -fp_r[2]], "translation": list(fp_t), "scale": [fp_s] * 3}}
+
+
+POTIONS = ['heart_tonic', 'ocean_draught', 'black_death', 'starlight_elixir', 'sun_essence']
+RINGS = ['gold_band', 'sapphire_ring', 'skull_ring', 'bone_hand_ring', 'emerald_eye_ring']
+KEYS = ['iron_key', 'dungeon_key', 'heart_key', 'mechanic_key', 'thorn_lockpick', 'crystal_key', 'key_ring']
+BELTS = ['traveler_belt', 'tool_belt', 'alchemist_belt']
+D_POT = disp((12, -30, 0), 0.9, (0, 2.5, 2), 0.5, (0, -10, 0), (1, 2, 0), 0.55)
+D_RING = disp((20, -30, 0), 1.1, (0, 3, 1.5), 0.45, (0, -15, 0), (0, 3, 0), 0.5)
+D_KEY = disp((15, -20, 0), 1.0, (0, 4, 0.5), 0.85, (0, -90, 25), (1.13, 3.2, 1.13), 0.68, tp_r=(0, -90, 55))
+D_GOG = disp((15, -30, 0), 0.95, (0, 3, 2), 0.5, (0, -15, 0), (0, 3, 0), 0.5)
+D_BAG = disp((15, -30, 0), 0.9, (0, 2, 2), 0.5, (0, -20, 0), (0, 1, 0), 0.45)
+D_BELT = disp((30, -30, 0), 0.95, (0, 3, 2), 0.5, (0, -15, 0), (0, 3, 0), 0.5)
+D_BOOK = disp((10, -25, 0), 1.0, (0, 3, 1.5), 0.45, (0, 15, 0), (1.5, 2.5, -3), 0.5)
 for i in ITEMS:
-    gen = {"parent": "minecraft:item/generated", "textures": {"layer0": "advgear:item/" + i}}
-    if i in BOOKS or i in BAGS or i in GOGGLES:
-        if i in BOOKS:
-            disp = {"thirdperson_righthand": {"rotation": [0, 0, 0], "translation": [0, 2.5, 1.5], "scale": [0.55, 0.55, 0.55]},
-                    "thirdperson_lefthand": {"rotation": [0, 0, 0], "translation": [0, 2.5, 1.5], "scale": [0.55, 0.55, 0.55]},
-                    "firstperson_righthand": {"rotation": [0, 20, 0], "translation": [-1, 3, -2], "scale": [0.6, 0.6, 0.6]},
-                    "firstperson_lefthand": {"rotation": [0, -20, 0], "translation": [1, 3, -2], "scale": [0.6, 0.6, 0.6]},
-                    "head": {"rotation": [0, 180, 0], "translation": [0, 13, 7], "scale": [1, 1, 1]}}
-        elif i in BAGS:
-            disp = {"thirdperson_righthand": {"rotation": [75, 45, 0], "translation": [0, 2.5, 0], "scale": [0.45, 0.45, 0.45]},
-                    "thirdperson_lefthand": {"rotation": [75, 45, 0], "translation": [0, 2.5, 0], "scale": [0.45, 0.45, 0.45]},
-                    "firstperson_righthand": {"rotation": [0, 135, 0], "translation": [0, 0, 0], "scale": [0.45, 0.45, 0.45]},
-                    "firstperson_lefthand": {"rotation": [0, 135, 0], "translation": [0, 0, 0], "scale": [0.45, 0.45, 0.45]},
-                    "head": {"rotation": [0, 180, 0], "translation": [0, 13, 7], "scale": [1, 1, 1]}}
-        else:
-            disp = {"thirdperson_righthand": {"rotation": [10, 180, 0], "translation": [0, 3, 1], "scale": [0.5, 0.5, 0.5]},
-                    "thirdperson_lefthand": {"rotation": [10, 180, 0], "translation": [0, 3, 1], "scale": [0.5, 0.5, 0.5]},
-                    "firstperson_righthand": {"rotation": [0, 160, 0], "translation": [0, 2, 0], "scale": [0.5, 0.5, 0.5]},
-                    "firstperson_lefthand": {"rotation": [0, 200, 0], "translation": [0, 2, 0], "scale": [0.5, 0.5, 0.5]},
-                    "head": {"rotation": [0, 180, 0], "translation": [0, 13, 7], "scale": [1, 1, 1]}}
-        model = {"loader": "forge:separate_transforms", "gui_light": "front",
-                 "base": {"parent": "minecraft:builtin/entity", "display": disp},
-                 "perspectives": {"gui": gen, "ground": gen, "fixed": gen}}
-        w(os.path.join(A, 'models', 'item', i + '.json'), model)
-    else:
-        w(os.path.join(A, 'models', 'item', i + '.json'), gen if 'key' not in i and 'lockpick' not in i
-          else {"parent": "minecraft:item/handheld", "textures": {"layer0": "advgear:item/" + i}})
+    d = D_POT if i in POTIONS else D_RING if i in RINGS else D_KEY if i in KEYS else D_GOG if i in GOGGLES else D_BAG if i in BAGS \
+        else D_BELT if i in BELTS else D_BOOK
+    w(os.path.join(A, 'models', 'item', i + '.json'), {"parent": "minecraft:builtin/entity", "gui_light": "side",
+                                                       "textures": {"particle": "advgear:item/" + i}, "display": d})
 
 # kilitli sandık
 for lock in ('iron', 'bone', 'heart'):

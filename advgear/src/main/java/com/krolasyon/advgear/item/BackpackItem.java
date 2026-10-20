@@ -57,8 +57,4 @@ public class BackpackItem extends GearItem {
         tip.add(Component.translatable("tooltip.advgear.backpack_fill", BackpackContainer.count(stack), rows * 9).withStyle(ChatFormatting.GRAY));
     }
 
-    @Override
-    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-
-    }
 }

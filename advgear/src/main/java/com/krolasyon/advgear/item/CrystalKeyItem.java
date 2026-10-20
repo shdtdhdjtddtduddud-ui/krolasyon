@@ -115,4 +115,9 @@ public class CrystalKeyItem extends Item {
         if (t != null && t.contains("Dim"))
             tip.add(Component.literal(t.getInt("X") + ", " + t.getInt("Y") + ", " + t.getInt("Z")).withStyle(ChatFormatting.LIGHT_PURPLE));
     }
+
+    @Override
+    public void initializeClient(java.util.function.Consumer<net.minecraftforge.client.extensions.common.IClientItemExtensions> consumer) {
+        consumer.accept(com.krolasyon.advgear.client.ClientHooks.ITEM_EXTENSIONS);
+    }
 }

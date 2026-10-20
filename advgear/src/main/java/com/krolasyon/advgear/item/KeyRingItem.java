@@ -109,4 +109,9 @@ public class KeyRingItem extends Item {
         tip.add(Component.translatable("tooltip.advgear.key_ring_count", keys.size(), CAPACITY).withStyle(ChatFormatting.GRAY));
         for (ItemStack k : keys) tip.add(Component.literal("  • ").append(k.getHoverName()).withStyle(ChatFormatting.DARK_GRAY));
     }
+
+    @Override
+    public void initializeClient(java.util.function.Consumer<net.minecraftforge.client.extensions.common.IClientItemExtensions> consumer) {
+        consumer.accept(com.krolasyon.advgear.client.ClientHooks.ITEM_EXTENSIONS);
+    }
 }

@@ -41,4 +41,9 @@ public class PoisonFlaskItem extends Item {
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tip, TooltipFlag flag) {
         tip.add(Component.translatable("tooltip.advgear.black_death").withStyle(ChatFormatting.DARK_PURPLE));
     }
+
+    @Override
+    public void initializeClient(java.util.function.Consumer<net.minecraftforge.client.extensions.common.IClientItemExtensions> consumer) {
+        consumer.accept(com.krolasyon.advgear.client.ClientHooks.ITEM_EXTENSIONS);
+    }
 }

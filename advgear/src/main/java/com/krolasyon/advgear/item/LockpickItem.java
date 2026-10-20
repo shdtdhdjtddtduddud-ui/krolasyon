@@ -25,4 +25,9 @@ public class LockpickItem extends Item {
     public boolean isValidRepairItem(ItemStack stack, ItemStack repair) {
         return repair.is(net.minecraft.world.item.Items.IRON_NUGGET);
     }
+
+    @Override
+    public void initializeClient(java.util.function.Consumer<net.minecraftforge.client.extensions.common.IClientItemExtensions> consumer) {
+        consumer.accept(com.krolasyon.advgear.client.ClientHooks.ITEM_EXTENSIONS);
+    }
 }
