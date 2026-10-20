@@ -99,6 +99,7 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
         for (EquipmentSlot s : EquipmentSlot.values()) setDropChance(s, 0F);
         ((net.minecraft.world.entity.ai.navigation.GroundPathNavigation) getNavigation()).setCanOpenDoors(true);
         if (!level.isClientSide) setItemSlot(EquipmentSlot.MAINHAND, idleItem());
+        addGoals();
     }
 
     public static AttributeSupplier.Builder attributes(ElfKind k) {
@@ -120,8 +121,11 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
 
     // ------------------------------------------------------------------ hedefler
 
+    /** Mob kurucusu registerGoals'u kind atanmadan çağırır; hedefler bu yüzden kurucunun sonunda eklenir. */
     @Override
-    protected void registerGoals() {
+    protected void registerGoals() {}
+
+    private void addGoals() {
         goalSelector.addGoal(0, new FloatGoal(this));
         switch (kind.role) {
             case ARCHER -> goalSelector.addGoal(2, new RangedAttackGoal(this, 1.0, 22, 16F));
