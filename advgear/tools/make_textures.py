@@ -900,7 +900,7 @@ def materials():
 
     save('plain', gray(16, lambda u, v, x, y: 245 + rng.random() * 10))
     streak = [rng.random() for _ in range(64)]
-    save('metal', gray(64, lambda u, v, x, y: 175 + 45 * math.exp(-((v - 0.32) / 0.12) ** 2) + 30 * math.exp(-((v - 0.75) / 0.08) ** 2)
+    save('metal', gray(64, lambda u, v, x, y: 168 + 87 * math.exp(-((v - 0.3) / 0.1) ** 2) + 50 * math.exp(-((v - 0.72) / 0.06) ** 2) - 25 * math.exp(-((v - 0.5) / 0.08) ** 2)
                        + 18 * (streak[y] - 0.5) + 8 * math.sin(u * 40 + streak[y] * 6)))
 
     def engrave(u, v, x, y):

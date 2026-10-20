@@ -111,10 +111,10 @@ public final class AutoTest {
         });
         wait(20, "gallery_all");
         client(5, null, mc -> mc.setScreen(new GalleryScreen(java.util.List.of(AdvGear.HEART_TONIC.get(), AdvGear.OCEAN_DRAUGHT.get(),
-                AdvGear.BLACK_DEATH.get(), AdvGear.STARLIGHT_ELIXIR.get(), AdvGear.SUN_ESSENCE.get()), 5, 9F)));
+                AdvGear.BLACK_DEATH.get(), AdvGear.STARLIGHT_ELIXIR.get(), AdvGear.SUN_ESSENCE.get()), 5, 5.5F)));
         wait(20, "gallery_potions");
         client(5, null, mc -> mc.setScreen(new GalleryScreen(java.util.List.of(AdvGear.GOLD_BAND.get(), AdvGear.SAPPHIRE_RING.get(),
-                AdvGear.SKULL_RING.get(), AdvGear.BONE_HAND_RING.get(), AdvGear.EMERALD_EYE_RING.get()), 5, 9F)));
+                AdvGear.SKULL_RING.get(), AdvGear.BONE_HAND_RING.get(), AdvGear.EMERALD_EYE_RING.get()), 5, 5.5F)));
         wait(20, "gallery_rings");
         client(5, null, mc -> mc.setScreen(new GalleryScreen(java.util.List.of(AdvGear.EXPLORER_GOGGLES.get(), AdvGear.ENGINEER_GOGGLES.get(),
                 AdvGear.HUNTER_GOGGLES.get(), AdvGear.SATCHEL.get(), AdvGear.TRAVELER_PACK.get(), AdvGear.EXPEDITION_PACK.get()), 3, 7F)));
@@ -123,7 +123,7 @@ public final class AutoTest {
                 AdvGear.BLACK_GRIMOIRE.get(), AdvGear.TRAVELER_BELT.get(), AdvGear.TOOL_BELT.get(), AdvGear.ALCHEMIST_BELT.get()), 3, 7F)));
         wait(20, "gallery_books_belts");
         client(5, null, mc -> mc.setScreen(new GalleryScreen(java.util.List.of(AdvGear.IRON_KEY.get(), AdvGear.DUNGEON_KEY.get(),
-                AdvGear.HEART_KEY.get(), AdvGear.MECHANIC_KEY.get(), AdvGear.THORN_LOCKPICK.get(), AdvGear.CRYSTAL_KEY.get(), AdvGear.KEY_RING.get()), 4, 7F)));
+                AdvGear.HEART_KEY.get(), AdvGear.MECHANIC_KEY.get(), AdvGear.THORN_LOCKPICK.get(), AdvGear.CRYSTAL_KEY.get(), AdvGear.KEY_RING.get()), 4, 5.5F)));
         wait(20, "gallery_keys");
         client(5, null, mc -> {
             mc.setScreen(null);
@@ -138,7 +138,7 @@ public final class AutoTest {
             p.getInventory().selected = 0;
             tp(s, 0.5, Y, -5.5, 0, 10);
         });
-        wait(30, "held_potion_still");
+        client(30, "held_potion_still", mc -> gui = true);
         for (int i = 0; i < 5; i++) client(1, null, mc -> mc.player.setYRot(mc.player.getYRot() + 14F));
         wait(2, "held_potion_slosh");
         wait(6, "held_potion_slosh2");
@@ -150,6 +150,7 @@ public final class AutoTest {
         wait(15, null);
         for (int i = 0; i < 4; i++) client(1, null, mc -> mc.player.setYRot(mc.player.getYRot() + 16F));
         wait(2, "held_keyring_swing");
+        client(1, null, mc -> gui = false);
 
         // ------------------------------------------------ giyilen eşyalar (üçüncü şahıs)
         server(5, null, s -> {

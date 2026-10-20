@@ -113,7 +113,7 @@ public final class ClientHooks {
                 ps.scale(1.25F, -1.25F, -1.25F);
                 ps.mulPose(Axis.YP.rotationDegrees(180));
                 ps.translate(0, -5.4F, -4.6F);
-                Models3D.backpack(g, b.variant, hand ? Slosh.tiltZ(pt) * 0.4F : 0);
+                Models3D.backpack(g, b.variant, hand ? Slosh.tiltZ(pt) * 0.4F : 0, false);
             } else if (item instanceof GogglesItem gi) {
                 ps.scale(1.25F, -1.25F, -1.25F);
                 ps.translate(0, 4.6F, 5.4F);

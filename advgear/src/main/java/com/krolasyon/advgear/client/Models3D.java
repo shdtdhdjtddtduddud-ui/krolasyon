@@ -15,8 +15,8 @@ public final class Models3D {
 
     // ------------------------------------------------------------------ malzemeler
     static final Pass C = Pass.CUT, T = Pass.TRANS, L = Pass.GLOW;
-    static final Mat GOLD = mat("metal", 0xF0BE48, C), GOLD_D = mat("metal", 0xB07E22, C), ENGRAVE = mat("engrave", 0xF0BE48, C);
-    static final Mat SILVER = mat("metal", 0xD2D9DE, C), SILVER_D = mat("metal", 0x8C969E, C), IRON = mat("metal", 0xA7AFB5, C);
+    static final Mat GOLD = mat("metal", 0xFFCC4E, C), GOLD_D = mat("metal", 0xC08A2A, C), ENGRAVE = mat("engrave", 0xFFCC4E, C);
+    static final Mat SILVER = mat("metal", 0xE6EDF2, C), SILVER_D = mat("metal", 0x8C969E, C), IRON = mat("metal", 0xA7AFB5, C);
     static final Mat STEEL_D = mat("metal", 0x5C646B, C), BRASS = mat("metal", 0xD39A45, C), BRASS_D = mat("metal", 0x9A6A2A, C);
     static final Mat DARK = mat("plain", 0x1C1818, C), BLACK_CAP = mat("plain", 0x2C2C32, C), BONE = mat("bone", 0xEDE5CF, C);
     static final Mat CORK = mat("cork", 0xB98A58, C), PAPER = mat("paper", 0xF4EEDF, C), TAG = mat("tag", 0xFFFFFF, C);
@@ -353,6 +353,10 @@ public final class Models3D {
     }
 
     public static void backpack(G g, int variant, float sway) {
+        backpack(g, variant, sway, true);
+    }
+
+    public static void backpack(G g, int variant, float sway, boolean worn) {
         g.draw(() -> {
             if (variant == 0) {
                 Mat canvas = mat("canvas", 0x9CA468, C), canvasL = mat("canvas", 0xB6BE80, C), strap = mat("leather", 0x7A6A3A, C);
@@ -368,7 +372,8 @@ public final class Models3D {
                 // çapraz omuz askısı
                 float[][] diag = {{-3.2F, 3.4F, 2.1F}, {-3.4F, -0.3F, 1.2F}, {-3.0F, -0.45F, -1.0F}, {-2.4F, 0.6F, -2.4F}, {3.8F, 9.2F, -2.42F},
                         {4.35F, 10.0F, -0.6F}, {4.1F, 9.6F, 1.8F}, {3.4F, 8.6F, 2.3F}};
-                g.sweep(strap, diag, G.RECT, 0.6F, 0.1F, new float[]{1, 0, 0}, false);
+                if (worn) g.sweep(strap, diag, G.RECT, 0.6F, 0.1F, new float[]{1, 0, 0}, false);
+                else g.sweep(strap, G.arc(0, 3.0F, 3.7F, 2.2F, 1.8F, 180, 360, 12), G.RECT, 0.6F, 0.12F, UP_Z, false);
             } else if (variant == 1) {
                 Mat canvas = mat("canvas", 0xB4A88E, C), canvasL = mat("canvas", 0xCFC3A6, C), strap = mat("leather", 0x6E4E30, C);
                 g.rbox(canvas, -4.0F, 0.6F, 2.05F, 4.0F, 10.9F, 6.3F, 1.2F, 4);
@@ -385,7 +390,7 @@ public final class Models3D {
                 for (int sx = -1; sx <= 1; sx += 2) {
                     g.rbox(canvas.tint(0.9F), sx * 4.0F - 0.6F, 5.5F, 2.8F, sx * 4.0F + 0.6F, 10.2F, 5.4F, 0.45F, 2);
                     g.box(BRASS, sx * 3.7F - 0.5F, 10.4F, 5.4F, sx * 3.7F + 0.5F, 11.0F, 6.4F);
-                    shoulderStrap(g, strap, sx * 2.5F);
+                    if (worn) shoulderStrap(g, strap, sx * 2.5F);
                 }
             } else {
                 Mat leather = mat("leather", 0xC67C38, C), leatherL = mat("leather", 0xDB944C, C), strap = mat("leather", 0x6A4024, C);
@@ -414,7 +419,7 @@ public final class Models3D {
                     g.rbox(leatherL, sx * 2.4F - 1.9F, 6.2F, 7.0F, sx * 2.4F + 1.9F, 10.6F, 8.2F, 0.5F, 3);
                     buckle(g, BRASS, sx * 2.4F, 7.0F, 8.25F, 0.6F, 0.5F);
                     g.rbox(leather.tint(0.92F), sx * 4.6F - 0.7F, 4.0F, 3.0F, sx * 4.6F + 0.7F, 10.0F, 6.2F, 0.5F, 2);
-                    shoulderStrap(g, strap, sx * 2.6F);
+                    if (worn) shoulderStrap(g, strap, sx * 2.6F);
                 }
                 g.box(BRASS, -0.9F, 5.6F, 7.45F, 0.9F, 7.2F, 8.1F);
                 g.sweep(SILVER, G.arc(0, 5.6F, 7.75F, 0.6F, 0.8F, 180, 360, 10), G.ROUND8, 0.13F, 0.13F, UP_Z, false);
@@ -454,7 +459,7 @@ public final class Models3D {
                 for (int i = 0; i < 3; i++) {
                     g.ps.pushPose();
                     g.ps.translate(xs[i], 11.4F, -2.95F);
-                    g.ps.scale(0.32F, -0.32F, 0.32F);
+                    g.ps.scale(0.32F, -0.32F, -0.32F);
                     miniVial(g, cols[i], a);
                     g.ps.popPose();
                 }
@@ -543,7 +548,10 @@ public final class Models3D {
             }
             // kapalıyken kitabı saran kayış / kemerler
             if (open < 0.05F && variant == 1) {
+                g.ps.pushPose();
+                g.ps.translate(W / 2 + 0.15F, 0, 0);
                 g.sweep(mat("plain", 0xEDE5D3, C), G.roundRectXZ(W / 2 + 0.25F, half + th + 0.12F, 0.5F, -0.4F, 4), G.RECT, 0.08F, 1.1F, new float[]{0, 1, 0}, true);
+                g.ps.popPose();
             }
             if (open < 0.05F && variant == 2) {
                 for (float yy : new float[]{-1.4F, 1.7F}) {
