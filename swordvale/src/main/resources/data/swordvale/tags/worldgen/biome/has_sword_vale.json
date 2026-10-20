@@ -1,5 +1,4 @@
 { "replace": false, "values": [
-  "minecraft:plains", "minecraft:sunflower_plains", "minecraft:meadow", "minecraft:forest", "minecraft:flower_forest",
-  "minecraft:birch_forest", "minecraft:taiga", "minecraft:savanna", "minecraft:savanna_plateau", "minecraft:windswept_hills",
-  "minecraft:old_growth_spruce_taiga", "minecraft:cherry_grove"
+  "minecraft:plains", "minecraft:sunflower_plains", "minecraft:meadow", "minecraft:savanna", "minecraft:savanna_plateau",
+  "minecraft:windswept_hills", "minecraft:windswept_savanna", "minecraft:cherry_grove"
 ] }

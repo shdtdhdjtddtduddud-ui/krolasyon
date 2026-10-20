@@ -27,7 +27,7 @@ public final class SwordShape {
         buried = s.lean() > Math.toRadians(55) ? 0.06F * L : 0.17F * L;
         bladeEnd = 0.62F * L;
         guardH = Math.max(1.5F, 0.045F * L);
-        guardHalf = Math.max(W * 1.3F, 0.15F * L);
+        guardHalf = Math.max(W * 1.4F, 0.17F * L);
         gripEnd = bladeEnd + guardH + 0.22F * L;
         gripR = Math.max(0.6F, W * 0.24F);
         pomR = Math.max(1.0F, W * 0.36F);

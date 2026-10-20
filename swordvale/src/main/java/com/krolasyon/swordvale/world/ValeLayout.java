@@ -109,7 +109,7 @@ public final class ValeLayout {
                     length = 11 + r.nextFloat() * 8;
                     lean = (float) Math.toRadians(r.nextFloat() < 0.15 ? 62 + r.nextFloat() * 18 : r.nextFloat() * 30);
                 }
-                float width = Math.max(1.6F, length * 0.105F);
+                float width = Math.max(1.8F, length * 0.13F);
                 float leanDir = r.nextFloat() * (float) (Math.PI * 2);
                 float twist = r.nextFloat() * (float) Math.PI;
                 boolean grave = length > 40 && r.nextFloat() < 0.45F;
