@@ -46,10 +46,15 @@ public final class ClientSetup {
     private static void setup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             MenuScreens.register(AdvGear.GEAR_MENU.get(), GearScreen::new);
-            MenuScreens.<com.krolasyon.advgear.gear.BackpackMenu, ContainerScreen>register(AdvGear.BACKPACK_2.get(), ContainerScreen::new);
-            MenuScreens.<com.krolasyon.advgear.gear.BackpackMenu, ContainerScreen>register(AdvGear.BACKPACK_3.get(), ContainerScreen::new);
-            MenuScreens.<com.krolasyon.advgear.gear.BackpackMenu, ContainerScreen>register(AdvGear.BACKPACK_4.get(), ContainerScreen::new);
+            MenuScreens.register(chest(AdvGear.BACKPACK_2.get()), ContainerScreen::new);
+            MenuScreens.register(chest(AdvGear.BACKPACK_3.get()), ContainerScreen::new);
+            MenuScreens.register(chest(AdvGear.BACKPACK_4.get()), ContainerScreen::new);
         });
+    }
+
+    @SuppressWarnings("unchecked")
+    private static net.minecraft.world.inventory.MenuType<net.minecraft.world.inventory.ChestMenu> chest(net.minecraft.world.inventory.MenuType<?> t) {
+        return (net.minecraft.world.inventory.MenuType<net.minecraft.world.inventory.ChestMenu>) t;
     }
 
     private static void layers(EntityRenderersEvent.RegisterLayerDefinitions e) {
