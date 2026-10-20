@@ -120,10 +120,14 @@ def stripes_fn(p, a, b, period=1.5, vertical=True):
 def filigree_fn(p, base, metal):
     """Gümüş sarmal işlemeler (Vaelor'un zırhı)."""
     def f(u, v, w, h):
-        a = math.sin(u * 2.2 + math.sin(v * 1.3) * 2.0) * math.cos(v * 1.7 - u * 0.6)
-        if abs(a) < 0.12:
-            return p.noise(metal, 0.08)
-        return p.noise(base, 0.05)
+        # iri, temiz kıvrımlar: iki sarmal ailesi, kenarlarda ince çerçeve
+        a = math.sin(u * 1.15 + math.sin(v * 0.75) * 1.6)
+        b = math.cos(v * 0.9 - u * 0.4)
+        if abs(a * b) < 0.09 and (int(u) + int(v)) % 3 != 0:
+            return p.noise(metal, 0.04)
+        if u < 0.5 or u > w - 0.5:
+            return p.noise(shade(metal, 0.7), 0.04)
+        return p.noise(shade(base, 1.0 + 0.25 * (1 - v / max(h, 1))), 0.02)
     return f
 
 

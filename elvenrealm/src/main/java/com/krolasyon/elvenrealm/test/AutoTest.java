@@ -157,11 +157,11 @@ public final class AutoTest {
         wait(80, "gallery_front");
         server(5, null, s -> look(s, gx + 0.5, gy + 1.6, gz - 8.5, gx + 0.5, gy + 1.0, gz));
         wait(40, "gallery_back");
-        server(5, null, s -> look(s, gx - 7.5, gy + 1.5, gz + 3.2, gx - 7.5, gy + 1.2, gz));
+        server(5, null, s -> look(s, gx - 7.5, gy + 0.1, gz + 3.4, gx - 7.5, gy + 1.6, gz));
         wait(40, "close_lirael_vaelor");
-        server(5, null, s -> look(s, gx - 1.5, gy + 1.5, gz + 3.2, gx - 1.5, gy + 1.2, gz));
+        server(5, null, s -> look(s, gx - 1.5, gy + 0.1, gz + 3.4, gx - 1.5, gy + 1.6, gz));
         wait(40, "close_caelan_nimrae");
-        server(5, null, s -> look(s, gx + 4.5, gy + 1.5, gz + 3.2, gx + 4.5, gy + 1.2, gz));
+        server(5, null, s -> look(s, gx + 4.5, gy + 0.1, gz + 3.4, gx + 4.5, gy + 1.6, gz));
         wait(40, "close_tavi_thalion");
         server(5, null, s -> look(s, gx + 8.0, gy + 1.4, gz + 3.5, gx + 3.5, gy + 1.0, gz));
         wait(30, "side_tavi");

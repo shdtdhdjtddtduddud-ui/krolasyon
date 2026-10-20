@@ -50,7 +50,7 @@ public final class GiantTree {
         this.y = y;
         this.z = z;
         Random r = new Random(seed);
-        int height = 58 + r.nextInt(10);
+        int height = 74 + r.nextInt(10);
         // gövde: kıvrımlı, aşağıda geniş taban
         double px = x + 0.5, py = y - 4, pz = z + 0.5;
         double driftX = (r.nextDouble() - 0.5) * 0.5, driftZ = (r.nextDouble() - 0.5) * 0.5;
@@ -94,11 +94,11 @@ public final class GiantTree {
             double br = trunkR(t) * 0.55;
             wood.add(new Capsule(s[0], s[1], s[2], mx, my, mz, br, br * 0.7, false));
             wood.add(new Capsule(mx, my, mz, ex, ey, ez, br * 0.7, 1.1, false));
-            leaves.add(new Blob(ex, ey + 1.5, ez, 9 + r.nextDouble() * 4, 0.62));
+            leaves.add(new Blob(ex, ey + 1.5, ez, 11 + r.nextDouble() * 4, 0.6));
             leaves.add(new Blob(mx + (ex - mx) * 0.3, my + 4, mz + (ez - mz) * 0.3, 6 + r.nextDouble() * 3, 0.65));
         }
         double[] top = spine[segs];
-        leaves.add(new Blob(top[0], top[1] + 4, top[2], 15 + r.nextDouble() * 3, 0.6));
+        leaves.add(new Blob(top[0], top[1] + 4, top[2], 18 + r.nextDouble() * 3, 0.58));
         leaves.add(new Blob(top[0] + 6, top[1] - 4, top[2] - 5, 11, 0.6));
         leaves.add(new Blob(top[0] - 7, top[1] - 3, top[2] + 4, 11, 0.6));
 
@@ -119,7 +119,7 @@ public final class GiantTree {
     }
 
     private static double trunkR(double t) {
-        return 3.4 + 4.2 * Math.pow(1 - t, 1.6) + 4.5 * Math.exp(-t * 18);
+        return 3.8 + 4.8 * Math.pow(1 - t, 1.6) + 5.0 * Math.exp(-t * 18);
     }
 
     public boolean overlaps(int x0, int z0, int x1, int z1) {
