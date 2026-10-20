@@ -1,14 +1,16 @@
 package com.krolasyon.advgear.client;
 
 import com.krolasyon.advgear.AdvGear;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tesselator;
+import net.minecraft.client.renderer.GameRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.state.BlockState;
@@ -18,7 +20,6 @@ import net.minecraftforge.common.Tags;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.OptionalDouble;
 
 /** Mühendis Gözlüğü: eğilirken (shift) 12 blok içindeki cevherleri duvarların ardından renkli çerçevelerle gösterir. */
 public final class OreSight {
@@ -28,18 +29,6 @@ public final class OreSight {
     public static boolean force;
 
     private OreSight() {}
-
-    private static final class Types extends RenderType {
-        private Types() {
-            super("", DefaultVertexFormat.POSITION, VertexFormat.Mode.LINES, 0, false, false, () -> {}, () -> {});
-        }
-
-        static final RenderType LINES = RenderType.create("advgear_ore_lines", DefaultVertexFormat.POSITION_COLOR_NORMAL, VertexFormat.Mode.LINES, 4096,
-                false, false, RenderType.CompositeState.builder().setShaderState(RENDERTYPE_LINES_SHADER)
-                        .setLineState(new LineStateShard(OptionalDouble.of(3.0))).setLayeringState(VIEW_OFFSET_Z_LAYERING)
-                        .setTransparencyState(TRANSLUCENT_TRANSPARENCY).setOutputState(ITEM_ENTITY_TARGET).setWriteMaskState(COLOR_WRITE)
-                        .setCullState(NO_CULL).setDepthTestState(NO_DEPTH_TEST).createCompositeState(false));
-    }
 
     private static int color(BlockState s) {
         if (s.is(BlockTags.DIAMOND_ORES)) return 0x4FE3E0;
@@ -70,20 +59,28 @@ public final class OreSight {
                 if (col >= 0) ORES.add(new long[]{p.asLong(), col});
             }
         }
+        if (ORES.isEmpty()) return;
         PoseStack ps = event.getPoseStack();
         Vec3 cam = event.getCamera().getPosition();
-        MultiBufferSource.BufferSource buf = mc.renderBuffers().bufferSource();
-        VertexConsumer vc = buf.getBuffer(Types.LINES);
         ps.pushPose();
         ps.translate(-cam.x, -cam.y, -cam.z);
         float pulse = 0.65F + 0.35F * (float) Math.sin((now + event.getPartialTick()) * 0.2);
+        RenderSystem.disableDepthTest();
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
+        RenderSystem.lineWidth(3F);
+        BufferBuilder bb = Tesselator.getInstance().getBuilder();
+        bb.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
         for (long[] o : ORES) {
             BlockPos p = BlockPos.of(o[0]);
             int col = (int) o[1];
-            LevelRenderer.renderLineBox(ps, vc, p.getX() + 0.02, p.getY() + 0.02, p.getZ() + 0.02, p.getX() + 0.98, p.getY() + 0.98, p.getZ() + 0.98,
+            LevelRenderer.renderLineBox(ps, bb, p.getX() + 0.02, p.getY() + 0.02, p.getZ() + 0.02, p.getX() + 0.98, p.getY() + 0.98, p.getZ() + 0.98,
                     (col >> 16 & 255) / 255F, (col >> 8 & 255) / 255F, (col & 255) / 255F, pulse);
         }
+        BufferUploader.drawWithShader(bb.end());
+        RenderSystem.lineWidth(1F);
+        RenderSystem.enableDepthTest();
         ps.popPose();
-        buf.endBatch(Types.LINES);
     }
 }

@@ -88,12 +88,12 @@ public final class AutoTest {
                         -5 + col, Y + 4 - row, id));
                 i++;
             }
-            tp(s, -0.5, Y, -2.6, 0, 6);
+            tp(s, -0.5, Y, -1.5, 0, -17);
         });
         wait(80, "showcase");
-        server(5, null, s -> tp(s, -3.5, Y + 1, 1.2, 0, 10));
+        server(5, null, s -> tp(s, -3.0, Y + 1, 1.0, 0, -12));
         wait(30, "showcase_close_left");
-        server(5, null, s -> tp(s, 1.5, Y + 1, 1.2, 0, 10));
+        server(5, null, s -> tp(s, 2.0, Y + 1, 1.0, 0, -12));
         wait(30, "showcase_close_right");
 
         // ------------------------------------------------ giyilen eşyalar (üçüncü şahıs)
@@ -101,13 +101,16 @@ public final class AutoTest {
             wear(s, AdvGear.EMERALD_EYE_RING, AdvGear.SKULL_RING, AdvGear.ENGINEER_GOGGLES, AdvGear.ALCHEMIST_BELT, AdvGear.EXPEDITION_PACK);
             tp(s, 0.5, Y, -4.5, 180, 0);
         });
-        client(20, null, mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT));
+        client(20, null, mc -> {
+            mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT);
+            mc.options.fov().set(32);
+        });
         wait(20, "worn_front_1");
         client(20, "worn_back_1", mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_BACK));
         server(5, null, s -> wear(s, AdvGear.GOLD_BAND, null, AdvGear.HUNTER_GOGGLES, AdvGear.TOOL_BELT, AdvGear.TRAVELER_PACK));
         client(20, "worn_back_2", mc -> {});
         client(20, "worn_front_2", mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT));
-        server(5, null, s -> wear(s, AdvGear.SAPPHIRE_RING, AdvGear.BONE_HAND_RING, AdvGear.EXPLORER_GOGGLES, AdvGear.TRAVELER_BELT, AdvGear.SATCHEL));
+        server(5, null, s -> wear(s, AdvGear.GOLD_BAND, AdvGear.BONE_HAND_RING, AdvGear.EXPLORER_GOGGLES, AdvGear.TRAVELER_BELT, AdvGear.SATCHEL));
         client(20, "worn_front_3", mc -> {});
         client(20, "worn_back_3", mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_BACK));
         server(5, null, s -> {
@@ -119,6 +122,7 @@ public final class AutoTest {
         // ------------------------------------------------ kuşanım ekranı ve çanta
         client(5, null, mc -> {
             mc.options.setCameraType(CameraType.FIRST_PERSON);
+            mc.options.fov().set(70);
             allowScreen = true;
             gui = true;
         });
@@ -181,7 +185,8 @@ public final class AutoTest {
         });
         client(1, null, mc -> KeyMapping.set(mc.options.keyUse.getKey(), true));
         wait(12, "drinking");
-        client(30, null, mc -> KeyMapping.set(mc.options.keyUse.getKey(), false));
+        wait(26, null);
+        client(5, null, mc -> KeyMapping.set(mc.options.keyUse.getKey(), false));
         server(5, null, s -> LOG.info("[GEARTEST] after tonic regeneration {}", player(s).hasEffect(MobEffects.REGENERATION)));
         server(5, null, s -> {
             player(s).getInventory().setItem(0, new ItemStack(AdvGear.BLACK_DEATH.get()));

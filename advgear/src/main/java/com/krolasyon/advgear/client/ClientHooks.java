@@ -99,7 +99,7 @@ public final class ClientHooks {
             ps.translate(0.5, 0.5, 0.5);
             ps.mulPose(Axis.YP.rotationDegrees(90F));
             ps.mulPose(Axis.ZP.rotationDegrees(180F));
-            float s = 1.45F;
+            float s = 0.95F;
             ps.scale(s, s, s);
             ps.translate(0, 0, 0.0F);
             ResourceLocation tex = new ResourceLocation("advgear", "textures/models/book_" + sb.variant + ".png");

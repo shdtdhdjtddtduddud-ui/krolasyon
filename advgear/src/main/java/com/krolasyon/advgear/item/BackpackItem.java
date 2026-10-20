@@ -59,6 +59,6 @@ public class BackpackItem extends GearItem {
 
     @Override
     public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-        consumer.accept(com.krolasyon.advgear.client.ClientHooks.ITEM_EXTENSIONS);
+
     }
 }
