@@ -394,7 +394,6 @@ public final class VoxModels {
             return c;
         });
         buckle(v, (x0 + x1) / 2, (y0 + y1) / 2, z + 0.2F, (x1 - x0) / 2 + 0.5F, (y1 - y0) / 2 + 0.5F, BRASS);
-        v.erase(x0 - 0.1F, y0 - 0.1F, z + 0.6F, x1 + 0.1F, y1 + 0.1F, z + 1.4F, (x, y, z2) -> x > x0 && x < x1 && y > y0 && y < y1);
     }
 
     private static void shoulderStrap(Vox v, float x, int col) {
@@ -471,8 +470,8 @@ public final class VoxModels {
                 loop[i] = new float[]{c * r * 4.5F, 11.0F, s * r * 2.5F};
             }
             v.strap(loop, 1.8F, 0.55F, new float[]{0, 1, 0}, (x, y, z, i, j, k) -> {
-                boolean stitch = (Math.abs(y - 10.35F) < 0.26F || Math.abs(y - 11.65F) < 0.26F) && ((i + k) & 1) == 0;
-                return stitch ? 0xFFE8D8B0 : Vox.scale(0xFF000000 | col, 0.9F + Vox.hash(i, j, k) * 0.15F);
+                boolean stitch = Math.abs(y - 11.0F) < 0.26F && ((i + k) % 3) == 0;
+                return stitch ? 0xFFC8B48A : Vox.scale(0xFF000000 | col, 0.9F + Vox.hash(i, j, k) * 0.15F);
             });
             buckle(v, 0, 11.0F, -3.3F, 1.3F, 1.2F, met);
             v.box(1.5F, 10.3F, -3.2F, 2.3F, 11.7F, -2.7F, solid(col));
@@ -577,7 +576,7 @@ public final class VoxModels {
             ps.mulPose(Axis.YP.rotationDegrees(-s * ang));
             mesh("bookhalf" + variant + s, v -> bookHalf(v, variant, ss)).render(ps, buf, light);
             if (s > 0 && variant == 0) {
-                float zo = HALF + TH + 0.52F;
+                float zo = HALF + TH + 1.02F;
                 Vox.texQuad(ps, buf, light, "m_label", 1.1F, -0.9F, BW - 0.5F, 2.1F, zo);
             }
             if (open > 0.05F && variant == 2) {
