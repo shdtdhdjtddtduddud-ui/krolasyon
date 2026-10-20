@@ -70,12 +70,12 @@ POTIONS = ['heart_tonic', 'ocean_draught', 'black_death', 'starlight_elixir', 's
 RINGS = ['gold_band', 'sapphire_ring', 'skull_ring', 'bone_hand_ring', 'emerald_eye_ring']
 KEYS = ['iron_key', 'dungeon_key', 'heart_key', 'mechanic_key', 'thorn_lockpick', 'crystal_key', 'key_ring']
 BELTS = ['traveler_belt', 'tool_belt', 'alchemist_belt']
-D_POT = disp((12, -30, 0), 0.9, (0, 2.5, 2), 0.5, (0, -10, 0), (1, 2, 0), 0.55)
-D_RING = disp((20, -30, 0), 1.1, (0, 3, 1.5), 0.45, (0, -15, 0), (0, 3, 0), 0.5)
-D_KEY = disp((15, -20, 0), 1.0, (0, 4, 0.5), 0.85, (0, -90, 25), (1.13, 3.2, 1.13), 0.68, tp_r=(0, -90, 55))
-D_GOG = disp((15, -30, 0), 0.95, (0, 3, 2), 0.5, (0, -15, 0), (0, 3, 0), 0.5)
-D_BAG = disp((15, -30, 0), 0.9, (0, 2, 2), 0.5, (0, -20, 0), (0, 1, 0), 0.45)
-D_BELT = disp((30, -30, 0), 0.95, (0, 3, 2), 0.5, (0, -15, 0), (0, 3, 0), 0.5)
+D_POT = disp((12, -30, 0), 0.9, (0, 2.5, 2), 0.45, (0, -10, 0), (0, 4, 0), 0.36)
+D_RING = disp((20, -30, 0), 1.1, (0, 3, 1.5), 0.4, (0, -15, 0), (0, 4, 0), 0.38)
+D_KEY = disp((15, -20, 0), 1.0, (0, 4, 0.5), 0.7, (0, -90, 25), (1.13, 3.2, 1.13), 0.48, tp_r=(0, -90, 55))
+D_GOG = disp((15, -30, 0), 0.95, (0, 3, 2), 0.45, (0, -15, 0), (0, 4, 0), 0.38)
+D_BAG = disp((15, -30, 0), 0.9, (0, 2, 2), 0.45, (0, -20, 0), (0, 3, 0), 0.36)
+D_BELT = disp((30, -30, 0), 0.95, (0, 3, 2), 0.45, (0, -15, 0), (0, 4, 0), 0.38)
 D_BOOK = disp((10, -25, 0), 1.0, (0, 3, 1.5), 0.45, (0, 15, 0), (1.5, 2.5, -3), 0.5)
 for i in ITEMS:
     d = D_POT if i in POTIONS else D_RING if i in RINGS else D_KEY if i in KEYS else D_GOG if i in GOGGLES else D_BAG if i in BAGS \
