@@ -277,8 +277,8 @@ public final class VoxModels {
                     v.lathe(new float[][]{{1.8F, y + 1.2F}, {1.0F, y + 2.8F}, {0.3F, y + 4.0F}}, metal(SILVER));
                     v.rbox(-1.6F, y - 2.8F, -0.6F, 1.6F, y - 1.3F, 1.9F, 0.5F, metal(SILVER));
                     for (int i = -2; i <= 2; i++) v.box(i * 0.55F - 0.2F, y - 2.5F, 1.7F, i * 0.55F + 0.2F, y - 1.6F, 2.1F, solid(0xF4F0E4));
-                    v.ell(-0.9F, y + 0.1F, 1.8F, 0.7F, 0.75F, 0.6F, solid(DARK));
-                    v.ell(0.9F, y + 0.1F, 1.8F, 0.7F, 0.75F, 0.6F, solid(DARK));
+                    v.box(-1.4F, y - 0.4F, 1.6F, -0.4F, y + 0.6F, 2.4F, solid(DARK));
+                    v.box(0.4F, y - 0.4F, 1.6F, 1.4F, y + 0.6F, 2.4F, solid(DARK));
                     v.box(-0.25F, y - 1.1F, 1.8F, 0.25F, y - 0.6F, 2.3F, solid(DARK));
                 }
                 case 3 -> {
@@ -337,36 +337,39 @@ public final class VoxModels {
             v.box(4.4F, -5.6F, 0.4F, 5.1F, -3.6F, 2.2F, metal(BRASS_D));
             v.box(-5.1F, -5.6F, 0.4F, -4.4F, -3.6F, 2.2F, metal(BRASS_D));
             for (int side = -1; side <= 1; side += 2) {
-                v.push().translate(side * 2.15F, -4.6F, -4.4F).rotX(-90);
-                if (variant == 2) {
-                    v.lathe(new float[][]{{2.0F, 0}, {2.0F, 1.0F}, {2.35F, 1.2F}, {2.35F, 2.0F}, {2.65F, 2.2F}, {2.65F, L}}, 1, 1, 2, 0.6F, metal(BRASS), CUT, false);
-                    v.lathe(new float[][]{{2.5F, 1.3F}, {2.5F, 1.9F}}, 1, 1, 2, 0.5F, metal(BRASS_D), CUT, false);
-                } else {
-                    v.lathe(new float[][]{{2.0F, 0}, {2.0F, L - 0.4F}, {2.4F, L - 0.3F}, {2.4F, L}}, 1, 1, 2, 0.6F, metal(BRASS), CUT, false);
-                }
-                float lr = variant == 2 ? 2.1F : 1.9F;
-                v.lathe(new float[][]{{lr, L - 0.6F}, {lr * 0.7F, L - 0.1F}, {0, L + 0.1F}}, 1, 1, 2, 0,
-                        (x, y, z, i, j, k) -> Vox.argb(Vox.scale(0xFF000000 | lens, (x < -0.5F && z < -0.2F) ? 1.5F : 0.9F + Vox.hash(i, j, k) * 0.1F),
-                                variant == 0 ? 0.5F : 0.7F), TRANS, variant != 0);
+                float cx = side * 2.2F, cy = -4.6F, zb = -4.3F, zf = zb - L;
+                float rOut = variant == 2 ? 2.7F : 2.45F;
+                // pirinç kap (halka) ve ön çerçeve
+                cylZ(v, cx, cy, zf, zb, 1.75F, variant == 2 ? 2.3F : rOut - 0.1F, metal(BRASS), CUT, false);
+                cylZ(v, cx, cy, zf - 0.5F, zf + 0.1F, 1.75F, rOut, metal(BRASS_D), CUT, false);
+                if (variant == 2) cylZ(v, cx, cy, zb - 1.6F, zb - 1.0F, 2.2F, rOut, metal(BRASS_D), CUT, false);
+                // cam
+                float lz = zf + 0.2F;
+                cylZ(v, cx, cy, lz, lz + 0.5F, 0, 1.8F, (x, y, z, i, j, k) -> Vox.argb(Vox.scale(0xFF000000 | lens,
+                        (x - cx < -0.6F && y - cy < -0.4F) ? 1.6F : 0.85F + Vox.hash(i, j, k) * 0.15F), variant == 0 ? 0.55F : 0.75F), TRANS, variant != 0);
                 // perçinler
-                for (int kk = 0; kk < 6; kk++) {
-                    double an = Math.PI * 2 * kk / 6;
-                    float rr = variant == 2 ? 2.7F : 2.45F;
-                    v.box((float) Math.cos(an) * rr - 0.25F, L - 0.5F, (float) Math.sin(an) * rr - 0.25F, (float) Math.cos(an) * rr + 0.25F, L, (float) Math.sin(an) * rr + 0.25F,
-                            solid(BRASS_D));
+                for (int kk = 0; kk < 8; kk++) {
+                    double an = Math.PI * 2 * kk / 8;
+                    float rx = cx + (float) Math.cos(an) * (rOut - 0.25F), ry = cy + (float) Math.sin(an) * (rOut - 0.25F);
+                    v.box(rx - 0.25F, ry - 0.25F, zf - 0.75F, rx + 0.25F, ry + 0.25F, zf - 0.25F, solid(0xF0C878));
                 }
-                v.pop();
             }
             v.rod(new float[]{-0.7F, -4.4F, -5.0F}, new float[]{0.7F, -4.4F, -5.0F}, 0.35F, metal(BRASS));
             if (variant == 1) {
                 v.box(-5.0F, -6.8F, -5.0F, -4.2F, -6.0F, -4.2F, metal(BRASS_D));
                 v.rod(new float[]{-4.6F, -6.4F, -4.6F}, new float[]{-3.2F, -6.0F, -7.2F}, 0.25F, metal(BRASS_D));
-                v.push().translate(-2.3F, -5.4F, -6.7F).rotX(-90);
-                v.lathe(new float[][]{{1.2F, 0}, {1.2F, 1.3F}, {1.45F, 1.4F}, {1.45F, 1.7F}}, 1, 1, 2, 0.5F, metal(BRASS), CUT, false);
-                v.lathe(new float[][]{{1.1F, 1.2F}, {0, 1.6F}}, 1, 1, 2, 0, alpha(0x2FC9B8, 0.7F), TRANS, true);
-                v.pop();
+                cylZ(v, -2.6F, -5.6F, -8.6F, -6.8F, 0.9F, 1.5F, metal(BRASS), CUT, false);
+                cylZ(v, -2.6F, -5.6F, -8.4F, -7.9F, 0, 1.0F, alpha(0x2FC9B8, 0.75F), TRANS, true);
             }
         }).render(ps, buf, light);
+    }
+
+    /** Z ekseni boyunca boru/disk: iç yarıçap rIn (0 = dolu), dış rOut. */
+    private static void cylZ(Vox v, float cx, float cy, float z0, float z1, float rIn, float rOut, Col c, int pass, boolean glow) {
+        v.fill(cx - rOut, cy - rOut, Math.min(z0, z1), cx + rOut, cy + rOut, Math.max(z0, z1), (x, y, z) -> {
+            float d = (float) Math.sqrt(Vox.sq(x - cx) + Vox.sq(y - cy));
+            return d <= rOut && d >= rIn && z >= Math.min(z0, z1) && z <= Math.max(z0, z1);
+        }, c, pass, glow);
     }
 
     // ================================================================== SIRT ÇANTALARI (gövde uzayı: Y aşağı, sırt z=+2)
@@ -382,11 +385,12 @@ public final class VoxModels {
     private static void mapWindow(Vox v, float x0, float y0, float x1, float y1, float z) {
         v.box(x0, y0, z, x1, y1, z + 0.5F, (x, y, z2, i, j, k) -> {
             float u = (x - x0) / (x1 - x0), t = (y - y0) / (y1 - y0);
-            float coast = 0.55F + 0.18F * (float) Math.sin(u * 7 + 1);
-            int c = t > coast ? 0xFF7FA8C8 : 0xFFEAD9A8;
-            if (Math.abs(t - coast) < 0.08F) c = 0xFF5A4A32;
-            if (Math.abs(u - 0.7F) < 0.07F && Math.abs(t - 0.28F) < 0.1F) c = 0xFFC02020;
-            if (Math.abs(t - (0.3F + 0.1F * (float) Math.sin(u * 20))) < 0.06F && u < 0.55F && ((i & 1) == 0)) c = 0xFF8A3A2A;
+            int c = Vox.scale(0xFFEED9A0, 0.95F + Vox.hash(i, j, 0) * 0.08F);
+            float lake = Vox.sq((u - 0.3F) / 0.28F) + Vox.sq((t - 0.62F) / 0.32F);
+            if (lake < 1) c = lake > 0.6F ? 0xFF5E86B0 : 0xFF3F6E9E;
+            if (Math.abs(u - 0.78F) < 0.12F && Math.abs(t - 0.3F) < 0.15F && Math.abs(Math.abs(u - 0.78F) - Math.abs(t - 0.3F) * 0.8F) < 0.06F) c = 0xFFC01818;
+            if (Math.abs(t - (0.25F + u * 0.1F)) < 0.07F && u > 0.45F && u < 0.7F && ((i & 1) == 0)) c = 0xFF8A2A1A;
+            if (u < 0.08F || u > 0.92F || t < 0.1F || t > 0.9F) c = 0xFFB89A60;
             return c;
         });
         buckle(v, (x0 + x1) / 2, (y0 + y1) / 2, z + 0.2F, (x1 - x0) / 2 + 0.5F, (y1 - y0) / 2 + 0.5F, BRASS);
@@ -522,8 +526,7 @@ public final class VoxModels {
         if (s > 0) {
             if (variant == 0) {
                 // SPELLBOOK etiketi (voksel harfler)
-                v.box(1.2F, -0.8F, zo, BW - 0.6F, 2.0F, zo + 0.5F, (x, y, z, i, j, k) -> label(x - 1.2F, y + 0.8F) ? 0xFF2A2622
-                        : Vox.scale(0xFFF2ECDC, 0.95F + Vox.hash(i, j, k) * 0.07F));
+                v.box(1.0F, -1.0F, zo, BW - 0.4F, 2.2F, zo + 0.5F, solid(0xF2ECDC, 0.03F));
                 for (float yy : new float[]{-3.4F, 3.4F}) {
                     v.box(0, yy - 0.25F, zo, 3.6F, yy + 0.25F, zo + 0.5F, solid(0xD8CBA8));
                     v.box(3.4F, yy - 0.5F, zo, 4.1F, yy + 0.5F, zo + 0.6F, solid(0xC8BA98));
@@ -535,7 +538,7 @@ public final class VoxModels {
                 float[][] star = new float[10][];
                 for (int i = 0; i < 10; i++) {
                     double an = Math.PI * 2 * i / 10 + Math.PI / 2;
-                    float rr = i % 2 == 0 ? 1.8F : 0.7F;
+                    float rr = i % 2 == 0 ? 2.3F : 1.1F;
                     star[i] = new float[]{BW / 2 + 0.3F + (float) Math.cos(an) * rr, (float) Math.sin(an) * rr};
                 }
                 v.extrude(star, zo, zo + 0.5F, metal(BRASS_D));
@@ -573,6 +576,10 @@ public final class VoxModels {
             ps.pushPose();
             ps.mulPose(Axis.YP.rotationDegrees(-s * ang));
             mesh("bookhalf" + variant + s, v -> bookHalf(v, variant, ss)).render(ps, buf, light);
+            if (s > 0 && variant == 0) {
+                float zo = HALF + TH + 0.52F;
+                Vox.texQuad(ps, buf, light, "m_label", 1.1F, -0.9F, BW - 0.5F, 2.1F, zo);
+            }
             if (open > 0.05F && variant == 2) {
                 float zf = s > 0 ? 0.05F : -0.55F;
                 mesh("runes" + s, v -> v.fill(0.6F, -BH + 0.6F, zf, BW - 0.4F, BH - 0.6F, zf + 0.5F,

@@ -371,6 +371,17 @@ public final class Vox {
         }
     }
 
+    /** Dokulu dörtgen (XY düzleminde, +Z'ye bakan): ince yazı/etiket gibi voksele sığmayan ayrıntılar için. */
+    public static void texQuad(PoseStack ps, MultiBufferSource buf, int light, String tex, float x0, float y0, float x1, float y1, float z) {
+        TextureAtlasSprite sp = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(new ResourceLocation("advgear", "block/" + tex));
+        VertexConsumer vc = buf.getBuffer(RenderType.entityCutoutNoCull(InventoryMenu.BLOCK_ATLAS));
+        Matrix4f m = ps.last().pose();
+        Matrix3f n = ps.last().normal();
+        float[][] c = {{x0, y0, sp.getU0(), sp.getV1()}, {x1, y0, sp.getU1(), sp.getV1()}, {x1, y1, sp.getU1(), sp.getV0()}, {x0, y1, sp.getU0(), sp.getV0()}};
+        for (float[] q : c) vc.vertex(m, q[0], q[1], z).color(1F, 1F, 1F, 1F).uv(q[2], q[3]).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light)
+                .normal(n, 0, 0, 1).endVertex();
+    }
+
     private static final int[][] DIRS = {{1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}, {0, 0, 1}, {0, 0, -1}};
     private static final float[] SHADE = {0.9F, 0.86F, 1.0F, 0.7F, 0.95F, 0.92F};
 
