@@ -1,0 +1,28 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="elvenrealm"
+version="1.0.0"
+displayName="Krolasyon Elf Diyarı: Sylvaren"
+authors="krolasyon"
+description='''
+İki kadim dev ağacın gölgesinde, mavi camlı kuleleri ve turuncu külahlarıyla Sylvaren elf kenti.
+Altı eşsiz elf (Lirael, Vaelor, Caelan, Nimrae, Tavi, Thalion) ve kent muhafızları: kendi kişilikleri ve konuşma tarzlarıyla
+diyaloglar, görevler, hediyeler, dostluk ve zorlu paralı asker sözleşmeleri.
+'''
+
+[[dependencies.elvenrealm]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.elvenrealm]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"

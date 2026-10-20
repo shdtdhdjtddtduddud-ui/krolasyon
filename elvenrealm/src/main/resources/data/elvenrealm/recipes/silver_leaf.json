@@ -1,0 +1,27 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  " E ",
+  "FCF",
+  " S "
+ ],
+ "key": {
+  "E": {
+   "item": "minecraft:emerald"
+  },
+  "F": {
+   "item": "minecraft:feather"
+  },
+  "C": {
+   "item": "minecraft:compass"
+  },
+  "S": {
+   "tag": "minecraft:saplings"
+  }
+ },
+ "result": {
+  "item": "elvenrealm:silver_leaf",
+  "count": 1
+ }
+}
