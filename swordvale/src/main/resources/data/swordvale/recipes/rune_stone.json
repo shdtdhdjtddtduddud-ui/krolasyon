@@ -1,0 +1,4 @@
+{ "type": "minecraft:crafting_shaped", "category": "building",
+  "pattern": [" S ", "SXS", " S "],
+  "key": { "S": { "item": "swordvale:rune_shard" }, "X": { "item": "minecraft:stone_bricks" } },
+  "result": { "item": "swordvale:rune_stone", "count": 2 } }

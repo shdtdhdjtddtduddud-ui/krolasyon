@@ -1,0 +1,3 @@
+{ "type": "minecraft:crafting_shapeless", "category": "misc",
+  "ingredients": [ { "item": "minecraft:compass" }, { "item": "minecraft:iron_sword" }, { "item": "minecraft:moss_block" } ],
+  "result": { "item": "swordvale:vale_compass", "count": 1 } }

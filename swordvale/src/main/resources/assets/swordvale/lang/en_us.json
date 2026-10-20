@@ -1,0 +1,10 @@
+{
+  "block.swordvale.rune_stone": "Rune Stone",
+  "item.swordvale.rune_shard": "Rune Shard",
+  "item.swordvale.vale_compass": "Vale Compass",
+  "tooltip.swordvale.compass": "Points to the nearest Sword Vale (right-click: search again)",
+  "tooltip.swordvale.compass_target": "Target: %s, %s (%s blocks)",
+  "tooltip.swordvale.compass_none": "No vale found nearby",
+  "title.swordvale.vale": "Vale of Swords",
+  "title.swordvale.sub": "Here sleep the blades of forgotten giants"
+}

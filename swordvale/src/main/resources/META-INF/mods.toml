@@ -1,0 +1,28 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="swordvale"
+version="1.0.0"
+displayName="Krolasyon Kılıçlar Vadisi"
+authors="krolasyon"
+description='''
+Yeşil tepelere saplanmış, yosun tutmuş, rünlü dev taş kılıçlarla dolu Kılıçlar Vadisi bölgeleri.
+Kılıçların arasında kıvrılan patikalar, gece parlayan rünler, dev kılıçların dibinde gömülü mezar sandıkları.
+Vadi Pusulası ile en yakın vadiyi bul.
+'''
+
+[[dependencies.swordvale]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.swordvale]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"

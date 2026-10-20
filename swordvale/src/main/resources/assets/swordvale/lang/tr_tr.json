@@ -1,0 +1,10 @@
+{
+  "block.swordvale.rune_stone": "Rün Taşı",
+  "item.swordvale.rune_shard": "Rün Parçası",
+  "item.swordvale.vale_compass": "Vadi Pusulası",
+  "tooltip.swordvale.compass": "En yakın Kılıçlar Vadisi'ni gösterir (sağ tık: yeniden ara)",
+  "tooltip.swordvale.compass_target": "Hedef: %s, %s (%s blok)",
+  "tooltip.swordvale.compass_none": "Yakında vadi bulunamadı",
+  "title.swordvale.vale": "Kılıçlar Vadisi",
+  "title.swordvale.sub": "Unutulmuş devlerin kılıçları burada uyur"
+}
