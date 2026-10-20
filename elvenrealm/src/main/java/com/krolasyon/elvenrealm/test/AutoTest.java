@@ -74,13 +74,30 @@ public final class AutoTest {
             if (city == null) return;
             y0 = CityLayout.base(city, l.getChunkSource().getGenerator(), l.getChunkSource().randomState(), l);
             LOG.info("[ELFTEST] base y {}", y0);
-            look(s, city.cx(), y0 + 55, city.cz() + 120, city.cx(), y0 + 20, city.cz() - 40);
+            look(s, city.cx(), y0 + 110, city.cz() - 20, city.cx(), y0 + 10, city.cz() - 40);
         });
-        wait(600, "aerial_south");
-        server(5, null, s -> look(s, city.cx() - 115, y0 + 70, city.cz() + 70, city.cx(), y0 + 20, city.cz() - 45));
-        wait(300, "aerial_sw");
-        server(5, null, s -> look(s, city.cx() + 120, y0 + 60, city.cz() - 20, city.cx(), y0 + 30, city.cz() - 70));
-        wait(300, "aerial_east");
+        // kent ve ağaçlar üretilip çizilsin
+        wait(900, "overhead");
+        server(5, null, s -> look(s, city.cx() + 40, y0 + 90, city.cz() + 40, city.cx(), y0 + 20, city.cz() - 60));
+        wait(400, null);
+        server(5, null, s -> {
+            ServerLevel l = s.overworld();
+            int wood = 0, leaves = 0;
+            for (int x = city.cx() - 80; x <= city.cx() + 80; x += 2)
+                for (int z = city.cz() - 150; z <= city.cz() - 60; z += 2)
+                    for (int y = y0 + 10; y <= y0 + 120; y += 2) {
+                        net.minecraft.world.level.block.state.BlockState b = l.getBlockState(new BlockPos(x, y, z));
+                        if (b.is(net.minecraft.world.level.block.Blocks.OAK_WOOD)) wood++;
+                        else if (b.is(net.minecraft.tags.BlockTags.LEAVES)) leaves++;
+                    }
+            LOG.info("[ELFTEST] giant tree samples wood {} leaves {}", wood, leaves);
+            look(s, city.cx(), y0 + 60, city.cz() + 85, city.cx(), y0 + 20, city.cz() - 45);
+        });
+        wait(300, "aerial_south");
+        server(5, null, s -> look(s, city.cx() - 95, y0 + 65, city.cz() + 50, city.cx(), y0 + 25, city.cz() - 50));
+        wait(250, "aerial_sw");
+        server(5, null, s -> look(s, city.cx() + 100, y0 + 55, city.cz() - 30, city.cx(), y0 + 35, city.cz() - 75));
+        wait(250, "aerial_east");
         server(5, null, s -> look(s, city.cx() + 7, y0 + 2.6, city.cz() + 66, city.cx(), y0 + 12, city.cz() + 20));
         wait(160, "gate_ground");
         server(5, null, s -> look(s, city.cx() - 9, y0 + 3, city.cz() + 26, city.cx(), y0 + 14, city.cz() - 40));
@@ -95,7 +112,7 @@ public final class AutoTest {
         wait(120, "waterfall");
         server(5, null, s -> {
             run(s, "time set 18000");
-            look(s, city.cx(), y0 + 50, city.cz() + 110, city.cx(), y0 + 20, city.cz() - 40);
+            look(s, city.cx(), y0 + 60, city.cz() + 85, city.cx(), y0 + 20, city.cz() - 45);
         });
         wait(120, "night");
         server(5, null, s -> {
@@ -140,11 +157,11 @@ public final class AutoTest {
         wait(80, "gallery_front");
         server(5, null, s -> look(s, gx + 0.5, gy + 1.6, gz - 8.5, gx + 0.5, gy + 1.0, gz));
         wait(40, "gallery_back");
-        server(5, null, s -> look(s, gx - 9.5, gy + 1.5, gz + 4.2, gx - 6.5, gy + 1.0, gz));
+        server(5, null, s -> look(s, gx - 7.5, gy + 1.5, gz + 3.2, gx - 7.5, gy + 1.2, gz));
         wait(40, "close_lirael_vaelor");
-        server(5, null, s -> look(s, gx - 3.5, gy + 1.5, gz + 4.2, gx - 0.5, gy + 1.0, gz));
+        server(5, null, s -> look(s, gx - 1.5, gy + 1.5, gz + 3.2, gx - 1.5, gy + 1.2, gz));
         wait(40, "close_caelan_nimrae");
-        server(5, null, s -> look(s, gx + 2.5, gy + 1.5, gz + 4.2, gx + 5.5, gy + 1.0, gz));
+        server(5, null, s -> look(s, gx + 4.5, gy + 1.5, gz + 3.2, gx + 4.5, gy + 1.2, gz));
         wait(40, "close_tavi_thalion");
         server(5, null, s -> look(s, gx + 8.0, gy + 1.4, gz + 3.5, gx + 3.5, gy + 1.0, gz));
         wait(30, "side_tavi");

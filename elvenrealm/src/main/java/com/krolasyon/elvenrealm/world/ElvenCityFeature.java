@@ -48,6 +48,7 @@ public final class ElvenCityFeature extends Feature<NoneFeatureConfiguration> {
             if (y0 == Integer.MIN_VALUE) continue;
             CityPlan plan = plan(c, y0);
             terrain(level, gen, rs, plan, minX, minZ, maxX, maxZ);
+            clearNatural(level, plan, cp);
             path(level, plan, minX, minZ, maxX, maxZ);
             blocks(level, plan, cp);
             for (GiantTree t : plan.trees) if (t.overlaps(minX, minZ, maxX, maxZ)) tree(level, t, minX, minZ, maxX, maxZ);
@@ -92,6 +93,35 @@ public final class ElvenCityFeature extends Feature<NoneFeatureConfiguration> {
                 }
             }
         }
+    }
+
+    /**
+     * Komşu chunk'lardaki doğal ağaçlar sonradan kentin içine taşabilir; bu chunk ve çevresindeki 8 chunk'ta kent alanına
+     * düşen doğal yaprak, kütük ve mantarları temizler (kentin kendi blokları kalıcı yaprak ve soyulmuş kütük kullanır).
+     */
+    private static void clearNatural(WorldGenLevel level, CityPlan plan, ChunkPos cp) {
+        BlockPos.MutableBlockPos p = new BlockPos.MutableBlockPos();
+        BlockState air = Blocks.AIR.defaultBlockState();
+        for (int x = cp.getMinBlockX() - 16; x <= cp.getMaxBlockX() + 16; x++) {
+            for (int z = cp.getMinBlockZ() - 16; z <= cp.getMaxBlockZ() + 16; z++) {
+                if (plan.weight(x, z) < 0.6) continue;
+                if (!level.hasChunk(x >> 4, z >> 4)) continue;
+                int t = plan.target(x, z);
+                for (int y = t - 2; y <= t + 45; y++) {
+                    p.set(x, y, z);
+                    BlockState s = level.getBlockState(p);
+                    if (s.isAir()) continue;
+                    if (natural(s)) level.setBlock(p, air, 2);
+                }
+            }
+        }
+    }
+
+    private static boolean natural(BlockState s) {
+        if (s.getBlock() instanceof net.minecraft.world.level.block.LeavesBlock) return !s.getValue(net.minecraft.world.level.block.LeavesBlock.PERSISTENT);
+        if (s.is(Blocks.OAK_LOG) || s.is(Blocks.BIRCH_LOG) || s.is(Blocks.DARK_OAK_LOG) || s.is(Blocks.SPRUCE_LOG) || s.is(Blocks.CHERRY_LOG)
+                || s.is(Blocks.JUNGLE_LOG) || s.is(Blocks.ACACIA_LOG) || s.is(Blocks.MANGROVE_LOG)) return true;
+        return s.is(Blocks.BROWN_MUSHROOM_BLOCK) || s.is(Blocks.RED_MUSHROOM_BLOCK) || s.is(Blocks.MUSHROOM_STEM) || s.is(Blocks.BEE_NEST);
     }
 
     /** Kapıdan güneye uzanan, fenerli toprak yol. */
