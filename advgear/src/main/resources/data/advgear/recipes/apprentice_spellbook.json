@@ -1,0 +1,27 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  " P ",
+  "BBL",
+  " S "
+ ],
+ "key": {
+  "P": {
+   "item": "minecraft:paper"
+  },
+  "B": {
+   "item": "minecraft:book"
+  },
+  "L": {
+   "item": "minecraft:lapis_lazuli"
+  },
+  "S": {
+   "item": "minecraft:blaze_rod"
+  }
+ },
+ "result": {
+  "item": "advgear:apprentice_spellbook",
+  "count": 1
+ }
+}

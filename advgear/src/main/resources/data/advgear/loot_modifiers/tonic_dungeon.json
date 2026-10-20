@@ -1,0 +1,15 @@
+{
+ "type": "advgear:add_item",
+ "conditions": [
+  {
+   "condition": "forge:loot_table_id",
+   "loot_table_id": "minecraft:chests/simple_dungeon"
+  },
+  {
+   "condition": "minecraft:random_chance",
+   "chance": 0.3
+  }
+ ],
+ "item": "advgear:heart_tonic",
+ "count": 1
+}

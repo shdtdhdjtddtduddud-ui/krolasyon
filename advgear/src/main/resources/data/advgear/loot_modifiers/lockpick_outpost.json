@@ -1,0 +1,15 @@
+{
+ "type": "advgear:add_item",
+ "conditions": [
+  {
+   "condition": "forge:loot_table_id",
+   "loot_table_id": "minecraft:chests/pillager_outpost"
+  },
+  {
+   "condition": "minecraft:random_chance",
+   "chance": 0.25
+  }
+ ],
+ "item": "advgear:thorn_lockpick",
+ "count": 1
+}

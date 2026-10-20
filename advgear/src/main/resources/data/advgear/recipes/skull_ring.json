@@ -1,0 +1,21 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  " W ",
+  "I I",
+  " I "
+ ],
+ "key": {
+  "W": {
+   "item": "minecraft:wither_skeleton_skull"
+  },
+  "I": {
+   "item": "minecraft:iron_ingot"
+  }
+ },
+ "result": {
+  "item": "advgear:skull_ring",
+  "count": 1
+ }
+}

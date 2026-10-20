@@ -1,0 +1,30 @@
+{
+ "replace": false,
+ "entries": [
+  "advgear:iron_key_simple_dungeon",
+  "advgear:iron_key_abandoned_mineshaft",
+  "advgear:iron_key_shipwreck_treasure",
+  "advgear:iron_key_village_village_weaponsmith",
+  "advgear:iron_key_pillager_outpost",
+  "advgear:iron_key_ruined_portal",
+  "advgear:dungeon_key_stronghold_corridor",
+  "advgear:dungeon_key_ancient_city",
+  "advgear:dungeon_key_bastion_other",
+  "advgear:dungeon_key_desert_pyramid",
+  "advgear:dungeon_key_jungle_temple",
+  "advgear:dungeon_key_simple_dungeon",
+  "advgear:heart_key_woodland_mansion",
+  "advgear:heart_key_end_city_treasure",
+  "advgear:heart_key_buried_treasure",
+  "advgear:heart_key_ancient_city",
+  "advgear:heart_key_bastion_treasure",
+  "advgear:skull_ring_fortress",
+  "advgear:grimoire_mansion",
+  "advgear:goggles_mineshaft",
+  "advgear:satchel_village",
+  "advgear:tonic_dungeon",
+  "advgear:lockpick_outpost",
+  "advgear:spellbook_stronghold",
+  "advgear:ocean_shipwreck"
+ ]
+}

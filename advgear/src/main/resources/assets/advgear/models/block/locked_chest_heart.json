@@ -1,0 +1,162 @@
+{
+ "parent": "minecraft:block/block",
+ "textures": {
+  "particle": "advgear:block/locked_chest_side",
+  "side": "advgear:block/locked_chest_side",
+  "top": "advgear:block/locked_chest_top",
+  "front": "advgear:block/locked_chest_front",
+  "lock": "advgear:block/lock_heart"
+ },
+ "elements": [
+  {
+   "from": [
+    1,
+    0,
+    1
+   ],
+   "to": [
+    15,
+    14,
+    15
+   ],
+   "faces": {
+    "north": {
+     "uv": [
+      1,
+      2,
+      15,
+      16
+     ],
+     "texture": "#front"
+    },
+    "south": {
+     "uv": [
+      1,
+      2,
+      15,
+      16
+     ],
+     "texture": "#side"
+    },
+    "east": {
+     "uv": [
+      1,
+      2,
+      15,
+      16
+     ],
+     "texture": "#side"
+    },
+    "west": {
+     "uv": [
+      1,
+      2,
+      15,
+      16
+     ],
+     "texture": "#side"
+    },
+    "up": {
+     "uv": [
+      1,
+      1,
+      15,
+      15
+     ],
+     "texture": "#top"
+    },
+    "down": {
+     "uv": [
+      1,
+      1,
+      15,
+      15
+     ],
+     "texture": "#top"
+    }
+   }
+  },
+  {
+   "from": [
+    6,
+    4,
+    0
+   ],
+   "to": [
+    10,
+    9,
+    1
+   ],
+   "faces": {
+    "north": {
+     "uv": [
+      2,
+      6,
+      14,
+      16
+     ],
+     "texture": "#lock"
+    },
+    "east": {
+     "uv": [
+      2,
+      6,
+      3,
+      16
+     ],
+     "texture": "#lock"
+    },
+    "west": {
+     "uv": [
+      2,
+      6,
+      3,
+      16
+     ],
+     "texture": "#lock"
+    },
+    "down": {
+     "uv": [
+      2,
+      15,
+      14,
+      16
+     ],
+     "texture": "#lock"
+    }
+   }
+  },
+  {
+   "from": [
+    7,
+    9,
+    0.4
+   ],
+   "to": [
+    9,
+    11,
+    0.6
+   ],
+   "faces": {
+    "north": {
+     "uv": [
+      4,
+      0,
+      12,
+      6
+     ],
+     "texture": "#lock"
+    },
+    "south": {
+     "uv": [
+      4,
+      0,
+      12,
+      6
+     ],
+     "texture": "#lock"
+    }
+   }
+  }
+ ]
+}

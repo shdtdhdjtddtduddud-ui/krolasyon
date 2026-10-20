@@ -1,0 +1,21 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  " L ",
+  "G G",
+  " G "
+ ],
+ "key": {
+  "L": {
+   "item": "minecraft:heart_of_the_sea"
+  },
+  "G": {
+   "item": "minecraft:gold_ingot"
+  }
+ },
+ "result": {
+  "item": "advgear:sapphire_ring",
+  "count": 1
+ }
+}

@@ -1,0 +1,27 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  "LML",
+  "LSL",
+  "LIL"
+ ],
+ "key": {
+  "L": {
+   "item": "minecraft:leather"
+  },
+  "M": {
+   "item": "minecraft:map"
+  },
+  "S": {
+   "item": "advgear:satchel"
+  },
+  "I": {
+   "item": "minecraft:iron_ingot"
+  }
+ },
+ "result": {
+  "item": "advgear:traveler_pack",
+  "count": 1
+ }
+}

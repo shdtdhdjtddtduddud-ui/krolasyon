@@ -1,0 +1,24 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  "  C",
+  " I ",
+  "R  "
+ ],
+ "key": {
+  "C": {
+   "item": "minecraft:copper_ingot"
+  },
+  "I": {
+   "item": "minecraft:iron_ingot"
+  },
+  "R": {
+   "item": "minecraft:redstone"
+  }
+ },
+ "result": {
+  "item": "advgear:mechanic_key",
+  "count": 1
+ }
+}

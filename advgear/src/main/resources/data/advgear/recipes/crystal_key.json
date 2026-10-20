@@ -1,0 +1,24 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  " AA",
+  " EA",
+  "G  "
+ ],
+ "key": {
+  "A": {
+   "item": "minecraft:amethyst_shard"
+  },
+  "E": {
+   "item": "minecraft:ender_pearl"
+  },
+  "G": {
+   "item": "minecraft:gold_ingot"
+  }
+ },
+ "result": {
+  "item": "advgear:crystal_key",
+  "count": 1
+ }
+}

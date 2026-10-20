@@ -1,0 +1,182 @@
+{
+ "type": "minecraft:chest",
+ "pools": [
+  {
+   "rolls": {
+    "min": 4,
+    "max": 7
+   },
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:iron_ingot",
+     "weight": 20,
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "min": 2,
+        "max": 7
+       }
+      }
+     ]
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:gold_ingot",
+     "weight": 12,
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "min": 1,
+        "max": 5
+       }
+      }
+     ]
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:emerald",
+     "weight": 12,
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "min": 2,
+        "max": 6
+       }
+      }
+     ]
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:bread",
+     "weight": 10,
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "min": 2,
+        "max": 5
+       }
+      }
+     ]
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:redstone",
+     "weight": 10,
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "min": 4,
+        "max": 12
+       }
+      }
+     ]
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:lapis_lazuli",
+     "weight": 8,
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "min": 3,
+        "max": 9
+       }
+      }
+     ]
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:experience_bottle",
+     "weight": 6,
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "min": 1,
+        "max": 4
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "rolls": {
+    "min": 1,
+    "max": 2
+   },
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "advgear:gold_band",
+     "weight": 10
+    },
+    {
+     "type": "minecraft:item",
+     "name": "advgear:satchel",
+     "weight": 10
+    },
+    {
+     "type": "minecraft:item",
+     "name": "advgear:explorer_goggles",
+     "weight": 8
+    },
+    {
+     "type": "minecraft:item",
+     "name": "advgear:traveler_belt",
+     "weight": 10
+    },
+    {
+     "type": "minecraft:item",
+     "name": "advgear:apprentice_spellbook",
+     "weight": 6
+    },
+    {
+     "type": "minecraft:item",
+     "name": "advgear:heart_tonic",
+     "weight": 14,
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "min": 1,
+        "max": 3
+       }
+      }
+     ]
+    },
+    {
+     "type": "minecraft:item",
+     "name": "advgear:sun_essence",
+     "weight": 8,
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "min": 1,
+        "max": 2
+       }
+      }
+     ]
+    },
+    {
+     "type": "minecraft:item",
+     "name": "advgear:dungeon_key",
+     "weight": 6
+    },
+    {
+     "type": "minecraft:item",
+     "name": "advgear:thorn_lockpick",
+     "weight": 8
+    }
+   ]
+  }
+ ]
+}

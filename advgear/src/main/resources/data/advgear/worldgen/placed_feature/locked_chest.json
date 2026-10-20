@@ -1,0 +1,9 @@
+{
+ "feature": "advgear:locked_chest",
+ "placement": [
+  {
+   "type": "minecraft:rarity_filter",
+   "chance": 7
+  }
+ ]
+}

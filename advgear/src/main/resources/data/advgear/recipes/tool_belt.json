@@ -1,0 +1,23 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  "LGL",
+  "P P"
+ ],
+ "key": {
+  "L": {
+   "item": "minecraft:leather"
+  },
+  "G": {
+   "item": "minecraft:gold_ingot"
+  },
+  "P": {
+   "item": "minecraft:rabbit_hide"
+  }
+ },
+ "result": {
+  "item": "advgear:tool_belt",
+  "count": 1
+ }
+}

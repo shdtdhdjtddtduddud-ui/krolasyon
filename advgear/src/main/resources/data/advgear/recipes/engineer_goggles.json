@@ -1,0 +1,30 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  "LCL",
+  "GSG",
+  " R "
+ ],
+ "key": {
+  "L": {
+   "item": "minecraft:leather"
+  },
+  "C": {
+   "item": "minecraft:copper_ingot"
+  },
+  "G": {
+   "item": "minecraft:cyan_stained_glass_pane"
+  },
+  "S": {
+   "item": "minecraft:spyglass"
+  },
+  "R": {
+   "item": "minecraft:redstone"
+  }
+ },
+ "result": {
+  "item": "advgear:engineer_goggles",
+  "count": 1
+ }
+}

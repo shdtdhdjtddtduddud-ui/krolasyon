@@ -1,0 +1,22 @@
+{
+ "type": "minecraft:crafting_shapeless",
+ "category": "misc",
+ "ingredients": [
+  {
+   "item": "minecraft:glass_bottle"
+  },
+  {
+   "item": "minecraft:spider_eye"
+  },
+  {
+   "item": "minecraft:wither_rose"
+  },
+  {
+   "item": "minecraft:gunpowder"
+  }
+ ],
+ "result": {
+  "item": "advgear:black_death",
+  "count": 2
+ }
+}

@@ -1,0 +1,26 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  "BGB",
+  "LNL"
+ ],
+ "key": {
+  "B": {
+   "item": "minecraft:glass_bottle"
+  },
+  "G": {
+   "item": "minecraft:gold_ingot"
+  },
+  "L": {
+   "item": "minecraft:leather"
+  },
+  "N": {
+   "item": "minecraft:nether_wart"
+  }
+ },
+ "result": {
+  "item": "advgear:alchemist_belt",
+  "count": 1
+ }
+}

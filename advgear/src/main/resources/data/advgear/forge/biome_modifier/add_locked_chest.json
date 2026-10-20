@@ -1,0 +1,6 @@
+{
+ "type": "forge:add_features",
+ "biomes": "#minecraft:is_overworld",
+ "features": "advgear:locked_chest",
+ "step": "underground_decoration"
+}

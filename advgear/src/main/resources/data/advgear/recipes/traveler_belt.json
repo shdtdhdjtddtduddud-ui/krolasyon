@@ -1,0 +1,19 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  "LIL"
+ ],
+ "key": {
+  "L": {
+   "item": "minecraft:leather"
+  },
+  "I": {
+   "item": "minecraft:iron_ingot"
+  }
+ },
+ "result": {
+  "item": "advgear:traveler_belt",
+  "count": 1
+ }
+}

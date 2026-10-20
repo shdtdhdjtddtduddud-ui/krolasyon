@@ -1,0 +1,178 @@
+{
+ "type": "minecraft:chest",
+ "pools": [
+  {
+   "rolls": {
+    "min": 4,
+    "max": 7
+   },
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:diamond",
+     "weight": 10,
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "min": 1,
+        "max": 3
+       }
+      }
+     ]
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:gold_ingot",
+     "weight": 14,
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "min": 2,
+        "max": 6
+       }
+      }
+     ]
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:emerald",
+     "weight": 14,
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "min": 3,
+        "max": 8
+       }
+      }
+     ]
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:bone",
+     "weight": 10,
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "min": 3,
+        "max": 8
+       }
+      }
+     ]
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:ender_pearl",
+     "weight": 8,
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "min": 1,
+        "max": 3
+       }
+      }
+     ]
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:experience_bottle",
+     "weight": 10,
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "min": 2,
+        "max": 6
+       }
+      }
+     ]
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:golden_apple",
+     "weight": 4
+    }
+   ]
+  },
+  {
+   "rolls": {
+    "min": 1,
+    "max": 3
+   },
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "advgear:skull_ring",
+     "weight": 8
+    },
+    {
+     "type": "minecraft:item",
+     "name": "advgear:bone_hand_ring",
+     "weight": 8
+    },
+    {
+     "type": "minecraft:item",
+     "name": "advgear:engineer_goggles",
+     "weight": 8
+    },
+    {
+     "type": "minecraft:item",
+     "name": "advgear:tool_belt",
+     "weight": 8
+    },
+    {
+     "type": "minecraft:item",
+     "name": "advgear:traveler_pack",
+     "weight": 8
+    },
+    {
+     "type": "minecraft:item",
+     "name": "advgear:traveler_tome",
+     "weight": 6
+    },
+    {
+     "type": "minecraft:item",
+     "name": "advgear:black_death",
+     "weight": 10,
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "min": 2,
+        "max": 4
+       }
+      }
+     ]
+    },
+    {
+     "type": "minecraft:item",
+     "name": "advgear:ocean_draught",
+     "weight": 8,
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "min": 1,
+        "max": 2
+       }
+      }
+     ]
+    },
+    {
+     "type": "minecraft:item",
+     "name": "advgear:heart_key",
+     "weight": 5
+    },
+    {
+     "type": "minecraft:item",
+     "name": "advgear:key_ring",
+     "weight": 6
+    }
+   ]
+  }
+ ]
+}

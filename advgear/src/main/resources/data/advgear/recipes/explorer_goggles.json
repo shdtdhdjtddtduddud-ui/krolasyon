@@ -1,0 +1,23 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  "LCL",
+  "G G"
+ ],
+ "key": {
+  "L": {
+   "item": "minecraft:leather"
+  },
+  "C": {
+   "item": "minecraft:copper_ingot"
+  },
+  "G": {
+   "item": "minecraft:glass_pane"
+  }
+ },
+ "result": {
+  "item": "advgear:explorer_goggles",
+  "count": 1
+ }
+}

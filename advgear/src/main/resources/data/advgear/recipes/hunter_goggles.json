@@ -1,0 +1,26 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  "LCL",
+  "GEG"
+ ],
+ "key": {
+  "L": {
+   "item": "minecraft:leather"
+  },
+  "C": {
+   "item": "minecraft:copper_block"
+  },
+  "G": {
+   "item": "minecraft:red_stained_glass_pane"
+  },
+  "E": {
+   "item": "minecraft:ender_eye"
+  }
+ },
+ "result": {
+  "item": "advgear:hunter_goggles",
+  "count": 1
+ }
+}

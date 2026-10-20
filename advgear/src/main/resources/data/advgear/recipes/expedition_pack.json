@@ -1,0 +1,30 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  "WGW",
+  "LTL",
+  "LDL"
+ ],
+ "key": {
+  "W": {
+   "tag": "minecraft:wool"
+  },
+  "G": {
+   "item": "minecraft:gold_ingot"
+  },
+  "L": {
+   "item": "minecraft:leather"
+  },
+  "T": {
+   "item": "advgear:traveler_pack"
+  },
+  "D": {
+   "item": "minecraft:diamond"
+  }
+ },
+ "result": {
+  "item": "advgear:expedition_pack",
+  "count": 1
+ }
+}

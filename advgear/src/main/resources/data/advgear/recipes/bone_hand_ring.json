@@ -1,0 +1,24 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  " B ",
+  "ILI",
+  " I "
+ ],
+ "key": {
+  "B": {
+   "item": "minecraft:bone_block"
+  },
+  "I": {
+   "item": "minecraft:iron_ingot"
+  },
+  "L": {
+   "item": "minecraft:lodestone"
+  }
+ },
+ "result": {
+  "item": "advgear:bone_hand_ring",
+  "count": 1
+ }
+}

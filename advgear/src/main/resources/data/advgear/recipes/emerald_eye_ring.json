@@ -1,0 +1,24 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  " E ",
+  "IDI",
+  " I "
+ ],
+ "key": {
+  "E": {
+   "item": "minecraft:emerald_block"
+  },
+  "I": {
+   "item": "minecraft:iron_ingot"
+  },
+  "D": {
+   "item": "minecraft:diamond"
+  }
+ },
+ "result": {
+  "item": "advgear:emerald_eye_ring",
+  "count": 1
+ }
+}

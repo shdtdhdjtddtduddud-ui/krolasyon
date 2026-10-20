@@ -1,0 +1,52 @@
+{
+ "variants": {
+  "facing=north,lock=iron": {
+   "model": "advgear:block/locked_chest_iron",
+   "y": 0
+  },
+  "facing=east,lock=iron": {
+   "model": "advgear:block/locked_chest_iron",
+   "y": 90
+  },
+  "facing=south,lock=iron": {
+   "model": "advgear:block/locked_chest_iron",
+   "y": 180
+  },
+  "facing=west,lock=iron": {
+   "model": "advgear:block/locked_chest_iron",
+   "y": 270
+  },
+  "facing=north,lock=bone": {
+   "model": "advgear:block/locked_chest_bone",
+   "y": 0
+  },
+  "facing=east,lock=bone": {
+   "model": "advgear:block/locked_chest_bone",
+   "y": 90
+  },
+  "facing=south,lock=bone": {
+   "model": "advgear:block/locked_chest_bone",
+   "y": 180
+  },
+  "facing=west,lock=bone": {
+   "model": "advgear:block/locked_chest_bone",
+   "y": 270
+  },
+  "facing=north,lock=heart": {
+   "model": "advgear:block/locked_chest_heart",
+   "y": 0
+  },
+  "facing=east,lock=heart": {
+   "model": "advgear:block/locked_chest_heart",
+   "y": 90
+  },
+  "facing=south,lock=heart": {
+   "model": "advgear:block/locked_chest_heart",
+   "y": 180
+  },
+  "facing=west,lock=heart": {
+   "model": "advgear:block/locked_chest_heart",
+   "y": 270
+  }
+ }
+}

@@ -1,0 +1,18 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "misc",
+ "pattern": [
+  " G ",
+  "G G",
+  " G "
+ ],
+ "key": {
+  "G": {
+   "item": "minecraft:gold_ingot"
+  }
+ },
+ "result": {
+  "item": "advgear:gold_band",
+  "count": 1
+ }
+}

@@ -1,0 +1,15 @@
+{
+ "type": "advgear:add_item",
+ "conditions": [
+  {
+   "condition": "forge:loot_table_id",
+   "loot_table_id": "minecraft:chests/ruined_portal"
+  },
+  {
+   "condition": "minecraft:random_chance",
+   "chance": 0.25
+  }
+ ],
+ "item": "advgear:iron_key",
+ "count": 1
+}

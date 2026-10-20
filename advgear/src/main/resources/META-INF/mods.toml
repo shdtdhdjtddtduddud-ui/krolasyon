@@ -1,0 +1,27 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="advgear"
+version="1.0.0"
+displayName="Krolasyon Maceracı Kuşanımı"
+authors="krolasyon"
+description='''
+Yüzükler, gözlükler, sırt çantaları, iksirler, büyü kitapları, kemerler ve anahtarlar: kendi kuşanım yuvaları (G),
+oyuncunun üstünde 3D görünen gözlük/çanta/kemer, açılıp sayfaları dönen büyü kitapları ve mağaralarda kilitli sandıklar.
+'''
+
+[[dependencies.advgear]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.advgear]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"

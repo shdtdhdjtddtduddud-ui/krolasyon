@@ -1,0 +1,136 @@
+{
+ "type": "minecraft:chest",
+ "pools": [
+  {
+   "rolls": {
+    "min": 4,
+    "max": 8
+   },
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:diamond",
+     "weight": 14,
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "min": 2,
+        "max": 5
+       }
+      }
+     ]
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:emerald",
+     "weight": 14,
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "min": 4,
+        "max": 10
+       }
+      }
+     ]
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:gold_block",
+     "weight": 6,
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "min": 1,
+        "max": 2
+       }
+      }
+     ]
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:enchanted_golden_apple",
+     "weight": 2
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:golden_apple",
+     "weight": 8,
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "min": 1,
+        "max": 2
+       }
+      }
+     ]
+    },
+    {
+     "type": "minecraft:item",
+     "name": "minecraft:netherite_scrap",
+     "weight": 4
+    }
+   ]
+  },
+  {
+   "rolls": {
+    "min": 2,
+    "max": 3
+   },
+   "entries": [
+    {
+     "type": "minecraft:item",
+     "name": "advgear:emerald_eye_ring",
+     "weight": 8
+    },
+    {
+     "type": "minecraft:item",
+     "name": "advgear:sapphire_ring",
+     "weight": 8
+    },
+    {
+     "type": "minecraft:item",
+     "name": "advgear:hunter_goggles",
+     "weight": 8
+    },
+    {
+     "type": "minecraft:item",
+     "name": "advgear:alchemist_belt",
+     "weight": 8
+    },
+    {
+     "type": "minecraft:item",
+     "name": "advgear:expedition_pack",
+     "weight": 8
+    },
+    {
+     "type": "minecraft:item",
+     "name": "advgear:black_grimoire",
+     "weight": 6
+    },
+    {
+     "type": "minecraft:item",
+     "name": "advgear:crystal_key",
+     "weight": 6
+    },
+    {
+     "type": "minecraft:item",
+     "name": "advgear:starlight_elixir",
+     "weight": 10,
+     "functions": [
+      {
+       "function": "minecraft:set_count",
+       "count": {
+        "min": 1,
+        "max": 2
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
