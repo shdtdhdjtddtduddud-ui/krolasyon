@@ -45,7 +45,7 @@ public final class RainbowWaveEntity extends Projectile {
                 return;
             }
             Entity owner = getOwner();
-            AABB box = getBoundingBox().expandTowards(v).inflate(0.7, 0.4, 0.7);
+            AABB box = getBoundingBox().expandTowards(v).inflate(1.3, 0.5, 1.3);
             for (LivingEntity e : level().getEntitiesOfClass(LivingEntity.class, box, x -> x != owner && x.isAlive() && !hit.contains(x.getId()))) {
                 if (owner instanceof LivingEntity lo && e.isAlliedTo(lo)) continue;
                 hit.add(e.getId());

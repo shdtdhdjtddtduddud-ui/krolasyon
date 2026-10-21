@@ -203,7 +203,7 @@ public final class AutoTest {
         });
         cmd(5, null, "kill @e[type=husk]", "setblock 0 -60 -2 minecraft:cobblestone", "setblock 1 -60 -2 minecraft:stone_bricks",
                 "tp @a 0.5 -60 0.5 180 30");
-        client(10, null, mc -> mc.options.setCameraType(CameraType.FIRST_PERSON));
+        client(60, null, mc -> mc.options.setCameraType(CameraType.FIRST_PERSON));
         client(5, null, mc -> {
             mc.gameMode.useItemOn(mc.player, InteractionHand.MAIN_HAND, new BlockHitResult(new Vec3(0.5, -59.5, -1.0), Direction.SOUTH, new BlockPos(0, -60, -2), false));
             mc.gameMode.useItemOn(mc.player, InteractionHand.MAIN_HAND, new BlockHitResult(new Vec3(1.5, -59.5, -1.0), Direction.SOUTH, new BlockPos(1, -60, -2), false));

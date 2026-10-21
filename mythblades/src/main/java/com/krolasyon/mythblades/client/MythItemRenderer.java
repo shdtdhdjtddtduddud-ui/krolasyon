@@ -31,8 +31,8 @@ public final class MythItemRenderer extends BlockEntityWithoutLevelRenderer {
         ps.translate(0.5, 0.5, 0.5);
         switch (ctx) {
             case FIXED -> {
-                ps.scale(0.9F, 0.9F, 0.9F);
-                ps.translate(0, -0.4, 0);
+                ps.scale(1.6F, 1.6F, 1.6F);
+                ps.translate(0, -0.3, 0);
             }
             case GUI, GROUND, HEAD, NONE -> {
                 ps.mulPose(Axis.ZP.rotationDegrees(-45));

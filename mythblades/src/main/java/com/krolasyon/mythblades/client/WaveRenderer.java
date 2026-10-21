@@ -20,14 +20,14 @@ public final class WaveRenderer extends EntityRenderer<RainbowWaveEntity> {
 
     private static void arc(Vox v) {
         float R = 22F, W = 5.6F, off = 12F;
-        v.fill(-R, -0.9F, -R, R, 0.9F, R, (x, y, z) -> {
+        v.fill(-R, -2.4F, -R, R, 2.4F, R, (x, y, z) -> {
             float zz = z + off;
             float r = (float) Math.sqrt(x * x + zz * zz);
             float a = (float) Math.atan2(x, zz);
             float span = 1.2F;
             if (Math.abs(a) > span) return false;
             float taper = 1 - (float) Math.pow(Math.abs(a) / span, 3);
-            return r <= R && r >= R - W * taper && Math.abs(y) <= 0.9F * taper + 0.2F;
+            return r <= R && r >= R - W * taper && Math.abs(y) <= 2.2F * taper + 0.2F;
         }, (x, y, z, i, j, k) -> {
             float zz = z + off;
             float r = (float) Math.sqrt(x * x + zz * zz);

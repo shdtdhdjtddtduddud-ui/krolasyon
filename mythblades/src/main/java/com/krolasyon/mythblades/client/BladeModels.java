@@ -49,16 +49,16 @@ public final class BladeModels {
 
     // =================================================================================================== GÖKKUŞAĞI PALASI
 
-    private static final float R_Y0 = 1.0F, R_LEN = 25.5F;
+    private static final float R_Y0 = 1.0F, R_LEN = 30.0F;
     private static final int[] RAINBOW = {0xF7A6C9, 0xFFC79A, 0xFFF0A0, 0xBDF0B4, 0xA6D9F7, 0xC4B6F7};
 
     /** Bıçağın orta çizgisi (t = 0 dip, 1 uç). */
     private static float rCenter(float t) {
-        return -7.0F * (float) Math.sin(Math.PI * t * 0.95) + 2.6F * t * t;
+        return -8.5F * (float) Math.sin(Math.PI * t * 0.95) + 3.2F * t * t;
     }
 
     private static float rWidth(float t) {
-        float w = 4.4F + 1.2F * (float) Math.sin(Math.PI * Math.min(1, t * 1.1));
+        float w = 6.0F + 1.6F * (float) Math.sin(Math.PI * Math.min(1, t * 1.1));
         if (t > 0.8F) w *= (float) Math.sqrt(Math.max(0, (1 - t) / 0.2F));
         return w;
     }
@@ -100,7 +100,7 @@ public final class BladeModels {
 
     private static void rainbowBlade(Vox v) {
         float[] o = new float[2];
-        v.fill(-14, R_Y0, -1.2F, 6, R_Y0 + R_LEN, 1.2F, (x, y, z) -> rIn(x, y, z, null), (x, y, z, i, j, k) -> {
+        v.fill(-17, R_Y0, -1.2F, 8, R_Y0 + R_LEN, 1.2F, (x, y, z) -> rIn(x, y, z, null), (x, y, z, i, j, k) -> {
             rIn(x, y, z, o);
             return rainbowColor(o[0], z, i, j, k);
         }, Vox.CUT, false);
@@ -155,7 +155,7 @@ public final class BladeModels {
     /** Bıçak boyunca kayan ışık bandı (k: 0..11). */
     private static void rainbowSheen(Vox v, int k) {
         float tc = 0.06F + 0.82F * k / 11F;
-        v.fill(-14, R_Y0, -1.3F, 6, R_Y0 + R_LEN, 1.3F, (x, y, z) -> {
+        v.fill(-17, R_Y0, -1.3F, 8, R_Y0 + R_LEN, 1.3F, (x, y, z) -> {
             float[] o = new float[2];
             if (!rIn(x, y, z, o)) return false;
             float d = o[1] - tc + o[0] * 0.08F;
@@ -170,8 +170,8 @@ public final class BladeModels {
         v.fill(-0.3F, -2.2F, -0.3F, 0.3F, 2.2F, 0.3F, (x, y, z) -> Math.abs(x) < 0.3F + 0.25F * (1 - Math.abs(y) / 2.2F), c, Vox.TRANS, true);
     }
 
-    private static final float[][] STARS = {{-10.2F, 13.0F, 0.6F, 0}, {-9.6F, 19.5F, -0.4F, 1.7F}, {-6.4F, 24.6F, 0.8F, 3.1F},
-            {-2.0F, 27.4F, 0.2F, 4.4F}, {-12.0F, 8.2F, 0.4F, 5.6F}};
+    private static final float[][] STARS = {{-13.0F, 15.0F, 0.6F, 0}, {-12.0F, 22.5F, -0.4F, 1.7F}, {-8.0F, 28.6F, 0.8F, 3.1F},
+            {-2.5F, 32.0F, 0.2F, 4.4F}, {-14.5F, 9.2F, 0.4F, 5.6F}};
 
     public static void rainbow(PoseStack ps, MultiBufferSource buf, int light, float time, float power) {
         mesh("r_blade", BladeModels::rainbowBlade).render(ps, buf, light);
@@ -223,7 +223,7 @@ public final class BladeModels {
     private static float[][] buildVeins() {
         java.util.List<float[]> s = new java.util.ArrayList<>();
         s.add(new float[]{0, 3.0F, 0, 21.0F});
-        float[] ys = {8.0F, 10.8F, 13.6F, 16.4F, 19.0F};
+        float[] ys = {8.5F, 12.5F, 16.5F};
         for (float y : ys) {
             for (int side = -1; side <= 1; side += 2) {
                 float tx = side * cHalfWidth(y + 3.4F) * 0.66F;
@@ -234,7 +234,7 @@ public final class BladeModels {
         // iç kontur: kenara paralel kemer
         float prevL = Float.NaN, prevY = 0;
         for (float y = 6.8F; y <= 23.4F; y += 0.8F) {
-            float hx = Math.max(0, cHalfWidth(y) - 1.15F);
+            float hx = Math.max(0, cHalfWidth(y) - 1.5F);
             if (!Float.isNaN(prevL)) {
                 s.add(new float[]{-prevL, prevY, -hx, y});
                 s.add(new float[]{prevL, prevY, hx, y});
@@ -268,8 +268,8 @@ public final class BladeModels {
             boolean surf = Math.abs(z) > th - 0.55F;
             float vd = surf ? veinDist(x, y) : 99;
             int c;
-            if (vd < 0.42F) c = y < 6 && Math.abs(x) < 0.7F ? 0xFF6E7A2E : 0xFFC8381E;
-            else if (vd < 0.78F) c = y < 6 && Math.abs(x) < 1.1F ? 0xFF4C5420 : 0xFF7A2216;
+            if (vd < 0.3F) c = y < 6 && Math.abs(x) < 0.7F ? 0xFF6E7A2E : 0xFFC8381E;
+            else if (vd < 0.55F) c = y < 6 && Math.abs(x) < 1.1F ? 0xFF4C5420 : 0xFF7A2216;
             else {
                 c = 0xFFB59AA5;
                 if (Math.abs(x) / hw > 0.8F) c = lerp(c, 0xFFE2D0D4, 0.6F);
@@ -285,7 +285,7 @@ public final class BladeModels {
         v.fill(-4.5F, 1, -1.4F, 4.5F, 25, 1.4F, (x, y, z) -> {
             if (!cIn(x, y, z)) return false;
             if (Math.abs(z) <= cThick(x, y) - 0.55F) return false;
-            return veinDist(x, y) < 0.42F && !(y < 6 && Math.abs(x) < 0.7F);
+            return veinDist(x, y) < 0.3F && !(y < 6 && Math.abs(x) < 0.7F);
         }, (x, y, z, i, j, k) -> argb(lerp(0xFF5A0A00, 0xFFFF6A30, f), 0F), Vox.TRANS, true);
     }
 
