@@ -1,58 +1,56 @@
 package com.krolasyon.mythblades.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static com.krolasyon.mythblades.client.Vox.argb;
-import static com.krolasyon.mythblades.client.Vox.hash;
-import static com.krolasyon.mythblades.client.Vox.lerp;
-import static com.krolasyon.mythblades.client.Vox.scale;
-import static com.krolasyon.mythblades.client.Vox.solid;
-
 /**
- * Üç efsane kılıcın voksel modelleri (birim: piksel, bıçak +Y yönünde, siper y = 0 civarında, ön yüz +Z).
- * Statik parçalar bir kez pişirilip önbelleğe alınır; animasyonlar parça dönüşümleri ve önceden pişirilmiş
- * kare dizileriyle (parıltı, damar ışığı) yapılır.
+ * Üç efsane kılıcın pürüzsüz, dokulu 3B modelleri (birim: piksel; bıçak +Y, siper y ≈ 0, ön yüz +Z).
+ * Bıçaklar bombeli kesitli parametrik yüzeylerdir; desenler (gökkuşağı bantları, kızıl damarlar, yontulmuş taş)
+ * dokuya boyalıdır. Kökler, bulut kıvrımları ve boynuzlar pürüzsüz borulardır.
  */
 public final class BladeModels {
     private BladeModels() {}
 
+    // dalga (hilal) voksel ağı için eski önbellek
     private static final Map<String, Vox.Mesh> CACHE = new HashMap<>();
 
     static Vox.Mesh mesh(String key, Consumer<Vox> build) {
-        Vox.Mesh m = CACHE.get(key);
-        if (m == null) {
+        return CACHE.computeIfAbsent(key, k -> {
             Vox v = new Vox();
             build.accept(v);
-            m = v.bake();
-            CACHE.put(key, m);
-        }
-        return m;
-    }
-
-    public static void clear() {
-        CACHE.clear();
+            return v.bake();
+        });
     }
 
     private static float clamp(float v, float a, float b) {
         return Math.max(a, Math.min(b, v));
     }
 
-    private static float fract(float f) {
-        return f - (float) Math.floor(f);
+    private static final float[] WHITE = {1, 1, 1, 1};
+
+    private static float[] rgb(int c, float a) {
+        return new float[]{((c >> 16) & 255) / 255F, ((c >> 8) & 255) / 255F, (c & 255) / 255F, a};
+    }
+
+    /** Bombeli kesit: kenarlarda 0, sırta (s) doğru kabaran; p büyüdükçe daha düz yüz. */
+    private static float lens(float u, float spine, float p) {
+        float d = u < spine ? u / spine : (1 - u) / (1 - spine);
+        return (float) Math.pow(Math.sin(Math.PI / 2 * clamp(d, 0, 1)), p);
     }
 
     // =================================================================================================== GÖKKUŞAĞI PALASI
 
-    private static final float R_Y0 = 1.0F, R_LEN = 30.0F;
-    private static final int[] RAINBOW = {0xF7A6C9, 0xFFC79A, 0xFFF0A0, 0xBDF0B4, 0xA6D9F7, 0xC4B6F7};
+    private static final float R_Y0 = 0.6F, R_LEN = 30.0F;
 
-    /** Bıçağın orta çizgisi (t = 0 dip, 1 uç). */
     private static float rCenter(float t) {
         return -8.5F * (float) Math.sin(Math.PI * t * 0.95) + 3.2F * t * t;
     }
@@ -60,305 +58,184 @@ public final class BladeModels {
     private static float rWidth(float t) {
         float w = 6.0F + 1.6F * (float) Math.sin(Math.PI * Math.min(1, t * 1.1));
         if (t > 0.8F) w *= (float) Math.sqrt(Math.max(0, (1 - t) / 0.2F));
-        return w;
+        return Math.max(w, 0.02F);
     }
 
-    /** Bıçak içinde mi; out[0] = enine konum (-0.5 dış kenar, 0.5 iç kenar), out[1] = t. */
-    private static boolean rIn(float x, float y, float z, float[] out) {
-        float t = (y - R_Y0) / R_LEN;
-        if (t < 0 || t > 1) return false;
+    private static final Geo.Blade RAINBOW_BLADE = (t, u, o) -> {
         float w = rWidth(t);
-        if (w < 0.3F) return false;
-        // uç dış kenara doğru kıvrılır
         float c = rCenter(t) - (t > 0.8F ? (t - 0.8F) * 6F : 0);
-        float u = (x - c) / w;
-        if (u < -0.5F || u > 0.5F) return false;
-        // dış kenardaki çentikler
-        if (u < -0.36F && (Math.abs(t - 0.6F) < 0.018F || Math.abs(t - 0.71F) < 0.014F)) return false;
-        float th = 0.95F - 0.6F * (u + 0.5F);
-        if (Math.abs(z) > th) return false;
-        if (out != null) {
-            out[0] = u;
-            out[1] = t;
-        }
-        return true;
-    }
+        o[0] = c - w / 2 + w * u;
+        o[1] = R_Y0 + R_LEN * t;
+        float tip = t > 0.86F ? (1 - t) / 0.14F : 1;
+        o[2] = 0.95F * lens(u, 0.18F, 0.55F) * (0.35F + 0.65F * tip) + 0.02F;
+    };
 
-    private static int rainbowColor(float u, float z, int i, int j, int k) {
-        float b = (u + 0.5F) * RAINBOW.length;
-        int idx = (int) clamp((float) Math.floor(b), 0, RAINBOW.length - 1);
-        int c = 0xFF000000 | RAINBOW[idx];
-        // bant geçişleri yumuşak, dış kenarda beyaz parıltı, iç kenarda cam beyazı
-        float f = fract(b);
-        if (f > 0.75F && idx < RAINBOW.length - 1) c = lerp(c, 0xFF000000 | RAINBOW[idx + 1], (f - 0.75F) * 2);
-        if (u < -0.44F) c = lerp(c, 0xFFFFF4FA, 0.65F);
-        if (u > 0.42F) c = lerp(c, 0xFFEAF6FF, 0.7F);
-        // kalın sırtta açık bir pah çizgisi
-        if (u > -0.36F && u < -0.31F) c = lerp(c, 0xFFFFFFFF, 0.35F);
-        return scale(c, 0.97F + hash(i, j, k) * 0.06F);
-    }
-
-    private static void rainbowBlade(Vox v) {
-        float[] o = new float[2];
-        v.fill(-17, R_Y0, -1.2F, 8, R_Y0 + R_LEN, 1.2F, (x, y, z) -> rIn(x, y, z, null), (x, y, z, i, j, k) -> {
-            rIn(x, y, z, o);
-            return rainbowColor(o[0], z, i, j, k);
-        }, Vox.CUT, false);
-    }
-
-    private static Vox.Col cloud(float cx, float cy, int base, int line) {
-        return (x, y, z, i, j, k) -> {
-            float dx = x - cx, dy = y - cy;
-            float r = (float) Math.sqrt(dx * dx + dy * dy);
-            float a = (float) (Math.atan2(dy, dx) / (Math.PI * 2));
-            float s = fract(r * 0.42F - a);
-            int c = s < 0.16F && r > 0.5F ? line : base;
-            if (z > 0.6F && s > 0.55F && s < 0.7F) c = lerp(c, 0xFFD8DEFF, 0.4F);
-            return scale(c, 0.96F + hash(i, j, k) * 0.08F);
-        };
-    }
-
-    private static void puff(Vox v, float cx, float cy, float rx, float ry, float rz) {
-        v.ell(cx, cy, 0, rx, ry, rz, cloud(cx, cy, 0xFF7C8BD2, 0xFF3F468F));
-    }
-
-    private static void rainbowHilt(Vox v) {
-        // bulut siper: bıçak dibini saran kıvrımlı bulutlar
-        puff(v, 0.6F, 0.4F, 2.5F, 2.0F, 1.8F);
-        puff(v, -1.6F, 2.2F, 2.7F, 2.3F, 1.9F);
-        puff(v, -3.6F, 4.6F, 2.2F, 2.0F, 1.6F);
-        puff(v, -4.6F, 7.0F, 1.6F, 1.6F, 1.3F);
-        puff(v, -2.8F, -0.4F, 1.8F, 1.6F, 1.5F);
-        puff(v, 1.6F, 2.6F, 1.4F, 1.3F, 1.2F);
-        // altın sargılı kabza
-        v.fill(-1.2F, -10F, -1.2F, 1.2F, -1F, 1.2F, (x, y, z) -> x * x + z * z <= 1.15F * 1.15F, (x, y, z, i, j, k) -> {
-            float a = (float) Math.atan2(z, x);
-            boolean wrap = fract(y * 0.55F + a / (float) (Math.PI * 2)) < 0.22F;
-            int c = wrap ? 0xFFA9781E : 0xFFE9B84A;
-            if (!wrap && z > 0.5F) c = lerp(c, 0xFFFFE08A, 0.35F);
-            return scale(c, 0.95F + hash(i, j, k) * 0.08F);
-        }, Vox.CUT, false);
-        v.fill(-1.5F, -10.6F, -1.5F, 1.5F, -9.6F, 1.5F, (x, y, z) -> x * x + z * z <= 2.1F, solid(0xC99A3A), Vox.CUT, false);
-        // topuz: kıvrık bulut sarmalı
-        float[][] spiral = new float[22][];
-        for (int n = 0; n < spiral.length; n++) {
-            float s = n / (float) (spiral.length - 1);
-            double a = -Math.PI / 2 + s * Math.PI * 1.8;
-            float r = 2.6F - 1.9F * s;
-            spiral[n] = new float[]{-0.4F + (float) Math.cos(a) * r - 1.0F, -12.2F + (float) Math.sin(a) * r * 0.9F + 0.3F, 0};
-        }
-        v.tube(spiral, 0.85F, solid(0x7C8BD2, 0.05F));
-        v.rod(new float[]{0, -10.4F, 0}, spiral[0], 0.9F, solid(0x6F7CC4, 0.05F));
-        v.ell(1.2F, -12.6F, 0, 1.1F, 1.0F, 0.9F, cloud(1.2F, -12.6F, 0xFF7C8BD2, 0xFF3F468F));
-    }
-
-    /** Bıçak boyunca kayan ışık bandı (k: 0..11). */
-    private static void rainbowSheen(Vox v, int k) {
-        float tc = 0.06F + 0.82F * k / 11F;
-        v.fill(-17, R_Y0, -1.3F, 8, R_Y0 + R_LEN, 1.3F, (x, y, z) -> {
-            float[] o = new float[2];
-            if (!rIn(x, y, z, o)) return false;
-            float d = o[1] - tc + o[0] * 0.08F;
-            return Math.abs(d) < 0.03F;
-        }, (x, y, z, i, j, k2) -> argb(0xFFFFFF, 0F), Vox.TRANS, true);
-    }
-
-    /** 4 uçlu küçük yıldız (parıltı). */
-    private static void star(Vox v) {
-        Vox.Col c = (x, y, z, i, j, k) -> argb(Math.abs(x) + Math.abs(y) < 0.6F ? 0xFFFFFF : 0xFFF6B0, 0F);
-        v.fill(-2.2F, -0.3F, -0.3F, 2.2F, 0.3F, 0.3F, (x, y, z) -> Math.abs(y) < 0.3F + 0.25F * (1 - Math.abs(x) / 2.2F), c, Vox.TRANS, true);
-        v.fill(-0.3F, -2.2F, -0.3F, 0.3F, 2.2F, 0.3F, (x, y, z) -> Math.abs(x) < 0.3F + 0.25F * (1 - Math.abs(y) / 2.2F), c, Vox.TRANS, true);
-    }
-
-    private static final float[][] STARS = {{-13.0F, 15.0F, 0.6F, 0}, {-12.0F, 22.5F, -0.4F, 1.7F}, {-8.0F, 28.6F, 0.8F, 3.1F},
-            {-2.5F, 32.0F, 0.2F, 4.4F}, {-14.5F, 9.2F, 0.4F, 5.6F}};
-
-    public static void rainbow(PoseStack ps, MultiBufferSource buf, int light, float time, float power) {
-        mesh("r_blade", BladeModels::rainbowBlade).render(ps, buf, light);
-        ps.pushPose();
-        // bulutlar hafifçe nefes alır
-        float b = 1 + 0.025F * (float) Math.sin(time * 0.12F);
-        ps.translate(-1, 2, 0);
-        ps.scale(b, b, b);
-        ps.translate(1, -2, 0);
-        mesh("r_hilt", BladeModels::rainbowHilt).render(ps, buf, light);
-        ps.popPose();
-        int k = (int) ((time * 0.35F) % 22);
-        if (k < 12) {
-            final int kk = k;
-            mesh("r_sheen" + k, v -> rainbowSheen(v, kk)).render(ps, buf, light);
-        }
-        for (float[] s : STARS) {
-            float a = (float) Math.sin(time * 0.17F + s[3]);
-            float sc = Math.max(0, a) * (0.55F + 0.45F * power) + 0.35F * power;
-            if (sc < 0.05F) continue;
-            ps.pushPose();
-            ps.translate(s[0], s[1], s[2]);
-            ps.mulPose(Axis.ZP.rotationDegrees(time * 3 + s[3] * 40));
-            ps.scale(sc * 0.55F, sc * 0.55F, sc * 0.55F);
-            mesh("r_star", BladeModels::star).render(ps, buf, light);
-            ps.popPose();
-        }
-    }
-
-    // =================================================================================================== KIZIL DAMAR
-
-    private static float cHalfWidth(float y) {
-        if (y < 1 || y > 25) return 0;
-        if (y < 5) return 2.1F + 0.3F * (y - 1) / 4F;
-        if (y < 6.6F) return 2.4F + 1.0F * (y - 5) / 1.6F;   // aşağı bakan diken
-        if (y < 13) return 2.5F + 1.6F * (float) Math.sin((y - 6.6F) / 6.4F * Math.PI / 2);
-        float s = (y - 13) / 12F;
-        return 4.1F * (1 - (float) Math.pow(s, 1.7));
-    }
-
-    private static float cThick(float x, float y) {
-        float hw = cHalfWidth(y);
-        if (hw <= 0) return 0;
-        return 0.35F + 0.8F * (1 - Math.abs(x) / hw);
-    }
-
-    private static final float[][] VEINS = buildVeins();
-
-    private static float[][] buildVeins() {
-        java.util.List<float[]> s = new java.util.ArrayList<>();
-        s.add(new float[]{0, 3.0F, 0, 21.0F});
-        float[] ys = {8.5F, 12.5F, 16.5F};
-        for (float y : ys) {
-            for (int side = -1; side <= 1; side += 2) {
-                float tx = side * cHalfWidth(y + 3.4F) * 0.66F;
-                s.add(new float[]{0, y, tx * 0.55F, y + 2.0F});
-                s.add(new float[]{tx * 0.55F, y + 2.0F, tx, y + 4.2F});
-            }
-        }
-        // iç kontur: kenara paralel kemer
-        float prevL = Float.NaN, prevY = 0;
-        for (float y = 6.8F; y <= 23.4F; y += 0.8F) {
-            float hx = Math.max(0, cHalfWidth(y) - 1.5F);
-            if (!Float.isNaN(prevL)) {
-                s.add(new float[]{-prevL, prevY, -hx, y});
-                s.add(new float[]{prevL, prevY, hx, y});
-            }
-            prevL = hx;
-            prevY = y;
-        }
-        return s.toArray(new float[0][]);
-    }
-
-    private static float veinDist(float x, float y) {
-        float best = 99;
-        for (float[] g : VEINS) {
-            float dx = g[2] - g[0], dy = g[3] - g[1];
-            float l2 = dx * dx + dy * dy;
-            float t = l2 < 1e-6F ? 0 : clamp(((x - g[0]) * dx + (y - g[1]) * dy) / l2, 0, 1);
-            float ex = x - g[0] - dx * t, ey = y - g[1] - dy * t;
-            best = Math.min(best, (float) Math.sqrt(ex * ex + ey * ey));
-        }
-        return best;
-    }
-
-    private static boolean cIn(float x, float y, float z) {
-        float hw = cHalfWidth(y);
-        return hw > 0 && Math.abs(x) <= hw && Math.abs(z) <= cThick(x, y);
-    }
-
-    private static void crimsonBlade(Vox v) {
-        v.fill(-4.5F, 1, -1.3F, 4.5F, 25, 1.3F, BladeModels::cIn, (x, y, z, i, j, k) -> {
-            float hw = cHalfWidth(y), th = cThick(x, y);
-            boolean surf = Math.abs(z) > th - 0.55F;
-            float vd = surf ? veinDist(x, y) : 99;
-            int c;
-            if (vd < 0.3F) c = y < 6 && Math.abs(x) < 0.7F ? 0xFF6E7A2E : 0xFFC8381E;
-            else if (vd < 0.55F) c = y < 6 && Math.abs(x) < 1.1F ? 0xFF4C5420 : 0xFF7A2216;
-            else {
-                c = 0xFFB59AA5;
-                if (Math.abs(x) / hw > 0.8F) c = lerp(c, 0xFFE2D0D4, 0.6F);
-                if (Math.abs(x) < 0.3F && !surf) c = 0xFF8E7480;
-            }
-            return scale(c, 0.95F + hash(i, j, k) * 0.09F);
-        }, Vox.CUT, false);
-    }
-
-    /** Damar ışığı katmanı (seviye 1..4). */
-    private static void crimsonGlow(Vox v, int level) {
-        float f = level / 4F;
-        v.fill(-4.5F, 1, -1.4F, 4.5F, 25, 1.4F, (x, y, z) -> {
-            if (!cIn(x, y, z)) return false;
-            if (Math.abs(z) <= cThick(x, y) - 0.55F) return false;
-            return veinDist(x, y) < 0.3F && !(y < 6 && Math.abs(x) < 0.7F);
-        }, (x, y, z, i, j, k) -> argb(lerp(0xFF5A0A00, 0xFFFF6A30, f), 0F), Vox.TRANS, true);
-    }
-
-    private static void crimsonHilt(Vox v) {
-        Vox.Col olive = (x, y, z, i, j, k) -> {
-            int c = 0xFF7D8C36;
-            if (z > 0.6F) c = lerp(c, 0xFFB2C25E, 0.4F);
-            if (z < -0.6F || y < -1.2F) c = scale(c, 0.78F);
-            return scale(c, 0.94F + hash(i, j, k) * 0.1F);
-        };
-        // siper: ortada yaprak gövdesi, iki yanda yukarı kıvrılan boynuzlar, aşağıda küçük kıvrımlar
-        v.rbox(-2.6F, -1.6F, -1.4F, 2.6F, 1.0F, 1.4F, 0.8F, olive);
-        v.ell(0, 0.2F, 0, 3.4F, 1.3F, 1.2F, olive);
-        for (int s = -1; s <= 1; s += 2) {
-            float[][] horn = new float[9][];
-            for (int n = 0; n < horn.length; n++) {
-                float t = n / (float) (horn.length - 1);
-                horn[n] = new float[]{s * (3.0F + 1.2F * (float) Math.sin(t * 2.2)), -0.2F + 4.2F * t, 0};
-            }
-            v.tube(horn, 0.75F, olive);
-            v.ell(s * 3.2F, 3.9F, 0, 0.6F, 0.9F, 0.6F, olive);
-            float[][] curl = {{s * 2.2F, -1.2F, 0}, {s * 3.4F, -1.8F, 0}, {s * 3.9F, -1.0F, 0}, {s * 3.4F, -0.4F, 0}};
-            v.tube(curl, 0.5F, olive);
-        }
-        // yakut yuvası
-        v.ell(0, -0.3F, 1.0F, 1.25F, 1.25F, 0.7F, solid(0x4C5420));
-        // altın kabza ve halkalar
-        v.fill(-1.1F, -9.5F, -1.1F, 1.1F, -1.4F, 1.1F, (x, y, z) -> x * x + z * z <= sq(0.95F + 0.12F * (float) Math.sin((y + 9.5F) / 8.1F * Math.PI)),
-                (x, y, z, i, j, k) -> {
-                    int c = 0xFFD9A63A;
-                    if (z > 0.4F) c = lerp(c, 0xFFFFDD80, 0.4F);
-                    if (fract(y * 0.8F) < 0.12F) c = scale(c, 0.8F);
-                    return scale(c, 0.95F + hash(i, j, k) * 0.08F);
-                }, Vox.CUT, false);
-        for (float y : new float[]{-2.0F, -9.0F}) v.fill(-1.5F, y - 0.4F, -1.5F, 1.5F, y + 0.4F, 1.5F, (x, yy, z) -> x * x + z * z <= 1.9F,
-                Vox.metal(0xC8902A), Vox.CUT, false);
-        // sivri altın topuz
-        v.lathe(new float[][]{{1.35F, -9.4F}, {1.1F, -10.3F}, {0.6F, -11.8F}, {0.25F, -13.0F}, {0F, -13.6F}}, 1, 1, 8, 0,
-                Vox.metal(0xD9A63A), Vox.CUT, false);
+    private static void rainbowBlade(MultiBufferSource buf, PoseStack ps, int light, float time, float power) {
+        TextureAtlasSprite s = Geo.sprite("rainbow_blade");
+        Geo.blade(buf.getBuffer(Geo.CUT), ps, 44, 10, RAINBOW_BLADE, s, null, light, 0);
+        // iç ışıltı + bıçak boyunca kayan parıltı bandı
+        float tc = ((time * 0.022F) % 1.6F) - 0.2F;
+        float base = 0.10F + 0.35F * power;
+        Geo.blade(buf.getBuffer(Geo.GLOW), ps, 44, 6, RAINBOW_BLADE, s, (t, u, c) -> {
+            float g = base + 0.75F * (float) Math.exp(-sq((t - tc + (u - 0.5F) * 0.12F) / 0.05F));
+            c[0] = c[1] = c[2] = g;
+        }, Geo.FULL, 0.03F);
     }
 
     private static float sq(float f) {
         return f * f;
     }
 
-    private static void ruby(Vox v) {
-        v.ell(0, 0, 0, 0.95F, 0.95F, 0.55F, (x, y, z, i, j, k) -> {
-            int c = x + y > 0.4F ? 0xFFFF8A70 : 0xFFD0201A;
-            return c;
-        }, Vox.CUT, true);
+    private static final int CLOUD = 0x7C8BD2;
+
+    /** Bulut kabarcığı: elipsoit + ön yüzünde koyu sarmal çizgi. */
+    private static void puff(VertexConsumer vc, PoseStack ps, int light, float cx, float cy, float rx, float ry, float rz, float spin) {
+        TextureAtlasSprite cl = Geo.sprite("cloud");
+        Geo.ellipsoid(vc, ps, cx, cy, 0, rx, ry, rz, 10, 14, cl, null, light);
+        List<float[]> sp = new ArrayList<>();
+        for (int i = 0; i <= 22; i++) {
+            float s = i / 22F;
+            double a = spin + s * Math.PI * 3.2;
+            float r = 0.12F + 0.72F * s;
+            float x = (float) Math.cos(a) * r, y = (float) Math.sin(a) * r;
+            float z = (float) Math.sqrt(Math.max(0, 1 - x * x - y * y));
+            sp.add(new float[]{cx + x * rx, cy + y * ry, z * rz + 0.05F, 0.17F + 0.06F * s});
+        }
+        Geo.tube(vc, ps, sp.toArray(new float[0][]), 5, Geo.sprite("m_plain"), rgb(0x3E4592, 1), light);
+    }
+
+    private static void rainbowHilt(MultiBufferSource buf, PoseStack ps, int light, float time) {
+        VertexConsumer vc = buf.getBuffer(Geo.CUT);
+        float b = 1 + 0.03F * (float) Math.sin(time * 0.12F);
+        ps.pushPose();
+        ps.translate(-1, 2, 0);
+        ps.scale(b, b, b);
+        ps.translate(1, -2, 0);
+        puff(vc, ps, light, 0.8F, 0.3F, 2.5F, 2.0F, 1.8F, 0.3F);
+        puff(vc, ps, light, -1.4F, 2.3F, 2.8F, 2.4F, 2.0F, 1.7F);
+        puff(vc, ps, light, -3.7F, 4.8F, 2.3F, 2.1F, 1.7F, 3.1F);
+        puff(vc, ps, light, -5.0F, 7.3F, 1.7F, 1.6F, 1.35F, 0.9F);
+        puff(vc, ps, light, -2.9F, -0.5F, 1.9F, 1.6F, 1.5F, 2.2F);
+        puff(vc, ps, light, 1.9F, 2.8F, 1.5F, 1.35F, 1.2F, 4.0F);
+        ps.popPose();
+        // altın sargılı kabza ve alt bilezik
+        Geo.lathe(vc, ps, new float[][]{{1.0F, -10F}, {1.12F, -8F}, {1.05F, -5.5F}, {1.12F, -3F}, {1.0F, -0.8F}}, 14, Geo.sprite("gold_wrap"), null, light);
+        Geo.lathe(vc, ps, new float[][]{{0.4F, -11.0F}, {1.45F, -10.7F}, {1.5F, -10.0F}, {1.2F, -9.6F}}, 14, Geo.sprite("gold"), null, light);
+        // topuz: kıvrık bulut sarmalı
+        float[][] sp = new float[16][];
+        for (int i = 0; i < sp.length; i++) {
+            float s = i / (float) (sp.length - 1);
+            double a = -Math.PI / 2 + s * Math.PI * 1.9;
+            float r = 2.6F - 1.8F * s;
+            sp[i] = new float[]{-1.4F + (float) Math.cos(a) * r, -12.5F + (float) Math.sin(a) * r * 0.9F, 0, 1.05F - 0.55F * s};
+        }
+        float[][] full = new float[sp.length + 1][];
+        full[0] = new float[]{0, -10.6F, 0, 0.9F};
+        System.arraycopy(sp, 0, full, 1, sp.length);
+        Geo.tube(vc, ps, Geo.spline(full, 3), 10, Geo.sprite("cloud"), WHITE, light);
+        puff(vc, ps, light, 1.1F, -13.0F, 1.2F, 1.1F, 1.0F, 1.2F);
+    }
+
+    private static final float[][] STARS = {{-13.0F, 15.0F, 0.9F, 0}, {-12.0F, 22.5F, -0.6F, 1.7F}, {-8.0F, 28.6F, 1.0F, 3.1F},
+            {-2.5F, 32.0F, 0.4F, 4.4F}, {-14.5F, 9.2F, 0.7F, 5.6F}};
+
+    private static void stars(MultiBufferSource buf, PoseStack ps, float time, float power) {
+        VertexConsumer vc = buf.getBuffer(Geo.GLOW);
+        TextureAtlasSprite w = Geo.sprite("m_plain");
+        for (float[] s : STARS) {
+            float a = (float) Math.sin(time * 0.17F + s[3]);
+            float sc = Math.max(0, a) * (0.6F + 0.4F * power) + 0.35F * power;
+            if (sc < 0.05F) continue;
+            ps.pushPose();
+            ps.translate(s[0], s[1], s[2]);
+            ps.mulPose(Axis.ZP.rotationDegrees(time * 3 + s[3] * 40));
+            ps.scale(sc, sc, sc);
+            float[] c = {1, 0.96F, 0.7F, 1};
+            Geo.tube(vc, ps, new float[][]{{-1.6F, 0, 0, 0.02F}, {0, 0, 0, 0.32F}, {1.6F, 0, 0, 0.02F}}, 6, w, c, Geo.FULL);
+            Geo.tube(vc, ps, new float[][]{{0, -1.6F, 0, 0.02F}, {0, 0, 0, 0.32F}, {0, 1.6F, 0, 0.02F}}, 6, w, c, Geo.FULL);
+            ps.popPose();
+        }
+    }
+
+    public static void rainbow(PoseStack ps, MultiBufferSource buf, int light, float time, float power) {
+        rainbowBlade(buf, ps, light, time, power);
+        rainbowHilt(buf, ps, light, time);
+        stars(buf, ps, time, power);
+    }
+
+    // =================================================================================================== KIZIL DAMAR
+
+    private static float cHalfWidth(float y) {
+        if (y < 1 || y > 25) return 0.02F;
+        if (y < 5) return 2.1F + 0.3F * (y - 1) / 4F;
+        if (y < 6.6F) return 2.4F + 1.0F * (y - 5) / 1.6F;
+        if (y < 13) return 2.5F + 1.6F * (float) Math.sin((y - 6.6F) / 6.4F * Math.PI / 2);
+        float s = (y - 13) / 12F;
+        return Math.max(0.02F, 4.1F * (1 - (float) Math.pow(s, 1.7)));
+    }
+
+    private static final Geo.Blade CRIMSON_BLADE = (t, u, o) -> {
+        float y = 1 + 24 * t;
+        float hw = cHalfWidth(y);
+        o[0] = (u * 2 - 1) * hw;
+        o[1] = y;
+        // elmas kesit: ortada belirgin sırt, kenarlarda keskin
+        float d = 1 - Math.abs(u * 2 - 1);
+        float tip = t > 0.85F ? (1 - t) / 0.15F : 1;
+        o[2] = (0.12F + 0.95F * (float) Math.pow(d, 0.85)) * (0.4F + 0.6F * tip) * 0.95F;
+    };
+
+    private static void crimsonHilt(MultiBufferSource buf, PoseStack ps, int light) {
+        VertexConsumer vc = buf.getBuffer(Geo.CUT);
+        TextureAtlasSprite ol = Geo.sprite("olive");
+        // yaprak gövdeli siper
+        Geo.ellipsoid(vc, ps, 0, 0.1F, 0, 3.3F, 1.35F, 1.25F, 10, 16, ol, null, light);
+        Geo.ellipsoid(vc, ps, 0, -1.3F, 0, 1.9F, 1.1F, 1.15F, 8, 14, ol, null, light);
+        for (int s = -1; s <= 1; s += 2) {
+            // yukarı kıvrılan boynuz (bıçak dibini sarar)
+            Geo.tube(vc, ps, Geo.spline(new float[][]{{s * 2.4F, -0.3F, 0, 0.95F}, {s * 3.6F, 0.6F, 0.1F, 0.85F}, {s * 4.1F, 2.2F, 0, 0.65F},
+                    {s * 3.7F, 3.9F, -0.1F, 0.45F}, {s * 3.0F, 5.0F, 0, 0.2F}}, 5), 10, ol, WHITE, light);
+            // aşağı kıvrım
+            Geo.tube(vc, ps, Geo.spline(new float[][]{{s * 1.6F, -1.5F, 0, 0.7F}, {s * 3.0F, -2.1F, 0.1F, 0.55F}, {s * 3.7F, -1.3F, 0, 0.4F},
+                    {s * 3.3F, -0.6F, 0, 0.22F}}, 5), 8, ol, WHITE, light);
+        }
+        // bıçağa çıkan yeşil gövde
+        Geo.tube(vc, ps, Geo.spline(new float[][]{{0, 0.5F, 0.7F, 0.6F}, {0, 3.0F, 0.75F, 0.42F}, {0, 5.5F, 0.85F, 0.12F}}, 4), 8, ol, WHITE, light);
+        Geo.tube(vc, ps, Geo.spline(new float[][]{{0, 0.5F, -0.7F, 0.6F}, {0, 3.0F, -0.75F, 0.42F}, {0, 5.5F, -0.85F, 0.12F}}, 4), 8, ol, WHITE, light);
+        // yakut yuvası
+        Geo.ellipsoid(vc, ps, 0, -0.35F, 0.9F, 1.3F, 1.3F, 0.6F, 8, 12, ol, (t, u, c) -> { c[0] = c[1] = c[2] = 0.6F; }, light);
+        // altın kabza: halkalı ve ortası hafif şişkin
+        Geo.lathe(vc, ps, new float[][]{{1.25F, -1.2F}, {1.45F, -1.6F}, {1.45F, -2.4F}, {1.0F, -2.8F}, {1.12F, -5.5F}, {1.0F, -8.2F},
+                {1.45F, -8.6F}, {1.45F, -9.4F}, {1.1F, -9.8F}}, 14, Geo.sprite("gold"), null, light);
+        // sivri topuz
+        Geo.lathe(vc, ps, new float[][]{{1.1F, -9.8F}, {1.35F, -10.3F}, {1.0F, -11.2F}, {0.55F, -12.3F}, {0.0F, -13.8F}}, 8, Geo.sprite("gold"), null, light);
     }
 
     public static void crimson(PoseStack ps, MultiBufferSource buf, int light, float time, float essence) {
-        mesh("c_blade", BladeModels::crimsonBlade).render(ps, buf, light);
-        mesh("c_hilt", BladeModels::crimsonHilt).render(ps, buf, light);
-        // damarlar özle dolar: 0 = sönük nabız, 1 = tam ışıl
+        TextureAtlasSprite bl = Geo.sprite("crimson_blade");
+        Geo.blade(buf.getBuffer(Geo.CUT), ps, 64, 10, CRIMSON_BLADE, bl, null, light, 0);
+        crimsonHilt(buf, ps, light);
+        // damarlar özle dolar ve nabız gibi atar
         float pulse = 0.5F + 0.5F * (float) Math.sin(time * (0.12F + 0.25F * essence));
-        int level = (int) clamp(Math.round(essence * 3 + pulse * (0.6F + essence)), 0, 4);
-        if (level > 0) {
-            final int lv = level;
-            mesh("c_glow" + level, v -> crimsonGlow(v, lv)).render(ps, buf, light);
-        }
-        ps.pushPose();
-        ps.translate(0, -0.3F, 1.45F);
+        float g = 0.18F + 0.25F * pulse + 0.6F * essence;
+        Geo.blade(buf.getBuffer(Geo.GLOW), ps, 64, 10, CRIMSON_BLADE, Geo.sprite("crimson_glow"), (t, u, c) -> {
+            c[0] = c[1] = c[2] = clamp(g, 0, 1);
+        }, Geo.FULL, 0.02F);
+        // yakut
         float s = 1 + 0.08F * pulse;
+        ps.pushPose();
+        ps.translate(0, -0.35F, 1.35F);
         ps.scale(s, s, s);
-        mesh("c_ruby", BladeModels::ruby).render(ps, buf, light);
+        Geo.ellipsoid(buf.getBuffer(Geo.CUT), ps, 0, 0, 0, 0.95F, 0.95F, 0.55F, 8, 12, Geo.sprite("ruby"), null, Geo.FULL);
+        Geo.ellipsoid(buf.getBuffer(Geo.GLOW), ps, 0, 0, 0, 1.0F, 1.0F, 0.6F, 8, 12, Geo.sprite("ruby"), (t, u, c) -> {
+            c[0] = c[1] = c[2] = 0.35F + 0.4F * pulse;
+        }, Geo.FULL);
         ps.popPose();
     }
 
     // =================================================================================================== YOSUNKÖK SATIRI
 
-    private static final float M_Y0 = 2.0F, M_LEN = 28.0F;
+    private static final float M_Y0 = 1.6F, M_LEN = 28.4F;
 
     private static float mCenter(float t) {
         return 1.6F + 2.3F * (float) Math.sin(Math.PI * t * 1.1) - 4.2F * t * t;
@@ -367,153 +244,128 @@ public final class BladeModels {
     private static float mWidth(float t) {
         float w = 6.4F + 1.8F * (float) Math.sin(Math.PI * Math.min(1, t * 1.25));
         if (t > 0.82F) w *= (float) Math.pow(Math.max(0, (1 - t) / 0.18F), 0.7);
-        return w;
+        return Math.max(w, 0.02F);
     }
 
-    private static boolean mIn(float x, float y, float z, float[] out) {
-        float t = (y - M_Y0) / M_LEN;
-        if (t < 0 || t > 1) return false;
+    private static final Geo.Blade MOSS_BLADE = (t, u, o) -> {
         float w = mWidth(t);
-        if (w < 0.4F) return false;
         float c = mCenter(t) - (t > 0.82F ? (t - 0.82F) * 9F : 0);
-        // sırt (sağ) dalgalı, ağız (sol) içbükey
-        float wave = 0.35F * (float) Math.sin(t * 31);
-        float u = (x - c) / w;
-        if (u > 0.5F + wave / w || u < -0.5F) return false;
-        // ağızda çentikler
-        if (u < -0.4F && (Math.abs(t - 0.34F) < 0.02F || Math.abs(t - 0.58F) < 0.025F)) return false;
-        if (u > 0.42F && Math.abs(t - 0.7F) < 0.02F) return false;
-        float th = 1.6F - 1.0F * clamp(-u - 0.1F, 0, 0.4F) / 0.4F;
-        if (Math.abs(z) > th) return false;
-        if (out != null) {
-            out[0] = u;
-            out[1] = t;
-        }
-        return true;
-    }
-
-    private static void mossBlade(Vox v) {
-        float[] o = new float[2];
-        v.fill(-10, M_Y0, -1.8F, 10, M_Y0 + M_LEN, 1.8F, (x, y, z) -> mIn(x, y, z, null), (x, y, z, i, j, k) -> {
-            mIn(x, y, z, o);
-            float u = o[0], t = o[1];
-            int c = 0xFF9C8A92;
-            // yontulmuş taş yüzeyler
-            float facet = hash((int) Math.floor(x / 2.2F), (int) Math.floor(y / 2.6F), 7);
-            c = scale(c, 0.9F + facet * 0.2F);
-            if (u > 0.36F) c = lerp(c, 0xFFC4B4BA, 0.5F);
-            if (u < -0.42F) c = lerp(c, 0xFFD6CACE, 0.55F);
-            // çatlaklar
-            float cr = Math.abs(fract(x * 0.23F + y * 0.11F + (float) Math.sin(y * 0.7F) * 0.4F) - 0.5F);
-            if (cr < 0.03F && t > 0.3F && Math.abs(z) > 1.1F) c = 0xFF5E4E56;
-            // gövdeye yakın yosun lekeleri
-            float moss = hash(i / 3, j / 3, k / 3);
-            if (t < 0.5F && moss > 0.62F - (0.5F - t) * 0.7F && Math.abs(z) > 0.9F) c = moss > 0.85F ? 0xFF9CC23E : 0xFF6E9A2A;
-            return scale(c, 0.96F + hash(i, j, k) * 0.07F);
-        }, Vox.CUT, false);
-    }
-
-    private static final Vox.Col ROOT = (x, y, z, i, j, k) -> {
-        float h = hash(i, j, k);
-        int c = (j & 3) == 0 ? 0xFF6A2E1E : 0xFF8E4630;
-        if (h > 0.9F) c = 0xFFB0603C;
-        return scale(c, 0.92F + h * 0.12F);
+        // sırt (u = 1) dalgalı
+        float wave = 0.35F * (float) Math.sin(t * 31) * u;
+        o[0] = c - w / 2 + w * u + wave;
+        o[1] = M_Y0 + M_LEN * t;
+        float tip = t > 0.86F ? (1 - t) / 0.14F : 1;
+        o[2] = (1.75F * lens(u, 0.7F, 0.35F) + 0.04F) * (0.45F + 0.55F * tip);
     };
 
-    private static final Vox.Col MOSS = (x, y, z, i, j, k) -> {
-        float h = hash(i, j, k);
-        return h > 0.82F ? 0xFFB4D85A : h < 0.2F ? 0xFF4F7A1E : 0xFF7BAA30;
-    };
+    private static float[] mSurf(float t, float a, float out) {
+        float c = mCenter(t), w = mWidth(t);
+        float x = c + (float) Math.cos(a) * (w * 0.5F + out);
+        float z = (float) Math.sin(a) * (1.8F + out);
+        return new float[]{x, M_Y0 + M_LEN * t, z};
+    }
 
-    /** Bıçağa sarılan kökler (taş yüzeyinde sarmal). */
-    private static float[][] climb(float t0, float t1, float a0, float turns, int n) {
+    /** Bıçağa sarmal tırmanan kök. */
+    private static float[][] climb(float t0, float t1, float a0, float turns, float r0, float r1, float time, int idx, float sway) {
+        int n = 26;
         float[][] p = new float[n + 1][];
         for (int q = 0; q <= n; q++) {
             float s = q / (float) n;
             float t = t0 + (t1 - t0) * s;
-            float y = M_Y0 + M_LEN * t;
-            double a = a0 + turns * Math.PI * 2 * s;
-            float c = mCenter(t), w = mWidth(t) * 0.55F;
-            p[q] = new float[]{c + (float) Math.cos(a) * w, y, (float) Math.sin(a) * 2.1F};
+            float r = (r0 + (r1 - r0) * s) * (1 + 0.2F * (float) Math.sin(s * 31 + idx * 2.1));
+            double a = a0 + turns * Math.PI * 2 * s + Math.sin(s * 9 + idx) * 0.15;
+            float[] q3 = mSurf(t, (float) a, r * 0.6F);
+            float tipW = s > 0.8F ? (s - 0.8F) * 5 : 0;
+            q3[0] += (float) Math.sin(time * 0.09 + idx * 1.7) * 0.6F * tipW * tipW * sway;
+            q3[2] += (float) Math.cos(time * 0.07 + idx) * 0.5F * tipW * tipW * sway;
+            p[q] = new float[]{q3[0], q3[1], q3[2], r};
         }
         return p;
     }
 
-    private static void mossRoots(Vox v) {
-        v.tube(climb(0.0F, 0.42F, 0.3F, 1.3F, 30), 0.85F, ROOT);
-        v.tube(climb(0.02F, 0.30F, 2.6F, 0.9F, 24), 0.75F, ROOT);
-        v.tube(climb(0.05F, 0.36F, 4.4F, 1.1F, 26), 0.6F, ROOT);
-        v.tube(climb(0.0F, 0.18F, 1.4F, 0.7F, 16), 1.0F, ROOT);
-        // köklerin dibinde kalın düğüm
-        v.ell(mCenter(0.03F), M_Y0 + 1.2F, 0, 3.6F, 2.4F, 2.4F, ROOT);
-        // yosun öbekleri ve yaprak filizleri
-        float[][] lumps = {{0.08F, 0.6F, 2.0F}, {0.16F, -0.4F, 2.1F}, {0.24F, 0.3F, -2.0F}, {0.31F, 0.1F, 1.9F}, {0.12F, 0.0F, -2.2F}, {0.38F, -0.3F, 1.7F}};
+    private static final float[] BARK_TINT = {1.0F, 0.95F, 0.92F, 1};
+
+    private static void mossRoots(MultiBufferSource buf, PoseStack ps, int light, float time, float charge) {
+        VertexConsumer vc = buf.getBuffer(Geo.CUT);
+        TextureAtlasSprite bark = Geo.sprite("bark"), moss = Geo.sprite("moss"), leaf = Geo.sprite("leaf");
+        float sway = 1 + 1.5F * charge;
+        Geo.tube(vc, ps, climb(0.0F, 0.44F, 0.3F, 1.25F, 0.95F, 0.25F, time, 0, sway), 9, bark, BARK_TINT, light);
+        Geo.tube(vc, ps, climb(0.01F, 0.32F, 2.6F, 0.9F, 0.8F, 0.2F, time, 1, sway), 8, bark, BARK_TINT, light);
+        Geo.tube(vc, ps, climb(0.04F, 0.38F, 4.4F, 1.1F, 0.65F, 0.15F, time, 2, sway), 8, bark, BARK_TINT, light);
+        Geo.tube(vc, ps, climb(0.0F, 0.2F, 1.4F, 0.7F, 1.05F, 0.35F, time, 3, sway), 9, bark, BARK_TINT, light);
+        // köklerin bıçak dibindeki kalın düğümü
+        Geo.ellipsoid(vc, ps, mCenter(0.03F), M_Y0 + 1.0F, 0, 3.9F, 2.3F, 2.5F, 10, 16, bark, (t, u, c) -> {
+            c[0] = 0.92F; c[1] = 0.86F; c[2] = 0.84F;
+        }, light);
+        // yosun öbekleri
+        float[][] lumps = {{0.08F, 0.6F, 1}, {0.16F, -0.35F, 1}, {0.24F, 0.3F, -1}, {0.31F, 0.1F, 1}, {0.12F, 0.0F, -1}, {0.38F, -0.3F, 1},
+                {0.02F, -0.5F, 1}};
         for (float[] l : lumps) {
             float t = l[0];
             float x = mCenter(t) + l[1] * mWidth(t) * 0.6F;
-            v.ell(x, M_Y0 + M_LEN * t, l[2], 1.6F, 1.3F, 0.9F, MOSS);
+            Geo.ellipsoid(vc, ps, x, M_Y0 + M_LEN * t, l[2] * 1.75F, 1.7F, 1.25F, 0.85F, 6, 10, moss, null, light);
         }
-        float[][] sprouts = {{0.2F, 0.55F, 1, 2.2F}, {0.28F, 0.6F, -1, 1.6F}, {0.1F, -0.55F, 1, -2.0F}, {0.35F, 0.5F, 1, -1.8F}};
+        // filizler: uçta yaprakçıklar
+        float[][] sprouts = {{0.2F, 0.55F, 1, 2.0F}, {0.28F, 0.6F, -1, 1.6F}, {0.1F, -0.55F, 1, -2.0F}, {0.35F, 0.5F, 1, -1.8F}, {0.05F, 0.6F, -1, 2.2F}};
+        int k = 0;
         for (float[] s : sprouts) {
             float t = s[0];
             float x = mCenter(t) + s[1] * mWidth(t), y = M_Y0 + M_LEN * t;
-            v.rod(new float[]{x, y, 0}, new float[]{x + s[3] * 1.3F, y + 2.6F, s[2] * 0.6F}, 0.35F, solid(0x9CCB45));
+            float sw = (float) Math.sin(time * 0.11F + k++) * 0.3F * sway;
+            Geo.tube(vc, ps, Geo.spline(new float[][]{{x, y, s[2] * 1.2F, 0.3F}, {x + s[3] * 0.6F + sw, y + 1.4F, s[2] * 1.5F, 0.22F},
+                    {x + s[3] * 1.1F + sw * 1.6F, y + 2.6F, s[2] * 1.7F, 0.04F}}, 4), 6, leaf, WHITE, light);
+            Geo.ellipsoid(vc, ps, x + s[3] * 1.2F + sw * 1.6F, y + 2.4F, s[2] * 1.7F, 0.55F, 0.28F, 0.55F, 5, 8, leaf, null, light);
         }
     }
 
-    private static void mossHandle(Vox v) {
+    private static void mossHandle(MultiBufferSource buf, PoseStack ps, int light, float time, float charge) {
+        VertexConsumer vc = buf.getBuffer(Geo.CUT);
+        TextureAtlasSprite bark = Geo.sprite("bark");
         // birbirine dolanan üç kökten kabza
         for (int q = 0; q < 3; q++) {
-            float[][] p = new float[20][];
+            float[][] p = new float[22][];
             for (int n = 0; n < p.length; n++) {
                 float s = n / (float) (p.length - 1);
                 double a = q * Math.PI * 2 / 3 + s * Math.PI * 3;
-                float y = 2.5F - 13.5F * s;
-                float lean = 1.2F * s;
-                p[n] = new float[]{lean + (float) Math.cos(a) * 0.75F, y, (float) Math.sin(a) * 0.75F};
+                float y = 2.4F - 13.2F * s;
+                p[n] = new float[]{1.2F * s + (float) Math.cos(a) * 0.72F, y, (float) Math.sin(a) * 0.72F, 0.75F - 0.1F * s};
             }
-            v.tube(p, 0.72F, ROOT);
+            Geo.tube(vc, ps, p, 9, bark, BARK_TINT, light);
         }
-        v.ell(0.2F, -4.5F, 0.6F, 0.9F, 1.1F, 0.6F, MOSS);
-    }
-
-    /** Alttaki pençe gibi kök uçları (her biri ayrı, sallanır). */
-    private static void mossClaw(Vox v, int n) {
+        Geo.ellipsoid(vc, ps, 0.4F, -4.5F, 0.7F, 0.95F, 1.15F, 0.6F, 6, 10, Geo.sprite("moss"), null, light);
+        // alttaki pençe kökler (sallanır)
         float[][] dirs = {{-2.6F, -2.0F}, {-0.6F, -3.4F}, {1.6F, -2.6F}, {3.0F, -1.0F}};
-        float[] d = dirs[n];
-        float[][] p = {{0, 0, 0}, {d[0] * 0.5F, d[1] * 0.6F, 0.3F}, {d[0] * 0.9F, d[1] * 0.9F, 0.2F}, {d[0] * 1.05F + 0.6F, d[1] * 1.15F + 0.5F, 0}};
-        v.tube(p, 0.55F, ROOT);
-        v.rod(p[2], new float[]{p[3][0] + 0.4F, p[3][1] + 0.8F, 0}, 0.28F, solid(0x5A2618));
-        if (n % 2 == 0) v.rod(new float[]{d[0] * 0.4F, d[1] * 0.4F, 0.4F}, new float[]{d[0] * 0.4F - 1.2F, d[1] * 0.4F - 1.6F, 1.0F}, 0.3F,
-                solid(0x9CCB45));
-    }
-
-    private static void mossGlow(Vox v) {
-        float[][] lumps = {{0.08F, 0.6F, 2.0F}, {0.16F, -0.4F, 2.1F}, {0.24F, 0.3F, -2.0F}, {0.31F, 0.1F, 1.9F}, {0.12F, 0.0F, -2.2F}, {0.38F, -0.3F, 1.7F}};
-        for (float[] l : lumps) {
-            float t = l[0];
-            float x = mCenter(t) + l[1] * mWidth(t) * 0.6F;
-            v.ell(x, M_Y0 + M_LEN * t, l[2], 1.7F, 1.4F, 1.0F, (xx, y, z, i, j, k) -> argb(0x9CFF40, 0F), Vox.TRANS, true);
+        for (int n = 0; n < 4; n++) {
+            float[] d = dirs[n];
+            ps.pushPose();
+            ps.translate(1.2F + (n - 1.5F) * 0.4F, -10.6F, 0);
+            ps.mulPose(Axis.ZP.rotationDegrees((float) Math.sin(time * 0.09F + n * 1.7F) * (6 + 14 * charge)));
+            ps.mulPose(Axis.XP.rotationDegrees((float) Math.cos(time * 0.07F + n) * 8));
+            Geo.tube(vc, ps, Geo.spline(new float[][]{{0, 0, 0, 0.7F}, {d[0] * 0.5F, d[1] * 0.6F, 0.3F, 0.55F}, {d[0] * 0.95F, d[1] * 0.95F, 0.2F, 0.35F},
+                    {d[0] * 1.05F + 0.7F, d[1] * 1.1F + 0.6F, 0, 0.05F}}, 4), 8, bark, BARK_TINT, light);
+            if (n % 2 == 0) Geo.tube(vc, ps, Geo.spline(new float[][]{{d[0] * 0.4F, d[1] * 0.4F, 0.4F, 0.25F},
+                    {d[0] * 0.4F - 0.8F, d[1] * 0.4F - 1.0F, 0.8F, 0.15F}, {d[0] * 0.4F - 1.3F, d[1] * 0.4F - 1.7F, 1.0F, 0.03F}}, 3), 5,
+                    Geo.sprite("leaf"), WHITE, light);
+            ps.popPose();
         }
     }
 
     public static void mossroot(PoseStack ps, MultiBufferSource buf, int light, float time, float charge) {
         ps.pushPose();
         if (charge > 0) ps.translate(Math.sin(time * 2.9) * 0.25F * charge, 0, Math.cos(time * 3.3) * 0.2F * charge);
-        mesh("m_blade", BladeModels::mossBlade).render(ps, buf, light);
-        mesh("m_roots", BladeModels::mossRoots).render(ps, buf, light);
-        mesh("m_handle", BladeModels::mossHandle).render(ps, buf, light);
-        for (int n = 0; n < 4; n++) {
-            final int nn = n;
-            ps.pushPose();
-            ps.translate(1.2F + (n - 1.5F) * 0.4F, -10.6F, 0);
-            float sway = (float) Math.sin(time * 0.09F + n * 1.7F) * (6 + 14 * charge);
-            ps.mulPose(Axis.ZP.rotationDegrees(sway));
-            ps.mulPose(Axis.XP.rotationDegrees((float) Math.cos(time * 0.07F + n) * 8));
-            mesh("m_claw" + n, v -> mossClaw(v, nn)).render(ps, buf, light);
-            ps.popPose();
+        TextureAtlasSprite st = Geo.sprite("stone_blade");
+        Geo.blade(buf.getBuffer(Geo.CUT), ps, 48, 12, MOSS_BLADE, st, null, light, 0);
+        mossRoots(buf, ps, light, time, charge);
+        mossHandle(buf, ps, light, time, charge);
+        if (charge > 0.02F) {
+            float g = 0.15F + 0.6F * charge;
+            Geo.blade(buf.getBuffer(Geo.GLOW), ps, 24, 6, MOSS_BLADE, Geo.sprite("moss"), (t, u, c) -> {
+                float f = clamp(1 - t * 2.2F, 0, 1) * g;
+                c[0] = f * 0.6F;
+                c[1] = f;
+                c[2] = f * 0.3F;
+            }, Geo.FULL, 0.05F);
         }
-        if (charge > 0.05F || Math.sin(time * 0.05F) > 0.92F) mesh("m_glow", BladeModels::mossGlow).render(ps, buf, light);
         ps.popPose();
     }
 }
