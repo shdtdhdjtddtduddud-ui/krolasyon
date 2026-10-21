@@ -1,0 +1,27 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "equipment",
+ "pattern": [
+  "MCM",
+  "RAR",
+  " R "
+ ],
+ "key": {
+  "M": {
+   "item": "minecraft:moss_block"
+  },
+  "C": {
+   "item": "minecraft:cobblestone"
+  },
+  "R": {
+   "item": "minecraft:hanging_roots"
+  },
+  "A": {
+   "item": "minecraft:diamond_axe"
+  }
+ },
+ "result": {
+  "item": "mythblades:mossroot_cleaver",
+  "count": 1
+ }
+}

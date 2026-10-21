@@ -1,0 +1,29 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="mythblades"
+version="1.0.0"
+displayName="Krolasyon Efsane Kılıçlar"
+authors="krolasyon"
+description='''
+Üç efsane kılıç: bulut kabzalı Gökkuşağı Palası (gökkuşağı hilali fırlatır, havada bulut basamağıyla zıplar),
+kızıl damarlı elf kılıcı Kızıl Damar (vuruşlarla öz toplar, kızıl atılışla düşmana fırlar ve can çalar) ve
+köklere sarılmış taş Yosunkök Satırı (yeri döverek şok dalgası yaratır, taşları yosunlandırır, ağaç keser).
+Sandıklarda bulunabilir ya da üretilebilir.
+'''
+
+[[dependencies.mythblades]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.mythblades]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"

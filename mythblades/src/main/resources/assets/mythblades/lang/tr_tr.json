@@ -1,0 +1,15 @@
+{
+ "item.mythblades.rainbow_scimitar": "Gökkuşağı Palası",
+ "item.mythblades.crimson_vein": "Kızıl Damar",
+ "item.mythblades.mossroot_cleaver": "Yosunkök Satırı",
+ "entity.mythblades.rainbow_wave": "Gökkuşağı Hilali",
+ "tooltip.mythblades.rainbow.1": "Vuruşlar rastgele bir renk etkisi bırakır (ateş, zayıflık, parıltı, zehir, yavaşlık, körlük, havalanma)",
+ "tooltip.mythblades.rainbow.2": "Sağ tık: gökkuşağı hilali fırlat · Havada sağ tık: bulut basamağı",
+ "tooltip.mythblades.rainbow.3": "Eldeyken düşme hasarı almazsın",
+ "tooltip.mythblades.crimson.1": "Her vuruş damarlara öz doldurur ve can çalar",
+ "tooltip.mythblades.crimson.2": "Sağ tık: Kızıl Atılış — bakılan düşmana fırla, özle güçlen",
+ "tooltip.mythblades.crimson.essence": "Öz: %s / %s",
+ "tooltip.mythblades.mossroot.1": "Basılı tut ve bırak: yeri döv, şok dalgası düşmanları havaya atar",
+ "tooltip.mythblades.mossroot.2": "Taşa/toprağa sağ tık: yosunlandır · Ağaçları hızla keser",
+ "tooltip.mythblades.mossroot.3": "Yağmurda ya da çimenin üstünde kendini onarır"
+}

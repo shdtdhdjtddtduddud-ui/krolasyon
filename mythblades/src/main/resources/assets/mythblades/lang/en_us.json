@@ -1,0 +1,15 @@
+{
+ "item.mythblades.rainbow_scimitar": "Rainbow Scimitar",
+ "item.mythblades.crimson_vein": "Crimson Vein",
+ "item.mythblades.mossroot_cleaver": "Mossroot Cleaver",
+ "entity.mythblades.rainbow_wave": "Rainbow Crescent",
+ "tooltip.mythblades.rainbow.1": "Hits leave a random color effect (fire, weakness, glow, poison, slowness, blindness, levitation)",
+ "tooltip.mythblades.rainbow.2": "Right-click: throw a rainbow crescent · In mid-air: cloud step",
+ "tooltip.mythblades.rainbow.3": "No fall damage while held",
+ "tooltip.mythblades.crimson.1": "Every hit fills the veins with essence and steals life",
+ "tooltip.mythblades.crimson.2": "Right-click: Crimson Lunge — dash into the targeted enemy, stronger with essence",
+ "tooltip.mythblades.crimson.essence": "Essence: %s / %s",
+ "tooltip.mythblades.mossroot.1": "Hold and release: slam the ground, the shockwave launches enemies",
+ "tooltip.mythblades.mossroot.2": "Right-click stone/dirt: grow moss · Chops trees fast",
+ "tooltip.mythblades.mossroot.3": "Repairs itself in rain or on grass"
+}
