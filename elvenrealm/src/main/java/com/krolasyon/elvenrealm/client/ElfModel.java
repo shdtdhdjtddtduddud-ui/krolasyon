@@ -81,12 +81,14 @@ public class ElfModel extends PlayerModel<ElfEntity> {
             case NIMRAE -> 1.3F;
             case LIRAEL -> 0.8F;
             case VAELOR -> 0.85F;
+            case AERENDIL -> 1.15F;
             default -> 0.45F;
         };
         if (kind == ElfKind.CAELAN) {
             // tunik: düz, diz boyu
             skirtF.yScale = skirtB.yScale = skirtL.yScale = skirtR.yScale = 0.85F;
         }
+        if (kind == ElfKind.AERENDIL) skirtF.yScale = skirtB.yScale = skirtL.yScale = skirtR.yScale = 1.05F;
         if (kind == ElfKind.NIMRAE) skirtF.yScale = skirtB.yScale = skirtL.yScale = skirtR.yScale = 1.0F;
         if (kind == ElfKind.LIRAEL) skirtF.yScale = skirtB.yScale = skirtL.yScale = skirtR.yScale = 0.9F;
         if (kind == ElfKind.THALION) quiver.z = 4.2F;
@@ -295,6 +297,39 @@ public class ElfModel extends PlayerModel<ElfEntity> {
                 rightArm.xRot = -0.35F;
                 leftArm.xRot = -0.35F;
             }
+            case STAND -> {
+                // hazır ol: kılıç dik, sol el yanda, çene yukarıda
+                rightArm.xRot = -0.62F;
+                rightArm.yRot = -0.05F;
+                rightArm.zRot = 0.02F;
+                leftArm.xRot = 0.02F;
+                leftArm.yRot = 0F;
+                leftArm.zRot = -0.06F;
+                rightLeg.xRot = leftLeg.xRot = 0F;
+                rightLeg.yRot = leftLeg.yRot = 0F;
+                head.xRot = Math.min(head.xRot, -0.04F);
+            }
+            case SALUTE -> {
+                rightArm.xRot = -1.35F;
+                rightArm.yRot = 0.62F;
+                rightArm.zRot = 0.08F;
+                leftArm.xRot = 0.05F;
+                head.xRot = 0.12F;
+            }
+            case BOW -> {
+                // vanilya eğilme düzeni, sağ el göğüste
+                body.xRot = 0.5F;
+                body.y = 3.2F;
+                head.y = 4.2F;
+                head.xRot = 0.6F;
+                rightLeg.z = leftLeg.z = 4.0F;
+                rightLeg.y = leftLeg.y = 12.2F;
+                rightLeg.xRot = leftLeg.xRot = 0F;
+                rightArm.y = leftArm.y = 5.2F;
+                rightArm.xRot = -0.9F;
+                rightArm.yRot = 0.55F;
+                leftArm.xRot = 0.45F;
+            }
             case RECOVER -> {
                 rightArm.xRot = -0.5F;
                 rightArm.yRot = -0.5F;
@@ -336,7 +371,7 @@ public class ElfModel extends PlayerModel<ElfEntity> {
         tails.xRot = Math.max(0F, Math.max(rightLeg.xRot, leftLeg.xRot)) * 0.8F + 0.05F;
         tabardB.xRot = Math.max(0F, Math.max(rightLeg.xRot, leftLeg.xRot)) * 0.8F + 0.03F;
         tabardF.xRot = Math.min(0F, Math.min(rightLeg.xRot, leftLeg.xRot)) * 0.8F - 0.03F;
-        float flare = kind == ElfKind.CAELAN ? 0.06F : kind == ElfKind.NIMRAE ? 0.1F : 0.2F;
+        float flare = kind == ElfKind.CAELAN || kind == ElfKind.AERENDIL ? 0.06F : kind == ElfKind.NIMRAE ? 0.1F : 0.2F;
         if (a.seated()) {
             skirtF.xRot = -1.35F;
             skirtB.xRot = flare;

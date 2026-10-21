@@ -66,6 +66,7 @@ import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -88,6 +89,14 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
     private boolean empowered;
     @Nullable private UUID talkingTo;
     private final Map<UUID, Long> greeted = new HashMap<>();
+    /** Kentteki günlük program: kent merkezi (x, aşağı avlu zemini, z) ve görev yeri. */
+    @Nullable private BlockPos city;
+    private String post = "";
+    private boolean cityChecked;
+    /** Şu anki görevin adı (boş: programda değil). */
+    public String routineKey = "";
+    @Nullable private UUID lordId;
+    private int lordScan, bowCd;
     /** Yalnızca istemci: büyü/hamle animasyonu sayaçları. */
     public int castAnim, lungeAnim;
 
@@ -135,17 +144,18 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
             default -> goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.15, true));
         }
         goalSelector.addGoal(3, new FollowOwnerGoal());
+        goalSelector.addGoal(4, new RoutineGoal());
         goalSelector.addGoal(4, new MoveTowardsRestrictionGoal(this, 0.8) {
             @Override
             public boolean canUse() {
-                return !isHired() && !isTalking() && super.canUse();
+                return !hasRoutine() && !isHired() && !isTalking() && super.canUse();
             }
         });
         goalSelector.addGoal(5, new ActivityGoal());
         goalSelector.addGoal(6, new WaterAvoidingRandomStrollGoal(this, 0.55) {
             @Override
             public boolean canUse() {
-                return !isHired() && !isTalking() && getActivity() == Activity.NONE && super.canUse();
+                return !hasRoutine() && !isHired() && !isTalking() && getActivity() == Activity.NONE && super.canUse();
             }
         });
         goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 8F));
@@ -161,6 +171,7 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
         if (e instanceof Creeper && !kind.ranged() && kind.role != ElfKind.Role.ARCANE) return false;
         if (isRecovering()) return false;
         if (isHired()) return true;
+        if (city != null) return city.distSqr(e.blockPosition()) < 110 * 110;
         return home == null || home.distSqr(e.blockPosition()) < 24 * 24;
     }
 
@@ -208,7 +219,28 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
 
     public void setHome(BlockPos p) {
         home = p.immutable();
-        if (!isHired()) restrictTo(home, 14);
+        if (!isHired()) restrictHome();
+    }
+
+    private void restrictHome() {
+        if (city != null) restrictTo(city, 130);
+        else if (home != null) restrictTo(home, 14);
+    }
+
+    /** Elfi bir Sylvaren kentinin günlük programına bağlar. */
+    public void setCity(BlockPos center, String post) {
+        this.city = center.immutable();
+        this.post = post == null ? "" : post;
+        this.cityChecked = true;
+        if (!isHired()) restrictHome();
+    }
+
+    public boolean hasRoutine() {
+        return city != null;
+    }
+
+    public String post() {
+        return post;
     }
 
     @Nullable
@@ -237,7 +269,7 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
         }
         entityData.set(OWNER, Optional.empty());
         setTarget(null);
-        if (home != null) restrictTo(home, 14);
+        restrictHome();
     }
 
     public void startTalking(Player p) {
@@ -252,7 +284,7 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
     }
 
     public Component displayName() {
-        return Component.literal(kind.name).withStyle(kind == ElfKind.VAELOR ? ChatFormatting.DARK_PURPLE
+        return Component.literal(kind.name).withStyle(kind == ElfKind.AERENDIL ? ChatFormatting.YELLOW : kind == ElfKind.VAELOR ? ChatFormatting.DARK_PURPLE
                 : kind == ElfKind.NIMRAE ? ChatFormatting.GOLD : kind == ElfKind.CAELAN ? ChatFormatting.AQUA
                 : kind == ElfKind.GUARD ? ChatFormatting.GRAY : ChatFormatting.GREEN);
     }
@@ -271,6 +303,7 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
             case VAELOR -> SoundEvents.NOTE_BLOCK_BASS.value();
             case THALION, GUARD -> SoundEvents.NOTE_BLOCK_DIDGERIDOO.value();
             case NIMRAE -> SoundEvents.NOTE_BLOCK_CHIME.value();
+            case AERENDIL -> SoundEvents.NOTE_BLOCK_GUITAR.value();
             case TAVI -> SoundEvents.NOTE_BLOCK_BELL.value();
             default -> SoundEvents.NOTE_BLOCK_FLUTE.value();
         };
@@ -279,6 +312,7 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
     private ItemStack idleItem() {
         if (getActivity() == Activity.READ) return new ItemStack(Items.BOOK);
         if (getActivity() == Activity.PRACTICE || getTarget() != null) return weapon();
+        if (kind == ElfKind.AERENDIL) return getActivity() == Activity.SIT || getActivity() == Activity.PRAY ? ItemStack.EMPTY : new ItemStack(Items.BLAZE_ROD);
         return switch (kind) {
             case TAVI, THALION -> new ItemStack(Items.BOW);
             case GUARD -> new ItemStack(Items.IRON_SWORD);
@@ -293,6 +327,7 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
             case TAVI, THALION -> new ItemStack(Items.BOW);
             case GUARD -> new ItemStack(Items.IRON_SWORD);
             case CAELAN -> new ItemStack(Items.ENCHANTED_BOOK);
+            case AERENDIL -> new ItemStack(Items.BLAZE_ROD);
             default -> ItemStack.EMPTY;
         };
     }
@@ -403,7 +438,9 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
         if (abilityCd > 0) abilityCd--;
         if (supportCd > 0) supportCd--;
         if (chatterCd > 0) chatterCd--;
+        if (bowCd > 0) bowCd--;
         setAggressive(getTarget() != null);
+        if (city == null && !cityChecked && tickCount > 40 && !isHired()) inferCity();
 
         // konuşma
         if (talkingTo != null) {
@@ -545,6 +582,25 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
             return;
         }
         if (isTalking() || isRecovering() || getTarget() != null || tickCount % 20 != 0) return;
+        // lord geçerken muhafızlar selam durur, diğerleri eğilir
+        if (kind != ElfKind.AERENDIL && bowCd == 0 && hasRoutine() && !getActivity().seated()) {
+            ElfEntity lord = lord();
+            if (lord != null && lord.distanceToSqr(this) < 49 && !lord.getNavigation().isDone()) {
+                setActivity(kind == ElfKind.GUARD ? Activity.SALUTE : Activity.BOW, 45);
+                getLookControl().setLookAt(lord, 30F, 30F);
+                bowCd = 900;
+                Player p = level().getNearestPlayer(this, 12);
+                if (p != null && kind == ElfKind.GUARD && random.nextInt(3) == 0) say(p, "lord_pass", true);
+                return;
+            }
+        }
+        Player hear = level().getNearestPlayer(this, 8);
+        if (hear != null && !hear.isSpectator() && chatterCd == 0 && !routineKey.isEmpty() && Lines.has(kind, "duty_" + routineKey)
+                && random.nextInt(5) == 0) {
+            say(hear, "duty_" + routineKey, !kind.unique());
+            chatterCd = 2400 + random.nextInt(2400);
+            return;
+        }
         Player near = level().getNearestPlayer(this, 5);
         if (near == null || near.isSpectator()) return;
         Long last = greeted.get(near.getUUID());
@@ -552,7 +608,10 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
         greeted.put(near.getUUID(), now);
         if (!kind.unique() && random.nextBoolean()) return;
         say(near, "approach", true);
-        if (getActivity() == Activity.NONE || getActivity() == Activity.CROSS_ARMS) setActivity(Activity.WAVE, 40);
+        if (kind == ElfKind.GUARD && getActivity() == Activity.STAND) setActivity(Activity.SALUTE, 40);
+        else if (kind == ElfKind.AERENDIL) {
+            if (!getActivity().seated()) setActivity(Activity.WAVE, 30);
+        } else if (getActivity() == Activity.NONE || getActivity() == Activity.CROSS_ARMS || getActivity() == Activity.STAND) setActivity(Activity.WAVE, 40);
         getLookControl().setLookAt(near, 30F, 30F);
     }
 
@@ -600,6 +659,14 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
                 level().addFreshEntity(arrow);
                 if (kind == ElfKind.TAVI && random.nextInt(4) == 0) playSound(SoundEvents.PARROT_AMBIENT, 0.7F, 1.6F);
             }
+            case AERENDIL -> {
+                // Yıldız ışını: Kadim Ağaçların ışığı
+                beam(sl, target, ParticleTypes.END_ROD);
+                target.hurt(damageSources().indirectMagic(this, this), kind.damage + 4);
+                target.addEffect(new MobEffectInstance(MobEffects.GLOWING, 100, 0));
+                level().broadcastEntityEvent(this, EVENT_CAST);
+                playSound(SoundEvents.BEACON_POWER_SELECT, 1F, 1.6F);
+            }
             case CAELAN -> {
                 // Rün oku: gözle görülür bir ışın ve büyü hasarı
                 beam(sl, target, ParticleTypes.ENCHANTED_HIT);
@@ -642,6 +709,9 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
         ownerOpt().ifPresent(u -> tag.putUUID("Owner", u));
         tag.putLong("HireUntil", hireUntil);
         tag.putLong("RecoverUntil", recoverUntil);
+        if (city != null) tag.put("City", NbtUtils.writeBlockPos(city));
+        tag.putString("Post", post);
+        tag.putBoolean("CityChecked", cityChecked);
     }
 
     private Optional<UUID> ownerOpt() {
@@ -658,6 +728,8 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
         }
         hireUntil = tag.getLong("HireUntil");
         recoverUntil = tag.getLong("RecoverUntil");
+        cityChecked = tag.getBoolean("CityChecked");
+        if (tag.contains("City")) setCity(NbtUtils.readBlockPos(tag.getCompound("City")), tag.getString("Post"));
     }
 
     // ------------------------------------------------------------------ iç hedefler
@@ -732,7 +804,7 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
         @Override
         public boolean canUse() {
             if (isRecovering()) return getActivity() == Activity.RECOVER;
-            return !isHired() && !isTalking() && getTarget() == null && onGround() && getActivity() == Activity.NONE && random.nextInt(140) == 0;
+            return !hasRoutine() && !isHired() && !isTalking() && getTarget() == null && onGround() && getActivity() == Activity.NONE && random.nextInt(140) == 0;
         }
 
         @Override
@@ -772,6 +844,225 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
                 yHeadRot = getYRot();
             }
             if (chosen == Activity.KNEEL && kind == ElfKind.TAVI && random.nextInt(80) == 0) playSound(SoundEvents.PARROT_AMBIENT, 0.6F, 1.6F);
+        }
+    }
+
+    /** Eski kentlerdeki (programsız) sakinler: evleri bir kentin içindeyse programa bağlanır. */
+    private void inferCity() {
+        cityChecked = true;
+        if (home == null || !(level() instanceof ServerLevel sl) || sl.dimension() != Level.OVERWORLD) return;
+        var gen = sl.getChunkSource().getGenerator();
+        var rs = sl.getChunkSource().randomState();
+        com.krolasyon.elvenrealm.world.CityLayout.City c = com.krolasyon.elvenrealm.world.CityLayout.nearest(sl.getSeed(), gen, rs, sl,
+                home.getX(), home.getZ(), 1);
+        if (c == null || !com.krolasyon.elvenrealm.world.CityLayout.inside(c, home.getX(), home.getZ())) return;
+        BlockPos center = new BlockPos(c.cx(), com.krolasyon.elvenrealm.world.CityLayout.base(c, gen, rs, sl), c.cz());
+        setCity(center, kind.unique() ? kind.id : Routine.nearestGuardPost(center, home));
+    }
+
+    /** Aynı kentin lordu (önbellekli). */
+    @Nullable
+    ElfEntity lord() {
+        if (lordId != null && level() instanceof ServerLevel sl && sl.getEntity(lordId) instanceof ElfEntity l && l.isAlive()
+                && l.distanceToSqr(this) < 96 * 96) return l;
+        if (--lordScan > 0) return null;
+        lordScan = 100;
+        lordId = null;
+        List<ElfEntity> list = level().getEntitiesOfClass(ElfEntity.class, getBoundingBox().inflate(80), x -> x.kind == ElfKind.AERENDIL);
+        if (list.isEmpty()) return null;
+        lordId = list.get(0).getUUID();
+        return list.get(0);
+    }
+
+    /** Kentte günlük program: görev yerine (merdivenlerden geçerek) yürür, orada işini yapar; devriyeler yollarında gidip gelir. */
+    private final class RoutineGoal extends Goal {
+        @Nullable private Routine.Task task;
+        private List<Vec3> hops = List.of();
+        private int hop, recheck, repath, stuck, pause, idx, dir = 1, microCd, glance;
+        private Vec3 lastPos = Vec3.ZERO;
+
+        RoutineGoal() {
+            setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
+        }
+
+        private boolean free() {
+            return city != null && !isHired() && !isTalking() && getTarget() == null && !isRecovering() && !isPassenger();
+        }
+
+        @Override
+        public boolean canUse() {
+            return free();
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            return free();
+        }
+
+        @Override
+        public boolean requiresUpdateEveryTick() {
+            return true;
+        }
+
+        @Override
+        public void start() {
+            task = null;
+            recheck = 0;
+        }
+
+        @Override
+        public void stop() {
+            getNavigation().stop();
+            if (!getActivity().gesture() && getActivity() != Activity.RECOVER) setActivity(Activity.NONE, 0);
+            task = null;
+            routineKey = "";
+        }
+
+        @Override
+        public void tick() {
+            if (--recheck <= 0) {
+                Routine.Task t = Routine.of(ElfEntity.this, city, post, level().getDayTime());
+                if (t.escort()) t = escort(t);
+                recheck = t.escort() ? 10 : 60;
+                if (task == null || !t.key().equals(task.key()) || (t.escort() && t.pos().distanceToSqr(task.pos()) > 1.0)) begin(t);
+            }
+            if (task == null) return;
+            if (task.patrol() != null) patrolTick();
+            else if (travel(task.pos(), task.speed())) arrive(task.yaw(), task.look(), task.act(), task.pos());
+        }
+
+        private Routine.Task escort(Routine.Task t) {
+            ElfEntity l = lord();
+            if (l == null || l.routineKey.isEmpty() || l.routineKey.equals("throne")) return t;
+            float side = post.endsWith("_l") ? -1.7F : 1.7F;
+            Vec3 fw = Vec3.directionFromRotation(0, l.getYRot());
+            Vec3 right = new Vec3(-fw.z, 0, fw.x);
+            Vec3 p = l.position().subtract(fw.scale(2.3)).add(right.scale(side));
+            return new Routine.Task("escort", p, l.getYRot(), null, Activity.STAND, 0.62, null, false, true);
+        }
+
+        private void begin(Routine.Task t) {
+            boolean sameRoute = task != null && t.key().equals(task.key());
+            task = t;
+            routineKey = t.key();
+            if (!sameRoute) {
+                idx = 0;
+                dir = 1;
+                pause = 0;
+            }
+            Vec3 first = t.patrol() != null ? t.patrol().get(idx) : t.pos();
+            hops = Routine.hops(city, position(), first);
+            hop = 0;
+            stuck = 0;
+            repath = 0;
+        }
+
+        private double horiz(Vec3 p) {
+            double dx = p.x - getX(), dz = p.z - getZ();
+            return Math.sqrt(dx * dx + dz * dz);
+        }
+
+        /** Ara duraklar üzerinden yürür; true = son noktaya varıldı. */
+        private boolean travel(Vec3 dest, double speed) {
+            if (hops.isEmpty()) hops = List.of(dest);
+            while (hop < hops.size() - 1 && horiz(hops.get(hop)) < 2.0) hop++;
+            Vec3 h = hops.get(Math.min(hop, hops.size() - 1));
+            boolean last = hop >= hops.size() - 1;
+            if (last && horiz(dest) < (task != null && task.snap() ? 0.7 : 1.3) && Math.abs(dest.y - getY()) < 2.5) return true;
+            if (getActivity() != Activity.NONE && !getActivity().gesture()) setActivity(Activity.NONE, 0);
+            if (--repath <= 0 || getNavigation().isDone()) {
+                getNavigation().moveTo(h.x, h.y, h.z, speed);
+                repath = 30;
+            }
+            if (tickCount % 20 == 0) {
+                stuck = position().distanceToSqr(lastPos) < 0.09 ? stuck + 20 : 0;
+                lastPos = position();
+                boolean watched = level().getNearestPlayer(ElfEntity.this, 24) != null;
+                if ((stuck >= 200 && !watched) || stuck >= 500) {
+                    teleportTo(h.x, h.y, h.z);
+                    getNavigation().stop();
+                    stuck = 0;
+                }
+            }
+            return false;
+        }
+
+        private void arrive(float yaw, @Nullable Vec3 look, Activity act, Vec3 dest) {
+            getNavigation().stop();
+            if (task.snap() && horiz(dest) > 0.08) setPos(dest.x, Math.max(getY(), dest.y), dest.z);
+            float want = look != null ? (float) (Mth.atan2(look.z - getZ(), look.x - getX()) * (180F / Math.PI)) - 90F : yaw;
+            setYRot(Mth.approachDegrees(getYRot(), want, 12F));
+            yBodyRot = getYRot();
+            Player near = level().getNearestPlayer(ElfEntity.this, 6);
+            boolean busy = act.seated() || act == Activity.PRAY || act == Activity.READ || act == Activity.PRACTICE || act == Activity.KNEEL;
+            if (near != null && !near.isSpectator() && !busy) getLookControl().setLookAt(near, 20F, 20F);
+            else if (look != null) getLookControl().setLookAt(look.x, look.y + 1.0, look.z);
+            else glance(want);
+            if (!getActivity().gesture()) {
+                if (getActivity() != act) {
+                    setActivity(act, 400);
+                    setItemSlot(EquipmentSlot.MAINHAND, idleItem());
+                } else if (activityTimer < 40) activityTimer = 400;
+            }
+            micro(act);
+        }
+
+        /** Nöbetçiler ara sıra sağa sola bakar. */
+        private void glance(float yaw) {
+            if (--glance <= 0) glance = 60 + random.nextInt(140);
+            float off = glance > 40 ? 0F : (glance > 20 ? 50F : -50F) * (getId() % 2 == 0 ? 1 : -1);
+            Vec3 d = Vec3.directionFromRotation(0, yaw + off).scale(6);
+            getLookControl().setLookAt(getX() + d.x, getEyeY(), getZ() + d.z);
+        }
+
+        private void micro(Activity act) {
+            if (microCd > 0) microCd--;
+            if (act == Activity.PRACTICE && !kind.ranged() && random.nextInt(14) == 0) {
+                swing(InteractionHand.MAIN_HAND);
+                playSound(SoundEvents.PLAYER_ATTACK_SWEEP, 0.3F, 1.2F + random.nextFloat() * 0.3F);
+            }
+            if (act == Activity.PRACTICE && kind == ElfKind.TAVI && "archery".equals(routineKey) && microCd == 0) {
+                // nişan tahtalarına ok atar
+                int k = random.nextInt(4);
+                Vec3 tgt = Routine.at(city, 15 + k * 6, Routine.B, -49).add(0, 1.5, 0);
+                getLookControl().setLookAt(tgt.x, tgt.y, tgt.z);
+                net.minecraft.world.entity.projectile.Arrow a = new net.minecraft.world.entity.projectile.Arrow(level(), ElfEntity.this);
+                a.pickup = AbstractArrow.Pickup.DISALLOWED;
+                double dx = tgt.x - getX(), dy = tgt.y - a.getY(), dz = tgt.z - getZ();
+                a.shoot(dx, dy + Math.sqrt(dx * dx + dz * dz) * 0.06, dz, 1.9F, 3F);
+                level().addFreshEntity(a);
+                playSound(SoundEvents.SKELETON_SHOOT, 0.8F, 1.1F);
+                microCd = 50 + random.nextInt(40);
+            }
+            if (act == Activity.KNEEL && kind == ElfKind.TAVI && random.nextInt(80) == 0) playSound(SoundEvents.PARROT_AMBIENT, 0.6F, 1.6F);
+        }
+
+        private void patrolTick() {
+            List<Vec3> pts = task.patrol();
+            Vec3 target = pts.get(idx);
+            if (pause > 0) {
+                getNavigation().stop();
+                pause--;
+                float yaw = routineKey.equals("wall") ? 0F : getYRot();
+                Activity act = routineKey.equals("market") ? Activity.TALK : routineKey.equals("prowl") ? Activity.CROSS_ARMS : Activity.STAND;
+                if (!getActivity().gesture() || getActivity() == Activity.TALK) {
+                    if (getActivity() != act) setActivity(act, pause + 5);
+                }
+                setYRot(Mth.approachDegrees(getYRot(), yaw, 10F));
+                yBodyRot = getYRot();
+                glance(yaw);
+                if (pause == 0) {
+                    if (pts.size() == 2) {
+                        if (idx + dir < 0 || idx + dir >= pts.size()) dir = -dir;
+                        idx += dir;
+                    } else idx = (idx + 1) % pts.size();
+                    hops = Routine.hops(city, position(), pts.get(idx));
+                    hop = 0;
+                    if (getActivity() == act) setActivity(Activity.NONE, 0);
+                }
+                return;
+            }
+            if (travel(target, task.speed())) pause = 40 + random.nextInt(90);
         }
     }
 

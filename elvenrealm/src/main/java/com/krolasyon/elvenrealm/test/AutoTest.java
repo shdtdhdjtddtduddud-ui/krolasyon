@@ -166,7 +166,7 @@ public final class AutoTest {
         server(5, null, s -> look(s, gx + 8.0, gy + 1.4, gz + 3.5, gx + 3.5, gy + 1.0, gz));
         wait(30, "side_tavi");
         server(5, null, s -> {
-            Activity[] poses = {Activity.PRACTICE, Activity.CROSS_ARMS, Activity.READ, Activity.MEDITATE, Activity.KNEEL, Activity.WAVE, Activity.PRAY};
+            Activity[] poses = {Activity.PRACTICE, Activity.CROSS_ARMS, Activity.READ, Activity.MEDITATE, Activity.KNEEL, Activity.WAVE, Activity.SIT, Activity.STAND};
             int i = 0;
             for (ElfEntity e : gallery.values()) e.setActivity(poses[i++], 100000);
             gallery.get(ElfKind.CAELAN).setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND, new ItemStack(Items.BOOK));
@@ -270,6 +270,41 @@ public final class AutoTest {
         server(45, null, s -> look(s, city.cx(), y0 + 25, city.cz() + 55, city.cx(), y0 + 15, city.cz()));
         wait(5, "entry_title");
         client(2, null, mc -> gui = false);
+
+        // ---------------------------------------------------- yaşayan kent: nöbet yerleri, taht, lord yürüyüşü
+        server(5, null, s -> {
+            run(s, "time set 1000", "gamemode spectator @a");
+            for (ElfEntity e : s.overworld().getEntitiesOfClass(ElfEntity.class, new net.minecraft.world.phys.AABB(
+                    city.cx() - 80, y0 - 20, city.cz() - 140, city.cx() + 80, y0 + 80, city.cz() + 60))) {
+                LOG.info("[ELFTEST] resident {} post {} routine {} at {} activity {}", e.kind, e.post(), e.routineKey, e.blockPosition(), e.getActivity());
+            }
+            look(s, city.cx(), y0 + 19.5, city.cz() - 69, city.cx(), y0 + 17.5, city.cz() - 78);
+        });
+        wait(300, "lord_throne");
+        server(5, null, s -> look(s, city.cx(), y0 + 5, city.cz() + 18, city.cx(), y0 + 2, city.cz() + 28));
+        wait(120, "gate_guards");
+        server(5, null, s -> look(s, city.cx() - 30, y0 + 14, city.cz() + 22, city.cx() - 30, y0 + 11, city.cz() + 31));
+        wait(160, "wall_patrol");
+        server(5, null, s -> look(s, city.cx() + 18, y0 + 4, city.cz() + 18, city.cx() + 22, y0 + 1, city.cz() + 8));
+        wait(120, "training_yard");
+        server(5, null, s -> look(s, city.cx() + 24, y0 + 12, city.cz() - 24, city.cx() + 24, y0 + 9, city.cz() - 40));
+        wait(120, "archery");
+        server(5, null, s -> {
+            run(s, "time set 4600");
+            look(s, city.cx() - 20, y0 + 24, city.cz() - 62, city.cx() - 34, y0 + 17, city.cz() - 76);
+        });
+        wait(700, "lord_walk_pond");
+        server(5, null, s -> {
+            for (ElfEntity e : s.overworld().getEntitiesOfClass(ElfEntity.class, new net.minecraft.world.phys.AABB(
+                    city.cx() - 80, y0 - 20, city.cz() - 140, city.cx() + 80, y0 + 80, city.cz() + 60))) {
+                if (e.hasRoutine()) LOG.info("[ELFTEST] walk {} post {} routine {} at {} activity {}", e.kind, e.post(), e.routineKey, e.blockPosition(), e.getActivity());
+            }
+        });
+        server(5, null, s -> {
+            run(s, "time set 11500");
+            look(s, city.cx(), y0 + 21, city.cz() - 50, city.cx(), y0 + 17, city.cz() - 59);
+        });
+        wait(500, "lord_balcony");
         wait(20, "END");
     }
 

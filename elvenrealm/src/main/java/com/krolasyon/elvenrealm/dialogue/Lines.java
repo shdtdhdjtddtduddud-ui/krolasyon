@@ -205,6 +205,79 @@ public final class Lines {
         put(k, "night", "Gece nöbeti başladı.");
         put(k, "approach", "Dur, yabancı.", "Kimsin?");
 
+        // ------------------------------------------------------------------ AERENDIL: üç bin yaşında, ağır, bilge, hafif hüzünlü ve kuru esprili lord
+        k = ElfKind.AERENDIL;
+        put(k, "greet", "Yaklaş, genç insan. Kadim Ağaçlar senin adımlarını benden önce duydu.",
+                "Sylvaren'in tahtına hoş geldin, {p}. Otur istersen... ah, tahtta yalnızca bir kişilik yer var. Ayakta kal o hâlde.",
+                "Hmm. Bir insan. Son gelen insan bana ekmek getirmişti. Umarım sen de bir şey getirmişsindir. Sohbet de olur.");
+        put(k, "greet_friend", "{p}, evladım. Senin gelişin bu yaşlı kalbe bahar gibi geliyor.",
+                "Dostum {p}! Gel, yanımda dur. Muhafızlarım seni artık benden daha çok seviyor.");
+        put(k, "about", "Ben Aerendil, Sylvaren'in lorduyum. Bu kenti ilk taşı konduğunda gördüm; ağaçlar o zamanlar fidandı, ben ise... "
+                + "yine yaşlıydım. Taht ağırdır, evlat. Ama ağaçların kökleri daha da ağırını taşır.");
+        put(k, "city", "Sylvaren üç teras üzerine kuruldu: halkın avlusu, bilgenin terası ve bu kale. "
+                + "Her sabah tahtta halkı dinler, öğlen bahçede yürür, gün batımında surlardan ufka bakarım. Üç bin yıldır aynı ufuk. Hâlâ güzel.");
+        put(k, "gossip", "Thalion her sabah kapıyı denetler ve her sabah aynı şeyi söyler: 'Kapı güvende, lordum.' Bir gün 'kapı sıkıldı' derse endişeleneceğim.",
+                "Lirael'in kahkahası kale duvarlarından bile duyulur. Konseyde de. Özellikle konseyde.",
+                "Caelan bana kütüphanedeki her kitabı okuduğunu söyledi. Ben de ona yarısını benim yazdığımı söyledim. Hâlâ hangisi olduğunu soruyor.",
+                "Vaelor gölgelerde dolaşır. Onu yargılama; ışık herkese aynı nazik davranmadı.");
+        put(k, "gift_thanks", "Altın bir elma... Bunu en son bir ejderha kralı vermişti bana. Sen daha kibarsın. Teşekkür ederim, evlat.");
+        put(k, "gift_wrong", "Düşüncen değerli, hediyeden daha değerli. Yine de... bir lordun altın elmaya zaafı vardır.");
+        put(k, "gift_already", "Bugün yeterince cömert davrandın. Hazinem değil, gönlüm doldu.");
+        put(k, "hire_refuse", "Bir lord paralı asker olmaz, genç insan. Ama Sylvaren'in kapıları sana her zaman açık.");
+        put(k, "recovering", "Yaşlı bedenim dinlenmek istiyor... Yarın konuşalım.");
+        put(k, "farewell", "Yolun ağaçların gölgesinde olsun.", "Git ve iyi şeyler yap, evlat. Kötüleri zaten yeterince yapan var.");
+        put(k, "chatter", "Bu taht üç bin yılda bir kez bile yumuşamadı.", "Rüzgar doğudan esiyor. Güzel. Doğu rüzgarı haber getirir.");
+        put(k, "combat", "Sylvaren düşmez!", "Kadim Ağaçların öfkesini tadın!");
+        put(k, "hurt", "Hıh. Bu yaşlı kemikler daha kırılmadı.");
+        put(k, "night", "Yıldızlar yerinde. Kent uyuyor. Bir lord için bundan iyi gece olmaz.");
+        put(k, "approach", "Huzuruma çık, yolcu.", "Gel, korkma. Ben sadece yaşlıyım, tehlikeli değil.");
+        put(k, "duty_throne", "Bugün halktan üç dilekçe geldi: iki kedi kayıp, bir de Tavi'nin okları yine kale kapısına saplanmış.",
+                "Taht, dinlemek içindir, evlat. Konuşmak için değil.", "Bekle... evet, sıradaki dilekçe. Sen misin? Hayır mı? Peki.");
+        put(k, "duty_walk", "Öğle yürüyüşü... Hekimim söyledi. Hekimim de benden genç, düşünsene.",
+                "Bu bahçeyi ben diktim. Şu nilüferler hariç; onlar kendileri geldi, tıpkı senin gibi.");
+        put(k, "duty_shrine", "Nimrae ile ay için dua ederiz. Ay bizi hiç cevapsız bırakmadı.");
+        put(k, "duty_balcony", "Gün batımı... Bin kez izledim, bin kez yeni geldi.", "Buradan bütün kent görünür. Ve evet, Lirael yine çeşmede şarkı söylüyor.");
+        put(k, "lord_pass", "Muhafızlarım, rahat.");
+
+        // ------------------------------------------------------------------ görev başındaki sözler
+        k = ElfKind.LIRAEL;
+        put(k, "duty_train", "Bir, iki, döner, kes! Kuklalar bugün çok cesur, saygı duyuyorum.", "İzliyor musun? Güzel. Şimdi daha hızlı yapacağım.");
+        put(k, "duty_fountain", "Çeşmenin suyu şarkı söylüyor. Ben de eşlik ediyorum, tabii.", "Otur yanıma! Ayaklarını suya sokma ama, Lord kızıyor.");
+        put(k, "duty_market", "Pazar turu! Kimse kılıç satmıyor ama dedikodu bedava.", "Şu evdeki teyze en güzel böreği yapar. Bana hiç vermez.");
+        put(k, "duty_rest", "Kılıcım dinleniyor. Ben değil, ben hiç dinlenmem.");
+        k = ElfKind.VAELOR;
+        put(k, "duty_lurk", "...Beni görmedin.", "Gölge rahat. Işık çok soru sorar.");
+        put(k, "duty_critic", "Tavi yine sol omzunu düşürdü. Söylemeyeceğim. Kendisi bulsun.", "Ok atmak sabırdır. Tavi'de sabır yok. Bende de söz yok.");
+        put(k, "duty_prowl", "Gece benimdir. Kapılar, çatılar, sırlar.", "Sessiz ol. Kent uyuyor, ben uyumam.");
+        k = ElfKind.CAELAN;
+        put(k, "duty_read", "Şşt. Bu kitap üç yüzyıldır kimse tarafından okunmamış. Kitap da çok heyecanlı.",
+                "İlginç... dipnotlar ana metinden daha uzun. Yazarını tanırdım, şaşırmadım.");
+        put(k, "duty_council", "Konsey toplantısı. Ben konuşurum, Thalion kaşlarını çatar, Lord güler. Gelenek.");
+        put(k, "duty_pond", "Gölet kenarında okumak, kütüphanede okumaktan iki kat ilham verir. Kanıtlayamam ama hissediyorum.");
+        put(k, "duty_rest", "Gözlerim yoruldu... sadece bir bölüm daha.");
+        k = ElfKind.NIMRAE;
+        put(k, "duty_pray", "Ay sessizdir ama dinler. Sen de dinle.", "Nefes al. Ağaçlar da nefes alıyor.");
+        put(k, "duty_bless", "Çeşmenin suyunu kutsuyorum. Kim içerse kalbi hafifler. Lirael'inki zaten hafif.");
+        put(k, "duty_pond", "Göletin balıkları huzurludur. Onlardan öğreneceğimiz çok şey var.");
+        k = ElfKind.TAVI;
+        put(k, "duty_archery", "İzle izle! Bu sefer tam ortadan! ...Neredeyse.", "Vaelor bana bakıyor. Neden hep bana bakıyor?!");
+        put(k, "duty_birds", "Pırıl'a ekmek kırıntısı veriyorum. Kendisi bir kuş, söylemeye gerek yok sanırım.", "Şşş, kurbağa! Yakalayacağım. Belki.");
+        put(k, "duty_fountain", "Çeşmeye bozuk para atınca dilek oluyormuş. Ben ok attım. Kabul olur mu?");
+        put(k, "duty_rest", "Uykum geldi... ama okumu da bırakmam.");
+        k = ElfKind.THALION;
+        put(k, "duty_gate", "Kapı güvende.", "Gelen giden kayıtta. Sen de.");
+        put(k, "duty_train", "Diz kır. Kalkanı kaldır. Lirael, şov yapma.", "Talim, savaşta kan dökmemek içindir.");
+        put(k, "duty_patrol", "Devriye. Her taş yerinde mi, bakarım.", "Teraslar temiz. Sıradaki.");
+        put(k, "duty_council", "Lordum dinlesin. Ben kısa konuşurum.");
+        put(k, "duty_night", "Gece nöbeti. Meşaleler yanık, gözler açık.");
+        k = ElfKind.GUARD;
+        put(k, "duty_post", "Nöbetteyim.", "Kapı güvende.", "Geçebilirsin, yolcu.", "...");
+        put(k, "duty_wall", "Surdan her şey görünür. Şimdilik sessiz.", "Ufukta bir şey yok. İyi.");
+        put(k, "duty_patrol", "Devriye. Sorun yok.", "Avlu temiz.");
+        put(k, "duty_royal", "Lordun huzurundasın. Saygılı ol.", "Taht muhafızı. Kıpırdamam.");
+        put(k, "duty_escort", "Lord yürüyüşte. Mesafeni koru.");
+        put(k, "lord_pass", "Lordum!", "Sylvaren'in Lordu geçiyor!");
+
         // ------------------------------------------------------------------ MUHAFIZ
         k = ElfKind.GUARD;
         put(k, "greet", "Sylvaren'e hoş geldin, yabancı. Kurallara uy, ağaçlara saygı göster.",

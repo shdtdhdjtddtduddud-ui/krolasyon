@@ -20,6 +20,8 @@ public enum ElfKind {
             Parts.EARS | Parts.CLOAK_SHORT | Parts.QUIVER | Parts.BIRD),
     THALION("thalion", "Thalion", "Korucu Komutanı", false, 1.05F, 48, 6, 8, Role.RANGER, 56, 0.85F, Items.COOKED_BEEF,
             Parts.EARS | Parts.HOOD | Parts.CLOAK | Parts.TABARD | Parts.QUIVER | Parts.FEATHERS),
+    AERENDIL("aerendil", "Aerendil", "Sylvaren Lordu", false, 1.08F, 60, 8, 10, Role.ARCANE, 0, 0.7F, Items.GOLDEN_APPLE,
+            Parts.EARS | Parts.HAIR_LONG | Parts.LOCKS | Parts.CLOAK | Parts.TUNIC),
     GUARD("guard", "Sylvaren Muhafızı", "Kent Bekçisi", false, 1.02F, 30, 6, 6, Role.GUARD, 0, 0.9F, Items.BREAD,
             Parts.EARS | Parts.TABARD);
 
@@ -62,6 +64,11 @@ public enum ElfKind {
 
     public boolean unique() {
         return this != GUARD;
+    }
+
+    /** Paralı asker olarak kiralanabilir mi? (Lord ve muhafızlar kiralanmaz.) */
+    public boolean hireable() {
+        return hirePrice > 0;
     }
 
     public boolean ranged() {

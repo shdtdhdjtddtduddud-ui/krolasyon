@@ -48,7 +48,7 @@ ov.append({"predicate": {"angle": 0.984375}, "model": "elvenrealm:item/silver_le
 w(os.path.join(A, 'models', 'item', 'silver_leaf.json'), {"parent": "minecraft:item/generated", "textures": {"layer0": "elvenrealm:item/silver_leaf_16"}, "overrides": ov})
 
 kinds = [("lirael", "Lirael", "Lirael"), ("vaelor", "Vaelor", "Vaelor"), ("caelan", "Caelan", "Caelan"), ("nimrae", "Nimrae", "Nimrae"),
-         ("tavi", "Tavi", "Tavi"), ("thalion", "Thalion", "Thalion"), ("guard", "Sylvaren Muhafızı", "Sylvaren Guard")]
+         ("tavi", "Tavi", "Tavi"), ("thalion", "Thalion", "Thalion"), ("aerendil", "Lord Aerendil", "Lord Aerendil"), ("guard", "Sylvaren Muhafızı", "Sylvaren Guard")]
 tr, en = {}, {}
 for k, t, e in kinds:
     w(os.path.join(A, 'models', 'item', 'elf_%s_spawn_egg.json' % k), {"parent": "minecraft:item/template_spawn_egg"})

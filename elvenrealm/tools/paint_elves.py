@@ -728,7 +728,62 @@ def guard():
     p.save('elf_guard.png')
 
 
+def aerendil():
+    p = Painter(8)
+    skin, hair, eye = hx('#ecd2be'), hx('#e9e7e1'), hx('#6fb8d8')
+    robe, ink, gold = hx('#f3efe4'), hx('#c9a03f'), hx('#e0b84a')
+    cloak_c, fur = hx('#245a34'), hx('#f2f0ea')
+    head(p, skin, hair, eye, 'middle', brow=hx('#d8d6d0'), beard=hx('#e6e4de'), eye_glow=True)
+    ears(p, skin, jewel=gold)
+    # altın taç bandı (şapka katmanının dört yanında) ve önde zümrüt
+    def crown(u, v, w, h):
+        if 1.0 < v < 1.9:
+            return p.noise(gold if int(u * 2) % 3 else hx('#fff1b0'), 0.05)
+        if 0.3 < v <= 1.0 and abs((u % 2.0) - 1.0) < 0.3:
+            return p.noise(gold, 0.05)
+        return None
+
+    def crown_front(u, v, w, h):
+        if 0.6 < v < 2.2 and abs(u - w / 2) < 0.7:
+            return p.noise(hx('#2fbf6a') if 1.0 < v < 1.9 and abs(u - w / 2) < 0.45 else gold, 0.04)
+        return crown(u, v, w, h)
+    p.face(40, 8, 8, 8, crown_front)
+    for x0 in (32, 48, 56):
+        p.face(x0, 8, 8, 8, crown)
+    tun = rune_fn(p, robe, ink)
+
+    def torso(u, v, w, h):
+        if v < 1.0:
+            return p.noise(fur, 0.08)
+        if 9.6 < v < 10.6:
+            return p.noise(gold, 0.05)
+        if abs(u - w / 2) < 0.5:
+            return p.noise(gold, 0.05)
+        # sakalın göğüse inen ucu
+        if v < 3.2 and abs(u - w / 2) < (3.2 - v) * 0.9:
+            return hair_fn(p, hx('#e6e4de'), hx('#ffffff'), hx('#bdbab2'))(u, v, w, h)
+        return tun(u, v, w, h)
+
+    body(p, torso)
+    arms(p, False, arm_fn(p, skin, 11.2, tun, cuff=gold), hand=flat(p, skin))
+    legs(p, boot_leg(p, robe, hx('#6b4a2a'), 9.0, top_band=gold))
+
+    def sk(u, v, w, h):
+        if v > h - 0.9:
+            return p.noise(gold, 0.06)
+        if abs(u - w / 2) < 0.4:
+            return p.noise(gold, 0.05)
+        return tun(u, v, w, h)
+    skirt(p, sk)
+    cloak_part(p, celtic_band(p, cloak_c, gold, 2.0), inner=flat(p, hx('#7a1f2a')))
+    p.box(86, 44, 10, 3, 6, all=fur_fn(p, fur, hx('#ffffff'), hx('#c8c4ba')))
+    long_hair(p, hair)
+    p.save('elf_aerendil.png')
+
+
 if __name__ == '__main__':
-    for f in (lirael, vaelor, caelan, nimrae, tavi, thalion, guard):
-        f()
+    only = sys.argv[2:]
+    for f in (lirael, vaelor, caelan, nimrae, tavi, thalion, guard, aerendil):
+        if not only or f.__name__ in only:
+            f()
     print('ok', OUT)

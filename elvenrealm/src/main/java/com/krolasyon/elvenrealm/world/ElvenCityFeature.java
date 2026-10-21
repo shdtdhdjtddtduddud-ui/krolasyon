@@ -219,14 +219,27 @@ public final class ElvenCityFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     private static void spawn(WorldGenLevel level, ServerLevel server, CityPlan plan, ChunkPos cp) {
+        CityCensus census = CityCensus.get(server);
         for (CityPlan.Npc n : plan.npcs) {
             if ((n.x() >> 4) != cp.x || (n.z() >> 4) != cp.z) continue;
-            ElfEntity e = ElvenRealm.TYPES.get(n.kind()).get().create(server);
+            if (n.v2() && census.has(plan.city.seed(), n.post())) continue;
+            ElfEntity e = create(server, plan, n);
             if (e == null) continue;
-            e.moveTo(n.x() + 0.5, n.y(), n.z() + 0.5, Noise.hash(plan.city.seed(), n.x(), 0, n.z()) < 0.5 ? 180F : 0F, 0F);
-            e.setHome(new BlockPos(n.x(), n.y(), n.z()));
             e.finalizeSpawn(level, level.getCurrentDifficultyAt(e.blockPosition()), MobSpawnType.STRUCTURE, null, null);
             level.addFreshEntityWithPassengers(e);
+            census.mark(plan.city.seed(), n.post());
         }
+    }
+
+    /** Planlı bir sakini yaratır ve kentin günlük programına bağlar. */
+    @javax.annotation.Nullable
+    public static ElfEntity create(ServerLevel server, CityPlan plan, CityPlan.Npc n) {
+        ElfEntity e = ElvenRealm.TYPES.get(n.kind()).get().create(server);
+        if (e == null) return null;
+        e.moveTo(n.x() + 0.5, n.y(), n.z() + 0.5, n.post().startsWith("royal") || n.kind() == com.krolasyon.elvenrealm.entity.ElfKind.AERENDIL
+                ? 0F : Noise.hash(plan.city.seed(), n.x(), 0, n.z()) < 0.5 ? 180F : 0F, 0F);
+        e.setHome(new BlockPos(n.x(), n.y(), n.z()));
+        e.setCity(new BlockPos(plan.cx, plan.yA, plan.cz), n.post());
+        return e;
     }
 }

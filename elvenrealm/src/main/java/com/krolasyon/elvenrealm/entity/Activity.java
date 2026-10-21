@@ -2,7 +2,13 @@ package com.krolasyon.elvenrealm.entity;
 
 /** Elfin boşta yaptığı iş; istemciye eşitlenir ve modelin pozunu belirler. */
 public enum Activity {
-    NONE, TALK, WAVE, CROSS_ARMS, READ, MEDITATE, KNEEL, PRACTICE, SIT, PRAY, RECOVER;
+    NONE, TALK, WAVE, CROSS_ARMS, READ, MEDITATE, KNEEL, PRACTICE, SIT, PRAY, RECOVER,
+    /** Nöbette hazır ol duruşu. */
+    STAND,
+    /** Göğse yumruk: selam. */
+    SALUTE,
+    /** Saygıyla eğilme. */
+    BOW;
 
     public static Activity of(int i) {
         return i >= 0 && i < values().length ? values()[i] : NONE;
@@ -17,8 +23,14 @@ public enum Activity {
             case NIMRAE -> new Activity[]{MEDITATE, MEDITATE, PRAY, KNEEL};
             case TAVI -> new Activity[]{KNEEL, PRACTICE, SIT, PRACTICE};
             case THALION -> new Activity[]{CROSS_ARMS, PRACTICE, KNEEL};
-            case GUARD -> new Activity[]{CROSS_ARMS, CROSS_ARMS};
+            case AERENDIL -> new Activity[]{SIT, READ, CROSS_ARMS};
+            case GUARD -> new Activity[]{STAND, CROSS_ARMS};
         };
+    }
+
+    /** Kısa süreli jest (rutin bunları bölmez). */
+    public boolean gesture() {
+        return this == WAVE || this == SALUTE || this == BOW || this == TALK;
     }
 
     public boolean seated() {

@@ -89,7 +89,7 @@ public final class DialogueManager {
         if (elf.isHired() && p.getUUID().equals(elf.ownerId())) {
             o.add(new Option(Component.literal("Sözleşmeyi bir gün uzatalım. ").append(gray("(" + k.hirePrice + " zümrüt)")), "extend"));
             o.add(opt("Artık yollarımız ayrılsın.", "dismiss"));
-        } else if (!elf.isHired()) {
+        } else if (!elf.isHired() && k.hireable()) {
             o.add(new Option(Component.literal("[Paralı Asker] ").withStyle(ChatFormatting.AQUA)
                     .append(Component.literal("Benimle yola çık.").withStyle(ChatFormatting.WHITE)).append(gray(" (" + k.hirePrice + " zümrüt / gün)")), "hire"));
         }

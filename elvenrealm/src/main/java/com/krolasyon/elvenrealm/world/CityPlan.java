@@ -24,7 +24,12 @@ import java.util.Map;
  * yazılır; dev ağaçlar ayrıca {@link GiantTree} ilkel şekilleriyle tanımlanır. Koordinatlar mutlak.
  */
 public final class CityPlan {
-    public record Npc(ElfKind kind, int x, int y, int z) {}
+    /** Sakin: görev yeri (post) ve sürüm (v2 = yaşayan kent güncellemesiyle eklenenler; eski kentlere sonradan yerleştirilir). */
+    public record Npc(ElfKind kind, int x, int y, int z, String post, boolean v2) {
+        Npc(ElfKind kind, int x, int y, int z, String post) {
+            this(kind, x, y, z, post, false);
+        }
+    }
 
     public final CityLayout.City city;
     public final int y0, cx, cz;
@@ -196,16 +201,24 @@ public final class CityPlan {
         trees.add(new GiantTree(seed + 202, cx + 38, yC, cz - 100));
 
         // sakinler
-        npcs.add(new Npc(ElfKind.LIRAEL, cx + 20, yA + 1, cz + 8));
-        npcs.add(new Npc(ElfKind.VAELOR, cx - 14, yA + 1, cz + 24));
-        npcs.add(new Npc(ElfKind.THALION, cx + 13, yA + 1, cz + 24));
-        npcs.add(new Npc(ElfKind.CAELAN, cx - 17, yB + 1, cz - 44));
-        npcs.add(new Npc(ElfKind.TAVI, cx + 22, yB + 1, cz - 34));
-        npcs.add(new Npc(ElfKind.NIMRAE, cx + 34, yC + 1, cz - 76));
-        npcs.add(new Npc(ElfKind.GUARD, cx - 5, yA + 1, cz + 27));
-        npcs.add(new Npc(ElfKind.GUARD, cx + 5, yA + 1, cz + 27));
-        npcs.add(new Npc(ElfKind.GUARD, cx + 7, yB + 1, cz - 27));
-        npcs.add(new Npc(ElfKind.GUARD, cx - 4, yC + 1, cz - 60));
+        npcs.add(new Npc(ElfKind.LIRAEL, cx + 20, yA + 1, cz + 8, "lirael"));
+        npcs.add(new Npc(ElfKind.VAELOR, cx - 14, yA + 1, cz + 24, "vaelor"));
+        npcs.add(new Npc(ElfKind.THALION, cx + 13, yA + 1, cz + 24, "thalion"));
+        npcs.add(new Npc(ElfKind.CAELAN, cx - 17, yB + 1, cz - 44, "caelan"));
+        npcs.add(new Npc(ElfKind.TAVI, cx + 22, yB + 1, cz - 34, "tavi"));
+        npcs.add(new Npc(ElfKind.NIMRAE, cx + 34, yC + 1, cz - 76, "nimrae"));
+        npcs.add(new Npc(ElfKind.GUARD, cx - 5, yA + 1, cz + 27, "gate_l"));
+        npcs.add(new Npc(ElfKind.GUARD, cx + 5, yA + 1, cz + 27, "gate_r"));
+        npcs.add(new Npc(ElfKind.GUARD, cx + 7, yB + 1, cz - 27, "terrace"));
+        npcs.add(new Npc(ElfKind.GUARD, cx - 4, yC + 1, cz - 60, "castle_l"));
+        // yaşayan kent: lord tahtında, taht muhafızları, kale kapısı, sur devriyeleri, avlu devriyesi
+        npcs.add(new Npc(ElfKind.AERENDIL, cx, yC + 1, cz - 76, "aerendil", true));
+        npcs.add(new Npc(ElfKind.GUARD, cx - 3, yC + 1, cz - 76, "royal_l", true));
+        npcs.add(new Npc(ElfKind.GUARD, cx + 3, yC + 1, cz - 76, "royal_r", true));
+        npcs.add(new Npc(ElfKind.GUARD, cx + 3, yC + 1, cz - 60, "castle_r", true));
+        npcs.add(new Npc(ElfKind.GUARD, cx - 30, yA + 10, cz + 31, "wall_l", true));
+        npcs.add(new Npc(ElfKind.GUARD, cx + 30, yA + 10, cz + 31, "wall_r", true));
+        npcs.add(new Npc(ElfKind.GUARD, cx, yA + 1, cz + 20, "patrol_a", true));
     }
 
     /** Zemin döşemeleri (teras yüzeylerinin üstü feature tarafından çimle kaplanır; burada sadece taş zeminler). */
