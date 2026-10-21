@@ -163,30 +163,50 @@ public final class Scenes {
         return Math.abs(dx) <= CityLayout.MAX_X + r && dz >= CityLayout.MIN_Z - r && dz <= CityLayout.MAX_Z + r;
     }
 
-    /** Kapı önündeki alanı ağaçlardan arındırır (sunucu). */
+    /** Kapı önündeki alanı ağaçlardan arındırıp kent zemini seviyesinde düz bir meydana çevirir (sunucu). */
     private static void clearField(Director d) {
         ServerLevel l = d.lvl();
         W w = d.w;
         BlockPos.MutableBlockPos p = new BlockPos.MutableBlockPos();
-        int removed = 0;
-        for (int x = w.fx - 40; x <= w.fx + 40; x++) {
-            for (int z = w.fz - 34; z <= w.fz + 34; z++) {
+        int x0 = w.fx - 46, x1 = w.fx + 46, z0 = w.fz - 38, z1 = w.fz + 40;
+        for (int x = x0; x <= x1; x++) {
+            for (int z = z0; z <= z1; z++) {
                 int top = l.getHeight(Heightmap.Types.WORLD_SURFACE, x, z);
-                for (int y = top; y > top - 48; y--) {
+                for (int y = top; y > top - 60; y--) {
                     p.set(x, y, z);
                     BlockState b = l.getBlockState(p);
                     if (b.isAir()) continue;
                     if (removable(b)) {
                         l.setBlock(p, Blocks.AIR.defaultBlockState(), 2 | 16);
-                        removed++;
                         continue;
                     }
                     break;
                 }
             }
         }
-        w.fy = d.ground(w.fx, w.fz);
-        Director.LOG.info("[FILM] field cleared {} blocks, ground {}", removed, w.fy);
+        int g = w.y0;
+        for (int x = x0; x <= x1; x++) {
+            for (int z = z0; z <= z1; z++) {
+                int edge = Math.min(Math.min(x - x0, x1 - x), z1 - z);
+                float wt = Math.min(1F, edge / 9F);
+                int ng = d.ground(x, z) - 1;
+                int h = Math.round(g + (ng - g) * (1F - wt));
+                int topClear = Math.max(ng, h) + 2;
+                for (int y = h + 1; y <= topClear + 40 && y < l.getMaxBuildHeight(); y++) {
+                    p.set(x, y, z);
+                    if (!l.getBlockState(p).isAir()) l.setBlock(p, Blocks.AIR.defaultBlockState(), 2 | 16);
+                }
+                p.set(x, h, z);
+                l.setBlock(p, Blocks.GRASS_BLOCK.defaultBlockState(), 2 | 16);
+                for (int y = h - 1; y >= h - 6; y--) {
+                    p.set(x, y, z);
+                    BlockState b = l.getBlockState(p);
+                    if (b.isAir() || !b.getFluidState().isEmpty() || removable(b)) l.setBlock(p, Blocks.DIRT.defaultBlockState(), 2 | 16);
+                }
+            }
+        }
+        w.fy = g + 1;
+        Director.LOG.info("[FILM] field flattened at {}", w.fy);
     }
 
     private static boolean removable(BlockState b) {
@@ -524,7 +544,7 @@ public final class Scenes {
                     double dx = d.w.cx - d.w.isl.cx(), dz = d.w.cz - d.w.isl.cz();
                     float toCity = (float) Math.toDegrees(Math.atan2(-dx, dz));
                     float yaw = toCity - 25F + 50F * (float) Math.sin(u * Math.PI * 1.2);
-                    float pitch = -6F + 26F * Cam.ease((u - 0.3F) / 0.25F) - 22F * Cam.ease((u - 0.65F) / 0.25F);
+                    float pitch = -8F + 16F * Cam.ease((u - 0.3F) / 0.25F) - 14F * Cam.ease((u - 0.65F) / 0.25F);
                     return new float[]{yaw, pitch};
                 })
                 .cam((d, t, u) -> {
@@ -685,7 +705,7 @@ public final class Scenes {
                     stand(d, d.w.fx + 0.5, d.w.fz + 0.5, 0F, 0F);
                     gear(d, "emerald_eye_ring", "skull_ring", "explorer_goggles", "alchemist_belt", "expedition_pack");
                     hotbar(d, "advgear:heart_tonic");
-                    d.cmd("xp add @a 300 levels", "time set 5000");
+                    d.cmd("xp add @a 300 levels", "xp add @a 60000 points", "time set 5000");
                 })
                 .aim((d, t, u) -> new float[]{0F, 0F})
                 .cam((d, t, u) -> Cam.orbit(pt(d, "me").add(0, 1.1, 0), 4.2, 0.6, 30, 200, u, v(0, 0.35, 0), 58)));
@@ -972,17 +992,17 @@ public final class Scenes {
                         Vec3 c = pt(d, "core");
                         if (l.getBlockEntity(BlockPos.containing(c)) instanceof AetherCoreBlockEntity be) be.setActive(false);
                     });
-                    d.cmd("time set 15500", "weather thunder 1000000");
+                    d.cmd("time set 12700", "weather clear 1000000");
                     stand(d, d.w.fx + 0.5, d.w.fz - 4.5, 0F, -6F);
                     hotbar(d, "emeraldblade:emerald_root_blade", "sylvanarchery:sylvan_bow", "quiver", "advgear:black_grimoire");
                     d.select(0);
                     ally(d, ElfKind.THALION, "thalion", d.w.fx - 5.5, d.w.fz - 8.5, true);
                 }).settle(60)
-                .at(20, d -> lightning(d, F(d, 4, 0, 19)))
-                .at(36, d -> lightning(d, F(d, -4, 0, 21)))
-                .at(52, d -> lightning(d, F(d, 0, 0, 20)))
-                .at(55, d -> d.server(l -> d.spawn("revenge", "krolasyonbosses:revenge", d.w.fx + 0.5, d.ground(d.w.fx, d.w.fz + 20), d.w.fz + 20.5, 180F, null)))
-                .cam((d, t, u) -> Cam.move(F(d, 5, 0.7, 6), F(d, 2.5, 1.2, 11), F(d, 0, 5, 20), F(d, 0, 4, 20), u, -4, 0, 70)));
+                .at(20, d -> lightning(d, F(d, 4, 0, 13)))
+                .at(36, d -> lightning(d, F(d, -4, 0, 15)))
+                .at(52, d -> lightning(d, F(d, 0, 0, 14)))
+                .at(55, d -> d.server(l -> d.spawn("revenge", "krolasyonbosses:revenge", d.w.fx + 0.5, d.ground(d.w.fx, d.w.fz + 14), d.w.fz + 14.5, 180F, null)))
+                .cam((d, t, u) -> Cam.move(F(d, 5, 0.7, 1), F(d, 2.5, 1.2, 6), F(d, 0, 5, 14), F(d, 0, 4, 14), u, -4, 0, 70)));
 
         s.add(new Shot("boss_wave", 190).play()
                 .setup(d -> d.select(0))
@@ -998,7 +1018,7 @@ public final class Scenes {
         s.add(new Shot("boss_ability", 170).hud(1).view(CameraType.THIRD_PERSON_BACK)
                 .at(10, d -> force(d, "revenge", 1, null))
                 .at(90, d -> force(d, "revenge", 2, null))
-                .cam((d, t, u) -> Cam.orbit(d.pos("revenge", F(d, 0, 0, 20)), 13, 4, 200, 290, u, v(0, 2.5, 0), 70)));
+                .cam((d, t, u) -> Cam.orbit(d.pos("revenge", F(d, 0, 0, 14)), 13, 4, 200, 290, u, v(0, 2.5, 0), 70)));
 
         s.add(new Shot("boss_storm", 160).play()
                 .setup(d -> d.select(3))
@@ -1030,13 +1050,13 @@ public final class Scenes {
         s.add(new Shot("demon_arrive", 220).hud(1)
                 .title("KALP İBLİSİ", "Kanla beslenen kadim iblis", 45, 120, 1, RED)
                 .accent(25, S_BOOM, 0.6F, 0.6F)
-                .at(15, d -> lightning(d, F(d, 10, 0, 25)))
+                .at(15, d -> lightning(d, F(d, 8, 0, 18)))
                 .at(25, d -> d.server(l -> {
-                    d.spawn("demon", "krolasyonbosses:heart_demon", d.w.fx + 10.5, d.ground(d.w.fx + 10, d.w.fz + 25), d.w.fz + 25.5, 160F, null);
-                    l.sendParticles(net.minecraft.core.particles.ParticleTypes.EXPLOSION_EMITTER, d.w.fx + 10.5, d.w.fy + 1, d.w.fz + 25.5, 2, 1, 1, 1, 0);
+                    d.spawn("demon", "krolasyonbosses:heart_demon", d.w.fx + 8.5, d.ground(d.w.fx + 8, d.w.fz + 18), d.w.fz + 18.5, 160F, null);
+                    l.sendParticles(net.minecraft.core.particles.ParticleTypes.EXPLOSION_EMITTER, d.w.fx + 8.5, d.w.fy + 1, d.w.fz + 18.5, 2, 1, 1, 1, 0);
                 }))
                 .at(110, d -> force(d, "demon", 0, null))
-                .cam((d, t, u) -> Cam.move(F(d, 2, 1.0, 12), F(d, 5, 2.2, 15), F(d, 10, 4, 25), F(d, 10, 3.5, 25), u, 3, 0, 70)));
+                .cam((d, t, u) -> Cam.move(F(d, 1, 1.0, 6), F(d, 4, 2.2, 9), F(d, 8, 4, 18), F(d, 8, 3.5, 18), u, 3, 0, 70)));
 
         s.add(new Shot("boss_volley", 190).play()
                 .setup(d -> {
@@ -1076,7 +1096,7 @@ public final class Scenes {
                 .at(110, d -> force(d, "revenge", 5, "elf4"))
                 .at(160, d -> force(d, "demon", 5, "thalion"))
                 .cam((d, t, u) -> {
-                    Vec3 a = d.pos("revenge", F(d, 0, 0, 20)), b = d.pos("demon", F(d, 10, 0, 25));
+                    Vec3 a = d.pos("revenge", F(d, 0, 0, 20)), b = d.pos("demon", F(d, 8, 0, 18));
                     return Cam.orbit(Cam.lerp(a, b, 0.5), 20, 7, 160, 260, u, v(0, 2, 0), 72);
                 }));
 
@@ -1105,7 +1125,7 @@ public final class Scenes {
                 .at(25, d -> d.server(l -> {
                     if (boss(d, "demon") != null) boss(d, "demon").kill();
                 }))
-                .cam((d, t, u) -> Cam.orbit(d.pos("demon", F(d, 10, 0, 25)), 11, 3.0, 90, 160, u, v(0, 2.2, 0), 66)));
+                .cam((d, t, u) -> Cam.orbit(d.pos("demon", F(d, 8, 0, 18)), 11, 3.0, 90, 160, u, v(0, 2.2, 0), 66)));
 
         s.add(new Shot("victory", 240).play().hud(2)
                 .title("ZAFER!", "Sylvaren kurtuldu", 30, 140, 1, GOLD)
@@ -1146,7 +1166,7 @@ public final class Scenes {
                     List<Vec3> pts = List.of(C(d, 0, 30, 150), C(d, 0, 38, 70), C(d, 0, 58, -25), C(d, 0, 92, -110), C(d, 0, 132, -190));
                     Vec3 p = Cam.spline(pts, Cam.soft(u));
                     Vec3 ahead = Cam.spline(pts, Math.min(1F, Cam.soft(u) + 0.12F));
-                    return Cam.look(p, ahead.add(0, -22, 0), 0, 74);
+                    return Cam.look(p, ahead.add(0, -45 - 40 * u, 0), 0, 74);
                 });
         for (int i = 0; i < credits.length; i++) outro.title(credits[i], "", 30 + i * 38, 40, 2, 0xF4E6C0);
         s.add(outro);
@@ -1155,7 +1175,7 @@ public final class Scenes {
                 .title("KROLASYON", "Macera seni bekliyor...", 20, 175, 3, GOLD)
                 .accent(20, S_BOOM, 0.4F, 0.5F).accent(20, S_BEACON, 0.6F, 0.7F)
                 .every((d, t) -> d.server(l -> l.setDayTime(l.getDayTime() + 3)))
-                .cam((d, t, u) -> Cam.move(C(d, 60, 150, 60), C(d, 75, 170, 80), C(d, -60, 80, -120), C(d, -80, 95, -140), u, 0, 0, 74)));
+                .cam((d, t, u) -> Cam.move(C(d, 70, 75, 95), C(d, 95, 105, 125), C(d, 0, 20, -40), C(d, 0, 25, -50), u, 0, 0, 72)));
 
         return s;
     }

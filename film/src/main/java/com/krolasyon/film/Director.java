@@ -316,7 +316,10 @@ public final class Director {
         if (!m.find()) return stateTick > 200;
         int rendered = Integer.parseInt(m.group(1));
         int pending = Integer.parseInt(m.group(3)) + Integer.parseInt(m.group(4));
-        if (rendered == lastRendered && pending == 0) stableTicks++;
+        int rd = mc.options.getEffectiveRenderDistance();
+        int want = (int) ((2 * rd + 1) * (2 * rd + 1) * 0.8);
+        boolean loaded = mc.level.getChunkSource().getLoadedChunksCount() >= want || stateTick > 900;
+        if (rendered == lastRendered && pending == 0 && loaded) stableTicks++;
         else stableTicks = 0;
         lastRendered = rendered;
         return stableTicks >= 30;
@@ -557,9 +560,10 @@ public final class Director {
             case 2 -> { scale = 1.35F; cy = gh * 0.76F; grow = 1F; }
             default -> { scale = 4.6F; cy = gh * 0.42F; text = spaced(text); }
         }
-        scale *= grow;
         Component c = Component.literal(text).withStyle(ChatFormatting.BOLD);
         int tw = font.width(c);
+        scale = Math.min(scale, gw * 0.86F / Math.max(1, tw));
+        scale *= grow;
         g.pose().pushPose();
         g.pose().translate(gw / 2F, cy, 0);
         g.pose().scale(scale, scale, 1);

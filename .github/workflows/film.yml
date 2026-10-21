@@ -97,7 +97,7 @@ jobs:
             ffmpeg -v error -i out/krolasyon_film.mp4 -vf "fps=1/6,scale=640:-1" out/frames/f_%03d.jpg
             cd out/frames && zip -q ../frames.zip *.jpg && cd ..
           fi
-          cd out && zip -q logs.zip *.log events.jsonl 2>/dev/null; ls -la
+          cd "$GITHUB_WORKSPACE/film/out" && zip -q logs.zip *.log events.jsonl 2>/dev/null; ls -la
       - name: Publish release
         if: always()
         shell: bash
