@@ -122,13 +122,13 @@ public final class Routine {
 
     private static Task lord(BlockPos c, int t) {
         Vec3 throne = at(c, 0, C, -78).add(0, 0.5, 0);
-        if (t < 4500) return new Task("throne", throne, 0F, null, Activity.SIT, 0.4, null, true, false);
-        if (t < 5200) return face("walk", at(c, -16, B, -42), at(c, -31, B, -41), Activity.CROSS_ARMS, 0.4);
-        if (t < 5900) return face("walk", at(c, 24, B, -28), at(c, 24, B, -36), Activity.CROSS_ARMS, 0.4);
-        if (t < 6500) return stay("balcony", at(c, 0, C, -59), 0F, Activity.CROSS_ARMS, 0.4);
-        if (t < 11000) return new Task("throne", throne, 0F, null, Activity.SIT, 0.4, null, true, false);
-        if (t < 12600) return stay("balcony", at(c, 0, C, -59), 0F, Activity.CROSS_ARMS, 0.4);
-        return new Task("throne", throne, 0F, null, Activity.SIT, 0.4, null, true, false);
+        if (t < 4500) return new Task("throne", throne, 0F, null, Activity.SIT, 0.5, null, true, false);
+        if (t < 5200) return face("walk", at(c, -16, B, -42), at(c, -31, B, -41), Activity.CROSS_ARMS, 0.5);
+        if (t < 5900) return face("walk", at(c, 24, B, -28), at(c, 24, B, -36), Activity.CROSS_ARMS, 0.5);
+        if (t < 6500) return stay("balcony", at(c, 0, C, -59), 0F, Activity.CROSS_ARMS, 0.5);
+        if (t < 11000) return new Task("throne", throne, 0F, null, Activity.SIT, 0.5, null, true, false);
+        if (t < 12600) return stay("balcony", at(c, 0, C, -59), 0F, Activity.CROSS_ARMS, 0.5);
+        return new Task("throne", throne, 0F, null, Activity.SIT, 0.5, null, true, false);
     }
 
     private static Task guard(ElfEntity e, BlockPos c, String post, boolean night) {
