@@ -211,7 +211,7 @@ public final class Director {
         Vec3 eye = me().add(0, p.getEyeHeight(), 0);
         double dx = target.x - eye.x, dy = target.y - eye.y, dz = target.z - eye.z;
         float yaw = (float) Math.toDegrees(Math.atan2(-dx, dz));
-        float pitch = (float) -Math.toDegrees(Math.atan2(dy, Math.sqrt(dx * dx + dz * dz)));
+        float pitch = Mth.clamp((float) -Math.toDegrees(Math.atan2(dy, Math.sqrt(dx * dx + dz * dz))), -35F, 50F);
         if (soft >= 1F) return new float[]{yaw, pitch};
         float cy = p.getYRot(), cp = p.getXRot();
         return new float[]{cy + Mth.wrapDegrees(yaw - cy) * soft, cp + (pitch - cp) * soft};
@@ -318,7 +318,11 @@ public final class Director {
         int pending = Integer.parseInt(m.group(3)) + Integer.parseInt(m.group(4));
         int rd = mc.options.getEffectiveRenderDistance();
         int want = (int) ((2 * rd + 1) * (2 * rd + 1) * 0.8);
-        boolean loaded = mc.level.getChunkSource().getLoadedChunksCount() >= want || stateTick > 900;
+        int pcx = mc.player.chunkPosition().x, pcz = mc.player.chunkPosition().z, have = 0;
+        for (int x = -rd; x <= rd; x++)
+            for (int z = -rd; z <= rd; z++)
+                if (mc.level.getChunkSource().hasChunk(pcx + x, pcz + z)) have++;
+        boolean loaded = (have >= want && stateTick > 60) || stateTick > 1500;
         if (rendered == lastRendered && pending == 0 && loaded) stableTicks++;
         else stableTicks = 0;
         lastRendered = rendered;
@@ -611,9 +615,17 @@ public final class Director {
 
     // ------------------------------------------------------------------ oyuncu ve dostlar ölmesin
 
+    /** Final sahnesine kadar bosslar ölmesin. */
+    public volatile boolean bossMortal;
+
     @SubscribeEvent
     public void onDamage(LivingDamageEvent event) {
         var e = event.getEntity();
+        if (e instanceof com.krolasyon.bosses.entity.BossEntity && !bossMortal) {
+            float min = e.getMaxHealth() * 0.3F;
+            if (e.getHealth() - event.getAmount() < min) event.setAmount(Math.max(0, e.getHealth() - min));
+            return;
+        }
         float keep = e instanceof ServerPlayer ? 8F : (e instanceof com.krolasyon.elvenrealm.entity.ElfEntity
                 || e instanceof com.krolasyon.stormray.entity.StormRayEntity) ? 12F : -1F;
         if (keep < 0) return;

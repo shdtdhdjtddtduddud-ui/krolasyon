@@ -187,7 +187,7 @@ public final class Scenes {
         int g = w.y0;
         for (int x = x0; x <= x1; x++) {
             for (int z = z0; z <= z1; z++) {
-                int edge = Math.min(Math.min(x - x0, x1 - x), z1 - z);
+                int edge = Math.min(Math.min(x - x0, x1 - x), Math.min(z1 - z, z - z0 + 4));
                 float wt = Math.min(1F, edge / 9F);
                 int ng = d.ground(x, z) - 1;
                 int h = Math.round(g + (ng - g) * (1F - wt));
@@ -544,7 +544,7 @@ public final class Scenes {
                     double dx = d.w.cx - d.w.isl.cx(), dz = d.w.cz - d.w.isl.cz();
                     float toCity = (float) Math.toDegrees(Math.atan2(-dx, dz));
                     float yaw = toCity - 25F + 50F * (float) Math.sin(u * Math.PI * 1.2);
-                    float pitch = -8F + 16F * Cam.ease((u - 0.3F) / 0.25F) - 14F * Cam.ease((u - 0.65F) / 0.25F);
+                    float pitch = -4F + 5F * (float) Math.sin(u * Math.PI * 2);
                     return new float[]{yaw, pitch};
                 })
                 .cam((d, t, u) -> {
@@ -594,10 +594,10 @@ public final class Scenes {
 
         s.add(new Shot("city_walk", 260).play()
                 .setup(d -> {
-                    stand(d, d.w.cx + 0.5, d.w.cz + 72.5, 180F, 0F);
+                    stand(d, d.w.cx + 0.5, d.w.cz + 42.5, 180F, 0F);
                     hotbar(d);
                     d.select(8);
-                    ally(d, ElfKind.TAVI, "tavi_wave", d.w.cx + 4.5, d.w.cz + 40.5, false);
+                    ally(d, ElfKind.TAVI, "tavi_wave", d.w.cx + 4.5, d.w.cz + 22.5, false);
                     d.server(l -> {
                         if (elf(d, "tavi_wave") != null) {
                             elf(d, "tavi_wave").setActivity(Activity.WAVE, 100000);
@@ -817,7 +817,7 @@ public final class Scenes {
                     d.cmd("time set 5200");
                 }).settle(80)
                 .cam((d, t, u) -> d.w.vale == null ? null
-                        : Cam.orbit(V(d, 0, 0, 0), d.w.vale.radius() + 40, 55, 0, 65, u, v(0, 6, 0), 72)));
+                        : Cam.orbit(V(d, 0, 0, 0), d.w.vale.radius() + 40, 78, 0, 65, u, v(0, 0, 0), 72)));
 
         s.add(new Shot("vale_giant", 220)
                 .cam((d, t, u) -> {
@@ -831,7 +831,7 @@ public final class Scenes {
                 }));
 
         s.add(new Shot("vale_runes", 160)
-                .setup(d -> d.cmd("time set 18000"))
+                .setup(d -> d.cmd("time set 13300"))
                 .cam((d, t, u) -> {
                     SwordShape g = d.w.giant;
                     if (g == null) return null;
@@ -1002,7 +1002,7 @@ public final class Scenes {
                 .at(36, d -> lightning(d, F(d, -4, 0, 15)))
                 .at(52, d -> lightning(d, F(d, 0, 0, 14)))
                 .at(55, d -> d.server(l -> d.spawn("revenge", "krolasyonbosses:revenge", d.w.fx + 0.5, d.ground(d.w.fx, d.w.fz + 14), d.w.fz + 14.5, 180F, null)))
-                .cam((d, t, u) -> Cam.move(F(d, 5, 0.7, 1), F(d, 2.5, 1.2, 6), F(d, 0, 5, 14), F(d, 0, 4, 14), u, -4, 0, 70)));
+                .cam((d, t, u) -> Cam.move(F(d, 6, 1.8, 0), F(d, 3, 2.2, 5), F(d, 0, 2.6, 14), F(d, 0, 2.4, 14), u, -4, 0, 70)));
 
         s.add(new Shot("boss_wave", 190).play()
                 .setup(d -> d.select(0))
@@ -1040,7 +1040,7 @@ public final class Scenes {
                 }))
                 .at(60, d -> force(d, "revenge", 0, "elf0"))
                 .cam((d, t, u) -> {
-                    Vec3 b = d.pos("revenge", F(d, 0, 0, 20)), e = d.pos("elf0", b.add(0, 0, -5));
+                    Vec3 b = d.pos("revenge", F(d, 0, 0, 14)), e = b.add(0, 0, -6);
                     Vec3 mid = Cam.lerp(b, e, 0.5);
                     Vec3 dir = b.subtract(e);
                     Vec3 perp = v(-dir.z, 0, dir.x).normalize();
@@ -1056,7 +1056,10 @@ public final class Scenes {
                     l.sendParticles(net.minecraft.core.particles.ParticleTypes.EXPLOSION_EMITTER, d.w.fx + 8.5, d.w.fy + 1, d.w.fz + 18.5, 2, 1, 1, 1, 0);
                 }))
                 .at(110, d -> force(d, "demon", 0, null))
-                .cam((d, t, u) -> Cam.move(F(d, 1, 1.0, 6), F(d, 4, 2.2, 9), F(d, 8, 4, 18), F(d, 8, 3.5, 18), u, 3, 0, 70)));
+                .cam((d, t, u) -> {
+                    Vec3 b = d.pos("demon", F(d, 8, 0, 18));
+                    return Cam.look(b.add(-6 + 3 * u, 2.0, -9 + 2 * u), b.add(0, 2.4, 0), 3 - 3 * u, 70);
+                }));
 
         s.add(new Shot("boss_volley", 190).play()
                 .setup(d -> {
@@ -1096,8 +1099,8 @@ public final class Scenes {
                 .at(110, d -> force(d, "revenge", 5, "elf4"))
                 .at(160, d -> force(d, "demon", 5, "thalion"))
                 .cam((d, t, u) -> {
-                    Vec3 a = d.pos("revenge", F(d, 0, 0, 20)), b = d.pos("demon", F(d, 8, 0, 18));
-                    return Cam.orbit(Cam.lerp(a, b, 0.5), 20, 7, 160, 260, u, v(0, 2, 0), 72);
+                    Vec3 a = d.pos("revenge", F(d, 0, 0, 14)), b = d.pos("demon", F(d, 8, 0, 18));
+                    return Cam.orbit(Cam.lerp(a, b, 0.5), Math.max(12, a.distanceTo(b) * 0.7 + 8), 6, 160, 260, u, v(0, 2, 0), 72);
                 }));
 
         s.add(new Shot("boss_finish", 250).play().hud(2)
@@ -1116,6 +1119,7 @@ public final class Scenes {
                     d.key(d.mc().options.keyUp, far && t < 165);
                     if (!far && t % 8 == 0) d.click(d.mc().options.keyAttack);
                 })
+                .at(140, d -> d.bossMortal = true)
                 .at(150, d -> d.server(l -> {
                     if (boss(d, "revenge") != null) boss(d, "revenge").kill();
                 })));
@@ -1163,7 +1167,7 @@ public final class Scenes {
                 })
                 .every((d, t) -> d.server(l -> l.setDayTime(l.getDayTime() + 3)))
                 .cam((d, t, u) -> {
-                    List<Vec3> pts = List.of(C(d, 0, 30, 150), C(d, 0, 38, 70), C(d, 0, 58, -25), C(d, 0, 92, -110), C(d, 0, 132, -190));
+                    List<Vec3> pts = List.of(C(d, 0, 30, 150), C(d, 0, 38, 70), C(d, 0, 52, -25), C(d, 0, 70, -110), C(d, 0, 90, -190));
                     Vec3 p = Cam.spline(pts, Cam.soft(u));
                     Vec3 ahead = Cam.spline(pts, Math.min(1F, Cam.soft(u) + 0.12F));
                     return Cam.look(p, ahead.add(0, -45 - 40 * u, 0), 0, 74);
