@@ -1,0 +1,42 @@
+plugins {
+    id 'eclipse'
+    id 'net.minecraftforge.gradle' version '[6.0.16,6.2)'
+}
+
+version = '1.0.0'
+group = 'com.krolasyon.film'
+base { archivesName = 'krolasyon_film-1.20.1-forge' }
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+minecraft {
+    mappings channel: 'official', version: '1.20.1'
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.console.level', 'info'
+            property 'film.run', 'true'
+            property 'film.quick', System.getenv('FILM_QUICK') ?: 'false'
+            jvmArgs '-Xmx6G'
+            args '--width', '1280', '--height', '720', '--username', 'Krolasyon'
+            mods {
+                krolasyonfilm {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+// Diğer Krolasyon modları libs/ klasöründen (CI'de sürümlerden indirilir) deobf edilerek eklenir.
+repositories { flatDir { dirs 'libs' } }
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.1-47.2.0'
+    (file('libs').listFiles() ?: []).findAll { it.name.endsWith('.jar') }.sort().each { f ->
+        def m = (f.name =~ /^(.*)-(\d+\.\d+\.\d+)\.jar$/)
+        if (m.matches()) implementation fg.deobf("krolasyon:${m.group(1)}:${m.group(2)}")
+    }
+}
+
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }

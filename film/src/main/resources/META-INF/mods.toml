@@ -1,0 +1,16 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All rights reserved"
+
+[[mods]]
+modId="krolasyonfilm"
+version="1.0.0"
+displayName="Krolasyon Film Yönetmeni"
+description='''CI içinde Krolasyon modlarıyla senaryolu oynanış videosu çeker.'''
+
+[[dependencies.krolasyonfilm]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"

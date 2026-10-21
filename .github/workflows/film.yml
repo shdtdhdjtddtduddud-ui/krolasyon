@@ -1,0 +1,114 @@
+name: Film (gameplay video)
+on:
+  push:
+    paths:
+      - 'film/**'
+      - '.github/workflows/film.yml'
+  workflow_dispatch:
+    inputs:
+      quick:
+        description: 'Hızlı önizleme (10 fps)'
+        type: boolean
+        default: false
+permissions:
+  contents: write
+jobs:
+  film:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    defaults:
+      run:
+        working-directory: film
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.8'
+      - name: Mode
+        id: m
+        shell: bash
+        env:
+          MSG: ${{ github.event.head_commit.message }}
+        run: |
+          Q=false
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then Q="${{ inputs.quick }}";
+          elif [[ "$MSG" != *"[full]"* ]]; then Q=true; fi
+          echo "quick=$Q" >> "$GITHUB_OUTPUT"; echo "quick=$Q"
+      - name: Fetch mod jars
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p libs
+          while read -r tag jar; do
+            [ -z "$tag" ] && continue
+            gh release download "$tag" -R "${{ github.repository }}" -p "$jar" -D libs --clobber
+          done < mods.txt
+          ls -la libs
+      - name: Build film mod
+        id: b
+        shell: bash
+        run: |
+          set +e
+          gradle build --no-daemon --stacktrace 2>&1 | tee build.log
+          echo "status=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+      - name: Record
+        if: steps.b.outputs.status == '0'
+        continue-on-error: true
+        shell: bash
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          MESA_GL_VERSION_OVERRIDE: '4.5'
+          FILM_QUICK: ${{ steps.m.outputs.quick }}
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq xvfb libgl1-mesa-dri libglx-mesa0 mesa-utils ffmpeg pulseaudio python3-numpy zip > /dev/null
+          pulseaudio -D --exit-idle-time=-1 --system=false || true
+          sleep 2
+          pactl load-module module-null-sink sink_name=film || true
+          pactl set-default-sink film || true
+          mkdir -p run
+          RD=12; [ "$FILM_QUICK" = "true" ] && RD=10
+          printf "onboardAccessibility:false\nrenderDistance:$RD\nsimulationDistance:8\npauseOnLostFocus:false\ntutorialStep:none\njoinedFirstServer:true\nskipMultiplayerWarning:true\nmaxFps:260\nenableVsync:false\nfov:0.0\ngraphicsMode:1\nrenderClouds:\"true\"\nparticles:0\nentityShadows:true\nsoundCategory_music:0.0\nsoundCategory_master:1.0\nnarrator:0\nguiScale:3\n" > run/options.txt
+          set +e
+          timeout 19500 xvfb-run -a -s "-screen 0 1280x720x24" gradle runClient --no-daemon > client.log 2>&1
+          echo "client exit $?"
+          grep -E "\[FILM\]|OpenAL|Sound engine|Exception" client.log | head -400
+      - name: Mix and mux
+        if: steps.b.outputs.status == '0'
+        continue-on-error: true
+        shell: bash
+        run: |
+          mkdir -p out
+          cp run/film/events.jsonl out/ 2>/dev/null
+          cp run/logs/latest.log out/latest.log 2>/dev/null
+          tail -c 300000 client.log > out/client_tail.log 2>/dev/null
+          grep -E "\[FILM\]|Exception|ERROR" client.log | head -2000 > out/film_summary.log
+          if [ -f run/film/video.mp4 ]; then
+            python3 tools/mix.py run/film/events.jsonl out/audio.wav libs | tee out/mix.log
+            ffmpeg -v error -y -i run/film/video.mp4 -i out/audio.wav -map 0:v -map 1:a -c:v copy -c:a aac -b:a 192k \
+              -af "loudnorm=I=-15:TP=-1.5:LRA=11" -shortest -movflags +faststart out/krolasyon_film.mp4
+            ls -la out
+            D=$(ffprobe -v error -show_entries format=duration -of csv=p=0 out/krolasyon_film.mp4); echo "duration $D"
+            mkdir -p out/frames
+            ffmpeg -v error -i out/krolasyon_film.mp4 -vf "fps=1/6,scale=640:-1" out/frames/f_%03d.jpg
+            cd out/frames && zip -q ../frames.zip *.jpg && cd ..
+          fi
+          cd out && zip -q logs.zip *.log events.jsonl 2>/dev/null; ls -la
+      - name: Publish release
+        if: always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="film-${{ github.run_number }}"
+          FILES="build.log"
+          for f in out/krolasyon_film.mp4 out/frames.zip out/logs.zip; do [ -f "$f" ] && FILES="$FILES $f"; done
+          gh release create "$TAG" $FILES --title "Krolasyon film ${{ github.run_number }} (quick ${{ steps.m.outputs.quick }})" \
+            --notes "Oynanış videosu. commit ${{ github.sha }}" --prerelease --target "${{ github.sha }}"
+      - name: Fail on build error
+        if: steps.b.outputs.status != '0'
+        run: exit 1
