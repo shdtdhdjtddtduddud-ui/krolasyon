@@ -291,7 +291,7 @@ public final class AutoTest {
         wait(120, "archery");
         server(5, null, s -> {
             run(s, "time set 4600");
-            look(s, city.cx() - 20, y0 + 24, city.cz() - 62, city.cx() - 34, y0 + 17, city.cz() - 76);
+            look(s, city.cx() - 24, y0 + 22, city.cz() - 64, city.cx() - 36, y0 + 17, city.cz() - 76);
         });
         wait(700, "lord_walk_pond");
         server(5, null, s -> {
@@ -305,6 +305,15 @@ public final class AutoTest {
             look(s, city.cx(), y0 + 21, city.cz() - 50, city.cx(), y0 + 17, city.cz() - 59);
         });
         wait(500, "lord_balcony");
+        server(5, null, s -> {
+            for (ElfEntity e : s.overworld().getEntitiesOfClass(ElfEntity.class, new net.minecraft.world.phys.AABB(
+                    city.cx() - 80, y0 - 20, city.cz() - 140, city.cx() + 80, y0 + 80, city.cz() + 60))) {
+                if (e.hasRoutine()) LOG.info("[ELFTEST] eve {} post {} routine {} at {} activity {}", e.kind, e.post(), e.routineKey, e.position(), e.getActivity());
+            }
+            run(s, "time set 1000");
+            look(s, city.cx(), y0 + 19.5, city.cz() - 69, city.cx(), y0 + 17.5, city.cz() - 78);
+        });
+        wait(400, "lord_throne_back");
         wait(20, "END");
     }
 

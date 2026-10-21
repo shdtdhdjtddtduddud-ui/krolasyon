@@ -239,7 +239,7 @@ public final class ElvenCityFeature extends Feature<NoneFeatureConfiguration> {
         e.moveTo(n.x() + 0.5, n.y(), n.z() + 0.5, n.post().startsWith("royal") || n.kind() == com.krolasyon.elvenrealm.entity.ElfKind.AERENDIL
                 ? 0F : Noise.hash(plan.city.seed(), n.x(), 0, n.z()) < 0.5 ? 180F : 0F, 0F);
         e.setHome(new BlockPos(n.x(), n.y(), n.z()));
-        e.setCity(new BlockPos(plan.cx, plan.yA, plan.cz), n.post());
+        e.setCity(new BlockPos(plan.cx, plan.yA, plan.cz), n.post(), true);
         return e;
     }
 }

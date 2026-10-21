@@ -92,7 +92,7 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
     /** Kentteki günlük program: kent merkezi (x, aşağı avlu zemini, z) ve görev yeri. */
     @Nullable private BlockPos city;
     private String post = "";
-    private boolean cityChecked;
+    private boolean cityChecked, planned;
     /** Şu anki görevin adı (boş: programda değil). */
     public String routineKey = "";
     @Nullable private UUID lordId;
@@ -229,6 +229,12 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
 
     /** Elfi bir Sylvaren kentinin günlük programına bağlar. */
     public void setCity(BlockPos center, String post) {
+        setCity(center, post, false);
+    }
+
+    /** planned: kent planından doğan sakin (aynı görev yerinde ikincisi olamaz). */
+    public void setCity(BlockPos center, String post, boolean planned) {
+        this.planned = planned;
         this.city = center.immutable();
         this.post = post == null ? "" : post;
         this.cityChecked = true;
@@ -441,6 +447,7 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
         if (bowCd > 0) bowCd--;
         setAggressive(getTarget() != null);
         if (city == null && !cityChecked && tickCount > 40 && !isHired()) inferCity();
+        if (planned && tickCount % 200 == 37) dedupe();
 
         // konuşma
         if (talkingTo != null) {
@@ -712,6 +719,7 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
         if (city != null) tag.put("City", NbtUtils.writeBlockPos(city));
         tag.putString("Post", post);
         tag.putBoolean("CityChecked", cityChecked);
+        tag.putBoolean("Planned", planned);
     }
 
     private Optional<UUID> ownerOpt() {
@@ -729,7 +737,7 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
         hireUntil = tag.getLong("HireUntil");
         recoverUntil = tag.getLong("RecoverUntil");
         cityChecked = tag.getBoolean("CityChecked");
-        if (tag.contains("City")) setCity(NbtUtils.readBlockPos(tag.getCompound("City")), tag.getString("Post"));
+        if (tag.contains("City")) setCity(NbtUtils.readBlockPos(tag.getCompound("City")), tag.getString("Post"), tag.getBoolean("Planned"));
     }
 
     // ------------------------------------------------------------------ iç hedefler
@@ -860,6 +868,17 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
         setCity(center, kind.unique() ? kind.id : Routine.nearestGuardPost(center, home));
     }
 
+    /** Aynı görev yerinde iki planlı sakin varsa biri sessizce ayrılır. */
+    private void dedupe() {
+        for (ElfEntity o : level().getEntitiesOfClass(ElfEntity.class, getBoundingBox().inflate(150), x -> x != this && x.planned
+                && x.kind == kind && post.equals(x.post) && city.equals(x.city))) {
+            if (o.getUUID().compareTo(getUUID()) < 0) {
+                discard();
+                return;
+            }
+        }
+    }
+
     /** Aynı kentin lordu (önbellekli). */
     @Nullable
     ElfEntity lord() {
@@ -968,7 +987,7 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
             while (hop < hops.size() - 1 && horiz(hops.get(hop)) < 2.0) hop++;
             Vec3 h = hops.get(Math.min(hop, hops.size() - 1));
             boolean last = hop >= hops.size() - 1;
-            if (last && horiz(dest) < (task != null && task.snap() ? 0.7 : 1.3) && Math.abs(dest.y - getY()) < 2.5) return true;
+            if (last && horiz(dest) < (task != null && task.snap() ? 1.9 : 1.3) && Math.abs(dest.y - getY()) < 2.5) return true;
             if (getActivity() != Activity.NONE && !getActivity().gesture()) setActivity(Activity.NONE, 0);
             if (--repath <= 0 || getNavigation().isDone()) {
                 getNavigation().moveTo(h.x, h.y, h.z, speed);
@@ -977,7 +996,7 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
             if (tickCount % 20 == 0) {
                 stuck = position().distanceToSqr(lastPos) < 0.09 ? stuck + 20 : 0;
                 lastPos = position();
-                boolean watched = level().getNearestPlayer(ElfEntity.this, 24) != null;
+                boolean watched = level().getNearestPlayer(getX(), getY(), getZ(), 24, net.minecraft.world.entity.EntitySelector.NO_SPECTATORS) != null;
                 if ((stuck >= 200 && !watched) || stuck >= 500) {
                     teleportTo(h.x, h.y, h.z);
                     getNavigation().stop();
@@ -989,7 +1008,10 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
 
         private void arrive(float yaw, @Nullable Vec3 look, Activity act, Vec3 dest) {
             getNavigation().stop();
-            if (task.snap() && horiz(dest) > 0.08) setPos(dest.x, Math.max(getY(), dest.y), dest.z);
+            if (task.snap() && horiz(dest) > 0.08) {
+                setPos(dest.x, dest.y, dest.z);
+                setDeltaMovement(Vec3.ZERO);
+            }
             float want = look != null ? (float) (Mth.atan2(look.z - getZ(), look.x - getX()) * (180F / Math.PI)) - 90F : yaw;
             setYRot(Mth.approachDegrees(getYRot(), want, 12F));
             yBodyRot = getYRot();
