@@ -352,6 +352,8 @@ public final class BladeModels {
 
     public static void mossroot(PoseStack ps, MultiBufferSource buf, int light, float time, float charge) {
         ps.pushPose();
+        // ağız ve sivri uç ileriye (vuruş yönüne) baksın
+        ps.scale(-1, 1, 1);
         if (charge > 0) ps.translate(Math.sin(time * 2.9) * 0.25F * charge, 0, Math.cos(time * 3.3) * 0.2F * charge);
         TextureAtlasSprite st = Geo.sprite("stone_blade");
         Geo.blade(buf.getBuffer(Geo.CUT), ps, 48, 12, MOSS_BLADE, st, null, light, 0);
@@ -359,11 +361,12 @@ public final class BladeModels {
         mossHandle(buf, ps, light, time, charge);
         if (charge > 0.02F) {
             float g = 0.15F + 0.6F * charge;
-            Geo.blade(buf.getBuffer(Geo.GLOW), ps, 24, 6, MOSS_BLADE, Geo.sprite("moss"), (t, u, c) -> {
+            Geo.blade(buf.getBuffer(Geo.TRANS), ps, 24, 6, MOSS_BLADE, Geo.sprite("moss"), (t, u, c) -> {
                 float f = clamp(1 - t * 2.2F, 0, 1) * g;
-                c[0] = f * 0.6F;
-                c[1] = f;
-                c[2] = f * 0.3F;
+                c[0] = 0.7F;
+                c[1] = 1F;
+                c[2] = 0.4F;
+                c[3] = f;
             }, Geo.FULL, 0.05F);
         }
         ps.popPose();
