@@ -234,7 +234,8 @@ public final class Lines {
         put(k, "duty_throne", "Bugün halktan üç dilekçe geldi: iki kedi kayıp, bir de Tavi'nin okları yine kale kapısına saplanmış.",
                 "Taht, dinlemek içindir, evlat. Konuşmak için değil.", "Bekle... evet, sıradaki dilekçe. Sen misin? Hayır mı? Peki.");
         put(k, "duty_walk", "Öğle yürüyüşü... Hekimim söyledi. Hekimim de benden genç, düşünsene.",
-                "Bu bahçeyi ben diktim. Şu nilüferler hariç; onlar kendileri geldi, tıpkı senin gibi.");
+                "Caelan kitaplarına gömülmüş, Tavi oklarına. Ben de ikisine bakıp gençliğimi hatırlıyorum.",
+                "Bu kenti ben kurdum, evlat. Şu okçuluk alanındaki delikler hariç; onları Tavi açtı.");
         put(k, "duty_shrine", "Nimrae ile ay için dua ederiz. Ay bizi hiç cevapsız bırakmadı.");
         put(k, "duty_balcony", "Gün batımı... Bin kez izledim, bin kez yeni geldi.", "Buradan bütün kent görünür. Ve evet, Lirael yine çeşmede şarkı söylüyor.");
         put(k, "lord_pass", "Muhafızlarım, rahat.");
@@ -253,12 +254,12 @@ public final class Lines {
         put(k, "duty_read", "Şşt. Bu kitap üç yüzyıldır kimse tarafından okunmamış. Kitap da çok heyecanlı.",
                 "İlginç... dipnotlar ana metinden daha uzun. Yazarını tanırdım, şaşırmadım.");
         put(k, "duty_council", "Konsey toplantısı. Ben konuşurum, Thalion kaşlarını çatar, Lord güler. Gelenek.");
-        put(k, "duty_pond", "Gölet kenarında okumak, kütüphanede okumaktan iki kat ilham verir. Kanıtlayamam ama hissediyorum.");
+        put(k, "duty_bench", "Akşam serinliğinde bankta okumak, kütüphanede okumaktan iki kat ilham verir. Kanıtlayamam ama hissediyorum.");
         put(k, "duty_rest", "Gözlerim yoruldu... sadece bir bölüm daha.");
         k = ElfKind.NIMRAE;
         put(k, "duty_pray", "Ay sessizdir ama dinler. Sen de dinle.", "Nefes al. Ağaçlar da nefes alıyor.");
         put(k, "duty_bless", "Çeşmenin suyunu kutsuyorum. Kim içerse kalbi hafifler. Lirael'inki zaten hafif.");
-        put(k, "duty_pond", "Göletin balıkları huzurludur. Onlardan öğreneceğimiz çok şey var.");
+        put(k, "duty_garden", "Zambaklar ay ışığını sabaha kadar saklar. Ben de onları sularım.");
         k = ElfKind.TAVI;
         put(k, "duty_archery", "İzle izle! Bu sefer tam ortadan! ...Neredeyse.", "Vaelor bana bakıyor. Neden hep bana bakıyor?!");
         put(k, "duty_birds", "Pırıl'a ekmek kırıntısı veriyorum. Kendisi bir kuş, söylemeye gerek yok sanırım.", "Şşş, kurbağa! Yakalayacağım. Belki.");

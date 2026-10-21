@@ -291,9 +291,9 @@ public final class AutoTest {
         wait(120, "archery");
         server(5, null, s -> {
             run(s, "time set 4600");
-            look(s, city.cx() - 24, y0 + 22, city.cz() - 64, city.cx() - 36, y0 + 17, city.cz() - 76);
+            look(s, city.cx() - 4, y0 + 14, city.cz() - 31, city.cx() - 16, y0 + 9, city.cz() - 42);
         });
-        wait(700, "lord_walk_pond");
+        wait(900, "lord_walk_library");
         server(5, null, s -> {
             for (ElfEntity e : s.overworld().getEntitiesOfClass(ElfEntity.class, new net.minecraft.world.phys.AABB(
                     city.cx() - 80, y0 - 20, city.cz() - 140, city.cx() + 80, y0 + 80, city.cz() + 60))) {

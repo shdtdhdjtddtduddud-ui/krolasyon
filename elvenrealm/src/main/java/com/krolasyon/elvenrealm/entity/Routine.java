@@ -97,17 +97,16 @@ public final class Routine {
             case CAELAN -> {
                 if (t < 8500) yield stay("read", at(c, -31, B, -41), 180F, Activity.READ, 0.5);
                 if (t < 11000) yield face("council", at(c, 4, C, -74), at(c, 0, C, -78), Activity.CROSS_ARMS, 0.5);
-                if (t < 13000) yield stay("pond", at(c, -43, C, -76), 90F, Activity.READ, 0.5);
+                if (t < 13000) yield new Task("bench", at(c, -18, B, -44).add(0, 0.5, 0), -90F, null, Activity.READ, 0.5, null, true, false);
                 yield stay("rest", at(c, -26, B, -41), 180F, Activity.SIT, 0.5);
             }
             case NIMRAE -> {
-                if (t >= 1500 && t < 3500) yield face("bless", at(c, 0, A, 1), at(c, 0, A, 8).add(0, 1, 0), Activity.PRAY, 0.45);
-                if (t >= 3500 && t < 5200) yield face("pond", at(c, -32, C, -69), at(c, -32, C, -76), Activity.KNEEL, 0.45);
+                if (t >= 3500 && t < 6000) yield face("garden", at(c, 31, C, -74), at(c, 34, C, -76), Activity.KNEEL, 0.45);
                 yield face("pray", at(c, 34, C, -76), at(c, 34, C, -70), night ? Activity.PRAY : Activity.MEDITATE, 0.45);
             }
             case TAVI -> {
                 if (night) yield home(e, "rest", Activity.SIT, 0.8);
-                if (t >= 6000 && t < 8000) yield face("birds", at(c, -32, C, -68), at(c, -32, C, -74), Activity.KNEEL, 0.85);
+                if (t >= 6000 && t < 8000) yield face("birds", at(c, -8, A, 1), at(c, -8, A, 4), Activity.KNEEL, 0.85);
                 if (t >= 11000) yield stay("fountain", at(c, -5, A, 11).add(0, 0.5, 0), -60F, Activity.SIT, 0.85);
                 yield stay("archery", at(c, 24, B, -35), 180F, Activity.PRACTICE, 0.85);
             }
@@ -124,9 +123,9 @@ public final class Routine {
     private static Task lord(BlockPos c, int t) {
         Vec3 throne = at(c, 0, C, -78).add(0, 0.5, 0);
         if (t < 4500) return new Task("throne", throne, 0F, null, Activity.SIT, 0.4, null, true, false);
-        if (t < 5200) return face("walk", at(c, -38, C, -76), at(c, -32, C, -76), Activity.CROSS_ARMS, 0.4);
-        if (t < 5900) return face("shrine", at(c, 34, C, -71), at(c, 34, C, -76), Activity.PRAY, 0.4);
-        if (t < 6500) return face("walk", at(c, 18, C, -60), at(c, 18, A, 0), Activity.CROSS_ARMS, 0.4);
+        if (t < 5200) return face("walk", at(c, -16, B, -42), at(c, -31, B, -41), Activity.CROSS_ARMS, 0.4);
+        if (t < 5900) return face("walk", at(c, 24, B, -28), at(c, 24, B, -36), Activity.CROSS_ARMS, 0.4);
+        if (t < 6500) return stay("balcony", at(c, 0, C, -59), 0F, Activity.CROSS_ARMS, 0.4);
         if (t < 11000) return new Task("throne", throne, 0F, null, Activity.SIT, 0.4, null, true, false);
         if (t < 12600) return stay("balcony", at(c, 0, C, -59), 0F, Activity.CROSS_ARMS, 0.4);
         return new Task("throne", throne, 0F, null, Activity.SIT, 0.4, null, true, false);
