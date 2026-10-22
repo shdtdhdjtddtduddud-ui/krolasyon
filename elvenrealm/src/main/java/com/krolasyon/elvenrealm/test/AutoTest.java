@@ -58,6 +58,11 @@ public final class AutoTest {
     private final Map<ElfKind, ElfEntity> gallery = new EnumMap<>(ElfKind.class);
     private final List<Husk> husks = new ArrayList<>();
     private int gx, gy, gz;
+    private CityLayout.City other;
+    private com.krolasyon.elvenrealm.world.CityType otherType;
+    private long otherD;
+    private int oy;
+    private final List<ElfEntity> folk = new ArrayList<>();
 
     public static void init() {
         LOG.info("[ELFTEST] enabled");
@@ -73,7 +78,26 @@ public final class AutoTest {
             LOG.info("[ELFTEST] nearest city {}", city);
             if (city == null) return;
             y0 = CityLayout.base(city, l.getChunkSource().getGenerator(), l.getChunkSource().randomState(), l);
-            LOG.info("[ELFTEST] base y {}", y0);
+            LOG.info("[ELFTEST] base y {} type {} capital {}", y0, CityLayout.type(l.getSeed(), city, l.getChunkSource().getGenerator(),
+                    l.getChunkSource().randomState(), l), CityLayout.capital(l.getSeed(), l.getChunkSource().getGenerator(), l.getChunkSource().randomState(), l));
+            // çevredeki diğer kentler ve türleri; ziyaret için özel (ay / çiçek) bir kent seç
+            for (int ci = -4; ci <= 4; ci++)
+                for (int cj = -4; cj <= 4; cj++) {
+                    CityLayout.City c = CityLayout.cell(l.getSeed(), ci, cj);
+                    if (c == null || !CityLayout.valid(c, l.getChunkSource().getGenerator(), l.getChunkSource().randomState(), l)) continue;
+                    com.krolasyon.elvenrealm.world.CityType t = CityLayout.type(l.getSeed(), c, l.getChunkSource().getGenerator(), l.getChunkSource().randomState(), l);
+                    LOG.info("[ELFTEST] city {} {} at {} {} -> {} {}", ci, cj, c.cx(), c.cz(), t, t.name(c.seed()));
+                    if (t == com.krolasyon.elvenrealm.world.CityType.CAPITAL) continue;
+                    long d = (long) c.cx() * c.cx() + (long) c.cz() * c.cz();
+                    boolean special = t != com.krolasyon.elvenrealm.world.CityType.COMMON;
+                    boolean bestSpecial = other != null && otherType != com.krolasyon.elvenrealm.world.CityType.COMMON;
+                    if (other == null || (special && !bestSpecial) || (special == bestSpecial && d < otherD)) {
+                        other = c;
+                        otherType = t;
+                        otherD = d;
+                    }
+                }
+            LOG.info("[ELFTEST] visiting {} {}", other, otherType);
             look(s, city.cx(), y0 + 110, city.cz() - 20, city.cx(), y0 + 10, city.cz() - 40);
         });
         // kent ve ağaçlar üretilip çizilsin
@@ -139,6 +163,7 @@ public final class AutoTest {
             run(s, String.format("fill %d %d %d %d %d %d minecraft:air", gx - 16, gy, gz - 12, gx + 16, gy + 8, gz + 12));
             int i = 0;
             for (ElfKind k : ElfKind.values()) {
+                if (k.ordinal() > ElfKind.GUARD.ordinal()) break;
                 ElfEntity e = ElvenRealm.TYPES.get(k).get().create(l);
                 double x = gx - 9 + i * 3;
                 e.moveTo(x + 0.5, gy, gz + 0.5, 0F, 0F);
@@ -174,6 +199,41 @@ public final class AutoTest {
             look(s, gx + 0.5, gy + 1.8, gz + 10.5, gx + 0.5, gy + 0.8, gz);
         });
         wait(60, "gallery_poses");
+
+        // ---------------------------------------------------- yeni kentlerin halkı (ikinci platform)
+        server(5, null, s -> {
+            ServerLevel l = s.overworld();
+            int fz = gz + 40;
+            run(s, String.format("fill %d %d %d %d %d %d minecraft:grass_block", gx - 18, gy - 1, fz - 8, gx + 18, gy - 1, fz + 8));
+            run(s, String.format("fill %d %d %d %d %d %d minecraft:air", gx - 18, gy, fz - 8, gx + 18, gy + 8, fz + 8));
+            Object[][] who = {{ElfKind.TOWNSFOLK, 0}, {ElfKind.TOWNSFOLK, 1}, {ElfKind.TOWNSFOLK, 2}, {ElfKind.TOWNSFOLK, 3}, {ElfKind.TOWNSFOLK, 4},
+                    {ElfKind.MOON_SEER, 0}, {ElfKind.GUARD, 1}, {ElfKind.GUARD, 2}, {ElfKind.BLOSSOM_LADY, 0},
+                    {ElfKind.TOWNSMAN, 0}, {ElfKind.TOWNSMAN, 1}, {ElfKind.TOWNSMAN, 2}, {ElfKind.TOWNSMAN, 3}, {ElfKind.TOWNSMAN, 4}};
+            for (int j = 0; j < who.length; j++) {
+                ElfEntity e = ElvenRealm.TYPES.get((ElfKind) who[j][0]).get().create(l);
+                double x = gx - 13 + j * 2;
+                e.moveTo(x + 0.5, gy, fz + 0.5, 0F, 0F);
+                e.setHome(new BlockPos((int) x, gy, fz));
+                e.finalizeSpawn(l, l.getCurrentDifficultyAt(e.blockPosition()), MobSpawnType.COMMAND, null, null);
+                e.setVariant((Integer) who[j][1]);
+                e.setCityType(j < 6 ? com.krolasyon.elvenrealm.world.CityType.MOON : com.krolasyon.elvenrealm.world.CityType.BLOSSOM, "Lunareth", j * 977L);
+                e.setNoAi(true);
+                e.setYRot(0F);
+                e.yBodyRot = 0F;
+                e.yHeadRot = 0F;
+                l.addFreshEntity(e);
+                folk.add(e);
+                LOG.info("[ELFTEST] folk {} variant {} name {}", e.kind, e.variant(), e.elfName());
+            }
+            look(s, gx - 6.5, gy + 1.5, fz + 6.5, gx - 6.5, gy + 1.0, fz);
+        });
+        wait(60, "folk_left");
+        server(5, null, s -> look(s, gx + 6.5, gy + 1.5, gz + 46.5, gx + 6.5, gy + 1.0, gz + 40));
+        wait(30, "folk_right");
+        server(5, null, s -> look(s, gx + 0.5, gy + 0.2, gz + 43.2, gx + 0.5, gy + 1.6, gz + 40));
+        wait(30, "folk_leaders_close");
+        server(5, null, s -> look(s, gx + 0.5, gy + 1.5, gz + 33.5, gx + 0.5, gy + 1.0, gz + 40));
+        wait(30, "folk_back");
 
         // ---------------------------------------------------- diyalog
         server(5, null, s -> {
@@ -283,37 +343,86 @@ public final class AutoTest {
         wait(300, "lord_throne");
         server(5, null, s -> look(s, city.cx(), y0 + 5, city.cz() + 18, city.cx(), y0 + 2, city.cz() + 28));
         wait(120, "gate_guards");
-        server(5, null, s -> look(s, city.cx() - 30, y0 + 14, city.cz() + 22, city.cx() - 30, y0 + 11, city.cz() + 31));
-        wait(160, "wall_patrol");
-        server(5, null, s -> look(s, city.cx() + 18, y0 + 4, city.cz() + 18, city.cx() + 22, y0 + 1, city.cz() + 8));
-        wait(120, "training_yard");
-        server(5, null, s -> look(s, city.cx() + 24, y0 + 12, city.cz() - 24, city.cx() + 24, y0 + 9, city.cz() - 40));
-        wait(120, "archery");
+        // ---------------------------------------------------- başka bir elf kenti: kendi halkı, kendi muhafızları, kendi lideri
         server(5, null, s -> {
-            run(s, "time set 4600");
-            look(s, city.cx() - 4, y0 + 14, city.cz() - 31, city.cx() - 16, y0 + 9, city.cz() - 42);
+            if (other == null) return;
+            ServerLevel l = s.overworld();
+            oy = CityLayout.base(other, l.getChunkSource().getGenerator(), l.getChunkSource().randomState(), l);
+            run(s, "time set 4500");
+            look(s, other.cx(), oy + 110, other.cz() - 20, other.cx(), oy + 10, other.cz() - 40);
         });
-        wait(900, "lord_walk_library");
+        wait(900, "other_overhead");
         server(5, null, s -> {
+            if (other == null) return;
+            look(s, other.cx(), oy + 60, other.cz() + 85, other.cx(), oy + 20, other.cz() - 45);
+        });
+        wait(300, "other_aerial");
+        server(5, null, s -> {
+            if (other == null) return;
+            look(s, other.cx() + 85, oy + 45, other.cz() - 60, other.cx() - 20, oy + 60, other.cz() - 100);
+        });
+        wait(200, "other_trees");
+        server(5, null, s -> {
+            if (other == null) return;
+            int n = 0;
             for (ElfEntity e : s.overworld().getEntitiesOfClass(ElfEntity.class, new net.minecraft.world.phys.AABB(
-                    city.cx() - 80, y0 - 20, city.cz() - 140, city.cx() + 80, y0 + 80, city.cz() + 60))) {
-                if (e.hasRoutine()) LOG.info("[ELFTEST] walk {} post {} routine {} at {} activity {}", e.kind, e.post(), e.routineKey, e.blockPosition(), e.getActivity());
+                    other.cx() - 80, oy - 20, other.cz() - 140, other.cx() + 80, oy + 80, other.cz() + 60))) {
+                LOG.info("[ELFTEST] other resident {} name {} variant {} type {} post {} routine {} at {} activity {}", e.kind, e.elfName(), e.variant(),
+                        e.cityType(), e.post(), e.routineKey, e.blockPosition(), e.getActivity());
+                n++;
             }
+            LOG.info("[ELFTEST] other residents {}", n);
+            look(s, other.cx() - 9, oy + 4, other.cz() + 24, other.cx(), oy + 2, other.cz() + 6);
         });
+        wait(200, "other_courtyard");
         server(5, null, s -> {
-            run(s, "time set 11500");
-            look(s, city.cx(), y0 + 21, city.cz() - 50, city.cx(), y0 + 17, city.cz() - 59);
+            if (other == null) return;
+            look(s, other.cx() + 18, oy + 4, other.cz() + 18, other.cx() + 22, oy + 1, other.cz() + 8);
         });
-        wait(500, "lord_balcony");
+        wait(100, "other_training");
         server(5, null, s -> {
-            for (ElfEntity e : s.overworld().getEntitiesOfClass(ElfEntity.class, new net.minecraft.world.phys.AABB(
-                    city.cx() - 80, y0 - 20, city.cz() - 140, city.cx() + 80, y0 + 80, city.cz() + 60))) {
-                if (e.hasRoutine()) LOG.info("[ELFTEST] eve {} post {} routine {} at {} activity {}", e.kind, e.post(), e.routineKey, e.position(), e.getActivity());
-            }
-            run(s, "time set 1000");
-            look(s, city.cx(), y0 + 19.5, city.cz() - 69, city.cx(), y0 + 17.5, city.cz() - 78);
+            if (other == null) return;
+            look(s, other.cx(), oy + 19.5, other.cz() - 69, other.cx(), oy + 17.5, other.cz() - 78);
         });
-        wait(400, "lord_throne_back");
+        wait(200, "other_throne");
+        server(5, null, s -> {
+            if (other == null) return;
+            look(s, other.cx(), oy + 5, other.cz() + 18, other.cx(), oy + 2, other.cz() + 28);
+        });
+        wait(100, "other_gate");
+        server(5, null, s -> {
+            if (other == null) return;
+            look(s, other.cx() - 4, oy + 14, other.cz() - 31, other.cx() - 20, oy + 9, other.cz() - 42);
+        });
+        wait(120, "other_library");
+        // kente giriş başlığı ve bir kent sakiniyle konuşma
+        server(5, null, s -> {
+            if (other == null) return;
+            run(s, "gamemode creative @a");
+            ServerPlayer p = s.getPlayerList().getPlayers().get(0);
+            p.getPersistentData().putBoolean("elvenrealm_inside", false);
+            p.teleportTo(s.overworld(), other.cx() + 0.5, oy + 1, other.cz() + 20.5, 180F, 0F);
+        });
+        client(5, null, mc -> gui = true);
+        wait(50, "other_entry_title");
+        client(5, null, mc -> allowScreen = true);
+        server(5, null, s -> {
+            if (other == null) return;
+            ServerPlayer p = s.getPlayerList().getPlayers().get(0);
+            ElfEntity best = null;
+            for (ElfEntity e : s.overworld().getEntitiesOfClass(ElfEntity.class, p.getBoundingBox().inflate(70), e -> e.kind.citizen()))
+                if (best == null || e.distanceToSqr(p) < best.distanceToSqr(p)) best = e;
+            if (best == null) return;
+            p.teleportTo(s.overworld(), best.getX() + 2, best.getY(), best.getZ() + 2, 135F, 10F);
+            DialogueManager.open(p, best);
+            LOG.info("[ELFTEST] talking to {} {}", best.kind, best.elfName());
+        });
+        wait(80, "other_dialogue");
+        client(5, null, mc -> {
+            allowScreen = false;
+            mc.setScreen(null);
+            gui = false;
+        });
         wait(20, "END");
     }
 

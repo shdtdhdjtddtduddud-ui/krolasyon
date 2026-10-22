@@ -25,9 +25,13 @@ import java.util.Map;
  */
 public final class CityPlan {
     /** Sakin: görev yeri (post) ve sürüm (v2 = yaşayan kent güncellemesiyle eklenenler; eski kentlere sonradan yerleştirilir). */
-    public record Npc(ElfKind kind, int x, int y, int z, String post, boolean v2) {
+    public record Npc(ElfKind kind, int x, int y, int z, String post, boolean v2, int variant) {
         Npc(ElfKind kind, int x, int y, int z, String post) {
-            this(kind, x, y, z, post, false);
+            this(kind, x, y, z, post, false, 0);
+        }
+
+        Npc(ElfKind kind, int x, int y, int z, String post, boolean v2) {
+            this(kind, x, y, z, post, v2, 0);
         }
     }
 
@@ -48,19 +52,49 @@ public final class CityPlan {
     private static final BlockState SAND = Blocks.SMOOTH_SANDSTONE.defaultBlockState();
     private static final BlockState CUT = Blocks.CUT_SANDSTONE.defaultBlockState();
     private static final BlockState CALCITE = Blocks.CALCITE.defaultBlockState();
-    private static final BlockState GLASS = Blocks.LIGHT_BLUE_STAINED_GLASS.defaultBlockState();
-    private static final BlockState ROOF = Blocks.ORANGE_TERRACOTTA.defaultBlockState();
-    private static final BlockState ROOF2 = Blocks.SMOOTH_RED_SANDSTONE.defaultBlockState();
+    private final BlockState GLASS, ROOF, ROOF2, LANTERN;
     private static final BlockState PLANK = Blocks.SPRUCE_PLANKS.defaultBlockState();
     private static final BlockState LOG = Blocks.STRIPPED_SPRUCE_LOG.defaultBlockState();
     private static final BlockState WATER = Blocks.WATER.defaultBlockState();
     private static final BlockState FALL = Blocks.WATER.defaultBlockState().setValue(LiquidBlock.LEVEL, 8);
     private static final BlockState GRASS = Blocks.GRASS_BLOCK.defaultBlockState();
     private static final BlockState DIRT = Blocks.DIRT.defaultBlockState();
-    private static final BlockState LANTERN = Blocks.LANTERN.defaultBlockState();
     private static final BlockState FENCE = Blocks.SPRUCE_FENCE.defaultBlockState();
 
+    public final CityType type;
+
     public CityPlan(CityLayout.City city, int y0) {
+        this(city, y0, CityType.CAPITAL);
+    }
+
+    public CityPlan(CityLayout.City city, int y0, CityType type) {
+        this.type = type;
+        switch (type) {
+            case MOON -> {
+                GLASS = Blocks.PURPLE_STAINED_GLASS.defaultBlockState();
+                ROOF = Blocks.BLUE_TERRACOTTA.defaultBlockState();
+                ROOF2 = Blocks.CYAN_TERRACOTTA.defaultBlockState();
+                LANTERN = Blocks.SOUL_LANTERN.defaultBlockState();
+            }
+            case BLOSSOM -> {
+                GLASS = Blocks.PINK_STAINED_GLASS.defaultBlockState();
+                ROOF = Blocks.PINK_TERRACOTTA.defaultBlockState();
+                ROOF2 = Blocks.WHITE_TERRACOTTA.defaultBlockState();
+                LANTERN = Blocks.LANTERN.defaultBlockState();
+            }
+            case COMMON -> {
+                GLASS = Blocks.GREEN_STAINED_GLASS.defaultBlockState();
+                ROOF = Blocks.BROWN_TERRACOTTA.defaultBlockState();
+                ROOF2 = Blocks.SPRUCE_PLANKS.defaultBlockState();
+                LANTERN = Blocks.LANTERN.defaultBlockState();
+            }
+            default -> {
+                GLASS = Blocks.LIGHT_BLUE_STAINED_GLASS.defaultBlockState();
+                ROOF = Blocks.ORANGE_TERRACOTTA.defaultBlockState();
+                ROOF2 = Blocks.SMOOTH_RED_SANDSTONE.defaultBlockState();
+                LANTERN = Blocks.LANTERN.defaultBlockState();
+            }
+        }
         this.city = city;
         this.y0 = y0;
         this.cx = city.cx();
@@ -197,28 +231,54 @@ public final class CityPlan {
         tower(56, -114, 5, yC - 1, yC + 16, true);
         gate();
         // dev ağaçlar
-        trees.add(new GiantTree(seed + 101, cx - 38, yC, cz - 100));
-        trees.add(new GiantTree(seed + 202, cx + 38, yC, cz - 100));
+        int style = type == CityType.MOON ? 1 : type == CityType.BLOSSOM ? 2 : 0;
+        trees.add(new GiantTree(seed + 101, cx - 38, yC, cz - 100, style));
+        trees.add(new GiantTree(seed + 202, cx + 38, yC, cz - 100, style));
 
         // sakinler
-        npcs.add(new Npc(ElfKind.LIRAEL, cx + 20, yA + 1, cz + 8, "lirael"));
-        npcs.add(new Npc(ElfKind.VAELOR, cx - 14, yA + 1, cz + 24, "vaelor"));
-        npcs.add(new Npc(ElfKind.THALION, cx + 13, yA + 1, cz + 24, "thalion"));
-        npcs.add(new Npc(ElfKind.CAELAN, cx - 17, yB + 1, cz - 44, "caelan"));
-        npcs.add(new Npc(ElfKind.TAVI, cx + 22, yB + 1, cz - 34, "tavi"));
-        npcs.add(new Npc(ElfKind.NIMRAE, cx + 34, yC + 1, cz - 76, "nimrae"));
-        npcs.add(new Npc(ElfKind.GUARD, cx - 5, yA + 1, cz + 27, "gate_l"));
-        npcs.add(new Npc(ElfKind.GUARD, cx + 5, yA + 1, cz + 27, "gate_r"));
-        npcs.add(new Npc(ElfKind.GUARD, cx + 7, yB + 1, cz - 27, "terrace"));
-        npcs.add(new Npc(ElfKind.GUARD, cx - 4, yC + 1, cz - 60, "castle_l"));
-        // yaşayan kent: lord tahtında, taht muhafızları, kale kapısı, sur devriyeleri, avlu devriyesi
-        npcs.add(new Npc(ElfKind.AERENDIL, cx, yC + 1, cz - 76, "aerendil", true));
-        npcs.add(new Npc(ElfKind.GUARD, cx - 3, yC + 1, cz - 76, "royal_l", true));
-        npcs.add(new Npc(ElfKind.GUARD, cx + 3, yC + 1, cz - 76, "royal_r", true));
-        npcs.add(new Npc(ElfKind.GUARD, cx + 3, yC + 1, cz - 60, "castle_r", true));
-        npcs.add(new Npc(ElfKind.GUARD, cx - 30, yA + 10, cz + 31, "wall_l", true));
-        npcs.add(new Npc(ElfKind.GUARD, cx + 30, yA + 10, cz + 31, "wall_r", true));
-        npcs.add(new Npc(ElfKind.GUARD, cx, yA + 1, cz + 20, "patrol_a", true));
+        if (type == CityType.CAPITAL) {
+            npcs.add(new Npc(ElfKind.LIRAEL, cx + 20, yA + 1, cz + 8, "lirael"));
+            npcs.add(new Npc(ElfKind.VAELOR, cx - 14, yA + 1, cz + 24, "vaelor"));
+            npcs.add(new Npc(ElfKind.THALION, cx + 13, yA + 1, cz + 24, "thalion"));
+            npcs.add(new Npc(ElfKind.CAELAN, cx - 17, yB + 1, cz - 44, "caelan"));
+            npcs.add(new Npc(ElfKind.TAVI, cx + 22, yB + 1, cz - 34, "tavi"));
+            npcs.add(new Npc(ElfKind.NIMRAE, cx + 34, yC + 1, cz - 76, "nimrae"));
+            npcs.add(new Npc(ElfKind.GUARD, cx - 5, yA + 1, cz + 27, "gate_l"));
+            npcs.add(new Npc(ElfKind.GUARD, cx + 5, yA + 1, cz + 27, "gate_r"));
+            npcs.add(new Npc(ElfKind.GUARD, cx + 7, yB + 1, cz - 27, "terrace"));
+            npcs.add(new Npc(ElfKind.GUARD, cx - 4, yC + 1, cz - 60, "castle_l"));
+            // yaşayan kent: lord tahtında, taht muhafızları, kale kapısı, sur devriyeleri, avlu devriyesi
+            npcs.add(new Npc(ElfKind.AERENDIL, cx, yC + 1, cz - 76, "aerendil", true));
+            npcs.add(new Npc(ElfKind.GUARD, cx - 3, yC + 1, cz - 76, "royal_l", true));
+            npcs.add(new Npc(ElfKind.GUARD, cx + 3, yC + 1, cz - 76, "royal_r", true));
+            npcs.add(new Npc(ElfKind.GUARD, cx + 3, yC + 1, cz - 60, "castle_r", true));
+            npcs.add(new Npc(ElfKind.GUARD, cx - 30, yA + 10, cz + 31, "wall_l", true));
+            npcs.add(new Npc(ElfKind.GUARD, cx + 30, yA + 10, cz + 31, "wall_r", true));
+            npcs.add(new Npc(ElfKind.GUARD, cx, yA + 1, cz + 20, "patrol_a", true));
+        } else residents();
+    }
+
+    /** Başkent dışındaki kentlerin sakinleri: kent halkı, kendi giysili muhafızlar ve (özel kentlerde) bir lider. */
+    private void residents() {
+        int gv = type.guardVariant();
+        int[][] guards = {{-5, yA + 1, 27}, {5, yA + 1, 27}, {7, yB + 1, -27}, {-3, yC + 1, -60}, {3, yC + 1, -60}, {-3, yC + 1, -76},
+                {3, yC + 1, -76}, {-30, yA + 10, 31}, {30, yA + 10, 31}, {0, yA + 1, 20}};
+        String[] posts = {"gate_l", "gate_r", "terrace", "castle_l", "castle_r", "royal_l", "royal_r", "wall_l", "wall_r", "patrol_a"};
+        for (int i = 0; i < posts.length; i++) {
+            if (type == CityType.COMMON && posts[i].startsWith("royal")) continue;
+            npcs.add(new Npc(ElfKind.GUARD, cx + guards[i][0], guards[i][1], cz + guards[i][2], posts[i], false, gv));
+        }
+        if (type == CityType.MOON) npcs.add(new Npc(ElfKind.MOON_SEER, cx, yC + 1, cz - 76, "leader", false, 0));
+        if (type == CityType.BLOSSOM) npcs.add(new Npc(ElfKind.BLOSSOM_LADY, cx, yC + 1, cz - 76, "leader", false, 0));
+        // kent halkı: evlerinin önünde doğar, günlük işlerine gider
+        int[][] homes = {{-34, yA + 1, 18}, {-35, yA + 1, 2}, {-31, yA + 1, -14}, {34, yA + 1, 18}, {35, yA + 1, 2}, {31, yA + 1, -14},
+                {-22, yA + 1, 26}, {-42, yB + 1, -32}, {42, yB + 1, -32}, {-14, yA + 1, 14}};
+        int n = type == CityType.COMMON ? 10 : 8;
+        for (int i = 0; i < n; i++) {
+            ElfKind k = i % 2 == 0 ? ElfKind.TOWNSFOLK : ElfKind.TOWNSMAN;
+            int variant = (int) Math.floorMod(seed + i * 7L, 5);
+            npcs.add(new Npc(k, cx + homes[i][0], homes[i][1], cz + homes[i][2], "cit_" + i, false, variant));
+        }
     }
 
     /** Zemin döşemeleri (teras yüzeylerinin üstü feature tarafından çimle kaplanır; burada sadece taş zeminler). */

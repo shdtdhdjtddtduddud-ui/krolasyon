@@ -115,6 +115,31 @@ public final class CityLayout {
         return best;
     }
 
+    private static final Map<Long, java.util.Optional<City>> CAPITAL = new ConcurrentHashMap<>();
+
+    /** Dünyadaki tek başkent: dünya merkezine en yakın uygun kent (özel karakterler yalnızca burada yaşar). */
+    public static City capital(long worldSeed, ChunkGenerator gen, RandomState rs, LevelHeightAccessor h) {
+        return CAPITAL.computeIfAbsent(worldSeed, k -> {
+            for (int cells = 1; cells <= 14; cells++) {
+                City c = nearest(worldSeed, gen, rs, h, 0, 0, cells);
+                if (c == null) continue;
+                // daha dış halkalarda daha yakın bir kent kalmadığından emin ol
+                int reach = (int) (Math.hypot(c.cx(), c.cz()) / CELL) + 2;
+                if (reach > cells) c = nearest(worldSeed, gen, rs, h, 0, 0, reach);
+                return java.util.Optional.of(c);
+            }
+            return java.util.Optional.empty();
+        }).orElse(null);
+    }
+
+    public static CityType type(long worldSeed, City c, ChunkGenerator gen, RandomState rs, LevelHeightAccessor h) {
+        City cap = capital(worldSeed, gen, rs, h);
+        if (cap != null && cap.seed() == c.seed()) return CityType.CAPITAL;
+        long r = Noise.mix(c.seed() ^ 0x5EEDL);
+        int k = (int) Math.floorMod(r, 100);
+        return k < 35 ? CityType.MOON : k < 70 ? CityType.BLOSSOM : CityType.COMMON;
+    }
+
     /** Oyuncu kentin içinde mi? */
     public static boolean inside(City c, int x, int z) {
         int dx = x - c.cx(), dz = z - c.cz();

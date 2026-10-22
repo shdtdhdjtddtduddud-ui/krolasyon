@@ -82,6 +82,8 @@ public class ElfModel extends PlayerModel<ElfEntity> {
             case LIRAEL -> 0.8F;
             case VAELOR -> 0.85F;
             case AERENDIL -> 1.15F;
+            case MOON_SEER -> 1.4F;
+            case BLOSSOM_LADY -> 1.0F;
             default -> 0.45F;
         };
         if (kind == ElfKind.CAELAN) {
@@ -91,6 +93,9 @@ public class ElfModel extends PlayerModel<ElfEntity> {
         if (kind == ElfKind.AERENDIL) skirtF.yScale = skirtB.yScale = skirtL.yScale = skirtR.yScale = 1.05F;
         if (kind == ElfKind.NIMRAE) skirtF.yScale = skirtB.yScale = skirtL.yScale = skirtR.yScale = 1.0F;
         if (kind == ElfKind.LIRAEL) skirtF.yScale = skirtB.yScale = skirtL.yScale = skirtR.yScale = 0.9F;
+        if (kind == ElfKind.MOON_SEER) skirtF.yScale = skirtB.yScale = skirtL.yScale = skirtR.yScale = 1.12F;
+        if (kind == ElfKind.BLOSSOM_LADY) skirtF.yScale = skirtB.yScale = skirtL.yScale = skirtR.yScale = 0.95F;
+        if (kind == ElfKind.TOWNSMAN) skirtF.yScale = skirtB.yScale = skirtL.yScale = skirtR.yScale = 0.62F;
         if (kind == ElfKind.THALION) quiver.z = 4.2F;
         if (kind == ElfKind.TAVI) quiver.z = 3.4F;
     }
@@ -215,6 +220,15 @@ public class ElfModel extends PlayerModel<ElfEntity> {
     public void setupAnim(ElfEntity e, float limbSwing, float limbSwingAmount, float age, float netHeadYaw, float headPitch) {
         Activity a = e.getActivity();
         riding = a.seated() || e.isPassenger();
+        if (kind.citizen()) {
+            // kent halkı: her kişinin saç ve etek boyu farklı
+            int v = e.variant();
+            if (kind == ElfKind.TOWNSFOLK) {
+                hair.yScale = new float[]{0.7F, 1.05F, 0.5F, 0.9F, 1.2F}[v % 5];
+                float sk = new float[]{0.8F, 1.0F, 0.7F, 0.92F, 1.02F}[v % 5];
+                skirtF.yScale = skirtB.yScale = skirtL.yScale = skirtR.yScale = sk;
+            } else cloakShort.visible = v % 5 != 2;
+        }
         super.setupAnim(e, limbSwing, limbSwingAmount, age, netHeadYaw, headPitch);
         float breath = Mth.sin(age * 0.07F);
         float walk = Math.min(1F, limbSwingAmount);
@@ -371,7 +385,7 @@ public class ElfModel extends PlayerModel<ElfEntity> {
         tails.xRot = Math.max(0F, Math.max(rightLeg.xRot, leftLeg.xRot)) * 0.8F + 0.05F;
         tabardB.xRot = Math.max(0F, Math.max(rightLeg.xRot, leftLeg.xRot)) * 0.8F + 0.03F;
         tabardF.xRot = Math.min(0F, Math.min(rightLeg.xRot, leftLeg.xRot)) * 0.8F - 0.03F;
-        float flare = kind == ElfKind.CAELAN || kind == ElfKind.AERENDIL ? 0.06F : kind == ElfKind.NIMRAE ? 0.1F : 0.2F;
+        float flare = kind == ElfKind.CAELAN || kind == ElfKind.AERENDIL || kind == ElfKind.MOON_SEER ? 0.06F : kind == ElfKind.NIMRAE ? 0.1F : 0.2F;
         if (a.seated()) {
             skirtF.xRot = -1.35F;
             skirtB.xRot = flare;

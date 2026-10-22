@@ -56,6 +56,7 @@ import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -79,6 +80,12 @@ import java.util.UUID;
 public class ElfEntity extends PathfinderMob implements RangedAttackMob {
     private static final EntityDataAccessor<Integer> ACTIVITY = SynchedEntityData.defineId(ElfEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Optional<UUID>> OWNER = SynchedEntityData.defineId(ElfEntity.class, EntityDataSerializers.OPTIONAL_UUID);
+    /** Görünüş çeşidi (doku): kent halkında kişi, muhafızlarda kentin giysisi. */
+    private static final EntityDataAccessor<Integer> VARIANT = SynchedEntityData.defineId(ElfEntity.class, EntityDataSerializers.INT);
+    private static final String[] WOMEN = {"Elowen", "Aelira", "Sylvi", "Miriel", "Naeris", "Ilyra", "Faeleth", "Lothien", "Yavanna", "Ciriel",
+            "Thessa", "Aranel", "Nimue", "Elaria", "Seraphel", "Linwe"};
+    private static final String[] MEN = {"Eldan", "Fenor", "Aerion", "Galen", "Thaeros", "Lindir", "Cael", "Orophin", "Haldor", "Erevan",
+            "Ruvaen", "Soren", "Belethor", "Ivellios", "Taeral", "Mirthal"};
     public static final byte EVENT_CAST = 60, EVENT_LUNGE = 61;
     public static final int DAY = 24000;
 
@@ -96,6 +103,9 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
     /** Şu anki görevin adı (boş: programda değil). */
     public String routineKey = "";
     @Nullable private UUID lordId;
+    /** Kentin türü (başkent dışında kentin kendi replikleri kullanılır) ve kent halkının adı. */
+    private com.krolasyon.elvenrealm.world.CityType cityType = com.krolasyon.elvenrealm.world.CityType.CAPITAL;
+    private String personName = "", cityName = "Sylvaren";
     private int lordScan, bowCd;
     /** Yalnızca istemci: büyü/hamle animasyonu sayaçları. */
     public int castAnim, lungeAnim;
@@ -126,6 +136,7 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
         super.defineSynchedData();
         entityData.define(ACTIVITY, 0);
         entityData.define(OWNER, Optional.empty());
+        entityData.define(VARIANT, 0);
     }
 
     // ------------------------------------------------------------------ hedefler
@@ -141,6 +152,11 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
             case RANGER -> goalSelector.addGoal(2, new RangedAttackGoal(this, 1.0, 30, 18F));
             case ARCANE -> goalSelector.addGoal(2, new RangedAttackGoal(this, 1.0, 40, 12F));
             case HEALER -> goalSelector.addGoal(2, new RangedAttackGoal(this, 1.0, 50, 10F));
+            case CIVILIAN -> {
+                // kent halkı savaşmaz: canavardan kaçar, yaralanınca panikler
+                goalSelector.addGoal(1, new net.minecraft.world.entity.ai.goal.PanicGoal(this, 1.3));
+                goalSelector.addGoal(2, new net.minecraft.world.entity.ai.goal.AvoidEntityGoal<>(this, Monster.class, 10F, 0.9, 1.25));
+            }
             default -> goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.15, true));
         }
         goalSelector.addGoal(3, new FollowOwnerGoal());
@@ -161,6 +177,7 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
         goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 8F));
         goalSelector.addGoal(8, new RandomLookAroundGoal(this));
 
+        if (kind.role == ElfKind.Role.CIVILIAN) return;
         targetSelector.addGoal(1, new HurtByTargetGoal(this, Player.class, ElfEntity.class));
         targetSelector.addGoal(2, new DefendOwnerGoal());
         targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Monster.class, 8, true, false, this::wantsToFight));
@@ -169,7 +186,7 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
     private boolean wantsToFight(LivingEntity e) {
         if (!(e instanceof Enemy) || e instanceof EnderMan || e instanceof ZombifiedPiglin) return false;
         if (e instanceof Creeper && !kind.ranged() && kind.role != ElfKind.Role.ARCANE) return false;
-        if (isRecovering()) return false;
+        if (isRecovering() || kind.role == ElfKind.Role.CIVILIAN) return false;
         if (isHired()) return true;
         if (city != null) return city.distSqr(e.blockPosition()) < 110 * 110;
         return home == null || home.distSqr(e.blockPosition()) < 24 * 24;
@@ -289,15 +306,59 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
         if (getActivity() == Activity.TALK) setActivity(Activity.NONE, 0);
     }
 
+    public int variant() {
+        return entityData.get(VARIANT);
+    }
+
+    public void setVariant(int v) {
+        entityData.set(VARIANT, v);
+    }
+
+    public com.krolasyon.elvenrealm.world.CityType cityType() {
+        return cityType;
+    }
+
+    /** Kente bağlanırken kentin türü ve (kent halkı için) kişinin adı. */
+    public void setCityType(com.krolasyon.elvenrealm.world.CityType t, String cityName, long seed) {
+        cityType = t;
+        this.cityName = cityName;
+        if (kind.citizen() && personName.isEmpty()) {
+            String[] names = kind == ElfKind.TOWNSFOLK ? WOMEN : MEN;
+            personName = names[(int) Math.floorMod(seed, names.length)];
+        }
+    }
+
+    public String cityName() {
+        return cityName;
+    }
+
+    /** Replikteki yer tutucular: {p} oyuncu, {c} kent. */
+    public String fill(String line, Player p) {
+        return line.replace("{p}", p.getName().getString()).replace("{c}", cityName);
+    }
+
+    public String elfName() {
+        if (!personName.isEmpty()) return personName;
+        if (kind == ElfKind.GUARD && cityType != com.krolasyon.elvenrealm.world.CityType.CAPITAL) return "Elf Muhafızı";
+        return kind.name;
+    }
+
     public Component displayName() {
-        return Component.literal(kind.name).withStyle(kind == ElfKind.AERENDIL ? ChatFormatting.YELLOW : kind == ElfKind.VAELOR ? ChatFormatting.DARK_PURPLE
-                : kind == ElfKind.NIMRAE ? ChatFormatting.GOLD : kind == ElfKind.CAELAN ? ChatFormatting.AQUA
-                : kind == ElfKind.GUARD ? ChatFormatting.GRAY : ChatFormatting.GREEN);
+        return Component.literal(elfName()).withStyle(kind == ElfKind.AERENDIL ? ChatFormatting.YELLOW : kind == ElfKind.VAELOR ? ChatFormatting.DARK_PURPLE
+                : kind == ElfKind.NIMRAE ? ChatFormatting.GOLD : kind == ElfKind.CAELAN || kind == ElfKind.MOON_SEER ? ChatFormatting.AQUA
+                : kind == ElfKind.BLOSSOM_LADY ? ChatFormatting.LIGHT_PURPLE : kind == ElfKind.GUARD ? ChatFormatting.GRAY
+                : kind.citizen() ? ChatFormatting.WHITE : ChatFormatting.GREEN);
+    }
+
+    /** Başkent dışındaki kentlerde, varsa, kentin kendisine uyan replik ("_other"). */
+    public String lineKey(String key) {
+        if (cityType != com.krolasyon.elvenrealm.world.CityType.CAPITAL && Lines.has(kind, key + "_other")) return key + "_other";
+        return key;
     }
 
     /** Karakterin kendi tarzında bir satırı oyuncuya söyler (sohbet ya da eylem çubuğu). */
     public void say(Player p, String key, boolean actionBar) {
-        String line = Lines.get(kind, key, random).replace("{p}", p.getName().getString());
+        String line = fill(Lines.get(kind, lineKey(key), random), p);
         Component c = Component.empty().append(displayName()).append(Component.literal(": ").withStyle(ChatFormatting.DARK_GRAY))
                 .append(Component.literal(line).withStyle(ChatFormatting.WHITE));
         p.displayClientMessage(c, actionBar);
@@ -310,6 +371,9 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
             case THALION, GUARD -> SoundEvents.NOTE_BLOCK_DIDGERIDOO.value();
             case NIMRAE -> SoundEvents.NOTE_BLOCK_CHIME.value();
             case AERENDIL -> SoundEvents.NOTE_BLOCK_GUITAR.value();
+            case MOON_SEER -> SoundEvents.NOTE_BLOCK_IRON_XYLOPHONE.value();
+            case BLOSSOM_LADY -> SoundEvents.NOTE_BLOCK_CHIME.value();
+            case TOWNSMAN -> SoundEvents.NOTE_BLOCK_BANJO.value();
             case TAVI -> SoundEvents.NOTE_BLOCK_BELL.value();
             default -> SoundEvents.NOTE_BLOCK_FLUTE.value();
         };
@@ -322,6 +386,10 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
         return switch (kind) {
             case TAVI, THALION -> new ItemStack(Items.BOW);
             case GUARD -> new ItemStack(Items.IRON_SWORD);
+            case MOON_SEER -> getActivity() == Activity.SIT ? ItemStack.EMPTY : new ItemStack(Items.END_ROD);
+            case BLOSSOM_LADY -> new ItemStack(Items.PINK_PETALS);
+            case TOWNSFOLK -> new ItemStack(new Item[]{Items.POPPY, Items.APPLE, Items.EMPTY_MAP, Items.SWEET_BERRIES, Items.ALLIUM}[variant() % 5]);
+            case TOWNSMAN -> new ItemStack(new Item[]{Items.BREAD, Items.WOODEN_HOE, Items.EMPTY_MAP, Items.FISHING_ROD, Items.FLOWER_POT}[variant() % 5]);
             default -> ItemStack.EMPTY;
         };
     }
@@ -334,6 +402,7 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
             case GUARD -> new ItemStack(Items.IRON_SWORD);
             case CAELAN -> new ItemStack(Items.ENCHANTED_BOOK);
             case AERENDIL -> new ItemStack(Items.BLAZE_ROD);
+            case MOON_SEER -> new ItemStack(Items.END_ROD);
             default -> ItemStack.EMPTY;
         };
     }
@@ -555,7 +624,7 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
     private void support() {
         if (supportCd > 0 || isRecovering()) return;
         Player o = owner();
-        if (kind == ElfKind.NIMRAE) {
+        if (kind == ElfKind.NIMRAE || kind == ElfKind.BLOSSOM_LADY) {
             LivingEntity patient = null;
             if (o != null && o.distanceToSqr(this) < 144 && o.getHealth() < o.getMaxHealth() * 0.75F) patient = o;
             else if (getHealth() < getMaxHealth() * 0.5F) patient = this;
@@ -590,7 +659,7 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
         }
         if (isTalking() || isRecovering() || getTarget() != null || tickCount % 20 != 0) return;
         // lord geçerken muhafızlar selam durur, diğerleri eğilir
-        if (kind != ElfKind.AERENDIL && bowCd == 0 && hasRoutine() && !getActivity().seated()) {
+        if (!kind.leader() && bowCd == 0 && hasRoutine() && !getActivity().seated()) {
             ElfEntity lord = lord();
             if (lord != null && lord.distanceToSqr(this) < 49 && !lord.getNavigation().isDone()) {
                 setActivity(kind == ElfKind.GUARD ? Activity.SALUTE : Activity.BOW, 45);
@@ -616,13 +685,19 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
         if (!kind.unique() && random.nextBoolean()) return;
         say(near, "approach", true);
         if (kind == ElfKind.GUARD && getActivity() == Activity.STAND) setActivity(Activity.SALUTE, 40);
-        else if (kind == ElfKind.AERENDIL) {
+        else if (kind.leader()) {
             if (!getActivity().seated()) setActivity(Activity.WAVE, 30);
         } else if (getActivity() == Activity.NONE || getActivity() == Activity.CROSS_ARMS || getActivity() == Activity.STAND) setActivity(Activity.WAVE, 40);
         getLookControl().setLookAt(near, 30F, 30F);
     }
 
     private void clientParticles() {
+        if (kind == ElfKind.MOON_SEER && random.nextInt(8) == 0) {
+            level().addParticle(ParticleTypes.END_ROD, getRandomX(0.7), getY() + 0.4 + random.nextDouble() * 1.8, getRandomZ(0.7), 0, 0.005, 0);
+        }
+        if (kind == ElfKind.BLOSSOM_LADY && random.nextInt(9) == 0) {
+            level().addParticle(ParticleTypes.CHERRY_LEAVES, getRandomX(0.8), getY() + 1.6 + random.nextDouble() * 0.6, getRandomZ(0.8), 0, 0, 0);
+        }
         if (kind == ElfKind.NIMRAE && random.nextInt(10) == 0) {
             level().addParticle(ParticleTypes.END_ROD, getRandomX(0.6), getY() + 0.2 + random.nextDouble() * 1.8, getRandomZ(0.6), 0, 0.01, 0);
         }
@@ -666,7 +741,7 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
                 level().addFreshEntity(arrow);
                 if (kind == ElfKind.TAVI && random.nextInt(4) == 0) playSound(SoundEvents.PARROT_AMBIENT, 0.7F, 1.6F);
             }
-            case AERENDIL -> {
+            case AERENDIL, MOON_SEER -> {
                 // Yıldız ışını: Kadim Ağaçların ışığı
                 beam(sl, target, ParticleTypes.END_ROD);
                 target.hurt(damageSources().indirectMagic(this, this), kind.damage + 4);
@@ -681,7 +756,7 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
                 level().broadcastEntityEvent(this, EVENT_CAST);
                 playSound(SoundEvents.EVOKER_CAST_SPELL, 1F, 1.5F);
             }
-            case NIMRAE -> {
+            case NIMRAE, BLOSSOM_LADY -> {
                 // Kök bağı: hedef yerine kenetlenir
                 level().broadcastEntityEvent(this, EVENT_CAST);
                 target.hurt(damageSources().indirectMagic(this, this), kind.damage + 1);
@@ -720,6 +795,10 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
         tag.putString("Post", post);
         tag.putBoolean("CityChecked", cityChecked);
         tag.putBoolean("Planned", planned);
+        tag.putInt("Variant", variant());
+        tag.putString("CityType", cityType.name());
+        if (!personName.isEmpty()) tag.putString("PersonName", personName);
+        tag.putString("CityName", cityName);
     }
 
     private Optional<UUID> ownerOpt() {
@@ -737,6 +816,14 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
         hireUntil = tag.getLong("HireUntil");
         recoverUntil = tag.getLong("RecoverUntil");
         cityChecked = tag.getBoolean("CityChecked");
+        setVariant(tag.getInt("Variant"));
+        personName = tag.getString("PersonName");
+        if (tag.contains("CityName")) cityName = tag.getString("CityName");
+        if (tag.contains("CityType")) {
+            try {
+                cityType = com.krolasyon.elvenrealm.world.CityType.valueOf(tag.getString("CityType"));
+            } catch (IllegalArgumentException ignored) {}
+        }
         if (tag.contains("City")) setCity(NbtUtils.readBlockPos(tag.getCompound("City")), tag.getString("Post"), tag.getBoolean("Planned"));
     }
 
@@ -865,7 +952,9 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
                 home.getX(), home.getZ(), 1);
         if (c == null || !com.krolasyon.elvenrealm.world.CityLayout.inside(c, home.getX(), home.getZ())) return;
         BlockPos center = new BlockPos(c.cx(), com.krolasyon.elvenrealm.world.CityLayout.base(c, gen, rs, sl), c.cz());
-        setCity(center, kind.unique() ? kind.id : Routine.nearestGuardPost(center, home));
+        var type = com.krolasyon.elvenrealm.world.CityLayout.type(sl.getSeed(), c, gen, rs, sl);
+        setCityType(type, type.name(c.seed()), getUUID().getLeastSignificantBits());
+        setCity(center, kind.citizen() ? "cit_" + Math.floorMod(getUUID().hashCode(), 8) : kind.unique() ? kind.id : Routine.nearestGuardPost(center, home));
     }
 
     /** Aynı görev yerinde iki planlı sakin varsa biri sessizce ayrılır. */
@@ -887,7 +976,7 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
         if (--lordScan > 0) return null;
         lordScan = 100;
         lordId = null;
-        List<ElfEntity> list = level().getEntitiesOfClass(ElfEntity.class, getBoundingBox().inflate(80), x -> x.kind == ElfKind.AERENDIL);
+        List<ElfEntity> list = level().getEntitiesOfClass(ElfEntity.class, getBoundingBox().inflate(80), x -> x.kind.leader() && x.city != null && x.city.equals(city));
         if (list.isEmpty()) return null;
         lordId = list.get(0).getUUID();
         return list.get(0);

@@ -66,14 +66,21 @@ public final class DialogueManager {
     private static List<Option> root(ServerPlayer p, ElfEntity elf) {
         ElfKind k = elf.kind;
         List<Option> o = new ArrayList<>();
+        if (k.citizen()) {
+            o.add(opt("Biraz kendinden bahset.", "about"));
+            o.add(opt(elf.cityName() + " nasıl bir yer?", "city"));
+            o.add(opt("Kentte neler oluyor?", "gossip"));
+            o.add(opt("Hoşça kal.", "bye"));
+            return o;
+        }
         if (!k.unique()) {
-            o.add(opt("Sylvaren'in kuralları nedir?", "about"));
+            o.add(opt(elf.cityName() + " kentinin kuralları nedir?", "about"));
             o.add(opt("Kentte neler oluyor?", "gossip"));
             o.add(opt("Hoşça kal.", "bye"));
             return o;
         }
         o.add(opt("Biraz kendinden bahset.", "about"));
-        o.add(opt("Sylvaren nasıl bir yer?", "city"));
+        o.add(opt(elf.cityName() + " nasıl bir yer?", "city"));
         o.add(opt("Kentte neler oluyor?", "gossip"));
         List<Quests.Quest> qs = Quests.of(k);
         int qi = PlayerData.questIndex(p, k);
@@ -315,7 +322,7 @@ public final class DialogueManager {
     // ------------------------------------------------------------------ yardımcılar
 
     private static MutableComponent line(ElfEntity elf, Player p, String key) {
-        return Component.literal(Lines.get(elf.kind, key, elf.getRandom()).replace("{p}", p.getName().getString()));
+        return Component.literal(elf.fill(Lines.get(elf.kind, elf.lineKey(key), elf.getRandom()), p));
     }
 
     private static MutableComponent gray(String s) {
@@ -338,7 +345,7 @@ public final class DialogueManager {
         }
         SESSIONS.put(p.getUUID(), new Session(elf.getId(), actions));
         int qs = PlayerData.questActive(p, elf.kind) ? 1 : 0;
-        Net.send(p, new Net.OpenDialogue(elf.getId(), elf.kind.name, elf.kind.title, Component.Serializer.toJson(text), labels,
+        Net.send(p, new Net.OpenDialogue(elf.getId(), elf.elfName(), elf.kind.title, Component.Serializer.toJson(text), labels,
                 elf.kind.unique() ? PlayerData.friendship(p, elf.kind) : -1, qs, elf.kind.voice));
     }
 }

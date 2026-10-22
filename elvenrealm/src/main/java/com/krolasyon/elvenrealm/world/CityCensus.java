@@ -68,12 +68,13 @@ public final class CityCensus extends SavedData {
         var rs = level.getChunkSource().randomState();
         int y0 = CityLayout.base(c, gen, rs, level);
         if (y0 == Integer.MIN_VALUE) return;
+        if (CityLayout.type(level.getSeed(), c, gen, rs, level) != CityType.CAPITAL) return;
         CityCensus census = get(level);
         CityPlan plan = null;
         AABB box = new AABB(c.cx() - 70, y0 - 20, c.cz() - 130, c.cx() + 70, y0 + 80, c.cz() + 60);
         for (String post : new String[]{"aerendil", "royal_l", "royal_r", "castle_r", "wall_l", "wall_r", "patrol_a"}) {
             if (census.has(c.seed(), post)) continue;
-            if (plan == null) plan = ElvenCityFeature.plan(c, y0);
+            if (plan == null) plan = ElvenCityFeature.plan(c, y0, CityType.CAPITAL);
             for (CityPlan.Npc n : plan.npcs) {
                 if (!n.post().equals(post)) continue;
                 BlockPos p = new BlockPos(n.x(), n.y(), n.z());

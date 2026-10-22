@@ -25,6 +25,9 @@ public enum Activity {
             case THALION -> new Activity[]{CROSS_ARMS, PRACTICE, KNEEL};
             case AERENDIL -> new Activity[]{SIT, READ, CROSS_ARMS};
             case GUARD -> new Activity[]{STAND, CROSS_ARMS};
+            case TOWNSFOLK, TOWNSMAN -> new Activity[]{TALK, SIT, CROSS_ARMS, KNEEL};
+            case MOON_SEER -> new Activity[]{MEDITATE, READ, PRAY};
+            case BLOSSOM_LADY -> new Activity[]{KNEEL, MEDITATE, SIT};
         };
     }
 

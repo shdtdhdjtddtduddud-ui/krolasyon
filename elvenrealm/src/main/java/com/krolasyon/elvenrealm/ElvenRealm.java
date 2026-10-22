@@ -79,7 +79,8 @@ public final class ElvenRealm {
 
     static {
         int[][] colors = {{0x4F8A3A, 0xE8C46A}, {0x1C1C22, 0xC9CBD6}, {0x3F6B3A, 0xECE8DC}, {0x6B4A35, 0xF2F0EA}, {0x4C7A3E, 0xB8BCC2},
-                {0x3D5F33, 0x6B5034}, {0x245A34, 0xE0B84A}, {0x2E5A33, 0xD9B45A}};
+                {0x3D5F33, 0x6B5034}, {0x245A34, 0xE0B84A}, {0x2E5A33, 0xD9B45A},
+                {0x7A5C3E, 0xD8C8A0}, {0x5A6E3A, 0x9C7A4E}, {0x2A2F5C, 0xC8D2F0}, {0xF2C6D6, 0x6E9A4A}};
         for (ElfKind k : ElfKind.values()) {
             RegistryObject<EntityType<ElfEntity>> t = ENTITIES.register("elf_" + k.id, () -> EntityType.Builder
                     .<ElfEntity>of((type, level) -> new ElfEntity(type, level, k), MobCategory.MISC)
@@ -193,9 +194,16 @@ public final class ElvenRealm {
         boolean was = data.getBoolean("elvenrealm_inside");
         if (inside && !was) {
             com.krolasyon.elvenrealm.world.CityCensus.ensure(level, c);
+            var type = CityLayout.type(level.getSeed(), c, level.getChunkSource().getGenerator(), level.getChunkSource().randomState(), level);
+            ChatFormatting color = switch (type) {
+                case MOON -> ChatFormatting.AQUA;
+                case BLOSSOM -> ChatFormatting.LIGHT_PURPLE;
+                case COMMON -> ChatFormatting.GREEN;
+                default -> ChatFormatting.GOLD;
+            };
             p.connection.send(new ClientboundSetTitlesAnimationPacket(15, 80, 25));
-            p.connection.send(new ClientboundSetSubtitleTextPacket(Component.translatable("title.elvenrealm.sub").withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC)));
-            p.connection.send(new ClientboundSetTitleTextPacket(Component.translatable("title.elvenrealm.city").withStyle(ChatFormatting.GOLD)));
+            p.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal(type.subtitle).withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC)));
+            p.connection.send(new ClientboundSetTitleTextPacket(Component.literal(type.name(c.seed())).withStyle(color)));
             level.playSound(null, p.blockPosition(), SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.AMBIENT, 1F, 0.7F);
         }
         data.putBoolean("elvenrealm_inside", inside);

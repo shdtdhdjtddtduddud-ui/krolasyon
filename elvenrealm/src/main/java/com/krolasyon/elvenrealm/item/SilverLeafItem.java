@@ -26,9 +26,12 @@ public final class SilverLeafItem extends Item {
     }
 
     public static void search(ServerLevel level, ItemStack stack, Entity holder) {
-        CityLayout.City v = CityLayout.nearest(level.getSeed(), level.getChunkSource().getGenerator(), level.getChunkSource().randomState(), level,
-                holder.getBlockX(), holder.getBlockZ(), 4);
         CompoundTag tag = stack.getOrCreateTag();
+        var gen = level.getChunkSource().getGenerator();
+        var rs = level.getChunkSource().randomState();
+        CityLayout.City v = tag.getBoolean("Capital") ? CityLayout.capital(level.getSeed(), gen, rs, level)
+                : CityLayout.nearest(level.getSeed(), gen, rs, level, holder.getBlockX(), holder.getBlockZ(), 4);
+        if (v != null) tag.putString("CityName", CityLayout.type(level.getSeed(), v, gen, rs, level).name(v.seed()));
         if (v == null) {
             tag.remove("CityX");
             tag.putBoolean("CityNone", true);
@@ -43,11 +46,18 @@ public final class SilverLeafItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (level instanceof ServerLevel sl && level.dimension() == Level.OVERWORLD) {
+            if (player.isShiftKeyDown()) {
+                boolean cap = !stack.getOrCreateTag().getBoolean("Capital");
+                stack.getOrCreateTag().putBoolean("Capital", cap);
+                player.displayClientMessage(Component.translatable(cap ? "tooltip.elvenrealm.mode_capital" : "tooltip.elvenrealm.mode_nearest")
+                        .withStyle(ChatFormatting.AQUA), false);
+            }
             search(sl, stack, player);
             level.playSound(null, player.blockPosition(), SoundEvents.LODESTONE_COMPASS_LOCK, SoundSource.PLAYERS, 1.0F, 1.0F);
             if (stack.getTag() != null && stack.getTag().contains("CityX")) {
                 int dx = stack.getTag().getInt("CityX") - player.getBlockX(), dz = stack.getTag().getInt("CityZ") - player.getBlockZ();
-                player.displayClientMessage(Component.translatable("tooltip.elvenrealm.compass_target", stack.getTag().getInt("CityX"),
+                player.displayClientMessage(Component.translatable("tooltip.elvenrealm.compass_target", stack.getTag().getString("CityName"),
+                        stack.getTag().getInt("CityX"),
                         stack.getTag().getInt("CityZ"), (int) Math.sqrt((double) dx * dx + (double) dz * dz)).withStyle(ChatFormatting.GREEN), true);
             } else {
                 player.displayClientMessage(Component.translatable("tooltip.elvenrealm.compass_none").withStyle(ChatFormatting.GRAY), true);
@@ -69,7 +79,7 @@ public final class SilverLeafItem extends Item {
         tooltip.add(Component.translatable("tooltip.elvenrealm.compass").withStyle(ChatFormatting.GRAY));
         CompoundTag t = stack.getTag();
         if (t != null && t.contains("CityX")) {
-            tooltip.add(Component.literal(t.getInt("CityX") + ", " + t.getInt("CityZ")).withStyle(ChatFormatting.GREEN));
+            tooltip.add(Component.literal(t.getString("CityName") + ": " + t.getInt("CityX") + ", " + t.getInt("CityZ")).withStyle(ChatFormatting.GREEN));
         }
     }
 

@@ -44,6 +44,14 @@ public final class GiantTree {
     final List<Blob> leaves = new ArrayList<>();
     public final int minX, maxX, minZ, maxZ, minY, maxY;
 
+    /** 0: kadim meşe, 1: ay (huş gövde, solgun ışıklar), 2: kiraz çiçeği. */
+    public int style;
+
+    public GiantTree(long seed, int x, int y, int z, int style) {
+        this(seed, x, y, z);
+        this.style = style;
+    }
+
     public GiantTree(long seed, int x, int y, int z) {
         this.seed = seed;
         this.x = x;
@@ -165,12 +173,18 @@ public final class GiantTree {
     public BlockState blockAt(int bx, int by, int bz) {
         if (isWood(bx, by, bz)) {
             if (isRoot(bx, by, bz) && !isWood(bx, by + 1, bz) && n(3, bx, by, bz) < 0.5) return Blocks.MOSS_BLOCK.defaultBlockState();
-            return Blocks.OAK_WOOD.defaultBlockState();
+            return style == 1 ? Blocks.BIRCH_WOOD.defaultBlockState() : style == 2 ? Blocks.CHERRY_WOOD.defaultBlockState()
+                    : Blocks.OAK_WOOD.defaultBlockState();
         }
         if (isLeaf(bx, by, bz)) {
             double r = n(4, bx, by, bz);
-            if (r < 0.006 && isLeaf(bx, by + 1, bz) && isLeaf(bx, by - 1, bz)) return Blocks.SHROOMLIGHT.defaultBlockState();
-            BlockState l = r < 0.68 ? Blocks.OAK_LEAVES.defaultBlockState() : r < 0.9 ? Blocks.AZALEA_LEAVES.defaultBlockState()
+            if (r < 0.006 && isLeaf(bx, by + 1, bz) && isLeaf(bx, by - 1, bz))
+                return style == 1 ? Blocks.PEARLESCENT_FROGLIGHT.defaultBlockState() : Blocks.SHROOMLIGHT.defaultBlockState();
+            BlockState l;
+            if (style == 2) l = r < 0.85 ? Blocks.CHERRY_LEAVES.defaultBlockState() : Blocks.FLOWERING_AZALEA_LEAVES.defaultBlockState();
+            else if (style == 1) l = r < 0.6 ? Blocks.DARK_OAK_LEAVES.defaultBlockState() : r < 0.88 ? Blocks.AZALEA_LEAVES.defaultBlockState()
+                    : Blocks.BIRCH_LEAVES.defaultBlockState();
+            else l = r < 0.68 ? Blocks.OAK_LEAVES.defaultBlockState() : r < 0.9 ? Blocks.AZALEA_LEAVES.defaultBlockState()
                     : Blocks.FLOWERING_AZALEA_LEAVES.defaultBlockState();
             return l.setValue(LeavesBlock.PERSISTENT, true);
         }

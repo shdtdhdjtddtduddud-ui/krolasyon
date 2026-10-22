@@ -279,6 +279,123 @@ public final class Lines {
         put(k, "duty_escort", "Lord yürüyüşte. Mesafeni koru.");
         put(k, "lord_pass", "Lordum!", "Sylvaren'in Lordu geçiyor!");
 
+        // ------------------------------------------------------------------ başkent dışındaki kentlerin muhafızları
+        k = ElfKind.GUARD;
+        put(k, "greet_other", "{c} kentine hoş geldin, yolcu. Silahını kınında tut, gönlünü açık.", "{c} huzurlu bir kenttir. Öyle kalsın.",
+                "Yabancı! ...Ah, korkma. Burada yabancıya çay ikram edilir, ok değil.");
+        put(k, "greet_friend_other", "Dost {p}! {c} seni unutmadı.");
+        put(k, "about_other", "Kuralımız basit: ağaç kesilmez, çiçek koparılmaz, kavga edilmez. Bir de çeşmeye ayak sokulmaz, halk çok hassas.",
+                "Ben {c} muhafızıyım. Kalkanım kentin kapısıdır, sabrım ise surları kadar uzun.");
+        put(k, "city_other", "{c} küçük ama gururlu bir kenttir. Başkentin ihtişamı yok belki, ama ekmeği daha sıcak.",
+                "Başkent Sylvaren mi? Kuzeyde bir yerde, dediklerine göre. Gümüş Yaprak'ı eğilerek kullanırsan sana yolu gösterir.");
+        put(k, "gossip_other", "Fırıncının kızı yine muhafız yüzbaşısına göz kırpmış. Yüzbaşı benim. Kimseye söyleme.",
+                "Sylvaren'deki Lord Aerendil'in üç bin yaşında olduğunu söylerler. Ben iki yüz yaşındayım ve şimdiden dizlerim ağrıyor.",
+                "Gece surlarda bir baykuş vardı. Bana baktı. Ben de ona baktım. Kazanan belli değil.");
+        put(k, "duty_royal_other", "Hanımımın huzurundasın. Saygılı ol.", "Taht muhafızı. Kıpırdamam.");
+        put(k, "duty_escort_other", "Kentin önderi yürüyüşte. Mesafeni koru.");
+        put(k, "lord_pass_other", "Hanımım!", "Kentin önderi geçiyor, açılın!");
+
+        // ------------------------------------------------------------------ KENT HALKI: sıradan, sıcak, günlük dertleriyle elfler
+        for (ElfKind c : new ElfKind[]{ElfKind.TOWNSFOLK, ElfKind.TOWNSMAN}) {
+            put(c, "combat", "İmdat! Muhafızlar!", "Kaçın, kaçın!");
+            put(c, "hurt", "Ay! Ben sadece bir kent sakiniyim!");
+            put(c, "recovering", "Biraz dinlenmem gerek... Yarın gel, olur mu?");
+            put(c, "farewell", "Yolun açık olsun!", "Ağaçlar seni korusun, yolcu.", "Yine uğra! Kapımız açık.");
+            put(c, "hire_refuse", "Ben mi? Maceraya mı? Ah, hayır hayır. Benim işim burada.");
+            put(c, "duty_fountain", "Çeşmenin başında oturmak gibisi yok. Bütün dedikodular buradan geçer.", "Su sesi... insanın içini serinletiyor.");
+            put(c, "duty_market", "Pazara bakıyorum. Elma ucuzlamış, ama yine de pahalı.", "Şu tezgâhtaki kumaş ne güzel! Paramı saymam lazım.");
+            put(c, "duty_read", "Kütüphanede okumak kentin en sessiz zevki.", "Bu kitapta bir ejderha var. Daha üçüncü sayfadayım ama şimdiden korkuyorum.");
+            put(c, "duty_watch", "Muhafızların talimini izlemek hoşuma gidiyor. Ben olsam üç saniyede yorulurdum.");
+            put(c, "duty_garden", "Kale bahçesindeki çiçekleri ben sularım. Kimse teşekkür etmez ama çiçekler eder.");
+            put(c, "duty_stroll", "Akşamüstü yürüyüşü. Bacaklarım şikâyet ediyor, ruhum teşekkür.", "Terastan manzara harika, değil mi?");
+            put(c, "duty_bench", "Bu bank benim. Yani herkesin ama en çok benim.");
+            put(c, "duty_archery", "Okçuları izliyorum. Bir gün ben de denerim. Belki. Bir gün.");
+            put(c, "duty_rest", "Gün bitti. Ayaklarımı uzatıp yıldızları sayacağım.", "Evimin önü en güzel yer. Hele gece.");
+        }
+        k = ElfKind.TOWNSFOLK;
+        put(k, "greet", "Ah, bir yolcu! {c} kentine hoş geldin. Acıktıysan söyle, fırından yeni çıktı.",
+                "Merhaba! Seni daha önce görmedim. Uzaklardan mı geldin?", "Selam, {p}! Bugün ne güzel bir gün, değil mi?");
+        put(k, "greet_friend", "{p}! Yine geldin! Gel, otur, anlat bakalım neler yaptın.");
+        put(k, "about", "Ben buranın kızıyım; burada doğdum, burada büyüdüm. Sabahları çiçek toplar, akşamları çeşmede komşularla laflarım.",
+                "Benim işim mi? Dokumacıyım. Bu kentteki pelerinlerin yarısı benim tezgâhımdan çıktı. Diğer yarısı kötü.");
+        put(k, "city", "{c} küçük ama güzel bir yerdir. Herkes birbirini tanır, kimse kapısını kilitlemez.",
+                "Başkent Sylvaren'i hiç görmedim. Orada iki dev ağaç varmış, bir de üç bin yaşında bir lord. Bizim burası daha sakin.");
+        put(k, "gossip", "Komşunun oğlu yine geç geldi. Annesi bütün gece pencerede bekledi. Ben de. Merak işte.",
+                "Muhafızlardan biri bana çiçek getirdi. Kim olduğunu söylemem! ...Sağ kapıdaki.",
+                "Pazarda elma fiyatları yine arttı. Ağaçlar mı az meyve veriyor, satıcılar mı çok açgözlü, bilinmez.");
+        put(k, "chatter", "Şu bulut bir tavşana benziyor!", "Akşama çorba yapacağım. Sen de gelirsin, değil mi?");
+        put(k, "approach", "Merhaba yolcu!", "Hoş geldin!", "Aa, yeni bir yüz!");
+        put(k, "night", "Yıldızlar ne güzel bu gece.");
+        k = ElfKind.TOWNSMAN;
+        put(k, "greet", "Selam, yolcu. {c}'e hoş geldin. Yorgun görünüyorsun; bir bardak su?",
+                "Hey! Yeni yüz! Ne iş yaparsın? Ben marangozum, kapın kırıldıysa söyle.", "Günaydın, {p}. Ya da iyi akşamlar. Saat kaç bilmiyorum, elf işte.");
+        put(k, "greet_friend", "{p}, dostum! Gel, sana yeni yaptığım sandalyeyi göstereyim. Bu sefer dört bacaklı!");
+        put(k, "about", "Ben bir zanaatkârım. Ellerim tahta yontar, kalbim ise şarkı. İkisi de pek iyi değil ama severim.",
+                "Balıkçıyım. Göldeki balıklar beni tanır. Tanıdıkları için de kaçarlar.");
+        put(k, "city", "{c} dürüst insanların kentidir. Başkentteki kadar şatafat yok ama burada herkes bir işe yarar.",
+                "Kent kurulurken dedem taş taşımış. Ben de duvardaki şu çatlağı tamir ettim. Tarih böyle yazılır.");
+        put(k, "gossip", "Muhafız yüzbaşısı yine fırıncının kızına bakıyordu. Kimse bir şey demiyor ama herkes biliyor.",
+                "Dün gece kuzeyden kurt sesleri geldi. Muhafızlar surda nöbeti iki katına çıkardı.",
+                "Başkentten bir haberci geldi. Lord Aerendil sağlıklıymış. Bunu üç bin yıldır söylüyorlar zaten.");
+        put(k, "chatter", "Hava yağmur kokuyor.", "Elim nasırlı ama gönlüm yumuşak.");
+        put(k, "approach", "Selam!", "Hoş geldin, yolcu.", "Kolay gelsin... bana değil, sana.");
+        put(k, "night", "Gece oldu. Eve gitme vakti.");
+
+        // ------------------------------------------------------------------ ITHIEL: Ay Kâhini; gizemli, yavaş, mecazlarla konuşan
+        k = ElfKind.MOON_SEER;
+        put(k, "greet", "Ay senin geleceğini dün gece fısıldadı, {p}. Ama yüzünü söylememişti. ...Daha yorgun bekliyordum.",
+                "Gölgeler uzun, yolcu. Gel, ışığın yanına. Ay ışığının.", "{c} seni selamlar. Ben de selamlarım, ama yıldızlar daha önce davrandı.");
+        put(k, "greet_friend", "{p}... yıldızlar seni yine bana getirdi. Onlara teşekkür ettim. Sana da ederim.");
+        put(k, "about", "Ben Ithiel, {c}'in Ay Kâhini. Gece gökyüzünü okurum; gündüz ise uyuyanları. "
+                + "Gelecek bir nehir gibidir; ben sadece nereye aktığını söylerim, kimse beni dinlemez.");
+        put(k, "city", "{c} ay ışığıyla kuruldu. Kulelerimiz menekşe camlıdır, böylece ay içeri girdiğinde rengini değiştirir. "
+                + "Fenerlerimiz mavi yanar; ruhların yolunu kaybetmemesi için.");
+        put(k, "gossip", "Sylvaren'in lordu Aerendil ile bir kez yıldızlar üzerine tartıştık. Üç yüz yıl sürdü. Hâlâ ben haklıyım.",
+                "Muhafızlarım geceleri surlarda yıldız sayar. Hep farklı bir sayı bulurlar. Yıldızlar şakacıdır.",
+                "Dolunayda kentin çeşmesi gümüş akar. Kimse inanmaz, çünkü kimse uyanık değildir.");
+        put(k, "gift_thanks", "Ametist... içinde bir gece saklı. Bunu kulemin penceresine koyacağım. Teşekkür ederim, yıldız yolcusu.");
+        put(k, "gift_wrong", "Güzel... ama ayın sesi duyulmuyor içinde. Bana karanlıkta parlayan bir taş getir.");
+        put(k, "gift_already", "Bugün yeterince verdin. Yıldızlar da bazen dinlenir.");
+        put(k, "hire_refuse", "Kâhin kentinden ayrılmaz, yolcu. Gökyüzü buradan daha net görünür.");
+        put(k, "recovering", "Ay bulutların ardında... ben de öyle. Yarın.");
+        put(k, "farewell", "Ay yolunu aydınlatsın.", "Git. Ve gölgende kimin yürüdüğüne dikkat et.");
+        put(k, "chatter", "Bu gece yıldızlar huzursuz.", "Rüzgar kuzeyden bir isim getirdi. Henüz söylemeyeceğim.");
+        put(k, "combat", "Ayın öfkesini tat!", "Yıldızlar, bana güç verin!");
+        put(k, "hurt", "Işığım sönmez.");
+        put(k, "night", "İşte, gece. Benim saatim.");
+        put(k, "approach", "Yaklaş, yıldız yolcusu.", "Ay seni bekliyordu.");
+        put(k, "duty_throne", "Bekle. Yıldızlar konuşuyor... Hayır, sadece bir baykuşmuş.", "Halkım bana dileklerini getirir; ben de onları aya iletirim.");
+        put(k, "duty_walk", "Kitaplar gecenin hafızasıdır. Ara sıra onlara uğrarım.", "Okçular ok atar, ben yıldız. Onlarınki daha çabuk düşer.");
+        put(k, "duty_balcony", "Ufka bak. Güneş batarken ay uyanır. İkisi hiç karşılaşmaz. Ne hüzünlü.");
+
+        // ------------------------------------------------------------------ SARIEL: Çiçek Hanımı; nazik, şiirsel, bahçıvan ruhlu
+        k = ElfKind.BLOSSOM_LADY;
+        put(k, "greet", "Hoş geldin, {p}! Saçlarına bir kiraz yaprağı konmuş; demek bahar seni sevdi.",
+                "{c} seni çiçekleriyle selamlıyor. Ben de gülümsememle.", "Ah, bir misafir! Bahçeme bastın mı? ...Basmadın. Güzel. Hoş geldin.");
+        put(k, "greet_friend", "{p}, sevgili dostum! Senin için yeni bir çiçek ektim. Adını henüz koymadım; senin adını mı versem?");
+        put(k, "about", "Ben Sariel, {c}'in Çiçek Hanımı. Kentin her bahçesi benim ellerimden geçti. "
+                + "Kılıçla değil tohumla savaşırım; ama kızdırırsan kökler de ısırır.");
+        put(k, "city", "{c} kiraz ağaçlarının arasında saklıdır. Baharda sokaklar pembeye boyanır; kışın bile bir dal çiçek açar, ben ısrar ettiğim için.",
+                "Kulelerimizin camları pembedir; güneş içeri süzülünce her oda bir çiçeğin içi gibi olur.");
+        put(k, "gossip", "Muhafızlarımdan biri her sabah kapıya bir çiçek bırakıyor. Kime olduğunu bilmiyorum. Bilmek de istemiyorum, büyüsü kaçar.",
+                "Ay kentlerinin kâhini Ithiel ile mektuplaşırız. O bana yıldızları yazar, ben ona tohumları.",
+                "Sylvaren'deki rahibe Nimrae'ye bir zambak soğanı göndermiştim. Teşekkür mektubu üç sayfaydı.");
+        put(k, "gift_thanks", "Pembe yapraklar! Bunları kapımın önüne serpeceğim. Çok naziksin.");
+        put(k, "gift_wrong", "Çok tatlısın... ama bir çiçek getirseydin kalbim daha çok açardı.");
+        put(k, "gift_already", "Bugün bahçem de kalbim de doldu. Yarın yine gel.");
+        put(k, "hire_refuse", "Bahçemi kim sular, ben gidersem? Hayır, tatlım. Ama yoluna çiçek serperim.");
+        put(k, "recovering", "Solgunum bugün... Biraz güneş, biraz su, yarın yine açarım.");
+        put(k, "farewell", "Yolun çiçekli olsun.", "Hoşça kal! Ve ezdiğin çiçeklerden özür dile, duyarlar.");
+        put(k, "chatter", "Şu tomurcuk yarın açacak, bahse girerim.", "Toprağın kokusunu sevdim bugün.");
+        put(k, "combat", "Kökler, sarın onu!", "Bahçeme dokunma!");
+        put(k, "hurt", "Diken de çiçeğin parçasıdır!");
+        put(k, "night", "Geceleri çiçekler kapanır. Ben de yavaş yavaş.");
+        put(k, "approach", "Merhaba, çiçek dostu!", "Gel, kokla şunu!");
+        put(k, "duty_throne", "Bugün halkım iki dilek getirdi: daha çok yağmur, daha az salyangoz. İkisi için de dua ettim.",
+                "Taht dediğin bir saksıdır; içinde ne yetiştirdiğine bakılır.");
+        put(k, "duty_walk", "Kütüphaneye bitki kitabı almaya gidiyorum. Hepsini okudum ama yine okuyacağım.", "Okçuluk alanına bir çiçek tarhı yapsam mı?");
+        put(k, "duty_balcony", "Buradan bakınca bütün kent bir bahçe gibi. Öyle de zaten.");
+
         // ------------------------------------------------------------------ MUHAFIZ
         k = ElfKind.GUARD;
         put(k, "greet", "Sylvaren'e hoş geldin, yabancı. Kurallara uy, ağaçlara saygı göster.",

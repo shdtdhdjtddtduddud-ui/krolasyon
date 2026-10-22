@@ -11,6 +11,8 @@ description='''
 İki kadim dev ağacın gölgesinde, mavi camlı kuleleri ve turuncu külahlarıyla Sylvaren elf kenti.
 Altı eşsiz elf (Lirael, Vaelor, Caelan, Nimrae, Tavi, Thalion) ve kent muhafızları: kendi kişilikleri ve konuşma tarzlarıyla
 diyaloglar, görevler, hediyeler, dostluk ve zorlu paralı asker sözleşmeleri.
+Dünyada tek bir başkent (Sylvaren, Lord Aerendil ve eşsiz elfler) vardır; diğer elf kentleri ay ışığı (Ay Kâhini Ithiel),
+kiraz çiçeği (Çiçek Hanımı Sariel) ya da sıradan elf kasabalarıdır ve kendi halkı, kendi giysili muhafızlarıyla yaşar.
 '''
 
 [[dependencies.elvenrealm]]

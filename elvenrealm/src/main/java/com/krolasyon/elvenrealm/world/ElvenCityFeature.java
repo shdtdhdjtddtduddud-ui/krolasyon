@@ -28,9 +28,9 @@ public final class ElvenCityFeature extends Feature<NoneFeatureConfiguration> {
         super(codec);
     }
 
-    public static CityPlan plan(CityLayout.City c, int y0) {
+    public static CityPlan plan(CityLayout.City c, int y0, CityType type) {
         if (PLANS.size() > 8) PLANS.clear();
-        return PLANS.computeIfAbsent(c.seed(), k -> new CityPlan(c, y0));
+        return PLANS.computeIfAbsent(c.seed(), k -> new CityPlan(c, y0, type));
     }
 
     @Override
@@ -46,7 +46,7 @@ public final class ElvenCityFeature extends Feature<NoneFeatureConfiguration> {
         for (CityLayout.City c : CityLayout.near(level.getSeed(), minX, minZ, maxX, maxZ)) {
             int y0 = CityLayout.base(c, gen, rs, level);
             if (y0 == Integer.MIN_VALUE) continue;
-            CityPlan plan = plan(c, y0);
+            CityPlan plan = plan(c, y0, CityLayout.type(level.getSeed(), c, gen, rs, level));
             terrain(level, gen, rs, plan, minX, minZ, maxX, maxZ);
             clearNatural(level, plan, cp);
             path(level, plan, minX, minZ, maxX, maxZ);
@@ -183,7 +183,7 @@ public final class ElvenCityFeature extends Feature<NoneFeatureConfiguration> {
                     if (s == null) continue;
                     p.set(x, y, z);
                     BlockState cur = level.getBlockState(p);
-                    boolean wood = s.is(Blocks.OAK_WOOD) || s.is(Blocks.MOSS_BLOCK);
+                    boolean wood = s.is(Blocks.OAK_WOOD) || s.is(Blocks.BIRCH_WOOD) || s.is(Blocks.CHERRY_WOOD) || s.is(Blocks.MOSS_BLOCK);
                     if (wood) {
                         if (cur.is(Blocks.STONE_BRICKS) || cur.is(Blocks.MOSSY_STONE_BRICKS) || cur.is(Blocks.CRACKED_STONE_BRICKS)) continue;
                         level.setBlock(p, s, 2);
@@ -236,10 +236,12 @@ public final class ElvenCityFeature extends Feature<NoneFeatureConfiguration> {
     public static ElfEntity create(ServerLevel server, CityPlan plan, CityPlan.Npc n) {
         ElfEntity e = ElvenRealm.TYPES.get(n.kind()).get().create(server);
         if (e == null) return null;
-        e.moveTo(n.x() + 0.5, n.y(), n.z() + 0.5, n.post().startsWith("royal") || n.kind() == com.krolasyon.elvenrealm.entity.ElfKind.AERENDIL
+        e.moveTo(n.x() + 0.5, n.y(), n.z() + 0.5, n.post().startsWith("royal") || n.kind().leader()
                 ? 0F : Noise.hash(plan.city.seed(), n.x(), 0, n.z()) < 0.5 ? 180F : 0F, 0F);
         e.setHome(new BlockPos(n.x(), n.y(), n.z()));
         e.setCity(new BlockPos(plan.cx, plan.yA, plan.cz), n.post(), true);
+        e.setVariant(n.variant());
+        e.setCityType(plan.type, plan.type.name(plan.city.seed()), plan.city.seed() * 31 + n.post().hashCode() * 7919L);
         return e;
     }
 }

@@ -111,7 +111,37 @@ public final class Routine {
                 yield stay("archery", at(c, 24, B, -35), 180F, Activity.PRACTICE, 0.85);
             }
             case GUARD -> guard(e, c, post, night);
+            case MOON_SEER, BLOSSOM_LADY -> lord(c, t);
+            case TOWNSFOLK, TOWNSMAN -> citizen(e, c, post, t, night);
         };
+    }
+
+    /** Kent halkının işleri; her kişi gün içinde üç işe sırayla gider, aynı anda iki kişi aynı yerde olmaz. */
+    private static Task job(BlockPos c, int j) {
+        return switch (j) {
+            case 0 -> stay("fountain", at(c, 0, A, 14).add(0, 0.5, 0), 0F, Activity.SIT, 0.5);
+            case 1 -> patrol("market", 0.5, at(c, -24, A, 12), at(c, -28, A, -6), at(c, -10, A, 2), at(c, 10, A, 2), at(c, 28, A, -6), at(c, 30, A, 14));
+            case 2 -> stay("read", at(c, -25, B, -41), 180F, Activity.READ, 0.5);
+            case 3 -> face("watch", at(c, 20, A, 15), at(c, 22, A, 8), Activity.CROSS_ARMS, 0.5);
+            case 4 -> face("garden", at(c, 31, C, -74), at(c, 34, C, -76), Activity.KNEEL, 0.5);
+            case 5 -> patrol("stroll", 0.45, at(c, -20, B, -34), at(c, 0, B, -34), at(c, 20, B, -33));
+            case 6 -> new Task("bench", at(c, -18, B, -44).add(0, 0.5, 0), -90F, null, Activity.SIT, 0.5, null, true, false);
+            case 7 -> face("archery", at(c, 24, B, -28), at(c, 24, B, -36), Activity.CROSS_ARMS, 0.5);
+            case 8 -> stay("fountain", at(c, -5, A, 11).add(0, 0.5, 0), -60F, Activity.SIT, 0.5);
+            default -> stay("fountain", at(c, 5, A, 11).add(0, 0.5, 0), 60F, Activity.SIT, 0.5);
+        };
+    }
+
+    private static Task citizen(ElfEntity e, BlockPos c, String post, int t, boolean night) {
+        if (night) return home(e, "rest", Activity.SIT, 0.5);
+        int i;
+        try {
+            i = Integer.parseInt(post.startsWith("cit_") ? post.substring(4) : post);
+        } catch (NumberFormatException ex) {
+            i = Math.floorMod(post.hashCode(), 10);
+        }
+        int slot = t < 3500 ? 0 : t < 7500 ? 1 : t < 11000 ? 2 : 3;
+        return job(c, Math.floorMod(i + slot * 3, 10));
     }
 
     private static Task home(ElfEntity e, String key, Activity act, double speed) {

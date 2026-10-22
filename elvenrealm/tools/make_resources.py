@@ -48,7 +48,9 @@ ov.append({"predicate": {"angle": 0.984375}, "model": "elvenrealm:item/silver_le
 w(os.path.join(A, 'models', 'item', 'silver_leaf.json'), {"parent": "minecraft:item/generated", "textures": {"layer0": "elvenrealm:item/silver_leaf_16"}, "overrides": ov})
 
 kinds = [("lirael", "Lirael", "Lirael"), ("vaelor", "Vaelor", "Vaelor"), ("caelan", "Caelan", "Caelan"), ("nimrae", "Nimrae", "Nimrae"),
-         ("tavi", "Tavi", "Tavi"), ("thalion", "Thalion", "Thalion"), ("aerendil", "Lord Aerendil", "Lord Aerendil"), ("guard", "Sylvaren Muhafızı", "Sylvaren Guard")]
+         ("tavi", "Tavi", "Tavi"), ("thalion", "Thalion", "Thalion"), ("aerendil", "Lord Aerendil", "Lord Aerendil"), ("guard", "Elf Muhafızı", "Elven Guard"),
+         ("townsfolk", "Elf Kadın", "Elf Woman"), ("townsman", "Elf Adam", "Elf Man"), ("moonseer", "Ay Kâhini Ithiel", "Ithiel the Moon Seer"),
+         ("blossom", "Çiçek Hanımı Sariel", "Sariel the Blossom Lady")]
 tr, en = {}, {}
 for k, t, e in kinds:
     w(os.path.join(A, 'models', 'item', 'elf_%s_spawn_egg.json' % k), {"parent": "minecraft:item/template_spawn_egg"})
@@ -56,22 +58,26 @@ for k, t, e in kinds:
     tr["item.elvenrealm.elf_%s_spawn_egg" % k] = t + " Çağırma Yumurtası"; en["item.elvenrealm.elf_%s_spawn_egg" % k] = e + " Spawn Egg"
 tr.update({
  "item.elvenrealm.silver_leaf": "Gümüş Yaprak",
- "tooltip.elvenrealm.compass": "Ucu en yakın Sylvaren elf kentini gösterir (sağ tık: yeniden ara)",
- "tooltip.elvenrealm.compass_target": "Sylvaren kapısı: %s, %s (%s blok)",
+ "tooltip.elvenrealm.compass": "Ucu en yakın elf kentini gösterir (sağ tık: yeniden ara, eğilip sağ tık: başkent Sylvaren / en yakın kent)",
+ "tooltip.elvenrealm.compass_target": "%s kapısı: %s, %s (%s blok)",
+ "tooltip.elvenrealm.mode_capital": "Gümüş Yaprak artık başkent Sylvaren'i gösteriyor.",
+ "tooltip.elvenrealm.mode_nearest": "Gümüş Yaprak artık en yakın elf kentini gösteriyor.",
  "tooltip.elvenrealm.compass_none": "Yakında bir elf kenti hissedilmiyor",
  "title.elvenrealm.city": "Sylvaren",
  "title.elvenrealm.sub": "Kadim ağaçların gölgesindeki elf kenti",
- "msg.elvenrealm.fallen": "%s ağır yaralandı ve iyileşmek için Sylvaren'e çekildi. Dostluğunuz zedelendi (-2).",
+ "msg.elvenrealm.fallen": "%s ağır yaralandı ve iyileşmek için kentine çekildi. Dostluğunuz zedelendi (-2).",
  "msg.elvenrealm.hire_soon": "%s ile sözleşmenin bitmesine az kaldı.",
 })
 en.update({
  "item.elvenrealm.silver_leaf": "Silver Leaf",
- "tooltip.elvenrealm.compass": "Its tip points to the nearest elven city of Sylvaren (right click: search again)",
- "tooltip.elvenrealm.compass_target": "Gate of Sylvaren: %s, %s (%s blocks)",
+ "tooltip.elvenrealm.compass": "Its tip points to the nearest elven city (right click: search again, sneak + right click: capital Sylvaren / nearest city)",
+ "tooltip.elvenrealm.compass_target": "Gate of %s: %s, %s (%s blocks)",
+ "tooltip.elvenrealm.mode_capital": "The Silver Leaf now points to the capital, Sylvaren.",
+ "tooltip.elvenrealm.mode_nearest": "The Silver Leaf now points to the nearest elven city.",
  "tooltip.elvenrealm.compass_none": "No elven city can be sensed nearby",
  "title.elvenrealm.city": "Sylvaren",
  "title.elvenrealm.sub": "The elven city beneath the ancient trees",
- "msg.elvenrealm.fallen": "%s was gravely wounded and withdrew to Sylvaren to heal. Your friendship suffered (-2).",
+ "msg.elvenrealm.fallen": "%s was gravely wounded and withdrew to their city to heal. Your friendship suffered (-2).",
  "msg.elvenrealm.hire_soon": "Your contract with %s is about to end.",
 })
 w(os.path.join(A, 'lang', 'tr_tr.json'), tr)
@@ -102,6 +108,8 @@ description=\'\'\'
 İki kadim dev ağacın gölgesinde, mavi camlı kuleleri ve turuncu külahlarıyla Sylvaren elf kenti.
 Altı eşsiz elf (Lirael, Vaelor, Caelan, Nimrae, Tavi, Thalion) ve kent muhafızları: kendi kişilikleri ve konuşma tarzlarıyla
 diyaloglar, görevler, hediyeler, dostluk ve zorlu paralı asker sözleşmeleri.
+Dünyada tek bir başkent (Sylvaren, Lord Aerendil ve eşsiz elfler) vardır; diğer elf kentleri ay ışığı (Ay Kâhini Ithiel),
+kiraz çiçeği (Çiçek Hanımı Sariel) ya da sıradan elf kasabalarıdır ve kendi halkı, kendi giysili muhafızlarıyla yaşar.
 \'\'\'
 
 [[dependencies.elvenrealm]]

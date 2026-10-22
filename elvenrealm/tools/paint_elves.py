@@ -691,10 +691,9 @@ def thalion():
     p.save('elf_thalion.png')
 
 
-def guard():
-    p = Painter(7)
-    skin, hair, eye = hx('#efd1bb'), hx('#cfc6a8'), hx('#5d7aa0')
-    steel, steel_d, green, gold = hx('#b7bcc4'), hx('#7d838c'), hx('#2e5a33'), hx('#d9b45a')
+def guard(name='elf_guard.png', seed=7, skin=hx('#efd1bb'), hair=hx('#cfc6a8'), eye=hx('#5d7aa0'), steel=hx('#b7bcc4'),
+          steel_d=hx('#7d838c'), green=hx('#2e5a33'), gold=hx('#d9b45a'), emblem='tree', leather=hx('#4a3220'), legc=hx('#3f4a3a')):
+    p = Painter(seed)
     head(p, skin, hair, eye, 'middle')
     ears(p, skin)
 
@@ -702,30 +701,274 @@ def guard():
         c = steel if (int(u * 2) + int(v * 2)) % 2 else steel_d
         return p.noise(c, 0.06)
 
+    def mark(u, v, w):
+        cx = w / 2
+        if emblem == 'tree':
+            return (abs(u - cx) < 0.3 and 3.5 < v < 8.0) or (u - cx) ** 2 / 4 + (v - 3.8) ** 2 < 1.4 or (7.7 < v < 8.2 and abs(u - cx) < 1.4)
+        if emblem == 'moon':
+            # hilal: büyük daireden kaydırılmış daireyi çıkar, altında üç yıldız noktası
+            a = (u - cx) ** 2 + (v - 4.6) ** 2 < 4.4
+            b = (u - cx - 0.9) ** 2 + (v - 4.2) ** 2 < 3.3
+            stars = any(abs(u - sx) < 0.3 and abs(v - 7.8) < 0.3 for sx in (cx - 1.2, cx, cx + 1.2))
+            return (a and not b) or stars
+        if emblem == 'blossom':
+            for k in range(5):
+                ang = k * 2 * math.pi / 5 - math.pi / 2
+                if (u - cx - math.cos(ang) * 1.1) ** 2 + (v - 5.0 - math.sin(ang) * 1.1) ** 2 < 0.55:
+                    return True
+            return False
+        return False
+
     def torso(u, v, w, h):
         if v < 1.0:
             return chain(u, v, w, h)
         if 9.6 < v < 10.6:
-            return p.noise(hx('#3b2414') if abs(u - w / 2) > 0.6 else gold, 0.05)
+            return p.noise(leather if abs(u - w / 2) > 0.6 else gold, 0.05)
         if 1.5 < u < w - 1.5:
-            # tabar üzerinde altın ağaç arması
-            cx, cy = w / 2, 5.0
-            if abs(u - cx) < 0.3 and 3.5 < v < 8.0:
+            if mark(u, v, w):
                 return p.noise(gold, 0.06)
-            if (u - cx) ** 2 / 4 + (v - 3.8) ** 2 < 1.4:
-                return p.noise(gold, 0.06)
-            if 7.7 < v < 8.2 and abs(u - cx) < 1.4:
-                return p.noise(gold, 0.06)
+            if emblem == 'blossom' and (u - w / 2) ** 2 + (v - 5.0) ** 2 < 0.35:
+                return p.noise(hx('#f4d35e'), 0.05)
             return p.noise(green, 0.05)
         return chain(u, v, w, h)
 
     body(p, torso)
-    arms(p, False, arm_fn(p, skin, 10.4, chain, glove=hx('#4a3220'), bracer=steel, bracer_range=(7.0, 10.4)), hand=flat(p, hx('#4a3220')))
-    legs(p, boot_leg(p, hx('#3f4a3a'), hx('#4a3220'), 6.5, top_band=steel))
+    arms(p, False, arm_fn(p, skin, 10.4, chain, glove=leather, bracer=steel, bracer_range=(7.0, 10.4)), hand=flat(p, leather))
+    legs(p, boot_leg(p, legc, leather, 6.5, top_band=steel))
     p.box(0, 100, 5, 9, 1, all=lambda u, v, w, h: p.noise(green if v < h - 0.7 else gold, 0.05))
     p.box(12, 100, 5, 9, 1, all=lambda u, v, w, h: p.noise(green, 0.05))
     long_hair(p, hair)
-    p.save('elf_guard.png')
+    p.save(name)
+
+
+def guard_moon():
+    # Ay kentlerinin muhafızı: gümüş-mavi zırh, gece mavisi tabar, gümüş hilal arması, gümüş saç
+    guard('elf_guard_1.png', 71, skin=hx('#e9d6cc'), hair=hx('#d9dde8'), eye=hx('#8f7ad8'), steel=hx('#c9d2e6'), steel_d=hx('#8a94ad'),
+          green=hx('#22285a'), gold=hx('#e6ecf7'), emblem='moon', leather=hx('#2b2d3f'), legc=hx('#2a2f4a'))
+
+
+def guard_blossom():
+    # Çiçek kentlerinin muhafızı: açık çelik, beyaz-pembe tabar, pembe beş yapraklı çiçek arması
+    guard('elf_guard_2.png', 72, skin=hx('#f3d9c6'), hair=hx('#8a4a3a'), eye=hx('#4f9a6a'), steel=hx('#e2e2e6'), steel_d=hx('#a8a8b0'),
+          green=hx('#f6eef0'), gold=hx('#e58fb1'), emblem='blossom', leather=hx('#6b4a35'), legc=hx('#c9a9b3'))
+
+
+# ---------------------------------------------------------------- kent halkı (her biri 5 çeşit)
+
+FOLK = [
+    # ten, saç, göz, elbise, ikinci renk, desen
+    (hx('#f2d6c4'), hx('#d8b25a'), hx('#4f8a3a'), hx('#6b8f4a'), hx('#efe6d2'), 'apron'),
+    (hx('#e6c2a8'), hx('#6b3a26'), hx('#5d7aa0'), hx('#8a3a4a'), hx('#e8c46a'), 'flowers'),
+    (hx('#8a5a40'), hx('#1f1a18'), hx('#c8a050'), hx('#e6d8b8'), hx('#3d6b7a'), 'hem'),
+    (hx('#f4ddd0'), hx('#e6e2da'), hx('#8f7ad8'), hx('#4a5a8a'), hx('#c9d2e6'), 'stripes'),
+    (hx('#efcfb6'), hx('#b0482e'), hx('#4f9a6a'), hx('#d8a03a'), hx('#7a4a2a'), 'laced'),
+]
+
+MEN = [
+    # ten, saç, göz, tunik, yelek/pelerin, sakal
+    (hx('#e6c2a8'), hx('#5a3e28'), hx('#5d7a52'), hx('#7a5c3e'), hx('#4c6b3a'), None),
+    (hx('#f2d6c4'), hx('#d8c08a'), hx('#5d7aa0'), hx('#3d5a7a'), hx('#8a6a46'), None),
+    (hx('#9a6a4a'), hx('#2a201a'), hx('#c8a050'), hx('#d8cfb8'), hx('#6b4a35'), hx('#2a201a')),
+    (hx('#efd1bb'), hx('#8a8f96'), hx('#6a8f4a'), hx('#5a6e3a'), hx('#3f3324'), hx('#9a9fa6')),
+    (hx('#e9cbb2'), hx('#a0522d'), hx('#4f8a6a'), hx('#8a3a2a'), hx('#2f4a2a'), None),
+]
+
+
+def townsfolk(v):
+    skin, hair, eye, dress, alt, pattern = FOLK[v]
+    p = Painter(100 + v)
+    head(p, skin, hair, eye, ['side', 'middle', 'middle', 'side', 'curly'][v], freckles=v in (0, 4))
+    ears(p, skin, jewel=alt if v in (1, 3) else None)
+
+    def cloth(u, v_, w, h):
+        if pattern == 'flowers' and (int(u * 1.3 + v_ * 0.7) * 7 + int(v_ * 1.1)) % 5 == 0 and (u * 3 % 1) < 0.5:
+            return p.noise(alt, 0.05)
+        if pattern == 'stripes' and (v_ % 2.0) < 0.5:
+            return p.noise(alt, 0.04)
+        return p.noise(shade(dress, 0.95 + 0.05 * math.sin(u * 3.0)), 0.04)
+
+    def torso(u, v_, w, h):
+        if v_ < 1.0:
+            return p.noise(skin if abs(u - w / 2) < 1.4 else dress, 0.03)
+        if pattern == 'laced' and abs(u - w / 2) < 0.9 and 1.5 < v_ < 9.5:
+            return p.noise(alt if int(v_ * 2) % 2 else hx('#efe6d2'), 0.05)
+        if 9.0 < v_ < 10.0:
+            return p.noise(alt if pattern != 'apron' else shade(dress, 0.7), 0.05)
+        if pattern == 'apron' and v_ > 6.0 and 1.5 < u < w - 1.5:
+            return p.noise(alt, 0.03)
+        return cloth(u, v_, w, h)
+
+    body(p, torso)
+    sleeve = [5.5, 10.0, 4.0, 10.0, 8.0][v]
+    arms(p, True, arm_fn(p, skin, sleeve, cloth, cuff=alt), hand=flat(p, skin))
+    legs(p, boot_leg(p, shade(dress, 0.8), hx('#6b4a2a') if v != 3 else hx('#3a3a4a'), 8.5, top_band=alt))
+
+    def sk(u, v_, w, h):
+        if pattern == 'hem' and v_ > h - 2.0:
+            k = math.sin(u * 2.5) * 0.4 + 1.0
+            return p.noise(alt if abs(v_ - (h - k)) < 0.35 or v_ > h - 0.6 else dress, 0.04)
+        if pattern == 'apron':
+            if 1.5 < u < w - 1.5 and v_ < h - 1.2:
+                return p.noise(alt, 0.03)
+        if v_ > h - 0.6:
+            return p.noise(shade(dress, 0.7), 0.04)
+        return cloth(u, v_, w, h)
+    skirt(p, sk, fn_b=lambda u, v_, w, h: cloth(u, v_, w, h) if v_ < h - 0.6 else p.noise(shade(dress, 0.7), 0.04))
+    long_hair(p, hair, curly=v == 4, accent=alt if v in (0, 2) else None)
+    p.save('elf_townsfolk.png' if v == 0 else 'elf_townsfolk_%d.png' % v)
+
+
+def townsman(v):
+    skin, hair, eye, tunic, vest, beard = MEN[v]
+    p = Painter(200 + v)
+    head(p, skin, hair, eye, ['short', 'side', 'short', 'middle', 'short'][v], back_hair=v in (1, 3), beard=beard)
+    ears(p, skin)
+    belt = hx('#3a2616')
+
+    def torso(u, v_, w, h):
+        if v_ < 1.0:
+            return p.noise(vest, 0.05)
+        if 9.4 < v_ < 10.4:
+            return p.noise(belt if abs(u - w / 2) > 0.5 else hx('#c8a050'), 0.05)
+        if v in (0, 2, 4) and (u < 2.2 or u > w - 2.2):
+            return p.noise(vest, 0.05)
+        if v == 1 and abs(u - w / 2) < 0.35 and v_ < 5:
+            return p.noise(hx('#e8e1cf'), 0.03)
+        if v == 3 and abs((u - 1) - v_ * 0.55) < 0.45:
+            return p.noise(belt, 0.05)
+        return p.noise(shade(tunic, 0.95 + 0.05 * math.sin(v_ * 2.0)), 0.04)
+
+    body(p, torso)
+    arms(p, False, arm_fn(p, skin, [10.4, 6.0, 10.4, 10.4, 5.0][v], tunic, cuff=shade(tunic, 0.75),
+                         bracer=hx('#6b4a35') if v == 3 else None, bracer_range=(7.0, 10.4)), hand=flat(p, skin))
+    legs(p, boot_leg(p, shade(vest, 0.7), hx('#5b3a22'), 7.0, top_band=shade(vest, 0.9)))
+
+    def sk(u, v_, w, h):
+        if v_ > h - 0.7:
+            return p.noise(shade(tunic, 0.7), 0.04)
+        return p.noise(shade(tunic, 0.92 + 0.06 * math.sin(u * 2.8)), 0.04)
+    skirt(p, sk)
+    p.box(42, 70, 9, 13, 1, all=lambda u, v_, w, h: p.noise(shade(vest, 0.9 + 0.1 * math.sin(u * 2.7)) if v_ < h - 0.6
+                                                          else shade(vest, 0.7), 0.04))
+    p.save('elf_townsman.png' if v == 0 else 'elf_townsman_%d.png' % v)
+
+
+def townsfolk_all():
+    for v in range(5):
+        townsfolk(v)
+
+
+def townsman_all():
+    for v in range(5):
+        townsman(v)
+
+
+def moonseer():
+    # Ithiel, Ay Kâhini: gece mavisi cübbe, gümüş yıldız işlemeleri, uzun gümüş saç, hilal taç, mor ışıyan gözler
+    p = Painter(301)
+    skin, hair, eye = hx('#e4dcea'), hx('#e6eaf4'), hx('#a88cff')
+    robe, deep, silver = hx('#1e2350'), hx('#12153a'), hx('#dfe6f5')
+    head(p, skin, hair, eye, 'middle', brow=hx('#d2d6e2'), lips=hx('#8a6a9a'), eye_glow=True)
+    ears(p, skin, jewel=silver)
+
+    def circlet(u, v, w, h):
+        if 1.2 < v < 1.8:
+            return p.noise(silver, 0.04)
+        return None
+
+    def circlet_front(u, v, w, h):
+        dx = u - w / 2
+        a = dx ** 2 + (v - 1.0) ** 2 < 1.0
+        b = (dx - 0.45) ** 2 + (v - 0.8) ** 2 < 0.75
+        if a and not b:
+            return p.noise(hx('#ffffff'), 0.03)
+        return circlet(u, v, w, h)
+    p.face(40, 8, 8, 8, circlet_front)
+    for x0 in (32, 48, 56):
+        p.face(x0, 8, 8, 8, circlet)
+
+    def starry(u, v, w, h):
+        r = ((int(u * 2) * 73856093) ^ (int(v * 2) * 19349663)) & 0xff
+        if r < 6:
+            return p.noise(silver, 0.05)
+        if r < 9:
+            return p.noise(hx('#b8a8ff'), 0.05)
+        return p.noise(mix(robe, deep, v / max(h, 1)), 0.04)
+
+    def torso(u, v, w, h):
+        if v < 1.0:
+            return p.noise(silver, 0.05)
+        if 9.6 < v < 10.6:
+            return p.noise(silver if abs(u - w / 2) > 0.5 else hx('#b8a8ff'), 0.05)
+        if abs(u - w / 2) < 0.4:
+            return p.noise(silver, 0.05)
+        # göğüste hilal
+        dx = u - w / 2
+        if 2.5 < v < 6.0 and dx ** 2 + (v - 4.2) ** 2 < 2.4 and not ((dx - 0.8) ** 2 + (v - 3.9) ** 2 < 1.8):
+            return p.noise(silver, 0.04)
+        return starry(u, v, w, h)
+
+    body(p, torso)
+    arms(p, True, arm_fn(p, skin, 11.0, starry, cuff=silver), hand=flat(p, skin))
+    legs(p, boot_leg(p, robe, deep, 9.0, top_band=silver))
+
+    def sk(u, v, w, h):
+        if v > h - 0.8:
+            return p.noise(silver, 0.05)
+        return starry(u, v, w, h)
+    skirt(p, sk)
+    cloak_part(p, lambda u, v, w, h: p.noise(silver, 0.05) if v > h - 0.7 else starry(u, v, w, h), inner=flat(p, hx('#2e2470')))
+    long_hair(p, hair, accent=hx('#b8a8ff'))
+    p.save('elf_moonseer.png')
+
+
+def blossom():
+    # Sariel, Çiçek Hanımı: pembe-beyaz elbise, yaprak işlemeleri, pembe saç, çiçek tacı
+    p = Painter(302)
+    skin, hair, eye = hx('#f6dccb'), hx('#f0a0bf'), hx('#5ab07a')
+    gown, white, leaf, pink = hx('#f7c6d8'), hx('#fbf3f5'), hx('#6e9a4a'), hx('#e5709a')
+    head(p, skin, hair, eye, 'side', lips=hx('#d0607a'), freckles=True)
+    ears(p, skin, jewel=pink)
+
+    def crown(u, v, w, h):
+        if 0.9 < v < 1.9:
+            k = int(u * 1.2) % 3
+            if k == 0 and abs((u * 1.2 % 1) - 0.5) < 0.35:
+                return p.noise([white, pink, hx('#f4d35e')][int(u) % 3], 0.04)
+            return p.noise(leaf, 0.06)
+        return None
+    for x0 in (32, 40, 48, 56):
+        p.face(x0, 8, 8, 8, crown)
+
+    def petals(u, v, w, h):
+        cx, cy = (u % 2.4) - 1.2, (v % 2.4) - 1.2
+        a = math.atan2(cy, cx)
+        r = math.hypot(cx, cy)
+        if (int(u // 2.4) + int(v // 2.4)) % 2 == 0 and r < 0.55 + 0.25 * math.cos(5 * a):
+            return p.noise(white if r > 0.2 else hx('#f4d35e'), 0.03)
+        return p.noise(mix(gown, white, v / max(h, 1) * 0.5), 0.03)
+
+    def torso(u, v, w, h):
+        if v < 1.0:
+            return p.noise(skin if abs(u - w / 2) < 1.8 else white, 0.03)
+        if 9.2 < v < 10.2:
+            # yaprak kuşak
+            return p.noise(leaf if int(u * 2) % 3 else shade(leaf, 1.3), 0.06)
+        if abs((u - w / 2)) < 2.2 and abs((u - w / 2) * 0.8 - (v - 5)) < 0.3:
+            return p.noise(leaf, 0.05)
+        return petals(u, v, w, h)
+
+    body(p, torso)
+    arms(p, True, arm_fn(p, skin, 4.5, petals, cuff=white, bracer=leaf, bracer_range=(8.6, 9.4)), hand=flat(p, skin))
+    legs(p, boot_leg(p, gown, white, 9.5, top_band=leaf))
+
+    def sk(u, v, w, h):
+        if v > h - 1.0:
+            return p.noise(white if (u * 2 % 1) < 0.6 else pink, 0.04)
+        return petals(u, v, w, h)
+    skirt(p, sk)
+    long_hair(p, hair, accent=white)
+    p.save('elf_blossom.png')
 
 
 def aerendil():
@@ -783,7 +1026,8 @@ def aerendil():
 
 if __name__ == '__main__':
     only = sys.argv[2:]
-    for f in (lirael, vaelor, caelan, nimrae, tavi, thalion, guard, aerendil):
+    for f in (lirael, vaelor, caelan, nimrae, tavi, thalion, guard, aerendil, guard_moon, guard_blossom, townsfolk_all, townsman_all,
+              moonseer, blossom):
         if not only or f.__name__ in only:
             f()
     print('ok', OUT)

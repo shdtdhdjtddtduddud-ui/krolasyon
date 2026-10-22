@@ -15,17 +15,20 @@ public class ElfRenderer extends HumanoidMobRenderer<ElfEntity, ElfModel> {
     public static final ModelLayerLocation WIDE = new ModelLayerLocation(new ResourceLocation("elvenrealm", "elf_wide"), "main");
 
     private final ElfKind kind;
-    private final ResourceLocation texture;
+    private final ResourceLocation[] textures;
 
     public ElfRenderer(EntityRendererProvider.Context ctx, ElfKind kind) {
         super(ctx, new ElfModel(ctx.bakeLayer(kind.slim ? SLIM : WIDE), kind), 0.5F);
         this.kind = kind;
-        this.texture = new ResourceLocation("elvenrealm", "textures/entity/elf_" + kind.id + ".png");
+        int n = kind.citizen() ? 5 : kind == ElfKind.GUARD ? 3 : 1;
+        this.textures = new ResourceLocation[n];
+        for (int i = 0; i < n; i++)
+            textures[i] = new ResourceLocation("elvenrealm", "textures/entity/elf_" + kind.id + (i == 0 ? "" : "_" + i) + ".png");
     }
 
     @Override
     public ResourceLocation getTextureLocation(ElfEntity e) {
-        return texture;
+        return textures[Math.floorMod(e.variant(), textures.length)];
     }
 
     @Override

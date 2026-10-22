@@ -23,9 +23,18 @@ public enum ElfKind {
     AERENDIL("aerendil", "Aerendil", "Sylvaren Lordu", false, 1.08F, 60, 8, 10, Role.ARCANE, 0, 0.7F, Items.GOLDEN_APPLE,
             Parts.EARS | Parts.HAIR_LONG | Parts.LOCKS | Parts.CLOAK | Parts.TUNIC),
     GUARD("guard", "Sylvaren Muhafızı", "Kent Bekçisi", false, 1.02F, 30, 6, 6, Role.GUARD, 0, 0.9F, Items.BREAD,
-            Parts.EARS | Parts.TABARD);
+            Parts.EARS | Parts.TABARD),
+    // başkent dışındaki kentlerin halkı ve liderleri
+    TOWNSFOLK("townsfolk", "Elf Kadın", "Kent Halkı", true, 0.98F, 24, 3, 1, Role.CIVILIAN, 0, 1.2F, Items.SWEET_BERRIES,
+            Parts.EARS | Parts.HAIR_LONG | Parts.LOCKS | Parts.SKIRT),
+    TOWNSMAN("townsman", "Elf Adam", "Kent Halkı", false, 1.00F, 26, 3, 1, Role.CIVILIAN, 0, 0.95F, Items.BREAD,
+            Parts.EARS | Parts.TUNIC | Parts.CLOAK_SHORT),
+    MOON_SEER("moonseer", "Ithiel", "Ay Kâhini", true, 1.04F, 50, 7, 6, Role.ARCANE, 0, 1.05F, Items.AMETHYST_SHARD,
+            Parts.EARS | Parts.HAIR_LONG | Parts.LOCKS | Parts.SKIRT | Parts.CLOAK),
+    BLOSSOM_LADY("blossom", "Sariel", "Çiçek Hanımı", true, 1.0F, 46, 5, 4, Role.HEALER, 0, 1.3F, Items.PINK_PETALS,
+            Parts.EARS | Parts.HAIR_LONG | Parts.LOCKS | Parts.SKIRT);
 
-    public enum Role { BLADE, ASSASSIN, ARCANE, HEALER, ARCHER, RANGER, GUARD }
+    public enum Role { BLADE, ASSASSIN, ARCANE, HEALER, ARCHER, RANGER, GUARD, CIVILIAN }
 
     /** Model ek parçalarının bit bayrakları. */
     public static final class Parts {
@@ -63,7 +72,17 @@ public enum ElfKind {
     }
 
     public boolean unique() {
-        return this != GUARD;
+        return this != GUARD && this != TOWNSFOLK && this != TOWNSMAN;
+    }
+
+    /** Kentin lideri (tahtta oturur, muhafızlar selam durur). */
+    public boolean leader() {
+        return this == AERENDIL || this == MOON_SEER || this == BLOSSOM_LADY;
+    }
+
+    /** Kent halkı (adı ve görünüşü kişiye göre değişir). */
+    public boolean citizen() {
+        return this == TOWNSFOLK || this == TOWNSMAN;
     }
 
     /** Paralı asker olarak kiralanabilir mi? (Lord ve muhafızlar kiralanmaz.) */
