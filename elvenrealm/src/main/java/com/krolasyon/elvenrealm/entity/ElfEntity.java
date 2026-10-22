@@ -388,8 +388,8 @@ public class ElfEntity extends PathfinderMob implements RangedAttackMob {
             case GUARD -> new ItemStack(Items.IRON_SWORD);
             case MOON_SEER -> getActivity() == Activity.SIT ? ItemStack.EMPTY : new ItemStack(Items.END_ROD);
             case BLOSSOM_LADY -> new ItemStack(Items.PINK_PETALS);
-            case TOWNSFOLK -> new ItemStack(new Item[]{Items.POPPY, Items.APPLE, Items.EMPTY_MAP, Items.SWEET_BERRIES, Items.ALLIUM}[variant() % 5]);
-            case TOWNSMAN -> new ItemStack(new Item[]{Items.BREAD, Items.WOODEN_HOE, Items.EMPTY_MAP, Items.FISHING_ROD, Items.FLOWER_POT}[variant() % 5]);
+            case TOWNSFOLK -> new ItemStack(new Item[]{Items.POPPY, Items.APPLE, Items.MAP, Items.SWEET_BERRIES, Items.ALLIUM}[variant() % 5]);
+            case TOWNSMAN -> new ItemStack(new Item[]{Items.BREAD, Items.WOODEN_HOE, Items.MAP, Items.FISHING_ROD, Items.FLOWER_POT}[variant() % 5]);
             default -> ItemStack.EMPTY;
         };
     }
