@@ -43,6 +43,8 @@ public final class AutoTest {
     private final List<Step> steps = new ArrayList<>();
     private int tick, stepIndex, stepStart = -1;
     private boolean worldRequested, gui;
+    private volatile boolean pending;
+    private boolean submitted;
     private int hx, hz, mx, mz;
     private double walkY0;
     private BlockPos walkFrom, walkSlab;
@@ -71,13 +73,13 @@ public final class AutoTest {
             var rs = l.getChunkSource().randomState();
             double bestScore = 1e9;
             int bestTop = -1000;
-            for (int ci = -16; ci <= 16; ci++) {
-                for (int cj = -16; cj <= 16; cj++) {
-                    int cx = ci * 64, cz = cj * 64;
-                    int[][] h = new int[9][9];
+            for (int ci = -10; ci <= 10; ci++) {
+                for (int cj = -10; cj <= 10; cj++) {
+                    int cx = ci * 96, cz = cj * 96;
+                    int[][] h = new int[6][6];
                     int min = 999, max = -999;
-                    for (int i = 0; i < 9; i++) for (int j = 0; j < 9; j++) {
-                        h[i][j] = gen.getBaseHeight(cx + (i - 4) * 5, cz + (j - 4) * 5, Heightmap.Types.OCEAN_FLOOR_WG, l, rs);
+                    for (int i = 0; i < 6; i++) for (int j = 0; j < 6; j++) {
+                        h[i][j] = gen.getBaseHeight(cx + (i - 3) * 4, cz + (j - 3) * 4, Heightmap.Types.OCEAN_FLOOR_WG, l, rs);
                         min = Math.min(min, h[i][j]);
                         max = Math.max(max, h[i][j]);
                     }
@@ -90,9 +92,9 @@ public final class AutoTest {
                     }
                     if (min <= sea + 2 || max > 110) continue;
                     double diff = 0;
-                    for (int i = 0; i < 8; i++) for (int j = 0; j < 9; j++) diff += Math.abs(h[i + 1][j] - h[i][j]) + Math.abs(h[j][i + 1] - h[j][i]);
-                    diff /= 144.0;
-                    double score = Math.abs(diff - 2.2);
+                    for (int i = 0; i < 5; i++) for (int j = 0; j < 6; j++) diff += Math.abs(h[i + 1][j] - h[i][j]) + Math.abs(h[j][i + 1] - h[j][i]);
+                    diff /= 60.0;
+                    double score = Math.abs(diff - 1.8);
                     if (score < bestScore) {
                         bestScore = score;
                         hx = cx;
@@ -207,18 +209,17 @@ public final class AutoTest {
                     if (Math.max(Math.abs(x - hx), Math.abs(z - hz)) != r) continue;
                     int y = l.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z) - 1;
                     BlockPos s = new BlockPos(x, y, z);
-                    if (!l.getBlockState(s).is(SmoothTerrain.GRASS_SLAB.get())) continue;
+                    if (!ours(l.getBlockState(s)) || l.getBlockState(s).is(Blocks.SNOW)) continue;
                     for (int[] d : dirs) {
                         BlockPos back = new BlockPos(x - d[0] * 2, 0, z - d[1] * 2), fwd = new BlockPos(x + d[0], 0, z + d[1]);
                         BlockPos back1 = new BlockPos(x - d[0], 0, z - d[1]);
                         int yb = l.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, back.getX(), back.getZ()) - 1;
                         int yb1 = l.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, back1.getX(), back1.getZ()) - 1;
                         int yf = l.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, fwd.getX(), fwd.getZ()) - 1;
-                        boolean flatBehind = yb == y - 1 && yb1 == y - 1 && !ours(l.getBlockState(new BlockPos(back.getX(), yb, back.getZ())))
-                                && !ours(l.getBlockState(new BlockPos(back1.getX(), yb1, back1.getZ())));
+                        boolean flatBehind = yb1 == y - 1 && !ours(l.getBlockState(new BlockPos(back1.getX(), yb1, back1.getZ())));
                         BlockState f = l.getBlockState(new BlockPos(fwd.getX(), yf, fwd.getZ()));
                         if (flatBehind && yf == y && !ours(f)) {
-                            walkFrom = new BlockPos(back.getX(), y, back.getZ());
+                            walkFrom = new BlockPos(back1.getX(), y, back1.getZ());
                             walkSlab = s;
                             walkYaw = d[2];
                             return;
@@ -269,20 +270,30 @@ public final class AutoTest {
         }
         if (tick < stepStart || stepIndex >= steps.size()) return;
         Step st = steps.get(stepIndex);
-        if (tick == stepStart) {
+        if (!submitted) {
+            submitted = true;
             try {
                 if (st.client() != null) st.client().accept(mc);
             } catch (Throwable t) {
                 LOG.error("[SMOOTHTEST] client step failed", t);
             }
             MinecraftServer s = mc.getSingleplayerServer();
-            if (st.server() != null) s.execute(() -> {
-                try {
-                    st.server().accept(s);
-                } catch (Throwable t) {
-                    LOG.error("[SMOOTHTEST] step failed", t);
-                }
-            });
+            if (st.server() != null) {
+                pending = true;
+                s.execute(() -> {
+                    try {
+                        st.server().accept(s);
+                    } catch (Throwable t) {
+                        LOG.error("[SMOOTHTEST] step failed", t);
+                    }
+                    pending = false;
+                });
+            }
+        }
+        // sunucu adımı bitmeden süre saymaya başlama
+        if (pending) {
+            stepStart = tick;
+            return;
         }
         if (tick - stepStart >= st.delay()) {
             if (st.shot() != null) {
@@ -296,6 +307,7 @@ public final class AutoTest {
             }
             stepIndex++;
             stepStart = tick + 1;
+            submitted = false;
         }
     }
 }
