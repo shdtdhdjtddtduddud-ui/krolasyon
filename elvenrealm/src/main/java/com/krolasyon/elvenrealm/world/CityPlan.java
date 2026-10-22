@@ -52,7 +52,7 @@ public final class CityPlan {
     private static final BlockState SAND = Blocks.SMOOTH_SANDSTONE.defaultBlockState();
     private static final BlockState CUT = Blocks.CUT_SANDSTONE.defaultBlockState();
     private static final BlockState CALCITE = Blocks.CALCITE.defaultBlockState();
-    private final BlockState GLASS, ROOF, ROOF2, LANTERN;
+    private final BlockState GLASS, ROOF, ROOF2, LANTERN, ROOF_STAIR, ROOF_SLAB;
     private static final BlockState PLANK = Blocks.SPRUCE_PLANKS.defaultBlockState();
     private static final BlockState LOG = Blocks.STRIPPED_SPRUCE_LOG.defaultBlockState();
     private static final BlockState WATER = Blocks.WATER.defaultBlockState();
@@ -73,26 +73,34 @@ public final class CityPlan {
             case MOON -> {
                 GLASS = Blocks.PURPLE_STAINED_GLASS.defaultBlockState();
                 ROOF = Blocks.BLUE_TERRACOTTA.defaultBlockState();
-                ROOF2 = Blocks.CYAN_TERRACOTTA.defaultBlockState();
+                ROOF2 = Blocks.DARK_PRISMARINE.defaultBlockState();
                 LANTERN = Blocks.SOUL_LANTERN.defaultBlockState();
+                ROOF_STAIR = Blocks.DARK_PRISMARINE_STAIRS.defaultBlockState();
+                ROOF_SLAB = Blocks.DARK_PRISMARINE_SLAB.defaultBlockState();
             }
             case BLOSSOM -> {
                 GLASS = Blocks.PINK_STAINED_GLASS.defaultBlockState();
                 ROOF = Blocks.PINK_TERRACOTTA.defaultBlockState();
-                ROOF2 = Blocks.WHITE_TERRACOTTA.defaultBlockState();
+                ROOF2 = Blocks.CHERRY_PLANKS.defaultBlockState();
                 LANTERN = Blocks.LANTERN.defaultBlockState();
+                ROOF_STAIR = Blocks.CHERRY_STAIRS.defaultBlockState();
+                ROOF_SLAB = Blocks.CHERRY_SLAB.defaultBlockState();
             }
             case COMMON -> {
                 GLASS = Blocks.GREEN_STAINED_GLASS.defaultBlockState();
                 ROOF = Blocks.BROWN_TERRACOTTA.defaultBlockState();
                 ROOF2 = Blocks.SPRUCE_PLANKS.defaultBlockState();
                 LANTERN = Blocks.LANTERN.defaultBlockState();
+                ROOF_STAIR = Blocks.SPRUCE_STAIRS.defaultBlockState();
+                ROOF_SLAB = Blocks.SPRUCE_SLAB.defaultBlockState();
             }
             default -> {
                 GLASS = Blocks.LIGHT_BLUE_STAINED_GLASS.defaultBlockState();
                 ROOF = Blocks.ORANGE_TERRACOTTA.defaultBlockState();
                 ROOF2 = Blocks.SMOOTH_RED_SANDSTONE.defaultBlockState();
                 LANTERN = Blocks.LANTERN.defaultBlockState();
+                ROOF_STAIR = Blocks.SMOOTH_RED_SANDSTONE_STAIRS.defaultBlockState();
+                ROOF_SLAB = Blocks.SMOOTH_RED_SANDSTONE_SLAB.defaultBlockState();
             }
         }
         this.city = city;
@@ -559,7 +567,7 @@ public final class CityPlan {
     /** Beşik çatı: uzun eksen boyunca mahya, turuncu basamaklar, 1 blok saçak. */
     private void gableRoof(int x0, int z0, int x1, int z1, int top) {
         boolean alongX = (x1 - x0) >= (z1 - z0);
-        BlockState st = Blocks.SMOOTH_RED_SANDSTONE_STAIRS.defaultBlockState();
+        BlockState st = ROOF_STAIR;
         if (alongX) {
             int depth = z1 - z0 + 3;
             int half = depth / 2;
@@ -582,7 +590,7 @@ public final class CityPlan {
             }
             if (depth % 2 == 1) {
                 int z = z0 - 1 + half;
-                for (int x = x0 - 1; x <= x1 + 1; x++) set(x, top + 1 + half, z, Blocks.SMOOTH_RED_SANDSTONE_SLAB.defaultBlockState());
+                for (int x = x0 - 1; x <= x1 + 1; x++) set(x, top + 1 + half, z, ROOF_SLAB);
                 set(x0, top + half, z, CALCITE);
                 set(x1, top + half, z, CALCITE);
             }
@@ -609,7 +617,7 @@ public final class CityPlan {
             }
             if (depth % 2 == 1) {
                 int x = x0 - 1 + half;
-                for (int z = z0 - 1; z <= z1 + 1; z++) set(x, top + 1 + half, z, Blocks.SMOOTH_RED_SANDSTONE_SLAB.defaultBlockState());
+                for (int z = z0 - 1; z <= z1 + 1; z++) set(x, top + 1 + half, z, ROOF_SLAB);
                 set(x, top + half, z0, CALCITE);
                 set(x, top + half, z1, CALCITE);
             }
