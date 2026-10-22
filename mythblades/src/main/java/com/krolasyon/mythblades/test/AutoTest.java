@@ -217,7 +217,7 @@ public final class AutoTest {
             ServerPlayer p = player(s);
             p.getInventory().clearContent();
             run(s, "time set 6000", "gamemode creative @a", "kill @e[type=husk]", "kill @e[type=item]");
-            look(s, AX + 5.2, -56.3, AZ + 6.0, AX + 0.5, -58.0, AZ + 0.5);
+            look(s, AX + 7.5, -55.0, AZ + 9.0, AX + 0.5, -57.0, AZ + 0.5);
             LOG.info("[MYTHTEST] altar state {}", s.overworld().getBlockState(new BlockPos(AX, -59, AZ)));
         });
         wait(60, "altar_overview");
@@ -226,7 +226,7 @@ public final class AutoTest {
         server(5, null, s -> look(s, AX + 1.9, -56.6, AZ + 1.9, AX + 0.5, -56.6, AZ + 0.5));
         wait(30, "altar_hilt_close");
         cmd(5, null, "time set 18000");
-        server(5, null, s -> look(s, AX + 5.2, -56.3, AZ + 6.0, AX + 0.5, -58.0, AZ + 0.5));
+        server(5, null, s -> look(s, AX + 7.5, -55.0, AZ + 9.0, AX + 0.5, -57.0, AZ + 0.5));
         wait(40, "altar_night");
         cmd(5, null, "time set 6000", "gamemode survival @a", "effect give @a minecraft:resistance infinite 4 true");
         // mühürsüz: kılıç sarsılır, oyuncu geri itilir
@@ -246,9 +246,9 @@ public final class AutoTest {
             ServerPlayer p = player(s);
             p.clearFire();
             p.setItemSlot(net.minecraft.world.entity.EquipmentSlot.OFFHAND, item("mythblades:ember_seal"));
-            p.teleportTo(s.overworld(), AX + 0.5, -59, AZ + 2.4, 180, 30);
+            p.teleportTo(s.overworld(), AX + 0.5, -59, AZ + 2.4, 180, -8);
         });
-        client(10, null, mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT));
+        client(10, null, mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_BACK));
         server(1, null, s -> {
             var be = (com.krolasyon.mythblades.block.SwordAltarBlockEntity) s.overworld().getBlockEntity(new BlockPos(AX, -59, AZ));
             LOG.info("[MYTHTEST] interact with seal -> {} pulling {}", be.interact(player(s)), be.pulling());
@@ -337,7 +337,7 @@ public final class AutoTest {
             p.teleportTo(s.overworld(), AX + 0.5, -59, AZ + 2.4, 180, 30);
             var be = (com.krolasyon.mythblades.block.SwordAltarBlockEntity) s.overworld().getBlockEntity(new BlockPos(AX, -59, AZ));
             LOG.info("[MYTHTEST] reinsert -> {} altar {} hand {}", be.interact(p), s.overworld().getBlockState(new BlockPos(AX, -59, AZ)), p.getMainHandItem());
-            look(s, AX + 5.2, -56.3, AZ + 6.0, AX + 0.5, -58.0, AZ + 0.5);
+            look(s, AX + 7.5, -55.0, AZ + 9.0, AX + 0.5, -57.0, AZ + 0.5);
         });
         wait(30, "altar_returned");
 
