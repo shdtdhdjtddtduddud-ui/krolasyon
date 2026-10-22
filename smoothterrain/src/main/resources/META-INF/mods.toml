@@ -1,0 +1,27 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="smoothterrain"
+version="1.0.0"
+displayName="Krolasyon Yumuşak Arazi"
+authors="krolasyon"
+description='''
+Dünya üretilirken bir blokluk her basamağın dibine yüzeye uyan yarım blok konur (çimen, toprak, podzol, kum, kızıl kum,
+çakıl, taş, kumtaşı ve yarım kat kar). Tepeler, dağlar ve ovalar daha yumuşak görünür; yokuşlar zıplamadan yürünür.
+'''
+
+[[dependencies.smoothterrain]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.smoothterrain]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"

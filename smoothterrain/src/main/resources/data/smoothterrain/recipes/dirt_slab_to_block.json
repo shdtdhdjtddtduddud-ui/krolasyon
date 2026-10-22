@@ -1,0 +1,17 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "building",
+ "pattern": [
+  "#",
+  "#"
+ ],
+ "key": {
+  "#": {
+   "item": "smoothterrain:dirt_slab"
+  }
+ },
+ "result": {
+  "item": "minecraft:dirt",
+  "count": 1
+ }
+}

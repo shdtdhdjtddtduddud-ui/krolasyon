@@ -1,0 +1,17 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "building",
+ "pattern": [
+  "#",
+  "#"
+ ],
+ "key": {
+  "#": {
+   "item": "smoothterrain:podzol_slab"
+  }
+ },
+ "result": {
+  "item": "minecraft:podzol",
+  "count": 1
+ }
+}

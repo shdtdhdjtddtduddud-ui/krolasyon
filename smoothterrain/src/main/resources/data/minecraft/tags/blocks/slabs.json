@@ -1,0 +1,12 @@
+{
+ "replace": false,
+ "values": [
+  "smoothterrain:dirt_slab",
+  "smoothterrain:coarse_dirt_slab",
+  "smoothterrain:podzol_slab",
+  "smoothterrain:sand_slab",
+  "smoothterrain:red_sand_slab",
+  "smoothterrain:gravel_slab",
+  "smoothterrain:grass_slab"
+ ]
+}

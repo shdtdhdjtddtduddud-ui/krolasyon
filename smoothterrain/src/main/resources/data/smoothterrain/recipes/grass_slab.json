@@ -1,0 +1,16 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "building",
+ "pattern": [
+  "###"
+ ],
+ "key": {
+  "#": {
+   "item": "minecraft:grass_block"
+  }
+ },
+ "result": {
+  "item": "smoothterrain:grass_slab",
+  "count": 6
+ }
+}

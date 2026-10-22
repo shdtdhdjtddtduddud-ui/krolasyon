@@ -1,0 +1,17 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "building",
+ "pattern": [
+  "#",
+  "#"
+ ],
+ "key": {
+  "#": {
+   "item": "smoothterrain:gravel_slab"
+  }
+ },
+ "result": {
+  "item": "minecraft:gravel",
+  "count": 1
+ }
+}

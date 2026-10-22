@@ -1,0 +1,16 @@
+{
+ "type": "minecraft:crafting_shaped",
+ "category": "building",
+ "pattern": [
+  "###"
+ ],
+ "key": {
+  "#": {
+   "item": "minecraft:coarse_dirt"
+  }
+ },
+ "result": {
+  "item": "smoothterrain:coarse_dirt_slab",
+  "count": 6
+ }
+}

@@ -1,0 +1,133 @@
+{
+ "parent": "minecraft:block/block",
+ "render_type": "minecraft:cutout_mipped",
+ "textures": {
+  "particle": "minecraft:block/dirt",
+  "bottom": "minecraft:block/dirt",
+  "top": "minecraft:block/grass_block_top",
+  "side": "minecraft:block/grass_block_side",
+  "overlay": "minecraft:block/grass_block_side_overlay"
+ },
+ "elements": [
+  {
+   "from": [
+    0,
+    8,
+    0
+   ],
+   "to": [
+    16,
+    16,
+    16
+   ],
+   "faces": {
+    "down": {
+     "texture": "#bottom"
+    },
+    "up": {
+     "texture": "#top",
+     "tintindex": 0,
+     "cullface": "up"
+    },
+    "north": {
+     "texture": "#side",
+     "uv": [
+      0,
+      0,
+      16,
+      8
+     ],
+     "cullface": "north"
+    },
+    "south": {
+     "texture": "#side",
+     "uv": [
+      0,
+      0,
+      16,
+      8
+     ],
+     "cullface": "south"
+    },
+    "west": {
+     "texture": "#side",
+     "uv": [
+      0,
+      0,
+      16,
+      8
+     ],
+     "cullface": "west"
+    },
+    "east": {
+     "texture": "#side",
+     "uv": [
+      0,
+      0,
+      16,
+      8
+     ],
+     "cullface": "east"
+    }
+   }
+  },
+  {
+   "from": [
+    0,
+    8,
+    0
+   ],
+   "to": [
+    16,
+    16,
+    16
+   ],
+   "faces": {
+    "north": {
+     "texture": "#overlay",
+     "uv": [
+      0,
+      0,
+      16,
+      8
+     ],
+     "tintindex": 0,
+     "cullface": "north"
+    },
+    "south": {
+     "texture": "#overlay",
+     "uv": [
+      0,
+      0,
+      16,
+      8
+     ],
+     "tintindex": 0,
+     "cullface": "south"
+    },
+    "west": {
+     "texture": "#overlay",
+     "uv": [
+      0,
+      0,
+      16,
+      8
+     ],
+     "tintindex": 0,
+     "cullface": "west"
+    },
+    "east": {
+     "texture": "#overlay",
+     "uv": [
+      0,
+      0,
+      16,
+      8
+     ],
+     "tintindex": 0,
+     "cullface": "east"
+    }
+   }
+  }
+ ]
+}
