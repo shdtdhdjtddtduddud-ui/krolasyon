@@ -263,13 +263,17 @@ public final class AutoTest {
             LOG.info("[MYTHTEST] after pull main {} offhand {} altar {}", p.getMainHandItem(), p.getOffhandItem(),
                     s.overworld().getBlockState(new BlockPos(AX, -59, AZ)));
         });
+        server(5, null, s -> player(s).teleportTo(s.overworld(), AX + 0.5, -60, AZ + 14.5, 180, 0));
         client(5, null, mc -> {
-            gui = false;
+            gui = true;
             mc.options.setCameraType(CameraType.FIRST_PERSON);
         });
         wait(20, "ember_hand");
         client(5, null, mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT));
         wait(20, "ember_third");
+        client(5, null, mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_BACK));
+        wait(20, "ember_third_back");
+        client(2, null, mc -> gui = false);
         client(5, null, mc -> mc.options.setCameraType(CameraType.FIRST_PERSON));
         cmd(10, "altar_empty", "tp @a " + (AX + 3.5) + " -57.5 " + (AZ + 3.5) + " 135 25");
         // envanter

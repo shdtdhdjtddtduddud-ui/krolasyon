@@ -422,12 +422,14 @@ public final class BladeModels {
         float pulse = 0.5F + 0.5F * (float) Math.sin(time * 0.15F);
         TextureAtlasSprite gem = Geo.sprite("ember_gem");
         for (int sd = -1; sd <= 1; sd += 2) {
-            Geo.ellipsoid(vc, ps, 0, 0, sd * 1.2F, 1.35F, 1.35F, 0.55F, 2, 4, gem, null, Geo.FULL);
+            // farklı çizim türleri arasında geçerken tamponu her seferinde yeniden al (paylaşılan tampon karışmasın)
+            Geo.ellipsoid(buf.getBuffer(Geo.CUT), ps, 0, 0, sd * 1.2F, 1.35F, 1.35F, 0.55F, 2, 4, gem, null, Geo.FULL);
             Geo.ellipsoid(buf.getBuffer(Geo.GLOW), ps, 0, 0, sd * 1.22F, 1.55F, 1.55F, 0.65F, 2, 4, gem, (t, u, c) -> {
                 c[0] = c[1] = c[2] = 0.45F + 0.3F * pulse + 0.25F * heat;
             }, Geo.FULL);
         }
         // deri sargılı kabza ve bronz bilezikler
+        vc = buf.getBuffer(Geo.CUT);
         Geo.box(vc, ps, -0.9F, -8.8F, -0.9F, 0.9F, -1.1F, 0.9F, grip, BRONZE_T, light);
         for (float y : new float[]{-1.9F, -3.0F, -6.6F}) Geo.box(vc, ps, -1.12F, y - 0.35F, -1.12F, 1.12F, y + 0.35F, 1.12F, br, BRONZE_T, light);
         // topuz

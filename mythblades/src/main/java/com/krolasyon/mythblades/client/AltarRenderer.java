@@ -13,7 +13,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
  */
 public final class AltarRenderer implements BlockEntityRenderer<SwordAltarBlockEntity> {
     /** Kılıç ölçeği (blok/piksel) ve taşa gömülü bıçak boyu (piksel). */
-    private static final float S = 1.3F / 16F, SUNK = 7.5F;
+    private static final float S = 2.0F / 16F, SUNK = 7.5F;
 
     public AltarRenderer(BlockEntityRendererProvider.Context ctx) {}
 
