@@ -81,8 +81,8 @@ public final class AutoTest {
             LOG.info("[ELFTEST] base y {} type {} capital {}", y0, CityLayout.type(l.getSeed(), city, l.getChunkSource().getGenerator(),
                     l.getChunkSource().randomState(), l), CityLayout.capital(l.getSeed(), l.getChunkSource().getGenerator(), l.getChunkSource().randomState(), l));
             // çevredeki diğer kentler ve türleri; ziyaret için özel (ay / çiçek) bir kent seç
-            for (int ci = -4; ci <= 4; ci++)
-                for (int cj = -4; cj <= 4; cj++) {
+            for (int ci = -7; ci <= 7; ci++)
+                for (int cj = -7; cj <= 7; cj++) {
                     CityLayout.City c = CityLayout.cell(l.getSeed(), ci, cj);
                     if (c == null || !CityLayout.valid(c, l.getChunkSource().getGenerator(), l.getChunkSource().randomState(), l)) continue;
                     com.krolasyon.elvenrealm.world.CityType t = CityLayout.type(l.getSeed(), c, l.getChunkSource().getGenerator(), l.getChunkSource().randomState(), l);
@@ -98,6 +98,8 @@ public final class AutoTest {
                     }
                 }
             LOG.info("[ELFTEST] visiting {} {}", other, otherType);
+            // ziyaret edilecek kent önceden üretilsin (sunucu uzak bir kenti birkaç saniyede üretemiyor)
+            if (other != null) run(s, String.format("forceload add %d %d %d %d", other.cx() - 72, other.cz() - 130, other.cx() + 72, other.cz() + 50));
             look(s, city.cx(), y0 + 110, city.cz() - 20, city.cx(), y0 + 10, city.cz() - 40);
         });
         // kent ve ağaçlar üretilip çizilsin
@@ -351,12 +353,12 @@ public final class AutoTest {
             run(s, "time set 4500");
             look(s, other.cx(), oy + 110, other.cz() - 20, other.cx(), oy + 10, other.cz() - 40);
         });
-        wait(900, "other_overhead");
+        wait(1600, "other_overhead");
         server(5, null, s -> {
             if (other == null) return;
             look(s, other.cx(), oy + 60, other.cz() + 85, other.cx(), oy + 20, other.cz() - 45);
         });
-        wait(300, "other_aerial");
+        wait(500, "other_aerial");
         server(5, null, s -> {
             if (other == null) return;
             look(s, other.cx() + 85, oy + 45, other.cz() - 60, other.cx() - 20, oy + 60, other.cz() - 100);
@@ -374,7 +376,7 @@ public final class AutoTest {
             LOG.info("[ELFTEST] other residents {}", n);
             look(s, other.cx() - 9, oy + 4, other.cz() + 24, other.cx(), oy + 2, other.cz() + 6);
         });
-        wait(200, "other_courtyard");
+        wait(400, "other_courtyard");
         server(5, null, s -> {
             if (other == null) return;
             look(s, other.cx() + 18, oy + 4, other.cz() + 18, other.cx() + 22, oy + 1, other.cz() + 8);
@@ -404,7 +406,7 @@ public final class AutoTest {
             p.teleportTo(s.overworld(), other.cx() + 0.5, oy + 1, other.cz() + 20.5, 180F, 0F);
         });
         client(5, null, mc -> gui = true);
-        wait(50, "other_entry_title");
+        wait(120, "other_entry_title");
         client(5, null, mc -> allowScreen = true);
         server(5, null, s -> {
             if (other == null) return;
@@ -417,7 +419,7 @@ public final class AutoTest {
             DialogueManager.open(p, best);
             LOG.info("[ELFTEST] talking to {} {}", best.kind, best.elfName());
         });
-        wait(80, "other_dialogue");
+        wait(160, "other_dialogue");
         client(5, null, mc -> {
             allowScreen = false;
             mc.setScreen(null);
