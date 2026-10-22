@@ -1,0 +1,10 @@
+{
+ "variants": {
+  "sword=true": {
+   "model": "mythblades:block/sword_altar"
+  },
+  "sword=false": {
+   "model": "mythblades:block/sword_altar"
+  }
+ }
+}

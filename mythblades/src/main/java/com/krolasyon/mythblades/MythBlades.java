@@ -31,12 +31,29 @@ public final class MythBlades {
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, MODID);
+    public static final DeferredRegister<net.minecraft.world.level.block.Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
+    public static final DeferredRegister<net.minecraft.world.level.block.entity.BlockEntityType<?>> BLOCK_ENTITIES =
+            DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, MODID);
+    public static final DeferredRegister<net.minecraft.world.level.levelgen.feature.Feature<?>> FEATURES = DeferredRegister.create(ForgeRegistries.FEATURES, MODID);
     public static final DeferredRegister<Codec<? extends IGlobalLootModifier>> LOOT_MODIFIERS =
             DeferredRegister.create(ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, MODID);
 
     public static final RegistryObject<Item> RAINBOW = ITEMS.register("rainbow_scimitar", RainbowScimitarItem::new);
     public static final RegistryObject<Item> CRIMSON = ITEMS.register("crimson_vein", CrimsonVeinItem::new);
     public static final RegistryObject<Item> MOSSROOT = ITEMS.register("mossroot_cleaver", MossrootCleaverItem::new);
+    public static final RegistryObject<Item> EMBER = ITEMS.register("emberbrand", com.krolasyon.mythblades.item.EmberbrandItem::new);
+    public static final RegistryObject<Item> SEAL = ITEMS.register("ember_seal", com.krolasyon.mythblades.item.EmberSealItem::new);
+
+    public static final RegistryObject<com.krolasyon.mythblades.block.SwordAltarBlock> ALTAR = BLOCKS.register("sword_altar",
+            com.krolasyon.mythblades.block.SwordAltarBlock::new);
+    public static final RegistryObject<Item> ALTAR_ITEM = ITEMS.register("sword_altar",
+            () -> new net.minecraft.world.item.BlockItem(ALTAR.get(), new Item.Properties().rarity(net.minecraft.world.item.Rarity.EPIC)));
+    @SuppressWarnings("DataFlowIssue")
+    public static final RegistryObject<net.minecraft.world.level.block.entity.BlockEntityType<com.krolasyon.mythblades.block.SwordAltarBlockEntity>> ALTAR_BE =
+            BLOCK_ENTITIES.register("sword_altar", () -> net.minecraft.world.level.block.entity.BlockEntityType.Builder
+                    .of(com.krolasyon.mythblades.block.SwordAltarBlockEntity::new, ALTAR.get()).build(null));
+    public static final RegistryObject<com.krolasyon.mythblades.world.AltarFeature> ALTAR_FEATURE = FEATURES.register("ember_altar",
+            () -> new com.krolasyon.mythblades.world.AltarFeature(net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration.CODEC));
 
     public static final RegistryObject<EntityType<RainbowWaveEntity>> WAVE = ENTITIES.register("rainbow_wave",
             () -> EntityType.Builder.<RainbowWaveEntity>of(RainbowWaveEntity::new, MobCategory.MISC)
@@ -47,6 +64,9 @@ public final class MythBlades {
     public MythBlades() {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         ITEMS.register(bus);
+        BLOCKS.register(bus);
+        BLOCK_ENTITIES.register(bus);
+        FEATURES.register(bus);
         ENTITIES.register(bus);
         LOOT_MODIFIERS.register(bus);
         bus.addListener(this::creativeTabs);
@@ -63,6 +83,9 @@ public final class MythBlades {
             event.accept(RAINBOW);
             event.accept(CRIMSON);
             event.accept(MOSSROOT);
+            event.accept(EMBER);
+            event.accept(SEAL);
+            event.accept(ALTAR_ITEM);
         }
     }
 

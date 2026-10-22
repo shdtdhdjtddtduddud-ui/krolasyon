@@ -240,3 +240,98 @@ def bark():
 for f in (rainbow, cloud, gold_wrap, gold, crimson, olive, ruby, stone, moss, leaf, bark):
     f()
 print('ok', OUT)
+
+
+# ------------------------------------------------------------------ kor kılıcı
+def ember():
+    W, H = 32, 192
+    u, t = grid(W, H)
+    edge = np.abs(u * 2 - 1)
+    # kenarlar koyu kırmızı-turuncu, çekirdek sarı-beyaz; uca doğru daha sarı
+    core = np.clip(1 - edge * 1.25, 0, 1)
+    rgb = lerp(np.broadcast_to(hexc('#b8240e'), (H, W, 3)).copy(), hexc('#ff6a1a'), np.clip(core * 1.6, 0, 1))
+    rgb = lerp(rgb, hexc('#ffb22e'), np.clip((core - 0.35) * 2.2, 0, 1))
+    rgb = lerp(rgb, hexc('#fff0a8'), np.clip((core - 0.7) * 3.0, 0, 1) * (0.55 + 0.45 * t))
+    rgb = lerp(rgb, hexc('#ffd060'), np.clip((t - 0.55) * 1.6, 0, 1) * 0.45)
+    # piksel lav lekeleri (görseldeki gibi)
+    fleck = noise(W, H, 3, 1.0) + noise(W, H, 8, 0.6)
+    rgb = lerp(rgb, hexc('#8a1808'), (fleck < -0.75) * (edge > 0.45) * 0.7)
+    rgb = lerp(rgb, hexc('#fff6c8'), (fleck > 0.8) * (edge < 0.6) * 0.6)
+    # sırt çizgisi
+    rgb = lerp(rgb, hexc('#ffffff'), (edge < 0.06) * 0.35)
+    save('ember_blade', rgb)
+    g = lerp(np.zeros((H, W, 3)), hexc('#ff7a20'), np.clip(core * 1.4, 0, 1))
+    g = lerp(g, hexc('#ffe080'), np.clip((core - 0.5) * 2.5, 0, 1))
+    g *= (0.85 + 0.15 * (fleck > 0))[..., None]
+    save('ember_glow', g)
+
+
+def ember_halo():
+    W = H = 16
+    save('ember_halo', np.full((H, W, 3), 255.0))
+
+
+def bronze():
+    W = H = 16
+    u, t = grid(W, H)
+    rgb = lerp(np.broadcast_to(hexc('#9a4e1e'), (H, W, 3)).copy(), hexc('#d7843a'), t * 0.7 + noise(W, H, 4, 0.25) + 0.1)
+    rgb = lerp(rgb, hexc('#f0b060'), ((t > 0.82) | (u < 0.12)) * 0.6)
+    rgb = lerp(rgb, hexc('#5e2a10'), ((t < 0.1) | (u > 0.9)) * 0.6)
+    rgb *= (1 + noise(W, H, 2, 0.05))[..., None]
+    save('bronze', rgb)
+
+
+def ember_grip():
+    W, H = 16, 64
+    u, t = grid(W, H)
+    base = np.broadcast_to(hexc('#4a2a1a'), (H, W, 3)).copy()
+    band = np.mod(t * 14 + u * 0.8, 1)
+    rgb = lerp(base, hexc('#2a160c'), (band < 0.22) * 1.0)
+    rgb = lerp(rgb, hexc('#6e4228'), ((band > 0.5) & (band < 0.7)) * 0.7)
+    rgb *= (1 + noise(W, H, 2, 0.06))[..., None]
+    save('ember_grip', rgb)
+
+
+def ember_pommel():
+    W = H = 16
+    u, t = grid(W, H)
+    rgb = lerp(np.broadcast_to(hexc('#3a2016'), (H, W, 3)).copy(), hexc('#6a3e28'), 0.4 + noise(W, H, 3, 0.4))
+    rgb = lerp(rgb, hexc('#24120a'), ((u < 0.1) | (u > 0.9) | (t < 0.1) | (t > 0.9)) * 0.6)
+    save('ember_pommel', rgb)
+
+
+def ember_gem():
+    W = H = 16
+    u, t = grid(W, H)
+    d = np.sqrt((u - 0.4) ** 2 + (t - 0.65) ** 2)
+    rgb = lerp(np.broadcast_to(hexc('#ffb83a'), (H, W, 3)).copy(), hexc('#fffbe0'), np.clip(1 - d * 2.2, 0, 1))
+    save('ember_gem', rgb)
+
+
+def ember_seal():
+    """Kor Mührü (eşya simgesi, 16x16): bronz halka içinde akkor kor, üstünde alev işareti."""
+    W = H = 16
+    img = np.zeros((H, W, 4))
+    yy, xx = np.mgrid[0:H, 0:W] + 0.5
+    d = np.sqrt((xx - 8) ** 2 + (yy - 8.5) ** 2)
+    ring = (d < 7.2) & (d > 5.2)
+    inner = d <= 5.2
+    br = lerp(np.broadcast_to(hexc('#9a4e1e'), (H, W, 3)).copy(), hexc('#f0b060'), np.clip((10 - yy) / 10, 0, 1))
+    core = lerp(np.broadcast_to(hexc('#c0300e'), (H, W, 3)).copy(), hexc('#ffe27a'), np.clip(1 - d / 5.2, 0, 1) ** 0.8)
+    img[..., :3] = np.where(ring[..., None], br, core)
+    img[..., 3] = np.where(ring | inner, 255, 0)
+    # alev işareti
+    flame = (np.abs(xx - 8 - np.sin(yy * 0.9) * 0.6) < (yy - 3.5) * 0.32) & (yy < 12) & (yy > 4)
+    img[..., :3] = np.where(flame[..., None], lerp(np.broadcast_to(hexc('#fff6c8'), (H, W, 3)).copy(), hexc('#ff9a2a'), (yy - 4) / 8), img[..., :3])
+    # kenar
+    edge = (d >= 7.2) & (d < 7.9)
+    img[..., :3] = np.where(edge[..., None], hexc('#3a1a0a'), img[..., :3])
+    img[..., 3] = np.where(edge, 255, img[..., 3])
+    out = os.path.join(OUT, '..', 'item')
+    os.makedirs(out, exist_ok=True)
+    Image.fromarray(np.clip(img, 0, 255).astype(np.uint8), 'RGBA').save(os.path.join(out, 'ember_seal.png'))
+
+
+for f in (ember, ember_halo, bronze, ember_grip, ember_pommel, ember_gem, ember_seal):
+    f()
+print('ember ok')

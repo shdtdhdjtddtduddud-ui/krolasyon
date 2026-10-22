@@ -51,6 +51,9 @@ public final class MythItemRenderer extends BlockEntityWithoutLevelRenderer {
         if (item == MythBlades.RAINBOW.get()) {
             float power = p != null && hand ? p.getCooldowns().getCooldownPercent(item, pt) : 0;
             BladeModels.rainbow(ps, buf, light, time, power);
+        } else if (item == MythBlades.EMBER.get()) {
+            float heat = p != null && hand ? p.getCooldowns().getCooldownPercent(item, pt) : 0;
+            BladeModels.ember(ps, buf, light, time, heat);
         } else if (item == MythBlades.CRIMSON.get()) {
             BladeModels.crimson(ps, buf, light, time, CrimsonVeinItem.essence(stack) / (float) CrimsonVeinItem.MAX);
         } else {

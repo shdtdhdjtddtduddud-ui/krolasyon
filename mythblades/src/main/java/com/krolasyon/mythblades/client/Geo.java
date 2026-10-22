@@ -225,4 +225,23 @@ public final class Geo {
         }
         return o;
     }
+
+    /** Eksenlere hizalı kutu (düz yüzlü, keskin kenarlı); doku her yüze bir kez gerilir. */
+    public static void box(VertexConsumer vc, PoseStack ps, float x0, float y0, float z0, float x1, float y1, float z1, TextureAtlasSprite s,
+                           float[] c, int light) {
+        Matrix4f m = ps.last().pose();
+        Matrix3f n = ps.last().normal();
+        float[][] v = {{x0, y0, z0}, {x1, y0, z0}, {x1, y1, z0}, {x0, y1, z0}, {x0, y0, z1}, {x1, y0, z1}, {x1, y1, z1}, {x0, y1, z1}};
+        int[][] f = {{4, 5, 6, 7}, {1, 0, 3, 2}, {5, 1, 2, 6}, {0, 4, 7, 3}, {7, 6, 2, 3}, {0, 1, 5, 4}};
+        float[][] nr = {{0, 0, 1}, {0, 0, -1}, {1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}};
+        float[][] uv = {{0, 1}, {1, 1}, {1, 0}, {0, 0}};
+        for (int k = 0; k < 6; k++) {
+            for (int q = 0; q < 4; q++) {
+                float[] p = v[f[k][q]];
+                vc.vertex(m, p[0], p[1], p[2]).color(c[0], c[1], c[2], c[3])
+                        .uv(s.getU0() + (s.getU1() - s.getU0()) * uv[q][0], s.getV0() + (s.getV1() - s.getV0()) * uv[q][1])
+                        .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(n, nr[k][0], nr[k][1], nr[k][2]).endVertex();
+            }
+        }
+    }
 }

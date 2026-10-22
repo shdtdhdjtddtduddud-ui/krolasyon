@@ -10,6 +10,7 @@ public record MythTier(int uses, float speed, float bonus, int enchant, ItemLike
     public static final MythTier RAINBOW = new MythTier(1900, 9F, 5F, 22, Items.AMETHYST_SHARD);
     public static final MythTier CRIMSON = new MythTier(2100, 9F, 4F, 18, Items.REDSTONE);
     public static final MythTier MOSSROOT = new MythTier(2600, 10F, 5F, 14, Items.MOSS_BLOCK);
+    public static final MythTier EMBER = new MythTier(2300, 9F, 5F, 20, Items.BLAZE_ROD);
 
     @Override public int getUses() { return uses; }
     @Override public float getSpeed() { return speed; }

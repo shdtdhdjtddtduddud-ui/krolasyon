@@ -371,4 +371,104 @@ public final class BladeModels {
         }
         ps.popPose();
     }
+
+    // =================================================================================================== KOR KILICI
+
+    private static final float E_Y0 = 0.9F, E_LEN = 25.5F;
+
+    private static float eHalf(float t) {
+        if (t < 0.8F) return 1.75F - 0.1F * t;
+        float s = (t - 0.8F) / 0.2F;
+        return Math.max(0.02F, 1.67F * (1 - s));
+    }
+
+    /** Elmas kesitli, düz ve geniş bıçak; scale > 1 ışık halesi için şişirilmiş kopyası. */
+    private static Geo.Blade emberBlade(float scale) {
+        return (t, u, o) -> {
+            float hw = eHalf(t) * scale;
+            o[0] = (u * 2 - 1) * hw;
+            o[1] = E_Y0 + E_LEN * t + (scale > 1 ? (t > 0.95F ? (scale - 1) * 2.5F : 0) : 0);
+            float d = 1 - Math.abs(u * 2 - 1);
+            float tip = t > 0.8F ? 0.35F + 0.65F * (1 - t) / 0.2F : 1;
+            o[2] = (0.1F + 0.62F * (float) Math.pow(d, 0.8)) * tip * scale;
+        };
+    }
+
+    private static final Geo.Blade EMBER_BLADE = emberBlade(1F), EMBER_HALO = emberBlade(1.55F);
+
+    private static final float[] BRONZE_T = {1, 1, 1, 1};
+
+    private static void emberHilt(MultiBufferSource buf, PoseStack ps, int light, float time, float heat) {
+        VertexConsumer vc = buf.getBuffer(Geo.CUT);
+        TextureAtlasSprite br = Geo.sprite("bronze"), grip = Geo.sprite("ember_grip"), wood = Geo.sprite("ember_pommel");
+        // siper gövdesi
+        Geo.box(vc, ps, -1.7F, -1.1F, -1.0F, 1.7F, 1.3F, 1.0F, br, BRONZE_T, light);
+        // kollar: dışa ve bıçağa doğru kıvrılan iki parça
+        for (int sd = -1; sd <= 1; sd += 2) {
+            ps.pushPose();
+            ps.translate(sd * 1.4F, 0.1F, 0);
+            ps.mulPose(Axis.ZP.rotationDegrees(sd * 24F));
+            Geo.box(vc, ps, sd > 0 ? 0 : -3.4F, -0.7F, -0.85F, sd > 0 ? 3.4F : 0, 0.7F, 0.85F, br, BRONZE_T, light);
+            ps.translate(sd * 3.1F, 0, 0);
+            ps.mulPose(Axis.ZP.rotationDegrees(sd * 38F));
+            Geo.box(vc, ps, sd > 0 ? -0.2F : -2.2F, -0.65F, -0.8F, sd > 0 ? 2.2F : 0.2F, 0.65F, 0.8F, br, BRONZE_T, light);
+            ps.popPose();
+        }
+        // mücevher yuvası: 45° döndürülmüş bronz çerçeve, iki yüzde parlayan elmas
+        ps.pushPose();
+        ps.mulPose(Axis.ZP.rotationDegrees(45));
+        Geo.box(vc, ps, -1.75F, -1.75F, -1.2F, 1.75F, 1.75F, 1.2F, br, BRONZE_T, light);
+        ps.popPose();
+        float pulse = 0.5F + 0.5F * (float) Math.sin(time * 0.15F);
+        TextureAtlasSprite gem = Geo.sprite("ember_gem");
+        for (int sd = -1; sd <= 1; sd += 2) {
+            Geo.ellipsoid(vc, ps, 0, 0, sd * 1.2F, 1.35F, 1.35F, 0.55F, 2, 4, gem, null, Geo.FULL);
+            Geo.ellipsoid(buf.getBuffer(Geo.GLOW), ps, 0, 0, sd * 1.22F, 1.55F, 1.55F, 0.65F, 2, 4, gem, (t, u, c) -> {
+                c[0] = c[1] = c[2] = 0.45F + 0.3F * pulse + 0.25F * heat;
+            }, Geo.FULL);
+        }
+        // deri sargılı kabza ve bronz bilezikler
+        Geo.box(vc, ps, -0.9F, -8.8F, -0.9F, 0.9F, -1.1F, 0.9F, grip, BRONZE_T, light);
+        for (float y : new float[]{-1.9F, -3.0F, -6.6F}) Geo.box(vc, ps, -1.12F, y - 0.35F, -1.12F, 1.12F, y + 0.35F, 1.12F, br, BRONZE_T, light);
+        // topuz
+        Geo.box(vc, ps, -1.45F, -11.5F, -1.45F, 1.45F, -8.8F, 1.45F, wood, BRONZE_T, light);
+        Geo.box(vc, ps, -1.6F, -9.3F, -1.6F, 1.6F, -8.8F, 1.6F, br, BRONZE_T, light);
+    }
+
+    /** Kor Kılıcı. heat: yetenek sonrası/sunaktan çekilirken artan ısı (0..1). */
+    public static void ember(PoseStack ps, MultiBufferSource buf, int light, float time, float heat) {
+        TextureAtlasSprite bl = Geo.sprite("ember_blade");
+        Geo.blade(buf.getBuffer(Geo.CUT), ps, 48, 8, EMBER_BLADE, bl, null, Geo.FULL, 0);
+        // akkor çekirdek: bıçak boyunca yukarı akan ısı dalgaları
+        float flick = 0.85F + 0.15F * (float) Math.sin(time * 0.9F) * (float) Math.sin(time * 0.37F + 1);
+        Geo.blade(buf.getBuffer(Geo.GLOW), ps, 48, 8, EMBER_BLADE, Geo.sprite("ember_glow"), (t, u, c) -> {
+            float wave = 0.5F + 0.5F * (float) Math.sin(t * 18 - time * 0.35F);
+            float g = clamp((0.45F + 0.25F * wave) * flick + 0.35F * heat, 0, 1);
+            c[0] = c[1] = c[2] = g;
+        }, Geo.FULL, 0.02F);
+        // dış hale (eklemeli ışık)
+        float halo = 0.16F + 0.06F * flick + 0.3F * heat;
+        Geo.blade(buf.getBuffer(Geo.GLOW), ps, 24, 6, EMBER_HALO, Geo.sprite("ember_halo"), (t, u, c) -> {
+            float edge = 1 - Math.abs(u * 2 - 1);
+            float g = halo * edge * (0.7F + 0.3F * (1 - t));
+            c[0] = g;
+            c[1] = g * 0.55F;
+            c[2] = g * 0.2F;
+        }, Geo.FULL, 0.3F);
+        emberHilt(buf, ps, light, time, heat);
+        // bıçaktan yükselen kıvılcımlar
+        VertexConsumer gv = buf.getBuffer(Geo.GLOW);
+        TextureAtlasSprite w = Geo.sprite("m_plain");
+        int n = 5 + (int) (6 * heat);
+        for (int k = 0; k < n; k++) {
+            float ph = ((time * (0.012F + 0.004F * (k % 3)) + k * 0.381F) % 1F);
+            float y = E_Y0 + 2 + ph * (E_LEN + 4);
+            float x = (float) Math.sin(k * 2.3F + time * 0.05F) * (1.2F + ph * 1.5F);
+            float z = (float) Math.cos(k * 1.7F + time * 0.04F) * 1.0F;
+            float sz = 0.32F * (1 - ph);
+            float[] c = {1F, 0.55F + 0.3F * (1 - ph), 0.15F, 1};
+            for (int q = 0; q < 3; q++) c[q] *= (1 - ph);
+            Geo.box(gv, ps, x - sz, y - sz, z - sz, x + sz, y + sz, z + sz, w, c, Geo.FULL);
+        }
+    }
 }

@@ -211,7 +211,146 @@ public final class AutoTest {
         wait(10, "mossify");
         server(2, null, s -> LOG.info("[MYTHTEST] mossify {} {}", s.overworld().getBlockState(new BlockPos(0, -60, -2)), s.overworld().getBlockState(new BlockPos(1, -60, -2))));
         cmd(30, "night_held", "time set 18000");
+        // ---------------------------------------------------- Kor Kılıcı: taştaki kılıç, mühürsüz deneme, çekilme, yetenekler
+        server(5, null, s -> {
+            com.krolasyon.mythblades.world.AltarFeature.build(s.overworld(), AX, -61, AZ, 77L);
+            ServerPlayer p = player(s);
+            p.getInventory().clearContent();
+            run(s, "time set 6000", "gamemode creative @a", "kill @e[type=husk]", "kill @e[type=item]");
+            look(s, AX + 5.2, -56.3, AZ + 6.0, AX + 0.5, -58.0, AZ + 0.5);
+            LOG.info("[MYTHTEST] altar state {}", s.overworld().getBlockState(new BlockPos(AX, -59, AZ)));
+        });
+        wait(60, "altar_overview");
+        cmd(5, null, "tp @a " + (AX - 4.5) + " -57.6 " + (AZ + 4.5) + " -135 15");
+        wait(30, "altar_side");
+        server(5, null, s -> look(s, AX + 1.9, -56.6, AZ + 1.9, AX + 0.5, -56.6, AZ + 0.5));
+        wait(30, "altar_hilt_close");
+        cmd(5, null, "time set 18000");
+        server(5, null, s -> look(s, AX + 5.2, -56.3, AZ + 6.0, AX + 0.5, -58.0, AZ + 0.5));
+        wait(40, "altar_night");
+        cmd(5, null, "time set 6000", "gamemode survival @a", "effect give @a minecraft:resistance infinite 4 true");
+        // mühürsüz: kılıç sarsılır, oyuncu geri itilir
+        server(5, null, s -> {
+            ServerPlayer p = player(s);
+            p.teleportTo(s.overworld(), AX + 0.5, -59, AZ + 2.6, 180, 35);
+        });
+        client(10, null, mc -> gui = true);
+        server(1, null, s -> {
+            var be = (com.krolasyon.mythblades.block.SwordAltarBlockEntity) s.overworld().getBlockEntity(new BlockPos(AX, -59, AZ));
+            LOG.info("[MYTHTEST] interact without seal -> {}", be.interact(player(s)));
+        });
+        wait(4, "altar_locked");
+        wait(30, null);
+        // mühürle: çekilme animasyonu
+        server(5, null, s -> {
+            ServerPlayer p = player(s);
+            p.clearFire();
+            p.setItemSlot(net.minecraft.world.entity.EquipmentSlot.OFFHAND, item("mythblades:ember_seal"));
+            p.teleportTo(s.overworld(), AX + 0.5, -59, AZ + 2.4, 180, 30);
+        });
+        client(10, null, mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT));
+        server(1, null, s -> {
+            var be = (com.krolasyon.mythblades.block.SwordAltarBlockEntity) s.overworld().getBlockEntity(new BlockPos(AX, -59, AZ));
+            LOG.info("[MYTHTEST] interact with seal -> {} pulling {}", be.interact(player(s)), be.pulling());
+        });
+        wait(10, "pull_shake");
+        wait(18, "pull_crack");
+        wait(16, "pull_rise");
+        wait(14, "pull_high");
+        wait(16, "pull_done");
+        server(5, null, s -> {
+            ServerPlayer p = player(s);
+            LOG.info("[MYTHTEST] after pull main {} offhand {} altar {}", p.getMainHandItem(), p.getOffhandItem(),
+                    s.overworld().getBlockState(new BlockPos(AX, -59, AZ)));
+        });
+        client(5, null, mc -> {
+            gui = false;
+            mc.options.setCameraType(CameraType.FIRST_PERSON);
+        });
+        wait(20, "ember_hand");
+        client(5, null, mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT));
+        wait(20, "ember_third");
+        client(5, null, mc -> mc.options.setCameraType(CameraType.FIRST_PERSON));
+        cmd(10, "altar_empty", "tp @a " + (AX + 3.5) + " -57.5 " + (AZ + 3.5) + " 135 25");
+        // envanter
+        client(5, null, mc -> {
+            allowScreen = true;
+            gui = true;
+            mc.setScreen(new GalleryScreen(List.of(MythBlades.EMBER.get(), MythBlades.SEAL.get(), MythBlades.ALTAR_ITEM.get()), 3, 6F));
+        });
+        wait(20, "ember_gui");
+        client(5, null, mc -> {
+            allowScreen = false;
+            gui = false;
+            mc.setScreen(null);
+        });
+        // Alev Kesiği
+        cmd(5, null, "summon husk " + (AX + 0.5) + " -60 " + (AZ + 12.5) + " {NoAI:1b,Health:60f,Attributes:[{Name:\"generic.max_health\",Base:60d}]}",
+                "summon husk " + (AX + 2.5) + " -60 " + (AZ + 13) + " {NoAI:1b,Health:60f,Attributes:[{Name:\"generic.max_health\",Base:60d}]}",
+                "summon husk " + (AX - 1.5) + " -60 " + (AZ + 13) + " {NoAI:1b,Health:60f,Attributes:[{Name:\"generic.max_health\",Base:60d}]}");
+        server(5, null, s -> {
+            ServerPlayer p = player(s);
+            p.getInventory().selected = 0;
+            p.teleportTo(s.overworld(), AX + 0.5, -60, AZ + 9.0, 0, 10);
+        });
+        client(15, null, mc -> mc.player.getInventory().selected = 0);
+        client(1, null, mc -> KeyMapping.click(mc.options.keyUse.getKey()));
+        wait(3, "flame_slash");
+        wait(6, "flame_slash_b");
+        server(5, null, s -> {
+            for (Husk h : s.overworld().getEntitiesOfClass(Husk.class, new AABB(AX - 20, -64, AZ - 20, AX + 20, -40, AZ + 30)))
+                LOG.info("[MYTHTEST] husk after slash hp {} fire {}", h.getHealth(), h.getRemainingFireTicks());
+        });
+        // Kor Saplama
+        server(30, null, s -> {
+            ServerPlayer p = player(s);
+            p.getCooldowns().removeCooldown(MythBlades.EMBER.get());
+            p.teleportTo(s.overworld(), AX + 0.5, -60, AZ + 11.8, 0, 30);
+        });
+        client(5, null, mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_BACK));
+        server(1, null, s -> {
+            ServerPlayer p = player(s);
+            p.setShiftKeyDown(true);
+            MythBlades.EMBER.get().use(s.overworld(), p, InteractionHand.MAIN_HAND);
+            p.setShiftKeyDown(false);
+        });
+        wait(3, "ember_plunge");
+        wait(8, "ember_plunge_b");
+        server(5, null, s -> {
+            for (Husk h : s.overworld().getEntitiesOfClass(Husk.class, new AABB(AX - 20, -64, AZ - 20, AX + 20, -40, AZ + 30)))
+                LOG.info("[MYTHTEST] husk after plunge hp {} y {}", h.getHealth(), h.getY());
+            ServerPlayer p = player(s);
+            LOG.info("[MYTHTEST] fire resistance {}", p.hasEffect(net.minecraft.world.effect.MobEffects.FIRE_RESISTANCE));
+            BlockPos a = com.krolasyon.mythblades.world.AltarLayout.nearest(s.overworld().getSeed(), s.overworld().getChunkSource().getGenerator(),
+                    s.overworld().getChunkSource().randomState(), s.overworld(), 0, 0, 2);
+            LOG.info("[MYTHTEST] nearest altar {}", a);
+        });
+        client(5, null, mc -> mc.options.setCameraType(CameraType.FIRST_PERSON));
+        // kılıcı geri sapla
+        cmd(30, null, "kill @e[type=husk]");
+        server(5, null, s -> {
+            ServerPlayer p = player(s);
+            p.teleportTo(s.overworld(), AX + 0.5, -59, AZ + 2.4, 180, 30);
+            var be = (com.krolasyon.mythblades.block.SwordAltarBlockEntity) s.overworld().getBlockEntity(new BlockPos(AX, -59, AZ));
+            LOG.info("[MYTHTEST] reinsert -> {} altar {} hand {}", be.interact(p), s.overworld().getBlockState(new BlockPos(AX, -59, AZ)), p.getMainHandItem());
+            look(s, AX + 5.2, -56.3, AZ + 6.0, AX + 0.5, -58.0, AZ + 0.5);
+        });
+        wait(30, "altar_returned");
+
         wait(20, "END");
+    }
+
+    private static final int AX = 24, AZ = 0;
+
+    private static void run(MinecraftServer s, String... cmds) {
+        for (String c : cmds) s.getCommands().performPrefixedCommand(s.createCommandSourceStack().withSuppressedOutput(), c);
+    }
+
+    private static void look(MinecraftServer s, double x, double y, double z, double tx, double ty, double tz) {
+        double dx = tx - x, dy = ty - y, dz = tz - z;
+        float yaw = (float) Math.toDegrees(Math.atan2(-dx, dz));
+        float pitch = (float) -Math.toDegrees(Math.atan2(dy, Math.sqrt(dx * dx + dz * dz)));
+        run(s, String.format(java.util.Locale.ROOT, "tp @a %.2f %.2f %.2f %.1f %.1f", x, y, z, yaw, pitch));
     }
 
     private static ItemStack item(String id) {

@@ -8,6 +8,9 @@ public final class ClientSetup {
     private ClientSetup() {}
 
     public static void init(IEventBus bus) {
-        bus.addListener((EntityRenderersEvent.RegisterRenderers e) -> e.registerEntityRenderer(MythBlades.WAVE.get(), WaveRenderer::new));
+        bus.addListener((EntityRenderersEvent.RegisterRenderers e) -> {
+            e.registerEntityRenderer(MythBlades.WAVE.get(), WaveRenderer::new);
+            e.registerBlockEntityRenderer(MythBlades.ALTAR_BE.get(), AltarRenderer::new);
+        });
     }
 }

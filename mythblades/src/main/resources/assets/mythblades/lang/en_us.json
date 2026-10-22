@@ -11,5 +11,21 @@
  "tooltip.mythblades.crimson.essence": "Essence: %s / %s",
  "tooltip.mythblades.mossroot.1": "Hold and release: slam the ground, the shockwave launches enemies",
  "tooltip.mythblades.mossroot.2": "Right-click stone/dirt: grow moss · Chops trees fast",
- "tooltip.mythblades.mossroot.3": "Repairs itself in rain or on grass"
+ "tooltip.mythblades.mossroot.3": "Repairs itself in rain or on grass",
+ "item.mythblades.emberbrand": "Emberbrand",
+ "item.mythblades.ember_seal": "Ember Seal",
+ "block.mythblades.sword_altar": "Ember Altar",
+ "tooltip.mythblades.ember.1": "Hits set enemies on fire · While held you resist fire and lava",
+ "tooltip.mythblades.ember.2": "Right click: Flame Slash — burns enemies in an arc in front of you",
+ "tooltip.mythblades.ember.3": "Sneak + right click: Ember Plunge — stab the ground for a burst of embers",
+ "tooltip.mythblades.seal.1": "Hold it to pull the sword out of an Ember Altar",
+ "tooltip.mythblades.seal.2": "Right click: shows the direction of the nearest Ember Altar",
+ "msg.mythblades.seal_dir": "The seal grows warm... an Ember Altar lies %s blocks away, %s",
+ "msg.mythblades.seal_none": "The seal is cold. There is no Ember Altar nearby.",
+ "msg.mythblades.altar_locked": "The sword won't budge and its hilt burns like an ember... You need an Ember Seal.",
+ "msg.mythblades.altar_pull": "The seal melts... the stone cracks and the sword rises!",
+ "msg.mythblades.altar_pull_free": "The sword knows you and rises...",
+ "msg.mythblades.altar_won": "Emberbrand is yours!",
+ "msg.mythblades.altar_empty": "The altar is empty. You can plunge Emberbrand back in.",
+ "msg.mythblades.altar_return": "The sword settles into the stone. Only you can pull it without a seal."
 }
