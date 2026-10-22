@@ -174,7 +174,7 @@ public final class AutoTest {
     }
 
     private static int top(ServerLevel l, int x, int z) {
-        return l.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+        return l.getChunkSource().getGenerator().getBaseHeight(x, z, Heightmap.Types.WORLD_SURFACE_WG, l, l.getChunkSource().randomState());
     }
 
     private static void stats(ServerLevel l, int cx, int cz) {

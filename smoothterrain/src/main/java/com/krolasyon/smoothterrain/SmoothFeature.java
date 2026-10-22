@@ -100,7 +100,10 @@ public final class SmoothFeature extends Feature<NoneFeatureConfiguration> {
                 BlockState above = level.getBlockState(p);
                 if (!above.isAir() && !(above.canBeReplaced() && above.getFluidState().isEmpty())) continue;
                 // kar katmanı varsa yarım kat kar
-                BlockState put = above.is(Blocks.SNOW) ? Blocks.SNOW.defaultBlockState().setValue(SnowLayerBlock.LAYERS, 4) : slabFor(top);
+                BlockPos at = new BlockPos(x, y + 1, z);
+                boolean cold = above.is(Blocks.SNOW) || (top.is(Blocks.GRASS_BLOCK) || top.is(Blocks.DIRT) || top.is(Blocks.PODZOL))
+                        && level.getBiome(at).value().coldEnoughToSnow(at);
+                BlockState put = cold ? Blocks.SNOW.defaultBlockState().setValue(SnowLayerBlock.LAYERS, 4) : slabFor(top);
                 if (put == null) continue;
                 p.set(x, y + 2, z);
                 BlockState over = level.getBlockState(p);
@@ -111,9 +114,9 @@ public final class SmoothFeature extends Feature<NoneFeatureConfiguration> {
                 }
                 p.set(x, y + 1, z);
                 level.setBlock(p, put, 2);
-                if (top.is(Blocks.GRASS_BLOCK) && !put.is(Blocks.SNOW)) {
+                if (put.is(Blocks.SNOW) && top.hasProperty(net.minecraft.world.level.block.SnowyDirtBlock.SNOWY)) {
                     p.set(x, y, z);
-                    level.setBlock(p, Blocks.DIRT.defaultBlockState(), 2);
+                    level.setBlock(p, top.setValue(net.minecraft.world.level.block.SnowyDirtBlock.SNOWY, true), 2);
                 }
                 placed++;
             }
