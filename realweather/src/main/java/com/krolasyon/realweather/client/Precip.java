@@ -176,6 +176,9 @@ public final class Precip {
         Minecraft mc = Minecraft.getInstance();
         ClientLevel level = mc.level;
         if (level == null || level.dimension() != net.minecraft.world.level.Level.OVERWORLD) return;
+        // Complementary gibi paketler bu dokuyu köşeli üçgenlere çeviriyor: onlarda yalnızca pus kalır
+        long now = level.getGameTime();
+        if (ShaderCompat.shaders(now) && !ShaderCompat.packIsKrolasyon(now)) return;
         float sandI = lastSand, wall = wallAmount();
         if (sandI < 0.02F && wall < 0.01F) return;
         float q = Minecraft.useFancyGraphics() ? 1F : 0.55F;
