@@ -289,7 +289,7 @@ public final class AutoTest {
             mc.setScreen(null);
         });
         // ---------------------------------------------------- dövüş stili: kombo, savunma/karşı koyma, atılış, saplama
-        cmd(5, null, "kill @e[type=husk]", "summon husk " + (AX + 0.5) + " -60 " + (AZ + 13.5) + " {NoAI:1b,Health:200f,Attributes:[{Name:\"generic.max_health\",Base:200d}]}",
+        cmd(5, null, "kill @e[type=husk]", "kill @e[type=slime]", "summon husk " + (AX + 0.5) + " -60 " + (AZ + 13.5) + " {NoAI:1b,Health:200f,Attributes:[{Name:\"generic.max_health\",Base:200d}]}",
                 "summon husk " + (AX + 3.5) + " -60 " + (AZ + 14) + " {NoAI:1b,Health:200f,Attributes:[{Name:\"generic.max_health\",Base:200d}]}",
                 "summon husk " + (AX - 2.5) + " -60 " + (AZ + 14) + " {NoAI:1b,Health:200f,Attributes:[{Name:\"generic.max_health\",Base:200d}]}");
         server(5, null, s -> {
@@ -330,6 +330,7 @@ public final class AutoTest {
         server(1, null, s -> {
             ServerPlayer p = player(s);
             Husk h = s.overworld().getEntitiesOfClass(Husk.class, new AABB(AX - 20, -64, AZ - 20, AX + 20, -40, AZ + 40)).get(0);
+            front(p, h);
             if (p.getTicksUsingItem() > 3) {
                 p.stopUsingItem();
                 p.startUsingItem(net.minecraft.world.InteractionHand.MAIN_HAND);
@@ -347,6 +348,7 @@ public final class AutoTest {
         server(1, null, s -> {
             ServerPlayer p = player(s);
             Husk h = s.overworld().getEntitiesOfClass(Husk.class, new AABB(AX - 20, -64, AZ - 20, AX + 20, -40, AZ + 40)).get(0);
+            front(p, h);
             p.removeEffect(net.minecraft.world.effect.MobEffects.DAMAGE_RESISTANCE);
             p.setHealth(20);
             float hp = p.getHealth();
@@ -421,6 +423,12 @@ public final class AutoTest {
     private void cmd(int wait, String shot, String... c) { steps.add(new Step(wait, shot, c, null, null)); }
     private void server(int wait, String shot, Consumer<MinecraftServer> a) { steps.add(new Step(wait, shot, new String[0], a, null)); }
     private void client(int wait, String shot, Consumer<Minecraft> a) { steps.add(new Step(wait, shot, new String[0], null, a)); }
+    /** Test vuruşu için yaratığı oyuncunun tam önüne koyar (savunma yalnız önden gelene işler). */
+    private static void front(ServerPlayer p, Husk h) {
+        net.minecraft.world.phys.Vec3 f = p.getViewVector(1).multiply(1, 0, 1).normalize().scale(1.6);
+        h.teleportTo(p.getX() + f.x, p.getY(), p.getZ() + f.z);
+    }
+
     private void wait(int ticks, String shot) { steps.add(new Step(ticks, shot, new String[0], null, null)); }
 
     @SubscribeEvent

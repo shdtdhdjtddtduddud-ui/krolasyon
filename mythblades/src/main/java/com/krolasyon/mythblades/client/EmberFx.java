@@ -93,7 +93,7 @@ public final class EmberFx {
                 if (self) flash(0.55F);
                 for (int i = 0; i < 60; i++) {
                     double a = mc.level.random.nextDouble() * Math.PI * 2, r = mc.level.random.nextDouble() * f.a();
-                    mc.level.addParticle(i % 3 == 0 ? ParticleTypes.LAVA : ParticleTypes.FLAME, at.x + Math.cos(a) * r, at.y + 0.2, at.z + Math.sin(a) * r,
+                    mc.level.addParticle(i % 10 == 0 ? ParticleTypes.LAVA : ParticleTypes.FLAME, at.x + Math.cos(a) * r, at.y + 0.2, at.z + Math.sin(a) * r,
                             Math.cos(a) * 0.15, 0.25 + mc.level.random.nextDouble() * 0.3, Math.sin(a) * 0.15);
                 }
             }
@@ -362,7 +362,7 @@ public final class EmberFx {
             Vec3 tip = center(t).add(ab[0].scale(Math.cos(head) * 2.6)).add(ab[1].scale(Math.sin(head) * 2.6));
             Level l = e.level();
             for (int i = 0; i < 3; i++)
-                l.addParticle(i == 0 ? ParticleTypes.LAVA : ParticleTypes.FLAME, tip.x, tip.y, tip.z, (l.random.nextDouble() - 0.5) * 0.12, 0.05, (l.random.nextDouble() - 0.5) * 0.12);
+                l.addParticle(i == 0 && l.random.nextInt(6) == 0 ? ParticleTypes.LAVA : ParticleTypes.FLAME, tip.x, tip.y, tip.z, (l.random.nextDouble() - 0.5) * 0.12, 0.05, (l.random.nextDouble() - 0.5) * 0.12);
         }
     }
 

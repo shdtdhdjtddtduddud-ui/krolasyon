@@ -163,7 +163,7 @@ public final class EmberCombat {
             le.setDeltaMovement(le.getDeltaMovement().add(away.x * 0.9, 0.75, away.z * 0.9));
             le.hurtMarked = true;
         }
-        l.sendParticles(ParticleTypes.LAVA, c.x, c.y + 0.2, c.z, 30, 2, 0.2, 2, 0);
+        l.sendParticles(ParticleTypes.LAVA, c.x, c.y + 0.2, c.z, 8, 2, 0.2, 2, 0);
         l.sendParticles(ParticleTypes.LARGE_SMOKE, c.x, c.y + 0.3, c.z, 10, 2.5, 0.3, 2.5, 0.02);
         l.playSound(null, p.blockPosition(), MythBlades.SFX.get("ember_impact").get(), SoundSource.PLAYERS, 1.5F, 1F);
         FxNet.fx(p, new FxNet.Fx(FxNet.IMPACT, p.getId(), c.x, c.y, c.z, 6F, 0));
