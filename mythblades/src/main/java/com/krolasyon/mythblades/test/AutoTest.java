@@ -330,6 +330,10 @@ public final class AutoTest {
         server(1, null, s -> {
             ServerPlayer p = player(s);
             Husk h = s.overworld().getEntitiesOfClass(Husk.class, new AABB(AX - 20, -64, AZ - 20, AX + 20, -40, AZ + 40)).get(0);
+            if (p.getTicksUsingItem() > 3) {
+                p.stopUsingItem();
+                p.startUsingItem(net.minecraft.world.InteractionHand.MAIN_HAND);
+            }
             float hp = p.getHealth();
             boolean r = h.doHurtTarget(p);
             LOG.info("[MYTHTEST] parry: using {} ticks {} hurt {} hp {} -> {} husk slow {}", p.isUsingItem(), p.getTicksUsingItem(), r, hp, p.getHealth(),
@@ -343,6 +347,8 @@ public final class AutoTest {
         server(1, null, s -> {
             ServerPlayer p = player(s);
             Husk h = s.overworld().getEntitiesOfClass(Husk.class, new AABB(AX - 20, -64, AZ - 20, AX + 20, -40, AZ + 40)).get(0);
+            p.removeEffect(net.minecraft.world.effect.MobEffects.DAMAGE_RESISTANCE);
+            p.setHealth(20);
             float hp = p.getHealth();
             h.doHurtTarget(p);
             LOG.info("[MYTHTEST] block: ticks {} hp {} -> {}", p.getTicksUsingItem(), hp, p.getHealth());

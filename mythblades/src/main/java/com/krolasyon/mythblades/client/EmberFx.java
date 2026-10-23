@@ -251,7 +251,7 @@ public final class EmberFx {
         }
         float fl = 1 - (t - flashAt) / 6F;
         if (fl > 0) {
-            g.setColor(1, 1, 1, fl * flashPower * 0.5F);
+            g.setColor(1, 1, 1, fl * flashPower * 0.3F);
             g.fill(0, 0, w, h, 0xFFFFD9A0);
         }
         g.setColor(1, 1, 1, 1);

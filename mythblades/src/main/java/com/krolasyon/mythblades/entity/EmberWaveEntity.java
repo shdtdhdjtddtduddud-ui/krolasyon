@@ -99,7 +99,7 @@ public final class EmberWaveEntity extends Projectile {
                 level().addParticle(random.nextInt(3) == 0 ? ParticleTypes.SMALL_FLAME : ParticleTypes.FLAME, getX() + side.x * s, getY() + 0.4 + random.nextGaussian() * 0.2,
                         getZ() + side.z * s, v.x * 0.1, 0.03, v.z * 0.1);
             }
-            if (random.nextInt(2) == 0) level().addParticle(ParticleTypes.LARGE_SMOKE, getX(), getY() + 0.5, getZ(), 0, 0.03, 0);
+            if (random.nextInt(5) == 0) level().addParticle(ParticleTypes.LARGE_SMOKE, getX(), getY() + 0.5, getZ(), 0, 0.03, 0);
         }
         setPos(to.x, to.y, to.z);
     }

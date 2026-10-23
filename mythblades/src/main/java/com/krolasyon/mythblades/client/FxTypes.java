@@ -8,7 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.HashMap;
 import java.util.Map;
 
-/** Çift yüzlü, eklemeli (ışıyan) efekt çizim türü; doku başına bir kez oluşturulur. */
+/** Çift yüzlü, eklemeli (alfa ağırlıklı, ışıyan) efekt çizim türü; doku başına bir kez oluşturulur. */
 public final class FxTypes extends RenderType {
     private static final Map<ResourceLocation, RenderType> ADD = new HashMap<>();
 
@@ -19,7 +19,7 @@ public final class FxTypes extends RenderType {
 
     public static RenderType additive(ResourceLocation t) {
         return ADD.computeIfAbsent(t, k -> create("mythblades_fx_add", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, true,
-                CompositeState.builder().setShaderState(RENDERTYPE_EYES_SHADER).setTextureState(new TextureStateShard(k, false, false))
-                        .setTransparencyState(ADDITIVE_TRANSPARENCY).setCullState(NO_CULL).setWriteMaskState(COLOR_WRITE).createCompositeState(false)));
+                CompositeState.builder().setShaderState(RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_SHADER).setTextureState(new TextureStateShard(k, false, false))
+                        .setTransparencyState(LIGHTNING_TRANSPARENCY).setCullState(NO_CULL).setWriteMaskState(COLOR_WRITE).createCompositeState(false)));
     }
 }
