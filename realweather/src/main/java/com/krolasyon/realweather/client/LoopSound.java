@@ -28,6 +28,11 @@ public final class LoopSound extends AbstractTickableSoundInstance {
         } else quiet = 0;
     }
 
+    /** Şu anki ses düzeyi (ses sistemi kapalıyken de güvenli). */
+    public float level() {
+        return volume;
+    }
+
     public void kill() {
         stop();
     }

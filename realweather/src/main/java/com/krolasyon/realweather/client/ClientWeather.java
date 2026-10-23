@@ -333,7 +333,7 @@ public final class ClientWeather {
     /** Test ve hata ayıklama: çalan döngülerin anlık sesleri. */
     public static String loopReport() {
         StringBuilder b = new StringBuilder();
-        for (var en : LOOPS.entrySet()) b.append(en.getKey()).append('=').append(String.format(java.util.Locale.ROOT, "%.2f", en.getValue().getVolume())).append(' ');
+        for (var en : LOOPS.entrySet()) b.append(en.getKey()).append('=').append(String.format(java.util.Locale.ROOT, "%.2f", en.getValue().level())).append(' ');
         return b.toString();
     }
 
@@ -349,7 +349,7 @@ public final class ClientWeather {
         float far = base;
         far = Math.min(far, Mth.lerp(blizzardAmt * inside, base, 16));
         far = Math.min(far, Mth.lerp(snowAmt * 0.65F * inside, base, 56));
-        far = Math.min(far, Mth.lerp(Mth.clamp(sandAmt * 1.3F, 0, 1) * inside, base, 13));
+        far = Math.min(far, Mth.lerp(Mth.clamp(sandAmt * 1.2F, 0, 1) * inside, base, 22));
         far = Math.min(far, Mth.lerp(rainAmt * (0.45F + 0.4F * stormness) * inside, base, 48));
         far = Math.min(far, Mth.lerp(fogAmt * inside, base, 22));
         far = Math.min(far, Mth.lerp(mistAmt * inside, base, 44));

@@ -78,7 +78,10 @@ public final class AutoTest {
         BlockPos b = spots.get(spot);
         if (b == null) return;
         ServerLevel l = s.overworld();
+        // yükseklik haritası yalnızca yüklü chunk'ta doğrudur: önce yükle
+        l.getChunk(b.getX() >> 4, b.getZ() >> 4);
         int y = l.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, b.getX(), b.getZ());
+        LOG.info("[WEATHERTEST] go {} y {}", spot, y);
         run(s, String.format(java.util.Locale.ROOT, "tp @a %.1f %.1f %.1f %.1f %.1f", b.getX() + 0.5, y + up, b.getZ() + 0.5, yaw, pitch));
     }
 
@@ -114,7 +117,7 @@ public final class AutoTest {
                     "gamemode spectator @a");
             ServerLevel l = s.overworld();
             find(l, "plains", is(Biomes.PLAINS));
-            find(l, "forest", h -> h.is(Biomes.FOREST) || h.is(Biomes.BIRCH_FOREST) || h.is(Biomes.DARK_FOREST));
+            find(l, "forest", h -> h.is(Biomes.FOREST) || h.is(Biomes.BIRCH_FOREST));
             find(l, "snow", h -> h.is(Biomes.SNOWY_PLAINS) || h.is(Biomes.SNOWY_TAIGA));
             find(l, "desert", is(Biomes.DESERT));
             find(l, "swamp", h -> h.is(Biomes.SWAMP) || h.is(Biomes.MANGROVE_SWAMP));
