@@ -364,7 +364,10 @@ public final class ClientWeather {
         if (far >= base - 0.5F) return;
         e.setFarPlaneDistance(far);
         // kum fırtınasında yakın plan net kalsın: sis birkaç blok ötede başlar
-        float near = sandAmt > 0.2F ? Mth.lerp(Mth.clamp(sandAmt, 0, 1), far * 0.08F, 4F) : far * 0.08F;
+        // hafif etkilerde sis yine uzakta başlar (ufuk silikleşmesin); yoğunlaştıkça yakına gelir
+        float strength = Mth.clamp((1 - far / base) * 2.5F, 0, 1);
+        float near = Mth.lerp(strength, e.getNearPlaneDistance(), far * 0.08F);
+        if (sandAmt > 0.2F) near = Mth.lerp(Mth.clamp(sandAmt, 0, 1), near, 4F);
         e.setNearPlaneDistance(e.getMode() == FogRenderer.FogMode.FOG_SKY ? 0 : Math.min(e.getNearPlaneDistance(), near));
         e.setCanceled(true);
     }

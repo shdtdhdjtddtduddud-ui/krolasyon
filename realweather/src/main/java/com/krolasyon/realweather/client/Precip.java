@@ -232,7 +232,7 @@ public final class Precip {
     // ------------------------------------------------------------------ yağmur
 
     private static void rain(BufferBuilder b, float amount, float q, double time, double cx, double cy, double cz) {
-        final double HX = 36, HY = 28;
+        final double HX = 30, HY = 22;
         int n = (int) (Mth.clamp(amount, 0, 1.2F) * 9000 * q);
         double wx = ClientWeather.windX * 0.85, wz = ClientWeather.windZ * 0.85;
         float shade = 0.82F + 0.1F * (1 - ClientWeather.stormness);
@@ -245,7 +245,7 @@ public final class Precip {
             double z = wrap(R4[i] * HX + wz * time - cz + HX / 2, HX) - HX / 2;
             double rh = Math.sqrt(x * x + z * z), dist = Math.sqrt(rh * rh + y * y);
             if (dist < 0.6) continue;
-            float fade = (1 - smooth(12, 18, (float) rh)) * (1 - smooth(10, 14, (float) Math.abs(y)));
+            float fade = (1 - smooth(10, 15, (float) rh)) * (1 - smooth(7.5F, 11, (float) Math.abs(y)));
             if (fade <= 0.01F) continue;
             int k = col(x + cx, z + cz);
             if (k < 0 || KIND[k] != 0 || y + cy < HEIGHT[k]) continue;
@@ -326,8 +326,8 @@ public final class Precip {
 
     private static void snow(BufferBuilder b, float amount, float q, double time, double cx, double cy, double cz) {
         float storm = ClientWeather.stormness;
-        final double HX = 34, HY = 24;
-        int n = (int) (Mth.clamp(amount, 0, 1.2F) * (9000 + 7000 * storm) * q);
+        final double HX = 26, HY = 18;
+        int n = (int) (Mth.clamp(amount, 0, 1.2F) * (12000 + 6000 * storm) * q);
         n = Math.min(n, MAX);
         double drift = 0.45 + 1.0 * storm;
         double wx = ClientWeather.windX * drift, wz = ClientWeather.windZ * drift;
@@ -345,7 +345,7 @@ public final class Precip {
             double z = wrap(R4[i] * HX + wz * time - cz + HX / 2, HX) - HX / 2 + sz;
             double rh = Math.sqrt(x * x + z * z), dist = Math.sqrt(rh * rh + y * y);
             if (dist < 0.35) continue;
-            float fade = (1 - smooth(11, 16.5F, (float) rh)) * (1 - smooth(8, 12, (float) Math.abs(y)));
+            float fade = (1 - smooth(8.5F, 13, (float) rh)) * (1 - smooth(6, 9, (float) Math.abs(y)));
             if (fade <= 0.01F) continue;
             int k = col(x + cx, z + cz);
             if (k < 0 || KIND[k] != 1 || y + cy < HEIGHT[k]) continue;

@@ -129,10 +129,9 @@ def sand():
         a = edge ** 1.4 * (0.55 + 0.6 * fbm(S, S, 4, 4, False))
         shade = 0.8 + 0.25 * fbm(S, S, 4, 3, False) - 0.12 * dy
         cy, cx = divmod(k, 2)
-        img[cy * S:(cy + 1) * S, cx * S:(cx + 1) * S, 0] = 255 * np.clip(shade, 0, 1)
-        img[cy * S:(cy + 1) * S, cx * S:(cx + 1) * S, 1] = 255 * np.clip(shade, 0, 1)
-        img[cy * S:(cy + 1) * S, cx * S:(cx + 1) * S, 2] = 255 * np.clip(shade, 0, 1)
-        img[cy * S:(cy + 1) * S, cx * S:(cx + 1) * S, 3] = np.clip(a, 0, 1) * 255
+        # renk düz beyaz (gölgelemeyi köşe renkleri yapar): bazı shader paketleri doku rengindeki dalgalanmayı parlatıyor
+        img[cy * S:(cy + 1) * S, cx * S:(cx + 1) * S, :3] = 255
+        img[cy * S:(cy + 1) * S, cx * S:(cx + 1) * S, 3] = np.clip(a * (0.85 + 0.15 * shade), 0, 1) * 255
     save('environment/dust.png', img)
 
 
