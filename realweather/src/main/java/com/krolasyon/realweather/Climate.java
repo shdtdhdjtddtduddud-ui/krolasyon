@@ -35,6 +35,6 @@ public final class Climate {
     public static boolean humid(Level level, BlockPos pos) {
         var h = level.getBiome(pos);
         return h.is(BiomeTags.IS_RIVER) || h.is(net.minecraft.world.level.biome.Biomes.SWAMP) || h.is(net.minecraft.world.level.biome.Biomes.MANGROVE_SWAMP)
-                || h.value().getDownfall() >= 0.8F;
+                || h.is(BiomeTags.IS_JUNGLE) || h.is(BiomeTags.IS_BEACH);
     }
 }
