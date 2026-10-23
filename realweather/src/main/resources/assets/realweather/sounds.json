@@ -1,0 +1,120 @@
+{
+ "rain_heavy": {
+  "sounds": [
+   {
+    "name": "realweather:rain_heavy",
+    "stream": true
+   }
+  ],
+  "subtitle": "subtitles.realweather.rain_heavy"
+ },
+ "rain_light": {
+  "sounds": [
+   {
+    "name": "realweather:rain_light",
+    "stream": true
+   }
+  ],
+  "subtitle": "subtitles.realweather.rain_light"
+ },
+ "rain_indoor": {
+  "sounds": [
+   {
+    "name": "realweather:rain_indoor",
+    "stream": true
+   }
+  ],
+  "subtitle": "subtitles.realweather.rain_indoor"
+ },
+ "rain_leaves": {
+  "sounds": [
+   {
+    "name": "realweather:rain_leaves",
+    "stream": true
+   }
+  ],
+  "subtitle": "subtitles.realweather.rain_leaves"
+ },
+ "wind_soft": {
+  "sounds": [
+   {
+    "name": "realweather:wind_soft",
+    "stream": true
+   }
+  ],
+  "subtitle": "subtitles.realweather.wind_soft"
+ },
+ "wind_strong": {
+  "sounds": [
+   {
+    "name": "realweather:wind_strong",
+    "stream": true
+   }
+  ],
+  "subtitle": "subtitles.realweather.wind_strong"
+ },
+ "blizzard": {
+  "sounds": [
+   {
+    "name": "realweather:blizzard",
+    "stream": true
+   }
+  ],
+  "subtitle": "subtitles.realweather.blizzard"
+ },
+ "sandstorm": {
+  "sounds": [
+   {
+    "name": "realweather:sandstorm",
+    "stream": true
+   }
+  ],
+  "subtitle": "subtitles.realweather.sandstorm"
+ },
+ "leaves": {
+  "sounds": [
+   {
+    "name": "realweather:leaves",
+    "stream": true
+   }
+  ],
+  "subtitle": "subtitles.realweather.leaves"
+ },
+ "crickets": {
+  "sounds": [
+   {
+    "name": "realweather:crickets",
+    "stream": true
+   }
+  ],
+  "subtitle": "subtitles.realweather.crickets"
+ },
+ "thunder_near": {
+  "sounds": [
+   {
+    "name": "realweather:thunder_near1"
+   },
+   {
+    "name": "realweather:thunder_near2"
+   },
+   {
+    "name": "realweather:thunder_near3"
+   }
+  ],
+  "subtitle": "subtitles.realweather.thunder"
+ },
+ "thunder_far": {
+  "sounds": [
+   {
+    "name": "realweather:thunder_far1"
+   },
+   {
+    "name": "realweather:thunder_far2"
+   },
+   {
+    "name": "realweather:thunder_far3"
+   }
+  ],
+  "subtitle": "subtitles.realweather.thunder"
+ }
+}

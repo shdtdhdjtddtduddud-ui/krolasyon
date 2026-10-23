@@ -1,0 +1,15 @@
+{
+ "item.realweather.barometer": "Barometre",
+ "tooltip.realweather.barometer": "Sağ tık: hava durumu, rüzgâr ve yaklaşan cephe",
+ "subtitles.realweather.rain_heavy": "Sağanak",
+ "subtitles.realweather.rain_light": "Yağmur",
+ "subtitles.realweather.rain_indoor": "Çatıda yağmur",
+ "subtitles.realweather.rain_leaves": "Yapraklarda yağmur",
+ "subtitles.realweather.wind_soft": "Rüzgâr",
+ "subtitles.realweather.wind_strong": "Sert rüzgâr",
+ "subtitles.realweather.blizzard": "Tipi",
+ "subtitles.realweather.sandstorm": "Kum fırtınası",
+ "subtitles.realweather.leaves": "Yaprak hışırtısı",
+ "subtitles.realweather.crickets": "Cırcır böcekleri",
+ "subtitles.realweather.thunder": "Gök gürültüsü"
+}

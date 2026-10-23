@@ -1,0 +1,29 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="realweather"
+version="1.0.0"
+displayName="Krolasyon Gerçekçi Hava ve İklim"
+authors="krolasyon"
+description='''
+Kademeli gelen hava cepheleri (açık, bulutlu, sis, çiseleme, yağmur, fırtına) ve biyoma göre görünüşleri: soğukta kar ve tipi,
+çölde kum fırtınası, ılıman yerlerde gök gürültülü sağanak. Rüzgârla eğilen yağış, sis ve gök rengi, uzak şimşekler, su halkaları,
+düşen yapraklar, ateş böcekleri, sabah pusu ve nefes buharı; sentezlenmiş yağmur, rüzgâr, tipi, kum, yaprak, cırcır böceği ve gök
+gürültüsü sesleri (içeride boğuklaşır). Tipide donma, karın birikip erimesi, yağmurda hızlı büyüyen ekinler, barometre.
+'''
+
+[[dependencies.realweather]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.realweather]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"

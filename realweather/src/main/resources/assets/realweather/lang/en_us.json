@@ -1,0 +1,15 @@
+{
+ "item.realweather.barometer": "Barometer",
+ "tooltip.realweather.barometer": "Right click: weather, wind and the coming front",
+ "subtitles.realweather.rain_heavy": "Downpour",
+ "subtitles.realweather.rain_light": "Rain",
+ "subtitles.realweather.rain_indoor": "Rain on the roof",
+ "subtitles.realweather.rain_leaves": "Rain on leaves",
+ "subtitles.realweather.wind_soft": "Wind",
+ "subtitles.realweather.wind_strong": "Strong wind",
+ "subtitles.realweather.blizzard": "Blizzard",
+ "subtitles.realweather.sandstorm": "Sandstorm",
+ "subtitles.realweather.leaves": "Rustling leaves",
+ "subtitles.realweather.crickets": "Crickets",
+ "subtitles.realweather.thunder": "Thunder"
+}
