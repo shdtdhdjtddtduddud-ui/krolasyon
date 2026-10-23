@@ -174,22 +174,7 @@ public final class ClientWeather {
     // ------------------------------------------------------------------ parçacıklar
 
     private static void particles(Minecraft mc, ClientLevel level, Vec3 cp, RandomSource r) {
-        // yakındaki kar taneleri (tipide yoğun ve yatay)
-        int flakes = (int) (snowAmt * exposure * (6 + 22 * stormness));
-        for (int i = 0; i < flakes; i++) {
-            double x = cp.x + r.nextGaussian() * 6, z = cp.z + r.nextGaussian() * 6, y = cp.y + r.nextDouble() * 8 - 2;
-            if (!Climate.exposed(level, BlockPos.containing(x, y, z))) continue;
-            level.addParticle(RealWeather.SNOWFLAKE.get(), x - windX * 6, y, z - windZ * 6, windX, -0.05, windZ);
-        }
-        // kum taneleri: yere yakın, yatay akan
-        int grains = (int) (sandAmt * (12 + 45 * stormness));
-        for (int i = 0; i < grains; i++) {
-            double x = cp.x + r.nextGaussian() * 9 - windX * 10, z = cp.z + r.nextGaussian() * 9 - windZ * 10;
-            int gy = level.getHeight(Heightmap.Types.MOTION_BLOCKING, Mth.floor(x), Mth.floor(z));
-            double y = gy + r.nextDouble() * r.nextDouble() * 5;
-            if (Math.abs(y - cp.y) > 10) continue;
-            level.addParticle(RealWeather.SAND.get(), x, y, z, windX * 1.4, 0, windZ * 1.4);
-        }
+        // kar, yağmur ve kum zerreleri Precip içinde tek tek çizilir
         // rüzgârda düşen yapraklar
         float leafRate = Mth.clamp(0.08F + (float) Math.hypot(windX, windZ) * 0.6F, 0, 0.6F);
         for (int i = 0; i < 8; i++) {
@@ -342,11 +327,11 @@ public final class ClientWeather {
         float best = 0, vis = 200, r = 0.8F, g = 0.8F, b = 0.8F;
         float[][] c = {
                 {Mth.clamp(sandAmt * 1.1F, 0, 0.95F) * (0.45F + 0.55F * exposure), 36, 0.74F, 0.58F, 0.40F},
-                {blizzardAmt * (0.45F + 0.55F * exposure), 18, 0.80F, 0.85F, 0.92F},
+                {blizzardAmt * (0.45F + 0.55F * exposure), 24, 0.80F, 0.85F, 0.92F},
                 {snowAmt * 0.45F, 56, 0.78F, 0.81F, 0.86F},
                 {fogAmt * 0.9F, 24, 0.70F, 0.72F, 0.74F},
                 {mistAmt * 0.6F, 44, 0.76F, 0.78F, 0.80F},
-                {rainAmt * stormness * 0.5F, 48, 0.42F, 0.46F, 0.51F}};
+                {rainAmt * stormness * 0.4F, 96, 0.42F, 0.46F, 0.51F}};
         for (float[] k : c) {
             if (k[0] > best) {
                 best = k[0];
@@ -369,10 +354,10 @@ public final class ClientWeather {
         float base = e.getFarPlaneDistance();
         float inside = 0.45F + 0.55F * exposure;
         float far = base;
-        far = Math.min(far, Mth.lerp(blizzardAmt * inside, base, 16));
-        far = Math.min(far, Mth.lerp(snowAmt * 0.65F * inside, base, 56));
+        far = Math.min(far, Mth.lerp(blizzardAmt * inside, base, 22));
+        far = Math.min(far, Mth.lerp(snowAmt * 0.6F * inside, base, 64));
         far = Math.min(far, Mth.lerp(Mth.clamp(sandAmt * 1.15F, 0, 1) * inside, base, 36));
-        far = Math.min(far, Mth.lerp(rainAmt * (0.45F + 0.4F * stormness) * inside, base, 48));
+        far = Math.min(far, Mth.lerp(rainAmt * (0.3F + 0.45F * stormness) * inside, base, 96));
         far = Math.min(far, Mth.lerp(fogAmt * inside, base, 22));
         far = Math.min(far, Mth.lerp(mistAmt * inside, base, 44));
         far = Math.min(far, Mth.lerp(overcast * 0.15F, base, base * 0.7F));

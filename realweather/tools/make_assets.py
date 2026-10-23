@@ -24,62 +24,116 @@ def save(rel, arr):
     Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), 'RGBA').save(p)
 
 
-# ------------------------------------------------------------------ yağış perdeleri (dikeyde döşenir)
+# ------------------------------------------------------------------ yağış: tek tek çizilen damla, tane ve toz dokuları (doğrusal süzgeçle)
+def fbm(h, w, octaves=5, base=4, seed_tile=True):
+    out = np.zeros((h, w))
+    amp, tot = 1.0, 0.0
+    for o in range(octaves):
+        c = base * 2 ** o
+        g = rng.random((c + 1, c + 1))
+        if seed_tile:
+            g[-1, :] = g[0, :]
+            g[:, -1] = g[:, 0]
+        img = Image.fromarray((g * 255).astype(np.uint8)).resize((w + w // c, h + h // c), Image.BICUBIC)
+        out += np.asarray(img, float)[:h, :w] / 255 * amp
+        tot += amp
+        amp *= 0.55
+    return out / tot
+
+
 def rain():
-    W, H = 64, 512
+    """Hareket bulanıklığı almış damla: enine Gauss, boyuna incelen kuyruk, önde (v=1) parlak baş."""
+    W, H = 16, 128
+    x = (np.arange(W) + 0.5) / W - 0.5
+    v = (np.arange(H) + 0.5) / H
+    across = np.exp(-(x / 0.2) ** 2)[None, :]
+    along = (np.sin(np.pi * v) ** 0.5 * (0.35 + 0.65 * v ** 1.5))[:, None]
     img = np.zeros((H, W, 4))
-    for _ in range(170):
-        x = rng.integers(0, W)
-        y = rng.integers(0, H)
-        ln = rng.integers(10, 42)
-        a = rng.uniform(0.25, 0.75)
-        width = 1 if rng.random() < 0.8 else 2
-        for k in range(ln):
-            f = k / ln
-            al = a * math.sin(math.pi * f) ** 0.6
-            for dx in range(width):
-                yy = (y + k) % H
-                xx = (x + dx) % W
-                img[yy, xx, :3] = [205, 220, 240]
-                img[yy, xx, 3] = max(img[yy, xx, 3], al * 255 * (0.7 if dx else 1))
-    save('environment/rain.png', img)
+    img[..., :3] = 255
+    img[..., 3] = np.clip(across * along * 1.15, 0, 1) * 255
+    save('environment/rain_drop.png', img)
 
 
 def snow():
-    W, H = 128, 512
-    img = np.zeros((H, W, 4))
-    yy, xx = np.mgrid[0:H, 0:W]
-    for _ in range(260):
-        cx, cy = rng.uniform(0, W), rng.uniform(0, H)
-        r = rng.choice([0.7, 1.0, 1.4, 1.9, 2.6], p=[0.3, 0.3, 0.2, 0.13, 0.07])
-        dx = np.minimum(np.abs(xx - cx), W - np.abs(xx - cx))
-        dy = np.minimum(np.abs(yy - cy), H - np.abs(yy - cy))
-        d = np.sqrt(dx ** 2 + dy ** 2)
-        a = np.clip(1.2 - d / r, 0, 1) * rng.uniform(0.6, 1.0)
-        img[..., 3] = np.maximum(img[..., 3], a * 255)
-    img[..., :3] = 250
-    save('environment/snow.png', img)
+    """2x2 kar tanesi: yumuşak kenarlı, hafif düzensiz pamuksu kümeler (kare piksel yok)."""
+    S = 64
+    img = np.zeros((S * 2, S * 2, 4))
+    yy, xx = np.mgrid[0:S, 0:S] + 0.5
+    for k in range(4):
+        dx, dy = (xx - S / 2) / (S / 2), (yy - S / 2) / (S / 2)
+        ang = np.arctan2(dy, dx)
+        r = np.sqrt(dx ** 2 + dy ** 2)
+        wob = 1 + 0.07 * np.sin(ang * (2 + k % 2) + k) + 0.04 * np.sin(ang * (3 + k) + 2 * k)
+        rr = r / (0.62 * wob)
+        a = np.clip(1 - rr, 0, 1) ** 0.9
+        # pamuksu doku: küçük kümelenmeler
+        n = fbm(S, S, 3, 3, False)
+        a *= 0.85 + 0.3 * n
+        core = np.exp(-(r / 0.28) ** 2) * 0.35
+        a = np.clip(a + core * (rr < 1), 0, 1)
+        cy, cx = divmod(k, 2)
+        img[cy * S:(cy + 1) * S, cx * S:(cx + 1) * S, :3] = 255
+        img[cy * S:(cy + 1) * S, cx * S:(cx + 1) * S, 3] = a * 255
+    save('environment/snow_flakes.png', img)
+
+
+def splash():
+    """Yere düşen damlanın tacı: 4 kare (yayılan su tabakası, yükselip düşen damlacıklar)."""
+    S = 64
+    img = np.zeros((S, S * 4, 4))
+    yy, xx = np.mgrid[0:S, 0:S] + 0.5
+    X, Y = (xx - S / 2) / (S / 2), 1 - yy / S  # Y: 0 = zemin, 1 = üst
+    drops = [(rng.uniform(-0.9, 0.9), rng.uniform(0.5, 1.0), rng.uniform(0.05, 0.09)) for _ in range(9)]
+    for f in range(4):
+        t = (f + 0.5) / 4
+        a = np.zeros((S, S))
+        # zeminde yayılan su
+        sheet = np.exp(-(Y / (0.05 + 0.04 * t)) ** 2) * np.clip(1 - np.abs(X) / (0.35 + 0.6 * t), 0, 1)
+        a = np.maximum(a, sheet * (1 - 0.6 * t))
+        # taç duvarı
+        crown_h = 0.5 * np.sin(np.pi * min(1, t * 1.4))
+        wall = np.exp(-((np.abs(X) - (0.25 + 0.45 * t)) / 0.07) ** 2) * (Y < crown_h) * np.clip(1 - Y / (crown_h + 1e-3), 0, 1) ** 0.5
+        a = np.maximum(a, wall * 0.8 * (1 - t * 0.7))
+        # damlacıklar balistik yol
+        for dx0, h0, r in drops:
+            px = dx0 * (0.3 + 0.7 * t)
+            py = h0 * 4 * t * (1 - t)
+            d = np.sqrt((X - px) ** 2 + ((Y - py) * 1.2) ** 2) / (r * (1 - 0.4 * t))
+            a = np.maximum(a, np.clip(1 - d, 0, 1) ** 0.8)
+        img[:, f * S:(f + 1) * S, :3] = 255
+        img[:, f * S:(f + 1) * S, 3] = np.clip(a, 0, 1) * 255
+    save('environment/splash.png', img)
+
+
+def ripple():
+    S = 64
+    yy, xx = np.mgrid[0:S, 0:S] + 0.5
+    r = np.sqrt((xx - S / 2) ** 2 + (yy - S / 2) ** 2) / (S / 2)
+    a = np.exp(-((r - 0.82) / 0.07) ** 2) + 0.45 * np.exp(-((r - 0.55) / 0.06) ** 2)
+    img = np.zeros((S, S, 4))
+    img[..., :3] = 255
+    img[..., 3] = np.clip(a * (r < 1), 0, 1) * 255
+    save('environment/ripple.png', img)
 
 
 def sand():
-    W, H = 256, 128
-    img = np.zeros((H, W, 4))
-    for _ in range(900):
-        x, y = rng.integers(0, W), rng.integers(0, H)
-        ln = rng.integers(3, 26)
-        a = rng.uniform(0.2, 0.8)
-        col = np.array([222, 184, 128]) * rng.uniform(0.75, 1.1)
-        for k in range(ln):
-            f = k / ln
-            xx = (x + k) % W
-            img[y, xx, :3] = col
-            img[y, xx, 3] = max(img[y, xx, 3], a * 255 * math.sin(math.pi * f))
-    # ince toz perdesi
-    haze = Image.fromarray((rng.random((H // 8, W // 8)) * 255).astype(np.uint8)).resize((W, H), Image.BICUBIC)
-    h = np.asarray(haze, float) / 255
-    img[..., :3] = np.where(img[..., 3:4] > 0, img[..., :3], np.array([210, 170, 115]))
-    img[..., 3] = np.maximum(img[..., 3], h * 12)
-    save('environment/sand.png', img)
+    """2x2 toz bulutu: karnabahar kenarlı, içi dalgalı, kenarları tamamen saydam."""
+    S = 128
+    img = np.zeros((S * 2, S * 2, 4))
+    yy, xx = np.mgrid[0:S, 0:S] + 0.5
+    for k in range(4):
+        dx, dy = (xx - S / 2) / (S / 2), (yy - S / 2) / (S / 2)
+        r = np.sqrt(dx ** 2 + dy ** 2)
+        n = fbm(S, S, 5, 3, False)
+        edge = np.clip((1 - r) * 2.2 - 0.3 + (n - 0.5) * 1.6, 0, 1)
+        a = edge ** 1.4 * (0.55 + 0.6 * fbm(S, S, 4, 4, False))
+        shade = 0.8 + 0.25 * fbm(S, S, 4, 3, False) - 0.12 * dy
+        cy, cx = divmod(k, 2)
+        img[cy * S:(cy + 1) * S, cx * S:(cx + 1) * S, 0] = 255 * np.clip(shade, 0, 1)
+        img[cy * S:(cy + 1) * S, cx * S:(cx + 1) * S, 1] = 255 * np.clip(shade, 0, 1)
+        img[cy * S:(cy + 1) * S, cx * S:(cx + 1) * S, 2] = 255 * np.clip(shade, 0, 1)
+        img[cy * S:(cy + 1) * S, cx * S:(cx + 1) * S, 3] = np.clip(a, 0, 1) * 255
+    save('environment/dust.png', img)
 
 
 # ------------------------------------------------------------------ parçacıklar
@@ -222,7 +276,7 @@ def haze():
     save('environment/haze.png', img)
 
 
-rain(); snow(); sand(); particles(); vignettes(); barometer(); haze()
+rain(); snow(); splash(); ripple(); sand(); particles(); vignettes(); barometer(); haze()
 
 # ------------------------------------------------------------------ sesler, dil, eşya, tarif
 S = {}

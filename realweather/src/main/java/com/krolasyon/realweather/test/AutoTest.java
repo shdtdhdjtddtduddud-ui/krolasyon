@@ -122,6 +122,22 @@ public final class AutoTest {
         return String.format(java.util.Locale.ROOT, "%.2f", v);
     }
 
+    /** Kum fırtınası ufukta: açık hava, sıradaki durum fırtına ve az kaldı (toz duvarı görünür). */
+    private void haboob(String shot, int secondsLeft) {
+        server(5, null, s -> {
+            run(s, "time set 6000");
+            WeatherServer.set(s.overworld(), WeatherState.CLEAR, secondsLeft, true);
+            var d = WeatherServer.data(s.overworld());
+            d.next = WeatherState.STORM;
+            d.wind = d.windTarget = 0.6F;
+            d.windAngle = 180;
+            go(s, "desert", 2.0, 0, -4);
+        });
+        wait(300, null);
+        log(shot);
+        wait(1, shot);
+    }
+
     private void scene(String spot, WeatherState st, long time, double up, float yaw, float pitch, int load, String shot) {
         server(5, null, s -> {
             run(s, "time set " + time);
@@ -158,6 +174,8 @@ public final class AutoTest {
             scene("snow", WeatherState.RAIN, 6000, 1.7, 200, 4, 500, "snow_snowfall");
             scene("snow", WeatherState.STORM, 6000, 1.7, 200, 4, 260, "snow_blizzard");
             scene("desert", WeatherState.CLEAR, 6000, 1.7, 80, 4, 500, "desert_clear");
+            haboob("desert_haboob_far", 100);
+            haboob("desert_haboob_near", 40);
             scene("desert", WeatherState.STORM, 6000, 1.7, 80, 4, 300, "desert_sandstorm");
             scene("desert", WeatherState.STORM, 6000, 6.0, 200, 12, 80, "desert_sandstorm_b");
             scene("swamp", WeatherState.CLEAR, 23400, 1.7, 30, 3, 500, "swamp_dawn_mist");
@@ -175,6 +193,8 @@ public final class AutoTest {
         scene("snow", WeatherState.RAIN, 6000, 1.7, 200, 4, 420, "snow_snowfall");
         scene("snow", WeatherState.STORM, 6000, 1.7, 200, 4, 240, "snow_blizzard");
         scene("desert", WeatherState.CLEAR, 6000, 1.7, 80, 4, 420, "desert_clear");
+        haboob("desert_haboob_far", 100);
+        haboob("desert_haboob_near", 40);
         scene("desert", WeatherState.STORM, 6000, 1.7, 80, 4, 240, "desert_sandstorm");
         scene("desert", WeatherState.STORM, 6000, 6.0, 200, 12, 80, "desert_sandstorm_b");
         scene("swamp", WeatherState.CLEAR, 23400, 1.7, 30, 3, 420, "swamp_dawn_mist");
