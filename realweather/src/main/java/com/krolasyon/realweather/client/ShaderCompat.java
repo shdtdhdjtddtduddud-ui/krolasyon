@@ -2,8 +2,7 @@ package com.krolasyon.realweather.client;
 
 /**
  * Oculus/Iris ile uyum: bir shader paketi açık mı ve adı ne? Paketler vanilya sisini genellikle yok sayar; o zaman
- * hava sisi kameranın çevresindeki derinlik testli pus katmanlarıyla verilir. Krolasyon Fantasy paketi sisi kendisi
- * uyguladığından onda katman çizilmez.
+ * hava sisi kameranın çevresindeki derinlik testli pus katmanlarıyla verilir.
  */
 public final class ShaderCompat {
     private ShaderCompat() {}
@@ -40,8 +39,8 @@ public final class ShaderCompat {
         return active;
     }
 
-    /** Sisi kendisi uygulayan (vanilya sis mesafesini okuyan) paket mi? */
-    public static boolean packHandlesFog(long now) {
+    /** Krolasyon Fantasy paketi mi? */
+    public static boolean packIsKrolasyon(long now) {
         refresh(now);
         return pack.toLowerCase(java.util.Locale.ROOT).contains("krolasyon");
     }

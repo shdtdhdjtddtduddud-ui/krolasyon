@@ -174,6 +174,9 @@ public final class WeatherEffects extends DimensionSpecialEffects.OverworldEffec
         RenderSystem.setShader(GameRenderer::getParticleShader);
         RenderSystem.setShaderTexture(0, HAZE);
         bb.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
+        // Krolasyon Fantasy blok ışığını sıcak renkle çarpar (pus turuncu parlar): ona yalnızca gök ışığı;
+        // diğer paketler gök ışığında rengi soldurur: onlara tam ışık
+        int light = ShaderCompat.packIsKrolasyon(now) ? LightTexture.pack(0, 15) : 0xF000F0;
         int n = 7;
         // katman başına saydamlık: görüş mesafesinde toplam örtü ~%95 * yoğunluk
         float per = 1 - (float) Math.pow(0.05, 1.0 / n);
@@ -186,7 +189,7 @@ public final class WeatherEffects extends DimensionSpecialEffects.OverworldEffec
             float[][] q = {{-1, -1}, {1, -1}, {1, 1}, {-1, 1}};
             for (float[] c : q) {
                 float x = cx + (l.x() * c[0] + u.x() * c[1]) * s, y = cy + (l.y() * c[0] + u.y() * c[1]) * s, z = cz + (l.z() * c[0] + u.z() * c[1]) * s;
-                bb.vertex(x, y, z).uv((c[0] + 1) * 0.5F + scroll * i, (c[1] + 1) * 0.5F).color(h[2] * b, h[3] * b, h[4] * b, a).uv2(LightTexture.pack(0, 15)).endVertex();
+                bb.vertex(x, y, z).uv((c[0] + 1) * 0.5F + scroll * i, (c[1] + 1) * 0.5F).color(h[2] * b, h[3] * b, h[4] * b, a).uv2(light).endVertex();
             }
         }
         tess.end();
