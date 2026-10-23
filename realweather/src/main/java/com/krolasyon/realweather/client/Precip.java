@@ -200,6 +200,7 @@ public final class Precip {
         b.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
         if (sandI >= 0.02F) billows(level, b, sandI, q, time, c.x, c.y, c.z);
         if (wall >= 0.01F) wall(level, b, wall, time, c.x, c.y, c.z);
+        flush(b);
         tess.end();
         RenderSystem.enableCull();
         RenderSystem.disableBlend();
@@ -327,13 +328,13 @@ public final class Precip {
     private static void snow(BufferBuilder b, float amount, float q, double time, double cx, double cy, double cz) {
         float storm = ClientWeather.stormness;
         final double HX = 26, HY = 18;
-        int n = (int) (Mth.clamp(amount, 0, 1.2F) * (12000 + 6000 * storm) * q);
+        int n = (int) (Mth.clamp(amount, 0, 1.2F) * (15000 + 5000 * storm) * q);
         n = Math.min(n, MAX);
         double drift = 0.45 + 1.0 * storm;
         double wx = ClientWeather.windX * drift, wz = ClientWeather.windZ * drift;
         for (int i = 0; i < n; i++) {
             // kar tanesi 2-10 mm, son hız 0.5-1.5 m/s (büyük kümeler biraz daha hızlı)
-            float size = 0.016F + 0.034F * R1[i] * R1[i];
+            float size = 0.022F + 0.05F * R1[i] * R1[i];
             double vt = (0.55 + 0.5 * R1[i] + 0.4 * R5[i]) / 20.0;
             // türbülans: her tanenin kendi salınımı (yaklaşık 2-6 sn periyot)
             double om = 0.05 + 0.1 * R6[i], amp = 0.25 + 0.45 * R5[i] * (1 + storm);
@@ -355,7 +356,7 @@ public final class Precip {
             double s = Math.max(size, smin);
             float a = 0.95F * fade * (float) Math.max(0.5, size / s);
             // hızlı (tipide) taneler pozlamada çizgi olur; yavaş olanlar yuvarlak kalır
-            double blur = sp * 20 * (0.008 + 0.022 * storm);
+            double blur = sp * 20 * (0.008 + 0.016 * storm);
             double len = Math.max(2 * s, blur + s);
             int v = i & 3;
             float u0 = (v & 1) * 0.5F, v0 = (v >> 1) * 0.5F;
@@ -395,6 +396,40 @@ public final class Precip {
             float k2 = 0.8F + 0.3F * R5[i];
             streak(b, x, y, z, vx / l, vy / l, vz / l, l * 20 * 0.025, w, 0, 1, 0, 1, 0.86F * k2, 0.68F * k2, 0.46F * k2, a, LIGHT[k]);
         }
+    }
+
+    // bulutlar uzaktan yakına sıralanıp çizilir (derinlik yazan shader paketlerinde de kenarlar yumuşak kalsın)
+    private static final int PMAX = 600;
+    private static final double[] PX = new double[PMAX], PY = new double[PMAX], PZ = new double[PMAX], PS = new double[PMAX], PD = new double[PMAX];
+    private static final float[] PR = new float[PMAX], PA = new float[PMAX], PB = new float[PMAX];
+    private static final int[] PV = new int[PMAX];
+    private static final Integer[] ORDER = new Integer[PMAX];
+    private static int pn;
+
+    private static void queue(double x, double y, double z, double s, float roll, int variant, float a, float bright) {
+        if (pn >= PMAX) return;
+        PX[pn] = x;
+        PY[pn] = y;
+        PZ[pn] = z;
+        PS[pn] = s;
+        PD[pn] = x * x + y * y + z * z;
+        PR[pn] = roll;
+        PV[pn] = variant;
+        PA[pn] = a;
+        PB[pn] = bright;
+        pn++;
+    }
+
+    private static void flush(BufferBuilder b) {
+        var cam = Minecraft.getInstance().gameRenderer.getMainCamera();
+        org.joml.Vector3f lv = cam.getLeftVector(), uv = cam.getUpVector();
+        for (int i = 0; i < pn; i++) ORDER[i] = i;
+        java.util.Arrays.sort(ORDER, 0, pn, (x, y) -> Double.compare(PD[y], PD[x]));
+        for (int k = 0; k < pn; k++) {
+            int i = ORDER[k];
+            puff(b, PX[i], PY[i], PZ[i], PS[i], PR[i], PV[i], PA[i], PB[i], lv, uv);
+        }
+        pn = 0;
     }
 
     /** Kameraya dönük, dönen yumuşak bulut. Renk alttan üste koyulaşmadan açılır. */
@@ -437,7 +472,7 @@ public final class Precip {
             float fade = smooth(3, 10, (float) dist) * (1 - smooth(42, 55, (float) rh));
             if (fade < 0.01F) continue;
             float a = (0.10F + 0.12F * R5[i]) * Math.min(amount * 1.3F, 1) * sandW * fade;
-            puff(b, x, y, z, s, (float) (R6[i] * 6.28 + time * 0.004 * (R5[i] - 0.5)), i & 3, a, bright, lv, uv);
+            queue(x, y, z, s, (float) (R6[i] * 6.28 + time * 0.004 * (R5[i] - 0.5)), i & 3, a, bright);
         }
     }
 
@@ -482,7 +517,7 @@ public final class Precip {
             g = Math.max(g, level.getSeaLevel());
             double y = g - cy + s * 0.35 + row * 17 * crown + R4[i] * 7 * crown;
             float a = (0.7F + 0.25F * R5[i]) * amount * (float) Math.min(1, crown * 2.5) * (row == 3 ? 0.7F : 1);
-            puff(b, x, y, z, s, (float) (R6[i] * 6.28 + time * 0.0025 * (R5[i] - 0.5)), i & 3, Math.min(a, 0.95F), bright * (0.78F + 0.08F * row), lv, uv);
+            queue(x, y, z, s, (float) (R6[i] * 6.28 + time * 0.0025 * (R5[i] - 0.5)), i & 3, Math.min(a, 0.95F), bright * (0.78F + 0.08F * row));
         }
     }
 }
