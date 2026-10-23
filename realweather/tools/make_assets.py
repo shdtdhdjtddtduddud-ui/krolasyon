@@ -127,6 +127,7 @@ def sand():
         n = fbm(S, S, 5, 3, False)
         edge = np.clip((1 - r) * 2.2 - 0.3 + (n - 0.5) * 1.6, 0, 1)
         a = edge ** 1.4 * (0.55 + 0.6 * fbm(S, S, 4, 4, False))
+        a *= np.clip((0.97 - r) / 0.3, 0, 1) ** 1.5  # dörtgen kenarında kesin sıfır
         shade = 0.8 + 0.25 * fbm(S, S, 4, 3, False) - 0.12 * dy
         cy, cx = divmod(k, 2)
         # renk düz beyaz (gölgelemeyi köşe renkleri yapar): bazı shader paketleri doku rengindeki dalgalanmayı parlatıyor
