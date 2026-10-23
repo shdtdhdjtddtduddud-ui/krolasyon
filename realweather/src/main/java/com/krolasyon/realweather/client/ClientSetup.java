@@ -47,6 +47,7 @@ public final class ClientSetup {
         }));
         MinecraftForge.EVENT_BUS.addListener(ClientWeather::tick);
         MinecraftForge.EVENT_BUS.addListener(ClientWeather::fog);
+        MinecraftForge.EVENT_BUS.addListener(Precip::renderDust);
         MinecraftForge.EVENT_BUS.addListener(ClientWeather::fogColor);
         MinecraftForge.EVENT_BUS.addListener(ClientWeather::onJoin);
         MinecraftForge.EVENT_BUS.addListener((ClientPlayerNetworkEvent.LoggingOut e) -> ClientWeather.reset());

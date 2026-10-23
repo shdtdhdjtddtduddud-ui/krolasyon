@@ -39,7 +39,7 @@ public final class Precip {
     private static final ResourceLocation RIPPLE = new ResourceLocation(RealWeather.MODID, "textures/environment/ripple.png");
     private static final ResourceLocation DUST = new ResourceLocation(RealWeather.MODID, "textures/environment/dust.png");
 
-    private static final int MAX = 14000;
+    private static final int MAX = 20000;
     private static final float[] R1 = new float[MAX], R2 = new float[MAX], R3 = new float[MAX], R4 = new float[MAX], R5 = new float[MAX],
             R6 = new float[MAX];
 
@@ -122,8 +122,8 @@ public final class Precip {
         float q = Minecraft.useFancyGraphics() ? 1F : 0.55F;
         double time = level.getGameTime() + (double) pt;
         refresh(level, Mth.floor(camX), Mth.floor(camY), Mth.floor(camZ));
-        float wall = wallAmount();
-        if (precip < 0.01F && sandI < 0.02F && wall < 0.01F) return;
+        lastSand = sandI;
+        if (precip < 0.01F && sandI < 0.02F) return;
 
         lt.turnOnLightLayer();
         RenderSystem.disableCull();
@@ -134,7 +134,6 @@ public final class Precip {
         RenderSystem.setShader(GameRenderer::getParticleShader);
         Tesselator tess = Tesselator.getInstance();
         BufferBuilder b = tess.getBuilder();
-        org.joml.Vector3f look = mc.gameRenderer.getMainCamera().getLookVector();
 
         if (precip >= 0.01F) {
             bind(DROP);
@@ -154,23 +153,60 @@ public final class Precip {
             snow(b, precip, q, time, camX, camY, camZ);
             tess.end();
         }
-        if (sandI >= 0.02F || wall >= 0.01F) {
-            if (sandI >= 0.02F) {
-                bind(DROP);
-                b.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
-                grains(b, sandI, q, time, camX, camY, camZ);
-                tess.end();
-            }
-            bind(DUST);
+        if (sandI >= 0.02F) {
+            bind(DROP);
             b.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
-            if (sandI >= 0.02F) billows(level, b, sandI, q, time, camX, camY, camZ, look);
-            if (wall >= 0.01F) wall(level, b, wall, time, camX, camY, camZ, look);
+            grains(b, sandI, q, time, camX, camY, camZ);
             tess.end();
         }
         RenderSystem.enableCull();
         RenderSystem.disableBlend();
         RenderSystem.depthMask(true);
         lt.turnOffLightLayer();
+    }
+
+    private static float lastSand;
+
+    /**
+     * Toz bulutları ve toz duvarı parçacık aşamasında çizilir: shader paketleri hava geçişinde dokuları kendi yağmur
+     * stiline çevirir, parçacık geçişinde ise olduğu gibi gösterir.
+     */
+    public static void renderDust(net.minecraftforge.client.event.RenderLevelStageEvent e) {
+        if (e.getStage() != net.minecraftforge.client.event.RenderLevelStageEvent.Stage.AFTER_PARTICLES) return;
+        Minecraft mc = Minecraft.getInstance();
+        ClientLevel level = mc.level;
+        if (level == null || level.dimension() != net.minecraft.world.level.Level.OVERWORLD) return;
+        float sandI = lastSand, wall = wallAmount();
+        if (sandI < 0.02F && wall < 0.01F) return;
+        float q = Minecraft.useFancyGraphics() ? 1F : 0.55F;
+        float pt = e.getPartialTick();
+        double time = level.getGameTime() + (double) pt;
+        net.minecraft.world.phys.Vec3 c = e.getCamera().getPosition();
+        LightTexture lt = mc.gameRenderer.lightTexture();
+        com.mojang.blaze3d.vertex.PoseStack mv = RenderSystem.getModelViewStack();
+        mv.pushPose();
+        mv.mulPoseMatrix(e.getPoseStack().last().pose());
+        RenderSystem.applyModelViewMatrix();
+        lt.turnOnLightLayer();
+        RenderSystem.disableCull();
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthMask(false);
+        RenderSystem.setShader(GameRenderer::getParticleShader);
+        bind(DUST);
+        Tesselator tess = Tesselator.getInstance();
+        BufferBuilder b = tess.getBuilder();
+        b.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
+        if (sandI >= 0.02F) billows(level, b, sandI, q, time, c.x, c.y, c.z);
+        if (wall >= 0.01F) wall(level, b, wall, time, c.x, c.y, c.z);
+        tess.end();
+        RenderSystem.enableCull();
+        RenderSystem.disableBlend();
+        RenderSystem.depthMask(true);
+        lt.turnOffLightLayer();
+        mv.popPose();
+        RenderSystem.applyModelViewMatrix();
     }
 
     /**
@@ -197,9 +233,9 @@ public final class Precip {
 
     private static void rain(BufferBuilder b, float amount, float q, double time, double cx, double cy, double cz) {
         final double HX = 36, HY = 28;
-        int n = (int) (Mth.clamp(amount, 0, 1.2F) * 7500 * q);
+        int n = (int) (Mth.clamp(amount, 0, 1.2F) * 9000 * q);
         double wx = ClientWeather.windX * 0.85, wz = ClientWeather.windZ * 0.85;
-        float shade = 0.72F + 0.12F * (1 - ClientWeather.stormness);
+        float shade = 0.82F + 0.1F * (1 - ClientWeather.stormness);
         for (int i = 0; i < n; i++) {
             // damla çapı 0.5-4 mm (küçükler çok); son hız (Atlas): v = 9.65 - 10.3 e^(-0.6 d) m/s
             float d = 0.5F + 3.5F * R1[i] * R1[i];
@@ -216,11 +252,11 @@ public final class Precip {
             double vx = wx, vy = -vt, vz = wz;
             double sp = Math.sqrt(vx * vx + vy * vy + vz * vz);
             // hareket bulanıklığı: ~1/22 sn pozlama
-            double len = sp * 20 * 0.045;
-            double w0 = 0.0018 + 0.0011 * d, wmin = dist * 0.0011;
+            double len = sp * 20 * 0.06;
+            double w0 = 0.0035 + 0.0018 * d, wmin = dist * 0.0016;
             double w = Math.max(w0, wmin);
-            float a = (0.30F + 0.30F * Math.min(amount, 1)) * fade * (float) Math.max(0.3, w0 / w) * (0.7F + 0.3F * R5[i]);
-            streak(b, x, y, z, vx / sp, vy / sp, vz / sp, len, w, 0, 1, 0, 1, shade, shade + 0.05F, shade + 0.13F, a, LIGHT[k]);
+            float a = (0.42F + 0.28F * Math.min(amount, 1)) * fade * (float) Math.max(0.45, w0 / w) * (0.7F + 0.3F * R5[i]);
+            streak(b, x, y, z, vx / sp, vy / sp, vz / sp, len, w, 0, 1, 0, 1, shade, shade + 0.04F, shade + 0.1F, a, LIGHT[k]);
         }
     }
 
@@ -291,13 +327,13 @@ public final class Precip {
     private static void snow(BufferBuilder b, float amount, float q, double time, double cx, double cy, double cz) {
         float storm = ClientWeather.stormness;
         final double HX = 34, HY = 24;
-        int n = (int) (Mth.clamp(amount, 0, 1.2F) * (4200 + 7000 * storm) * q);
+        int n = (int) (Mth.clamp(amount, 0, 1.2F) * (9000 + 7000 * storm) * q);
         n = Math.min(n, MAX);
-        double drift = 0.9 + 0.7 * storm;
+        double drift = 0.45 + 1.0 * storm;
         double wx = ClientWeather.windX * drift, wz = ClientWeather.windZ * drift;
         for (int i = 0; i < n; i++) {
             // kar tanesi 2-10 mm, son hız 0.5-1.5 m/s (büyük kümeler biraz daha hızlı)
-            float size = 0.010F + 0.026F * R1[i] * R1[i];
+            float size = 0.016F + 0.034F * R1[i] * R1[i];
             double vt = (0.55 + 0.5 * R1[i] + 0.4 * R5[i]) / 20.0;
             // türbülans: her tanenin kendi salınımı (yaklaşık 2-6 sn periyot)
             double om = 0.05 + 0.1 * R6[i], amp = 0.25 + 0.45 * R5[i] * (1 + storm);
@@ -315,11 +351,11 @@ public final class Precip {
             if (k < 0 || KIND[k] != 1 || y + cy < HEIGHT[k]) continue;
             double vx = wx + dsx, vy = -vt, vz = wz + dsz;
             double sp = Math.sqrt(vx * vx + vy * vy + vz * vz);
-            double smin = dist * 0.0016;
+            double smin = dist * 0.0022;
             double s = Math.max(size, smin);
-            float a = 0.9F * fade * (float) Math.max(0.35, size / s);
+            float a = 0.95F * fade * (float) Math.max(0.5, size / s);
             // hızlı (tipide) taneler pozlamada çizgi olur; yavaş olanlar yuvarlak kalır
-            double blur = sp * 20 * 0.035;
+            double blur = sp * 20 * (0.008 + 0.022 * storm);
             double len = Math.max(2 * s, blur + s);
             int v = i & 3;
             float u0 = (v & 1) * 0.5F, v0 = (v >> 1) * 0.5F;
@@ -381,8 +417,7 @@ public final class Precip {
 
     // ------------------------------------------------------------------ toz bulutları (fırtınanın içinde)
 
-    private static void billows(ClientLevel level, BufferBuilder b, float amount, float q, double time, double cx, double cy, double cz,
-                                org.joml.Vector3f look) {
+    private static void billows(ClientLevel level, BufferBuilder b, float amount, float q, double time, double cx, double cy, double cz) {
         var cam = Minecraft.getInstance().gameRenderer.getMainCamera();
         org.joml.Vector3f lv = cam.getLeftVector(), uv = cam.getUpVector();
         final double HX = 110;
@@ -419,7 +454,7 @@ public final class Precip {
         return a * sandW;
     }
 
-    private static void wall(ClientLevel level, BufferBuilder b, float amount, double time, double cx, double cy, double cz, org.joml.Vector3f look) {
+    private static void wall(ClientLevel level, BufferBuilder b, float amount, double time, double cx, double cy, double cz) {
         var cam = Minecraft.getInstance().gameRenderer.getMainCamera();
         org.joml.Vector3f lv = cam.getLeftVector(), uv = cam.getUpVector();
         double ws = Math.hypot(ClientWeather.windX, ClientWeather.windZ);
@@ -428,21 +463,26 @@ public final class Precip {
         double near;
         if (ClientWeather.state == WeatherState.STORM) near = Math.max(6, 40 - 60 * ClientWeather.sandAmt);
         else near = 40 + 150 * Mth.clamp(ClientWeather.ticksLeft / 3600F, 0, 1);
+        // sisin içinde kaybolmasın: görüş mesafesinin yarısından uzağa konmaz
+        near = Math.min(near, RenderSystem.getShaderFogEnd() * 0.5);
         double px = -dz, pz = dx;
         float bright = Mth.clamp(level.getSkyDarken(1) * 1.1F, 0.12F, 1);
-        int ground = level.getHeight(Heightmap.Types.MOTION_BLOCKING, Mth.floor(cx), Mth.floor(cz));
-        for (int i = 0; i < 150; i++) {
-            int row = i % 3;
-            double lat = (R1[i] - 0.5) * 420;
-            double dep = near + R2[i] * 30 + row * 10;
-            double s = 16 + 18 * R3[i] + row * 6;
+        int camGround = level.getHeight(Heightmap.Types.MOTION_BLOCKING, Mth.floor(cx), Mth.floor(cz));
+        for (int i = 0; i < 260; i++) {
+            int row = i % 4;
+            double lat = (R1[i] - 0.5) * 2 * 260;
+            double dep = near + R2[i] * 25 + row * 8;
+            double s = 14 + 14 * R3[i] + row * 5;
             double x = -dx * dep + px * lat, z = -dz * dep + pz * lat;
-            // kenarlara doğru alçalan kubbe biçimi
-            double crown = 1 - Math.pow(Math.abs(lat) / 230, 2);
+            // kenarlara doğru alçalan, tepesi kabaran duvar
+            double crown = 1 - Math.pow(Math.abs(lat) / 270, 2);
             if (crown <= 0) continue;
-            double y = ground - cy + s * 0.5 + row * 20 * crown + R4[i] * 8 * crown;
-            float a = (0.55F + 0.3F * R5[i]) * amount * (float) Math.min(1, crown * 2) * (row == 2 ? 0.75F : 1);
-            puff(b, x, y, z, s, (float) (R6[i] * 6.28 + time * 0.0025 * (R5[i] - 0.5)), i & 3, a, bright * (0.85F + 0.1F * row), lv, uv);
+            int g = level.getHeight(Heightmap.Types.MOTION_BLOCKING, Mth.floor(x + cx), Mth.floor(z + cz));
+            if (g <= level.getMinBuildHeight() + 1) g = camGround;
+            g = Math.max(g, level.getSeaLevel());
+            double y = g - cy + s * 0.35 + row * 17 * crown + R4[i] * 7 * crown;
+            float a = (0.7F + 0.25F * R5[i]) * amount * (float) Math.min(1, crown * 2.5) * (row == 3 ? 0.7F : 1);
+            puff(b, x, y, z, s, (float) (R6[i] * 6.28 + time * 0.0025 * (R5[i] - 0.5)), i & 3, Math.min(a, 0.95F), bright * (0.78F + 0.08F * row), lv, uv);
         }
     }
 }
