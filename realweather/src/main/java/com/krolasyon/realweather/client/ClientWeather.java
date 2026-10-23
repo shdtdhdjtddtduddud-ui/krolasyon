@@ -337,6 +337,28 @@ public final class ClientWeather {
         return b.toString();
     }
 
+    /** Shader paketleri için pus: {yoğunluk, görüş mesafesi, r, g, b}. */
+    public static float[] haze() {
+        float best = 0, vis = 200, r = 0.8F, g = 0.8F, b = 0.8F;
+        float[][] c = {
+                {Mth.clamp(sandAmt * 1.1F, 0, 0.95F) * (0.45F + 0.55F * exposure), 36, 0.74F, 0.58F, 0.40F},
+                {blizzardAmt * (0.45F + 0.55F * exposure), 18, 0.80F, 0.85F, 0.92F},
+                {snowAmt * 0.45F, 56, 0.78F, 0.81F, 0.86F},
+                {fogAmt * 0.9F, 24, 0.70F, 0.72F, 0.74F},
+                {mistAmt * 0.6F, 44, 0.76F, 0.78F, 0.80F},
+                {rainAmt * stormness * 0.5F, 48, 0.42F, 0.46F, 0.51F}};
+        for (float[] k : c) {
+            if (k[0] > best) {
+                best = k[0];
+                vis = k[1];
+                r = k[2];
+                g = k[3];
+                b = k[4];
+            }
+        }
+        return new float[]{best, vis, r, g, b};
+    }
+
     // ------------------------------------------------------------------ sis
 
     /** Yoğunluk 0..1 → görüş mesafesi. */

@@ -33,12 +33,14 @@ public final class WeatherEffects extends DimensionSpecialEffects.OverworldEffec
     private static final ResourceLocation RAIN = new ResourceLocation(RealWeather.MODID, "textures/environment/rain.png");
     private static final ResourceLocation SNOW = new ResourceLocation(RealWeather.MODID, "textures/environment/snow.png");
     private static final ResourceLocation SAND = new ResourceLocation(RealWeather.MODID, "textures/environment/sand.png");
+    private static final ResourceLocation HAZE = new ResourceLocation(RealWeather.MODID, "textures/environment/haze.png");
 
     @Override
     public boolean renderSnowAndRain(ClientLevel level, int ticks, float pt, LightTexture lt, double camX, double camY, double camZ) {
         float precip = ClientWeather.state.precipitation || ClientWeather.intensity > 0.02F && ClientWeather.state != WeatherState.CLEAR
                 ? ClientWeather.intensity : 0;
         float sandI = Math.max(ClientWeather.stormness * ClientWeather.intensity, Mth.clamp((ClientWeather.wind - 0.45F) * 1.2F, 0, 0.35F));
+        haze(level, lt, pt);
         if (precip < 0.01F && sandI < 0.03F) return true;
         lt.turnOnLightLayer();
         int cx = Mth.floor(camX), cy = Mth.floor(camY), cz = Mth.floor(camZ);
@@ -147,6 +149,50 @@ public final class WeatherEffects extends DimensionSpecialEffects.OverworldEffec
         RenderSystem.depthMask(true);
         lt.turnOffLightLayer();
         return true;
+    }
+
+    /**
+     * Shader paketi vanilya sisini yok sayıyorsa: kameranın önünde, uzaklaştıkça yoğunlaşan ve derinlik testiyle arazinin
+     * arkasında kalan yarı saydam pus katmanları. Yakındaki tepe net, arkasındaki uzak dağ puslu görünür; gök de örtülür.
+     */
+    private static void haze(ClientLevel level, LightTexture lt, float pt) {
+        long now = level.getGameTime();
+        if (!ShaderCompat.shaders(now) || ShaderCompat.packHandlesFog(now)) return;
+        float[] h = ClientWeather.haze();
+        float amt = h[0], vis = h[1];
+        if (amt < 0.03F) return;
+        Camera cam = Minecraft.getInstance().gameRenderer.getMainCamera();
+        org.joml.Vector3f f = cam.getLookVector(), u = cam.getUpVector(), l = cam.getLeftVector();
+        float b = Mth.clamp(level.getSkyDarken(pt) * 1.1F, 0.1F, 1);
+        Tesselator tess = Tesselator.getInstance();
+        BufferBuilder bb = tess.getBuilder();
+        RenderSystem.disableCull();
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthMask(false);
+        RenderSystem.setShader(GameRenderer::getParticleShader);
+        RenderSystem.setShaderTexture(0, HAZE);
+        bb.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
+        int n = 7;
+        // katman başına saydamlık: görüş mesafesinde toplam örtü ~%95 * yoğunluk
+        float per = 1 - (float) Math.pow(0.05, 1.0 / n);
+        float scroll = (now + pt) * 0.002F;
+        for (int i = n; i >= 1; i--) {
+            float d = vis * (0.18F + 0.9F * i / n);
+            float a = per * amt * (i == 1 ? 0.5F : 1F);
+            float s = d * 2.2F;
+            float cx = f.x() * d, cy = f.y() * d, cz = f.z() * d;
+            float[][] q = {{-1, -1}, {1, -1}, {1, 1}, {-1, 1}};
+            for (float[] c : q) {
+                float x = cx + (l.x() * c[0] + u.x() * c[1]) * s, y = cy + (l.y() * c[0] + u.y() * c[1]) * s, z = cz + (l.z() * c[0] + u.z() * c[1]) * s;
+                bb.vertex(x, y, z).uv((c[0] + 1) * 1.5F + scroll * i, (c[1] + 1) * 1.5F).color(h[2] * b, h[3] * b, h[4] * b, a).uv2(0xF000F0).endVertex();
+            }
+        }
+        tess.end();
+        RenderSystem.depthMask(true);
+        RenderSystem.disableBlend();
+        RenderSystem.enableCull();
     }
 
     /** Sıçramalar, su halkaları; vanilya yağmur sesleri yerine kendi döngülerimiz çalar. */

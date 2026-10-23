@@ -275,10 +275,12 @@ void main() {
 #ifdef WEATHER_FOG
     if (isEyeInWater == 0 && !isHand && fogEnd > 0.5 && fogEnd < far * 0.8 && blindness < 0.01 && darknessFactor < 0.01) {
         float d = isSky ? fogEnd * 3.0 : dist;
-        float wf = smoothstep(max(fogStart, 0.0), fogEnd, d);
+        // yakın plan net kalsın, sis uzaklıkla üstel artsın (paketin kendi sisiyle üst üste binmesin diye biraz yumuşak)
+        float start = max(fogStart, 0.0) + (fogEnd - max(fogStart, 0.0)) * 0.12;
+        float wf = 1.0 - exp(-max(d - start, 0.0) / max(fogEnd - start, 1.0) * 2.2);
         float strength = saturate(1.0 - fogEnd / (far * 0.8));
-        vec3 wcol = toLinear(fogColor) * 1.6 * WEATHER_FOG_BRIGHTNESS * (0.35 + 0.65 * eyeSky);
-        color = mix(color, wcol, wf * mix(0.55, 1.0, strength));
+        vec3 wcol = toLinear(fogColor) * 1.15 * WEATHER_FOG_BRIGHTNESS * (0.35 + 0.65 * eyeSky);
+        color = mix(color, wcol, wf * mix(0.5, 0.92, strength));
     }
 #endif
 
