@@ -59,6 +59,19 @@ public final class MythBlades {
             () -> EntityType.Builder.<RainbowWaveEntity>of(RainbowWaveEntity::new, MobCategory.MISC)
                     .sized(1.6F, 0.6F).clientTrackingRange(8).updateInterval(2).fireImmune().build("rainbow_wave"));
 
+    public static final RegistryObject<EntityType<com.krolasyon.mythblades.entity.EmberWaveEntity>> EMBER_WAVE = ENTITIES.register("ember_wave",
+            () -> EntityType.Builder.<com.krolasyon.mythblades.entity.EmberWaveEntity>of(com.krolasyon.mythblades.entity.EmberWaveEntity::new, MobCategory.MISC)
+                    .sized(2.0F, 0.8F).clientTrackingRange(8).updateInterval(1).fireImmune().build("ember_wave"));
+
+    public static final DeferredRegister<net.minecraft.sounds.SoundEvent> SOUNDS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, MODID);
+    public static final java.util.Map<String, RegistryObject<net.minecraft.sounds.SoundEvent>> SFX = new java.util.HashMap<>();
+
+    static {
+        for (String s : new String[]{"ember_swing1", "ember_swing2", "ember_swing3", "ember_dash", "ember_parry", "ember_block", "ember_impact", "ember_wave"}) {
+            SFX.put(s, SOUNDS.register(s, () -> net.minecraft.sounds.SoundEvent.createVariableRangeEvent(new net.minecraft.resources.ResourceLocation(MODID, s))));
+        }
+    }
+
     public static final RegistryObject<Codec<AddItemModifier>> ADD_ITEM = LOOT_MODIFIERS.register("add_item", () -> AddItemModifier.CODEC);
 
     public MythBlades() {
@@ -67,6 +80,12 @@ public final class MythBlades {
         BLOCKS.register(bus);
         BLOCK_ENTITIES.register(bus);
         FEATURES.register(bus);
+        SOUNDS.register(bus);
+        bus.addListener((net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent e) -> e.enqueueWork(com.krolasyon.mythblades.network.FxNet::register));
+        MinecraftForge.EVENT_BUS.addListener(com.krolasyon.mythblades.combat.EmberCombat::onPlayerTick);
+        MinecraftForge.EVENT_BUS.addListener(com.krolasyon.mythblades.combat.EmberCombat::onAttack);
+        MinecraftForge.EVENT_BUS.addListener(com.krolasyon.mythblades.combat.EmberCombat::onHurt);
+        MinecraftForge.EVENT_BUS.addListener(com.krolasyon.mythblades.combat.EmberCombat::onFall);
         ENTITIES.register(bus);
         LOOT_MODIFIERS.register(bus);
         bus.addListener(this::creativeTabs);

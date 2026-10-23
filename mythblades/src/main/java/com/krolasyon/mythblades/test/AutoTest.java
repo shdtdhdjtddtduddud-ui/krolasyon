@@ -288,46 +288,97 @@ public final class AutoTest {
             gui = false;
             mc.setScreen(null);
         });
-        // Alev Kesiği
-        cmd(5, null, "summon husk " + (AX + 0.5) + " -60 " + (AZ + 12.5) + " {NoAI:1b,Health:60f,Attributes:[{Name:\"generic.max_health\",Base:60d}]}",
-                "summon husk " + (AX + 2.5) + " -60 " + (AZ + 13) + " {NoAI:1b,Health:60f,Attributes:[{Name:\"generic.max_health\",Base:60d}]}",
-                "summon husk " + (AX - 1.5) + " -60 " + (AZ + 13) + " {NoAI:1b,Health:60f,Attributes:[{Name:\"generic.max_health\",Base:60d}]}");
+        // ---------------------------------------------------- dövüş stili: kombo, savunma/karşı koyma, atılış, saplama
+        cmd(5, null, "kill @e[type=husk]", "summon husk " + (AX + 0.5) + " -60 " + (AZ + 13.5) + " {NoAI:1b,Health:200f,Attributes:[{Name:\"generic.max_health\",Base:200d}]}",
+                "summon husk " + (AX + 3.5) + " -60 " + (AZ + 14) + " {NoAI:1b,Health:200f,Attributes:[{Name:\"generic.max_health\",Base:200d}]}",
+                "summon husk " + (AX - 2.5) + " -60 " + (AZ + 14) + " {NoAI:1b,Health:200f,Attributes:[{Name:\"generic.max_health\",Base:200d}]}");
         server(5, null, s -> {
             ServerPlayer p = player(s);
             p.getInventory().selected = 0;
-            p.teleportTo(s.overworld(), AX + 0.5, -60, AZ + 9.0, 0, 10);
+            p.teleportTo(s.overworld(), AX + 0.5, -60, AZ + 10.5, 0, 5);
         });
-        client(15, null, mc -> mc.player.getInventory().selected = 0);
-        client(1, null, mc -> KeyMapping.click(mc.options.keyUse.getKey()));
-        wait(3, "flame_slash");
-        wait(6, "flame_slash_b");
+        client(15, null, mc -> {
+            mc.player.getInventory().selected = 0;
+            mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
+        });
+        // üç vuruşluk kombo (üçüncü şahıs)
+        for (int n = 0; n < 3; n++) {
+            final int nn = n;
+            client(2, null, mc -> KeyMapping.click(mc.options.keyAttack.getKey()));
+            wait(2, "combo_" + nn + "_a");
+            wait(2, "combo_" + nn + "_b");
+            wait(5, null);
+        }
+        wait(3, "wave_fly");
+        // aynı kombo birinci şahıs
+        client(25, null, mc -> mc.options.setCameraType(CameraType.FIRST_PERSON));
+        for (int n = 0; n < 3; n++) {
+            final int nn = n;
+            client(2, null, mc -> KeyMapping.click(mc.options.keyAttack.getKey()));
+            wait(2, "fp_combo_" + nn);
+            wait(7, null);
+        }
         server(5, null, s -> {
-            for (Husk h : s.overworld().getEntitiesOfClass(Husk.class, new AABB(AX - 20, -64, AZ - 20, AX + 20, -40, AZ + 30)))
-                LOG.info("[MYTHTEST] husk after slash hp {} fire {}", h.getHealth(), h.getRemainingFireTicks());
+            for (Husk h : s.overworld().getEntitiesOfClass(Husk.class, new AABB(AX - 20, -64, AZ - 20, AX + 20, -40, AZ + 40)))
+                LOG.info("[MYTHTEST] husk after combo hp {} fire {}", h.getHealth(), h.getRemainingFireTicks());
         });
-        // Kor Saplama
-        server(30, null, s -> {
-            ServerPlayer p = player(s);
-            p.getCooldowns().removeCooldown(MythBlades.EMBER.get());
-            p.teleportTo(s.overworld(), AX + 0.5, -60, AZ + 11.8, 0, 30);
+        // savunma ve karşı koyma
+        client(20, null, mc -> {
+            mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT);
+            KeyMapping.set(mc.options.keyUse.getKey(), true);
         });
-        client(5, null, mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_BACK));
         server(1, null, s -> {
             ServerPlayer p = player(s);
-            p.setShiftKeyDown(true);
-            MythBlades.EMBER.get().use(s.overworld(), p, InteractionHand.MAIN_HAND);
-            p.setShiftKeyDown(false);
+            Husk h = s.overworld().getEntitiesOfClass(Husk.class, new AABB(AX - 20, -64, AZ - 20, AX + 20, -40, AZ + 40)).get(0);
+            float hp = p.getHealth();
+            boolean r = h.doHurtTarget(p);
+            LOG.info("[MYTHTEST] parry: using {} ticks {} hurt {} hp {} -> {} husk slow {}", p.isUsingItem(), p.getTicksUsingItem(), r, hp, p.getHealth(),
+                    h.hasEffect(net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN));
         });
-        wait(3, "ember_plunge");
-        wait(8, "ember_plunge_b");
+        wait(2, "parry");
+        wait(4, "parry_b");
+        client(3, null, mc -> KeyMapping.set(mc.options.keyUse.getKey(), false));
+        client(5, null, mc -> KeyMapping.set(mc.options.keyUse.getKey(), true));
+        wait(14, "block_third");
+        server(1, null, s -> {
+            ServerPlayer p = player(s);
+            Husk h = s.overworld().getEntitiesOfClass(Husk.class, new AABB(AX - 20, -64, AZ - 20, AX + 20, -40, AZ + 40)).get(0);
+            float hp = p.getHealth();
+            h.doHurtTarget(p);
+            LOG.info("[MYTHTEST] block: ticks {} hp {} -> {}", p.getTicksUsingItem(), hp, p.getHealth());
+        });
+        wait(2, "block_hit");
+        client(5, null, mc -> mc.options.setCameraType(CameraType.FIRST_PERSON));
+        wait(8, "block_fp");
+        client(3, null, mc -> KeyMapping.set(mc.options.keyUse.getKey(), false));
+        // atılış
+        server(10, null, s -> player(s).teleportTo(s.overworld(), AX + 0.5, -60, AZ + 6.5, 0, 5));
+        client(10, null, mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_BACK));
+        client(1, null, mc -> {
+            LOG.info("[MYTHTEST] dash from {}", mc.player.position());
+            com.krolasyon.mythblades.client.EmberClient.tryMove(false);
+        });
+        wait(2, "dash_a");
+        wait(3, "dash_b");
+        client(8, "dash_end", mc -> LOG.info("[MYTHTEST] dash to {}", mc.player.position()));
+        server(1, null, s -> player(s).teleportTo(s.overworld(), AX + 0.5, -60, AZ + 6.5, 0, 5));
+        client(50, null, mc -> mc.options.setCameraType(CameraType.FIRST_PERSON));
+        client(1, null, mc -> com.krolasyon.mythblades.client.EmberClient.tryMove(false));
+        wait(3, "dash_fp");
+        // kor saplama
+        server(20, null, s -> player(s).teleportTo(s.overworld(), AX + 0.5, -60, AZ + 10.5, 0, 20));
+        client(10, null, mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_BACK));
+        client(1, null, mc -> com.krolasyon.mythblades.client.EmberClient.tryMove(true));
+        wait(5, "plunge_air");
+        wait(5, "plunge_fall");
+        wait(4, "plunge_impact");
+        wait(5, "plunge_ring");
+        wait(8, "plunge_pillars");
         server(5, null, s -> {
-            for (Husk h : s.overworld().getEntitiesOfClass(Husk.class, new AABB(AX - 20, -64, AZ - 20, AX + 20, -40, AZ + 30)))
+            for (Husk h : s.overworld().getEntitiesOfClass(Husk.class, new AABB(AX - 20, -64, AZ - 20, AX + 20, -40, AZ + 40)))
                 LOG.info("[MYTHTEST] husk after plunge hp {} y {}", h.getHealth(), h.getY());
             ServerPlayer p = player(s);
-            LOG.info("[MYTHTEST] fire resistance {}", p.hasEffect(net.minecraft.world.effect.MobEffects.FIRE_RESISTANCE));
-            BlockPos a = com.krolasyon.mythblades.world.AltarLayout.nearest(s.overworld().getSeed(), s.overworld().getChunkSource().getGenerator(),
-                    s.overworld().getChunkSource().randomState(), s.overworld(), 0, 0, 2);
-            LOG.info("[MYTHTEST] nearest altar {}", a);
+            LOG.info("[MYTHTEST] player after plunge hp {} fire res {}", p.getHealth(), p.hasEffect(net.minecraft.world.effect.MobEffects.FIRE_RESISTANCE));
         });
         client(5, null, mc -> mc.options.setCameraType(CameraType.FIRST_PERSON));
         // kılıcı geri sapla

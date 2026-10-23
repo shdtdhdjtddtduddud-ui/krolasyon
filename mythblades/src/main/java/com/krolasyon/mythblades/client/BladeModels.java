@@ -439,6 +439,34 @@ public final class BladeModels {
 
     /** Kor Kılıcı. heat: yetenek sonrası/sunaktan çekilirken artan ısı (0..1). */
     public static void ember(PoseStack ps, MultiBufferSource buf, int light, float time, float heat) {
+        ember(ps, buf, light, time, heat, true);
+    }
+
+    /** Bıçağın üstünde yanan alev dilleri: bıçak boyunca çapraz düzlemlerde animasyonlu ateş. */
+    private static void emberFlames(PoseStack ps, MultiBufferSource buf, float time, float heat) {
+        org.joml.Matrix4f m = ps.last().pose();
+        int n = 6;
+        for (int k = 0; k < n; k++) {
+            float y0 = E_Y0 + 1.5F + k * (E_LEN - 4) / n;
+            float h = 7.5F * (1 - k * 0.08F) * (0.8F + 0.5F * heat), w = (eHalf((y0 - E_Y0) / E_LEN) + 1.2F) * (0.9F + 0.3F * heat);
+            float[] fr = FxDraw.frame((int) (time * 0.8F) + k * 5);
+            float a = 0.5F + 0.5F * heat;
+            for (int pass = 0; pass < 2; pass++) {
+                com.mojang.blaze3d.vertex.VertexConsumer vc = buf.getBuffer(pass == 0 ? FxDraw.body(FxDraw.FIRE) : FxDraw.glow(FxDraw.FIRE));
+                float al = pass == 0 ? a * 0.7F : a;
+                for (int plane = 0; plane < 2; plane++) {
+                    float dx = plane == 0 ? w : 0, dz = plane == 0 ? 0 : w * 0.6F;
+                    FxDraw.v(vc, m, -dx, y0, -dz, fr[0], fr[3], 1, 1, 1, al);
+                    FxDraw.v(vc, m, -dx, y0 + h, -dz, fr[0], fr[1], 1, 1, 1, al);
+                    FxDraw.v(vc, m, dx, y0 + h, dz, fr[2], fr[1], 1, 1, 1, al);
+                    FxDraw.v(vc, m, dx, y0, dz, fr[2], fr[3], 1, 1, 1, al);
+                }
+            }
+        }
+    }
+
+    public static void ember(PoseStack ps, MultiBufferSource buf, int light, float time, float heat, boolean flames) {
+        if (flames) emberFlames(ps, buf, time, heat);
         TextureAtlasSprite bl = Geo.sprite("ember_blade");
         Geo.blade(buf.getBuffer(Geo.CUT), ps, 48, 8, EMBER_BLADE, bl, null, Geo.FULL, 0);
         // akkor çekirdek: bıçak boyunca yukarı akan ısı dalgaları

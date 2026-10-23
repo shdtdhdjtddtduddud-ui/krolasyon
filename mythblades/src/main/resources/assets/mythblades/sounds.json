@@ -1,0 +1,50 @@
+{
+ "ember_swing1": {
+  "sounds": [
+   "mythblades:ember_swing1"
+  ],
+  "subtitle": "subtitles.mythblades.ember_swing"
+ },
+ "ember_swing2": {
+  "sounds": [
+   "mythblades:ember_swing2"
+  ],
+  "subtitle": "subtitles.mythblades.ember_swing"
+ },
+ "ember_swing3": {
+  "sounds": [
+   "mythblades:ember_swing3"
+  ],
+  "subtitle": "subtitles.mythblades.ember_swing"
+ },
+ "ember_dash": {
+  "sounds": [
+   "mythblades:ember_dash"
+  ],
+  "subtitle": "subtitles.mythblades.ember_dash"
+ },
+ "ember_parry": {
+  "sounds": [
+   "mythblades:ember_parry"
+  ],
+  "subtitle": "subtitles.mythblades.ember_parry"
+ },
+ "ember_block": {
+  "sounds": [
+   "mythblades:ember_block"
+  ],
+  "subtitle": "subtitles.mythblades.ember_block"
+ },
+ "ember_impact": {
+  "sounds": [
+   "mythblades:ember_impact"
+  ],
+  "subtitle": "subtitles.mythblades.ember_impact"
+ },
+ "ember_wave": {
+  "sounds": [
+   "mythblades:ember_wave"
+  ],
+  "subtitle": "subtitles.mythblades.ember_wave"
+ }
+}
