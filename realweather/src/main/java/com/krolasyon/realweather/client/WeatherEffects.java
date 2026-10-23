@@ -181,12 +181,12 @@ public final class WeatherEffects extends DimensionSpecialEffects.OverworldEffec
         for (int i = n; i >= 1; i--) {
             float d = vis * (0.18F + 0.9F * i / n);
             float a = per * amt * (i == 1 ? 0.5F : 1F);
-            float s = d * 2.2F;
+            float s = d * 3.0F;
             float cx = f.x() * d, cy = f.y() * d, cz = f.z() * d;
             float[][] q = {{-1, -1}, {1, -1}, {1, 1}, {-1, 1}};
             for (float[] c : q) {
                 float x = cx + (l.x() * c[0] + u.x() * c[1]) * s, y = cy + (l.y() * c[0] + u.y() * c[1]) * s, z = cz + (l.z() * c[0] + u.z() * c[1]) * s;
-                bb.vertex(x, y, z).uv((c[0] + 1) * 0.5F + scroll * i, (c[1] + 1) * 0.5F).color(h[2] * b, h[3] * b, h[4] * b, a).uv2(0xF000F0).endVertex();
+                bb.vertex(x, y, z).uv((c[0] + 1) * 0.5F + scroll * i, (c[1] + 1) * 0.5F).color(h[2] * b, h[3] * b, h[4] * b, a).uv2(LightTexture.pack(0, 15)).endVertex();
             }
         }
         tess.end();
