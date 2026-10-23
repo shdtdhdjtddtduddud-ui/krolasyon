@@ -81,8 +81,8 @@ jobs:
             echo "client $pack exit $?"
             set -e
             cp run/screenshots/weather_*.png shaders_out/ 2>/dev/null || true
-            grep -iE "WEATHERTEST|oculus|iris|shader|Exception|ERROR" client_$pack.log | head -300 > shaders_out/summary_$pack.log
-            tail -c 150000 client_$pack.log > shaders_out/tail_$pack.log
+            (grep -iE "WEATHERTEST|oculus|iris|shader|Exception|ERROR" client_$pack.log | head -300 > shaders_out/summary_$pack.log) || true
+            tail -c 150000 client_$pack.log > shaders_out/tail_$pack.log || true
           done
           rm -f run/config/realweather_test.txt run/config/oculus.properties run/config/iris.properties
           cd shaders_out && zip -q ../shaders.zip * ; ls -la
