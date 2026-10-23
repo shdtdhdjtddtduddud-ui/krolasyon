@@ -270,6 +270,18 @@ void main() {
         color += floatingLights(dirW, isSky ? 64.0 : dist);
     }
 
+    // ---------------- Hava sisi (Krolasyon Gerçekçi Hava: tipi, kum fırtınası, yoğun sis, sağanak) ----------------
+    // Mod vanilya sis mesafesini kısaltır; burada o mesafe ve rengiyle paketin kendi sisinin üstüne örtülür.
+#ifdef WEATHER_FOG
+    if (isEyeInWater == 0 && !isHand && fogEnd > 0.5 && fogEnd < far * 0.8 && blindness < 0.01 && darknessFactor < 0.01) {
+        float d = isSky ? fogEnd * 3.0 : dist;
+        float wf = smoothstep(max(fogStart, 0.0), fogEnd, d);
+        float strength = saturate(1.0 - fogEnd / (far * 0.8));
+        vec3 wcol = toLinear(fogColor) * 1.6 * WEATHER_FOG_BRIGHTNESS * (0.35 + 0.65 * eyeSky);
+        color = mix(color, wcol, wf * mix(0.55, 1.0, strength));
+    }
+#endif
+
     // ---------------- Su altı / lav / toz kar ----------------
     if (isEyeInWater == 1) {
         vec3 uw = vec3(0.01, 0.13, 0.17) * (luma(ambientColor) * (eyeSky + 0.15) + 0.02) + nightVision * 0.02;

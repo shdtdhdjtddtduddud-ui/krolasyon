@@ -49,6 +49,43 @@ jobs:
           tail -c 200000 client.log > vtest/client_tail.log
           grep -E "WEATHERTEST|Exception|ERROR|realweather" client.log | head -300 > vtest/summary.log
           cd vtest && zip -q ../vtest.zip * ; ls -la
+      - name: Shader test (Oculus + Embeddium, Krolasyon Fantasy and Complementary Reimagined)
+        if: steps.b.outputs.status == '0' && (contains(github.event.head_commit.message, '[shaders]') || github.event_name == 'workflow_dispatch')
+        continue-on-error: true
+        shell: bash
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          MESA_GL_VERSION_OVERRIDE: '4.5'
+        run: |
+          sudo apt-get install -y -qq xvfb libgl1-mesa-dri libglx-mesa0 mesa-utils zip > /dev/null
+          latest() {
+            curl -s -G "https://api.modrinth.com/v2/project/$1/version" \
+              --data-urlencode "loaders=[\"$2\"]" --data-urlencode 'game_versions=["1.20.1"]' \
+              | python3 -c 'import json,sys; v=json.load(sys.stdin)[0]; print(v["version_number"] + " " + v["files"][0]["url"])'
+          }
+          EMB=$(latest embeddium forge | cut -d' ' -f1); OCU=$(latest oculus forge | cut -d' ' -f1)
+          CR_URL=$(latest complementary-reimagined iris | cut -d' ' -f2)
+          echo "embeddium=$EMB oculus=$OCU complementary=$CR_URL"
+          mkdir -p run/shaderpacks run/config shaders_out
+          printf "onboardAccessibility:false\nrenderDistance:10\nsimulationDistance:5\npauseOnLostFocus:false\ntutorialStep:none\njoinedFirstServer:true\nskipMultiplayerWarning:true\nmaxFps:60\nfov:0.0\ngraphicsMode:1\n" > run/options.txt
+          bash ../shaderpack/tools/package.sh "$PWD/run/shaderpacks/KrolasyonFantasy.zip"
+          curl -sL -o run/shaderpacks/ComplementaryReimagined.zip "$CR_URL"
+          ls -la run/shaderpacks
+          for pack in KrolasyonFantasy ComplementaryReimagined; do
+            rm -rf run/saves run/screenshots
+            printf "enableShaders=true\nshaderPack=$pack.zip\n" > run/config/oculus.properties
+            cp run/config/oculus.properties run/config/iris.properties
+            printf "short\n$pack\n" > run/config/realweather_test.txt
+            set +e
+            timeout 2700 xvfb-run -a -s "-screen 0 1280x720x24" gradle runClient --no-daemon -PembeddiumVersion="$EMB" -PoculusVersion="$OCU" > client_$pack.log 2>&1
+            echo "client $pack exit $?"
+            set -e
+            cp run/screenshots/weather_*.png shaders_out/ 2>/dev/null || true
+            grep -iE "WEATHERTEST|oculus|iris|shader|Exception|ERROR" client_$pack.log | head -300 > shaders_out/summary_$pack.log
+            tail -c 150000 client_$pack.log > shaders_out/tail_$pack.log
+          done
+          rm -f run/config/realweather_test.txt run/config/oculus.properties run/config/iris.properties
+          cd shaders_out && zip -q ../shaders.zip * ; ls -la
       - name: Publish release
         if: always()
         shell: bash
@@ -59,6 +96,7 @@ jobs:
           FILES="build.log"
           for f in build/libs/*.jar; do [ -f "$f" ] && FILES="$FILES $f"; done
           [ -f vtest.zip ] && FILES="$FILES vtest.zip"
+          [ -f shaders.zip ] && FILES="$FILES shaders.zip"
           gh release create "$TAG" $FILES --title "Krolasyon Gerçekçi Hava ${{ github.run_number }} (status ${{ steps.b.outputs.status }})" \
             --notes "Forge 1.20.1 mod jar. commit ${{ github.sha }}" --prerelease --target "${{ github.sha }}"
       - name: Fail on build error

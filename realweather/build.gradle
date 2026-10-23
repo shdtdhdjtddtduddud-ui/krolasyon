@@ -16,6 +16,8 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.console.level', 'info'
             property 'realweather.autotest', 'true'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             args '--width', '1280', '--height', '720'
             mods {
                 realweather {
@@ -26,10 +28,20 @@ minecraft {
     }
 }
 
-repositories {}
+repositories {
+    maven {
+        url = 'https://api.modrinth.com/maven'
+        content { includeGroup 'maven.modrinth' }
+    }
+}
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.2.0'
+    // yalnızca shader testi için (-PoculusVersion=... -PembeddiumVersion=...)
+    if (project.hasProperty('oculusVersion')) {
+        runtimeOnly fg.deobf("maven.modrinth:embeddium:${embeddiumVersion}")
+        runtimeOnly fg.deobf("maven.modrinth:oculus:${oculusVersion}")
+    }
 }
 
 tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }

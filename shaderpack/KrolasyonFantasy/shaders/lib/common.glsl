@@ -21,6 +21,8 @@ uniform float viewWidth;
 uniform float viewHeight;
 uniform float near;
 uniform float far;
+uniform float fogStart;
+uniform float fogEnd;
 uniform float nightVision;
 uniform float blindness;
 uniform float darknessFactor;

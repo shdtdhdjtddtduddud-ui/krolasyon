@@ -41,7 +41,7 @@ public final class ClientSetup {
             if (mc.level == null || mc.level.dimension() != Level.OVERWORLD) return;
             if (!mc.options.getCameraType().isFirstPerson()) return;
             float e1 = ClientWeather.exposure;
-            vignette(g, SAND_VIGNETTE, Math.min(1, ClientWeather.sandAmt * 1.2F) * e1 * 0.45F, w, h);
+            vignette(g, SAND_VIGNETTE, Math.min(1, ClientWeather.sandAmt * 1.1F) * e1 * 0.28F, w, h);
             vignette(g, FROST_VIGNETTE, ClientWeather.blizzardAmt * e1 * 0.6F, w, h);
             vignette(g, WET_VIGNETTE, ClientWeather.rainAmt * ClientWeather.stormness * e1 * 0.35F, w, h);
         }));

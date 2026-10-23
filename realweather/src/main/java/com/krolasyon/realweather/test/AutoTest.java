@@ -50,6 +50,9 @@ public final class AutoTest {
     private boolean worldRequested, gui, submitted;
     private volatile boolean pending;
     private final Map<String, BlockPos> spots = new HashMap<>();
+    /** config/realweather_test.txt: 1. satır "short" (kısa sahne listesi), 2. satır ekran görüntüsü öneki (ör. shader adı). */
+    private boolean shortRun;
+    private String prefix = "";
 
     public static void init() {
         LOG.info("[WEATHERTEST] enabled");
@@ -142,6 +145,25 @@ public final class AutoTest {
             find(l, "swamp", h -> h.is(Biomes.SWAMP) || h.is(Biomes.MANGROVE_SWAMP));
             find(l, "river", h -> h.is(BiomeTags.IS_RIVER));
         });
+        try {
+            List<String> cfg = java.nio.file.Files.readAllLines(java.nio.file.Path.of("config", "realweather_test.txt"));
+            shortRun = !cfg.isEmpty() && cfg.get(0).trim().equals("short");
+            if (cfg.size() > 1) prefix = cfg.get(1).trim() + "_";
+        } catch (Exception ignored) {}
+        LOG.info("[WEATHERTEST] short {} prefix '{}'", shortRun, prefix);
+        if (shortRun) {
+            scene("plains", WeatherState.CLEAR, 6000, 1.7, 30, 4, 500, "plains_clear");
+            scene("plains", WeatherState.FOG, 6000, 1.7, 30, 4, 260, "plains_fog");
+            scene("forest", WeatherState.STORM, 6000, 1.7, 120, 6, 500, "forest_storm");
+            scene("snow", WeatherState.RAIN, 6000, 1.7, 200, 4, 500, "snow_snowfall");
+            scene("snow", WeatherState.STORM, 6000, 1.7, 200, 4, 260, "snow_blizzard");
+            scene("desert", WeatherState.CLEAR, 6000, 1.7, 80, 4, 500, "desert_clear");
+            scene("desert", WeatherState.STORM, 6000, 1.7, 80, 4, 300, "desert_sandstorm");
+            scene("desert", WeatherState.STORM, 6000, 6.0, 200, 12, 80, "desert_sandstorm_b");
+            scene("swamp", WeatherState.CLEAR, 23400, 1.7, 30, 3, 500, "swamp_dawn_mist");
+            wait(10, "END");
+            return;
+        }
         scene("plains", WeatherState.CLEAR, 6000, 1.7, 30, 4, 420, "plains_clear");
         scene("plains", WeatherState.OVERCAST, 6000, 1.7, 30, 4, 200, "plains_overcast");
         scene("plains", WeatherState.FOG, 6000, 1.7, 30, 4, 260, "plains_fog");
@@ -154,6 +176,7 @@ public final class AutoTest {
         scene("snow", WeatherState.STORM, 6000, 1.7, 200, 4, 240, "snow_blizzard");
         scene("desert", WeatherState.CLEAR, 6000, 1.7, 80, 4, 420, "desert_clear");
         scene("desert", WeatherState.STORM, 6000, 1.7, 80, 4, 240, "desert_sandstorm");
+        scene("desert", WeatherState.STORM, 6000, 6.0, 200, 12, 80, "desert_sandstorm_b");
         scene("swamp", WeatherState.CLEAR, 23400, 1.7, 30, 3, 420, "swamp_dawn_mist");
         scene("plains", WeatherState.CLEAR, 17500, 1.7, 30, 2, 260, "plains_night_fireflies");
         scene("forest", WeatherState.CLEAR, 17500, 1.7, 30, 2, 260, "forest_night");
@@ -223,6 +246,12 @@ public final class AutoTest {
         if (stepStart < 0) {
             stepStart = tick + 100;
             LOG.info("[WEATHERTEST] in world, effects {}", mc.level.effects().getClass().getName());
+            try {
+                Object api = Class.forName("net.irisshaders.iris.api.v0.IrisApi").getMethod("getInstance").invoke(null);
+                LOG.info("[WEATHERTEST] shader pack in use: {}", api.getClass().getMethod("isShaderPackInUse").invoke(api));
+            } catch (Throwable t) {
+                LOG.info("[WEATHERTEST] no shader api ({})", t.toString());
+            }
         }
         if (tick < stepStart || stepIndex >= steps.size()) return;
         Step st = steps.get(stepIndex);
@@ -257,7 +286,7 @@ public final class AutoTest {
                     mc.stop();
                     return;
                 }
-                String name = "weather_" + String.format("%02d_", stepIndex) + st.shot() + ".png";
+                String name = "weather_" + prefix + String.format("%02d_", stepIndex) + st.shot() + ".png";
                 Screenshot.grab(mc.gameDirectory, name, mc.getMainRenderTarget(), msg -> LOG.info("[WEATHERTEST] screenshot {}", st.shot()));
             }
             stepIndex++;

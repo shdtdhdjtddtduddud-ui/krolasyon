@@ -81,3 +81,6 @@ profile.LOW=Düşük
 profile.MEDIUM=Orta
 profile.HIGH=Yüksek
 profile.ULTRA=Ultra
+option.WEATHER_FOG=Hava Sisi
+option.WEATHER_FOG.comment=Tipi, kum fırtınası ve yoğun sis gibi hava modlarının görüş mesafesini uygular.
+option.WEATHER_FOG_BRIGHTNESS=Hava Sisi Parlaklığı

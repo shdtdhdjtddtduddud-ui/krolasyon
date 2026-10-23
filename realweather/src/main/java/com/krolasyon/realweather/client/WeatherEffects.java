@@ -122,7 +122,8 @@ public final class WeatherEffects extends DimensionSpecialEffects.OverworldEffec
                     } else {
                         v0 = (float) Math.sin(time * 0.05 + seed) * 0.05F;
                         uScroll = (float) (time * (0.05 + 0.08 * amount) * (1 + rnd.nextFloat()));
-                        alpha = Mth.clamp(amount * 0.5F, 0, 0.45F) * fade;
+                        // uzaktaki perdeler daha görünür (toz duvarı), yakındakiler ince (önü kapatmasın)
+                        alpha = Mth.clamp(amount * 0.3F, 0, 0.28F) * fade * (float) Mth.clamp(dist / 6.0, 0.25, 1.0);
                         r = 0.86F;
                         g = 0.70F;
                         bl = 0.48F;

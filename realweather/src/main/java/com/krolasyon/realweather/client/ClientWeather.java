@@ -150,7 +150,7 @@ public final class ClientWeather {
 
         // gök: bulutluluk ve yağışa göre kararır
         if (overworld) {
-            float sky = Math.max(Math.max(rainAmt, snowAmt * 0.9F), Math.max(overcast * 0.45F, sandAmt * 0.7F));
+            float sky = Math.max(Math.max(rainAmt, snowAmt * 0.9F), Math.max(overcast * 0.45F, sandAmt * 0.45F));
             level.setRainLevel(Mth.clamp(sky, 0, 1));
             level.setThunderLevel(Mth.clamp(stormness * intensity * (1 - sandW), 0, 1));
         }
@@ -182,11 +182,11 @@ public final class ClientWeather {
             level.addParticle(RealWeather.SNOWFLAKE.get(), x - windX * 6, y, z - windZ * 6, windX, -0.05, windZ);
         }
         // kum taneleri: yere yakın, yatay akan
-        int grains = (int) (sandAmt * (8 + 30 * stormness));
+        int grains = (int) (sandAmt * (12 + 45 * stormness));
         for (int i = 0; i < grains; i++) {
-            double x = cp.x + r.nextGaussian() * 7 - windX * 8, z = cp.z + r.nextGaussian() * 7 - windZ * 8;
+            double x = cp.x + r.nextGaussian() * 9 - windX * 10, z = cp.z + r.nextGaussian() * 9 - windZ * 10;
             int gy = level.getHeight(Heightmap.Types.MOTION_BLOCKING, Mth.floor(x), Mth.floor(z));
-            double y = gy + r.nextDouble() * r.nextDouble() * 4;
+            double y = gy + r.nextDouble() * r.nextDouble() * 5;
             if (Math.abs(y - cp.y) > 10) continue;
             level.addParticle(RealWeather.SAND.get(), x, y, z, windX * 1.4, 0, windZ * 1.4);
         }
@@ -349,14 +349,16 @@ public final class ClientWeather {
         float far = base;
         far = Math.min(far, Mth.lerp(blizzardAmt * inside, base, 16));
         far = Math.min(far, Mth.lerp(snowAmt * 0.65F * inside, base, 56));
-        far = Math.min(far, Mth.lerp(Mth.clamp(sandAmt * 1.2F, 0, 1) * inside, base, 22));
+        far = Math.min(far, Mth.lerp(Mth.clamp(sandAmt * 1.15F, 0, 1) * inside, base, 36));
         far = Math.min(far, Mth.lerp(rainAmt * (0.45F + 0.4F * stormness) * inside, base, 48));
         far = Math.min(far, Mth.lerp(fogAmt * inside, base, 22));
         far = Math.min(far, Mth.lerp(mistAmt * inside, base, 44));
         far = Math.min(far, Mth.lerp(overcast * 0.15F, base, base * 0.7F));
         if (far >= base - 0.5F) return;
         e.setFarPlaneDistance(far);
-        e.setNearPlaneDistance(e.getMode() == FogRenderer.FogMode.FOG_SKY ? 0 : Math.min(e.getNearPlaneDistance(), far * 0.08F));
+        // kum fırtınasında yakın plan net kalsın: sis birkaç blok ötede başlar
+        float near = sandAmt > 0.2F ? Mth.lerp(Mth.clamp(sandAmt, 0, 1), far * 0.08F, 4F) : far * 0.08F;
+        e.setNearPlaneDistance(e.getMode() == FogRenderer.FogMode.FOG_SKY ? 0 : Math.min(e.getNearPlaneDistance(), near));
         e.setCanceled(true);
     }
 
@@ -368,7 +370,7 @@ public final class ClientWeather {
         float[][] tints = {
                 {blizzardAmt, 0.80F, 0.85F, 0.92F},
                 {snowAmt * 0.5F, 0.78F, 0.81F, 0.86F},
-                {Mth.clamp(sandAmt * 1.2F, 0, 1), 0.80F, 0.60F, 0.37F},
+                {Mth.clamp(sandAmt * 1.1F, 0, 0.95F), 0.74F, 0.58F, 0.40F},
                 {rainAmt * 0.55F, 0.42F, 0.46F, 0.51F},
                 {fogAmt * 0.85F, 0.70F, 0.72F, 0.74F},
                 {mistAmt * 0.6F, 0.76F, 0.78F, 0.80F}};

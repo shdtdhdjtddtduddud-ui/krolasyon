@@ -81,3 +81,6 @@ profile.LOW=Low
 profile.MEDIUM=Medium
 profile.HIGH=High
 profile.ULTRA=Ultra
+option.WEATHER_FOG=Weather Fog
+option.WEATHER_FOG.comment=Applies the view distance of weather mods (blizzards, sandstorms, thick fog).
+option.WEATHER_FOG_BRIGHTNESS=Weather Fog Brightness
