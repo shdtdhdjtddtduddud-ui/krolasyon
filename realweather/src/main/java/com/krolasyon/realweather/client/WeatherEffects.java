@@ -96,7 +96,7 @@ public final class WeatherEffects extends DimensionSpecialEffects.OverworldEffec
                 mp.set(x, Math.max(ground, cy), z);
                 int light = LevelRenderer.getLightColor(level, mp);
                 float fade = (float) (1 - (dist / (rad + 0.5)) * (dist / (rad + 0.5)));
-                int layers = amount > 0.55F ? 2 : 1;
+                int layers = amount > 0.55F && want != 2 ? 2 : 1;
                 for (int layer = 0; layer < layers; layer++) {
                     // perde düzlemi kameraya dik (her katman biraz döndürülmüş)
                     double ang = Math.atan2(dz, dx) + Math.PI / 2 + (layer == 0 ? 0 : 0.6 + rnd.nextDouble() * 0.5);
@@ -122,7 +122,7 @@ public final class WeatherEffects extends DimensionSpecialEffects.OverworldEffec
                     } else {
                         v0 = (float) Math.sin(time * 0.05 + seed) * 0.05F;
                         uScroll = (float) (time * (0.05 + 0.08 * amount) * (1 + rnd.nextFloat()));
-                        alpha = Mth.clamp(amount * 1.1F, 0, 0.9F) * fade;
+                        alpha = Mth.clamp(amount * 0.5F, 0, 0.45F) * fade;
                         r = 0.86F;
                         g = 0.70F;
                         bl = 0.48F;

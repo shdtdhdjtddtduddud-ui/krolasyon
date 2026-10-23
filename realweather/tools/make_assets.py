@@ -78,7 +78,7 @@ def sand():
     haze = Image.fromarray((rng.random((H // 8, W // 8)) * 255).astype(np.uint8)).resize((W, H), Image.BICUBIC)
     h = np.asarray(haze, float) / 255
     img[..., :3] = np.where(img[..., 3:4] > 0, img[..., :3], np.array([210, 170, 115]))
-    img[..., 3] = np.maximum(img[..., 3], h * 70)
+    img[..., 3] = np.maximum(img[..., 3], h * 22)
     save('environment/sand.png', img)
 
 

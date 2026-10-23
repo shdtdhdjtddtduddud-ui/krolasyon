@@ -79,7 +79,26 @@ public final class AutoTest {
         if (b == null) return;
         ServerLevel l = s.overworld();
         // yükseklik haritası yalnızca yüklü chunk'ta doğrudur: önce yükle
-        l.getChunk(b.getX() >> 4, b.getZ() >> 4);
+        // ağaç altı ya da içi olmayan, açık bir nokta ara
+        int bx = b.getX(), bz = b.getZ();
+        search:
+        for (int r = 0; r <= 40; r += 4) {
+            for (int dx = -r; dx <= r; dx += 4) for (int dz = -r; dz <= r; dz += 4) {
+                int x = b.getX() + dx, z = b.getZ() + dz;
+                l.getChunk(x >> 4, z >> 4);
+                int a = l.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z), c = l.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+                boolean clear = a == c;
+                for (int ox = -3; ox <= 3 && clear; ox += 3) for (int oz = -3; oz <= 3 && clear; oz += 3)
+                    clear = l.getHeight(Heightmap.Types.MOTION_BLOCKING, x + ox, z + oz) <= c + 1;
+                if (clear) {
+                    bx = x;
+                    bz = z;
+                    break search;
+                }
+            }
+        }
+        b = new BlockPos(bx, 0, bz);
+        l.getChunk(bx >> 4, bz >> 4);
         int y = l.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, b.getX(), b.getZ());
         LOG.info("[WEATHERTEST] go {} y {}", spot, y);
         run(s, String.format(java.util.Locale.ROOT, "tp @a %.1f %.1f %.1f %.1f %.1f", b.getX() + 0.5, y + up, b.getZ() + 0.5, yaw, pitch));
