@@ -214,8 +214,8 @@ def barometer():
 
 def haze():
     W = H = 128
-    n = Image.fromarray((rng.random((16, 16)) * 255).astype(np.uint8)).resize((W, H), Image.BICUBIC)
-    a = 200 + (np.asarray(n, float) / 255 - 0.5) * 80
+    n = Image.fromarray((rng.random((6, 6)) * 255).astype(np.uint8)).resize((W, H), Image.BICUBIC)
+    a = 215 + (np.asarray(n, float) / 255 - 0.5) * 24
     img = np.zeros((H, W, 4))
     img[..., :3] = 255
     img[..., 3] = a

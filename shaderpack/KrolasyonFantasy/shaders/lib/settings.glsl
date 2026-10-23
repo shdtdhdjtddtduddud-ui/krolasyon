@@ -62,7 +62,7 @@ const float drynessHalflife = 60.0;
 #define VL_STEPS 12 // [6 8 12 16 24]
 #define FOG_DENSITY 1.0 // [0.0 0.25 0.5 0.75 1.0 1.5 2.0 3.0]
 #define BORDER_FOG
-#define WEATHER_FOG // Hava modlarının (Krolasyon Gerçekçi Hava) sis mesafesini ve rengini uygula
+//#define WEATHER_FOG // Hava modlarının (Krolasyon Gerçekçi Hava) sis mesafesini ve rengini uygula
 #define WEATHER_FOG_BRIGHTNESS 1.0 // [0.5 0.75 1.0 1.25 1.5]
 
 // ---------------- Hareket / Motion ----------------
