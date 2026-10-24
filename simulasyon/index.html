@@ -1,0 +1,969 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kaos Laboratuvarı</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: tam ekran simülasyon tuvali, üzerinde yüzen cam bir kontrol paneli (telefonda alt tabaka). Tek, bilinçli koyu görünüm. */
+:root{
+  --bg:#06070b;
+  --panel:rgba(13,14,20,.80);
+  --line:rgba(255,232,196,.11);
+  --fg:#ece5d8;
+  --dim:#958e82;
+  --accent:#ffb44a;
+  --cool:#7cc8ff;
+  --font-d:"Bricolage Grotesque",ui-sans-serif,system-ui,"Segoe UI",sans-serif;
+  --font-m:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+html,body{height:100%}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-d);overflow:hidden;-webkit-font-smoothing:antialiased}
+#view{position:fixed;inset:0;touch-action:none;cursor:crosshair}
+.layer{position:absolute;inset:0;width:100%;height:100%;display:block}
+#msg{position:absolute;inset:0;display:grid;place-items:center;padding:24px;text-align:center;color:var(--dim);font-family:var(--font-m);font-size:13px}
+
+#panel{position:fixed;z-index:3;top:calc(16px + env(safe-area-inset-top,0px));left:max(16px,env(safe-area-inset-left,0px));
+  width:324px;max-height:calc(100% - 32px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));
+  display:flex;flex-direction:column;background:var(--panel);-webkit-backdrop-filter:blur(16px) saturate(1.3);backdrop-filter:blur(16px) saturate(1.3);
+  border:1px solid var(--line);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.45);overflow:hidden}
+#panel.gone{display:none}
+.ph{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 14px 12px 16px}
+.brand{font-size:19px;font-weight:700;letter-spacing:-.015em;line-height:1.05;font-variation-settings:"opsz" 96}
+.brand small{display:block;margin-top:3px;font:400 9.5px/1 var(--font-m);letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.meta{display:flex;white-space:nowrap;flex-shrink:0;align-items:center;gap:8px;font:500 11px/1 var(--font-m);color:var(--dim);font-variant-numeric:tabular-nums}
+#pausedTag{color:var(--accent);letter-spacing:.1em}
+.icon-btn{appearance:none;border:1px solid var(--line);background:transparent;color:var(--fg);width:28px;height:28px;border-radius:8px;cursor:pointer;font:500 13px/1 var(--font-m);display:grid;place-items:center}
+.icon-btn:hover{border-color:var(--accent)}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:0 12px 12px}
+.tab{appearance:none;border:1px solid var(--line);background:transparent;color:var(--dim);cursor:pointer;border-radius:9px;padding:7px 0 8px;
+  font:500 11px/1.1 var(--font-d);display:flex;flex-direction:column;align-items:center;gap:3px;transition:color .15s,border-color .15s,background .15s}
+.tab b{font:500 9px/1 var(--font-m);opacity:.7}
+.tab:hover{color:var(--fg);border-color:rgba(255,180,74,.45)}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#1a1206}
+.pbody{overflow-y:auto;overscroll-behavior:contain;padding:14px 16px 16px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:18px}
+#panel.collapsed .pbody{display:none}
+#panel.collapsed .tabs{padding-bottom:12px}
+h2{margin:0;font-size:24px;font-weight:600;letter-spacing:-.02em;line-height:1.1;text-wrap:balance;font-variation-settings:"opsz" 72}
+.desc{margin:6px 0 0;color:var(--dim);font-size:13px;line-height:1.5}
+.sec{display:flex;flex-direction:column;gap:12px}
+.label{font:500 9.5px/1 var(--font-m);letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.ctl{display:flex;flex-direction:column;gap:5px}
+.ctl .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:12.5px}
+.ctl output{font:500 11.5px/1 var(--font-m);color:var(--accent);font-variant-numeric:tabular-nums}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:18px;background:transparent;cursor:pointer;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:3px;border-radius:2px;background:linear-gradient(90deg,var(--accent) var(--fill,50%),rgba(255,232,196,.14) var(--fill,50%))}
+input[type=range]::-moz-range-track{height:3px;border-radius:2px;background:rgba(255,232,196,.14)}
+input[type=range]::-moz-range-progress{height:3px;border-radius:2px;background:var(--accent)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;margin-top:-5.5px;border-radius:50%;background:var(--fg);border:3px solid var(--bg);box-shadow:0 0 0 1px var(--accent)}
+input[type=range]::-moz-range-thumb{width:9px;height:9px;border-radius:50%;background:var(--fg);border:3px solid var(--bg);box-shadow:0 0 0 1px var(--accent)}
+:focus-visible{outline:2px solid var(--cool);outline-offset:2px}
+.seg{display:flex;flex-wrap:wrap;gap:5px}
+.chip{appearance:none;border:1px solid var(--line);background:rgba(255,255,255,.02);color:var(--fg);cursor:pointer;border-radius:999px;padding:6px 10px;font:500 11.5px/1 var(--font-d)}
+.chip:hover{border-color:rgba(255,180,74,.5)}
+.chip[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:rgba(255,180,74,.08)}
+.chip .sw{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.eq{margin:0;padding:10px 12px;border-radius:9px;background:rgba(0,0,0,.3);border:1px solid var(--line);font:400 11.5px/1.65 var(--font-m);color:var(--fg);white-space:pre;overflow-x:auto}
+.eq em{font-style:normal;color:var(--dim)}
+canvas.figure{display:block;width:100%;border-radius:9px;background:rgba(0,0,0,.28);border:1px solid var(--line)}
+.figcap{font-size:11.5px;color:var(--dim);line-height:1.45;margin:0}
+.tele-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+#teleVal{font:500 15px/1 var(--font-m);color:var(--fg);font-variant-numeric:tabular-nums}
+#spark{height:64px}
+.actions{display:flex;flex-wrap:wrap;gap:6px}
+.btn{appearance:none;cursor:pointer;border-radius:9px;padding:9px 12px;font:600 12.5px/1 var(--font-d);border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--fg)}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.btn.primary:hover{background:var(--accent);border-color:var(--accent)}
+.keys{font:400 10.5px/1.9 var(--font-m);color:var(--dim)}
+kbd{font:500 10px/1 var(--font-m);padding:2px 5px;border-radius:4px;border:1px solid var(--line);color:var(--fg);background:rgba(255,255,255,.04)}
+#hint{position:fixed;z-index:2;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));
+  font:400 11px/1.2 var(--font-m);color:var(--dim);padding:8px 11px;border-radius:999px;background:rgba(6,7,11,.6);border:1px solid var(--line);pointer-events:none;max-width:calc(100% - 32px)}
+#showPanel{position:fixed;z-index:3;top:calc(16px + env(safe-area-inset-top,0px));left:max(16px,env(safe-area-inset-left,0px));width:auto;padding:0 12px;height:34px;background:var(--panel)}
+@media (max-width:720px){
+  #panel{top:auto;bottom:calc(16px + env(safe-area-inset-bottom,0px));right:max(16px,env(safe-area-inset-right,0px));width:auto;max-height:56%}
+  #hint{top:calc(16px + env(safe-area-inset-top,0px));bottom:auto;right:max(16px,env(safe-area-inset-right,0px))}
+  h2{font-size:21px}
+}
+@media (prefers-reduced-motion:reduce){.tab{transition:none}}
+</style>
+</head>
+<body>
+
+<div id="view">
+  <canvas id="c2d" class="layer"></canvas>
+  <canvas id="cgl" class="layer" hidden></canvas>
+  <div id="msg" hidden></div>
+</div>
+
+<aside id="panel" aria-label="Simülasyon kontrolleri">
+  <div class="ph">
+    <div class="brand">Kaos Laboratuvarı<small>Canlı simülasyon</small></div>
+    <div class="meta">
+      <span id="pausedTag" hidden>DURDU</span>
+      <span id="fps">— fps</span>
+      <button class="icon-btn" id="collapse" type="button" aria-label="Paneli daralt" title="Paneli daralt">–</button>
+      <button class="icon-btn" id="hide" type="button" aria-label="Paneli gizle (H)" title="Paneli gizle (H)">×</button>
+    </div>
+  </div>
+  <div class="tabs" id="tabs" role="tablist"></div>
+  <div class="pbody">
+    <div>
+      <h2 id="mTitle"></h2>
+      <p class="desc" id="mDesc"></p>
+    </div>
+    <div class="sec" id="extra"></div>
+    <div class="sec">
+      <span class="label">Parametreler</span>
+      <div class="sec" id="controls"></div>
+    </div>
+    <div class="sec">
+      <div class="tele-head"><span class="label" id="teleLabel"></span><span id="teleVal">—</span></div>
+      <canvas id="spark" class="figure"></canvas>
+    </div>
+    <div class="actions" id="actions">
+      <button class="btn primary" id="pauseBtn" type="button">Duraklat</button>
+      <button class="btn" id="resetBtn" type="button">Sıfırla</button>
+    </div>
+    <div class="keys"><kbd>Boşluk</kbd> duraklat · <kbd>R</kbd> sıfırla · <kbd>1</kbd>–<kbd>5</kbd> mod · <kbd>H</kbd> paneli gizle</div>
+  </div>
+</aside>
+<button class="icon-btn" id="showPanel" type="button" hidden>Paneli göster</button>
+<div id="hint"></div>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const view = $('#view'), cv = $('#c2d'), ctx = cv.getContext('2d'), glc = $('#cgl');
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let W = 1, H = 1, DPR = 1;
+let paused = false, mode = null, frame = 0;
+const ptr = { x: 0, y: 0, px: 0, py: 0, down: false, active: false, shift: false };
+const rand = (a, b) => a + Math.random() * (b - a);
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const trNum = (v, d) => (d == null ? String(Math.round(v)) : v.toFixed(d)).replace('.', ',');
+
+/* ---------- çizim yardımcıları ---------- */
+function hsl(h, s, l) {
+  h = (((h % 360) + 360) % 360) / 360;
+  const a = s * Math.min(l, 1 - l);
+  const f = n => { const k = (n + h * 12) % 12; return Math.round(255 * (l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)))); };
+  return `${f(0)},${f(8)},${f(4)}`;
+}
+function sprite(rgb, r = 16) {
+  const c = document.createElement('canvas'); c.width = c.height = r * 2;
+  const g = c.getContext('2d'), gr = g.createRadialGradient(r, r, 0, r, r, r);
+  gr.addColorStop(0, `rgba(${rgb},1)`); gr.addColorStop(.2, `rgba(${rgb},.75)`);
+  gr.addColorStop(.5, `rgba(${rgb},.16)`); gr.addColorStop(1, `rgba(${rgb},0)`);
+  g.fillStyle = gr; g.fillRect(0, 0, r * 2, r * 2); return c;
+}
+function fade(a) {
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = `rgba(6,7,11,${a})`; ctx.fillRect(0, 0, W, H);
+}
+function clear2d() { ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = '#06070b'; ctx.fillRect(0, 0, W, H); }
+function lerpRGB(stops, t) {
+  t = clamp(t, 0, 1) * (stops.length - 1); const i = Math.min(stops.length - 2, Math.floor(t)), f = t - i;
+  const a = stops[i], b = stops[i + 1];
+  return `${Math.round(a[0] + (b[0] - a[0]) * f)},${Math.round(a[1] + (b[1] - a[1]) * f)},${Math.round(a[2] + (b[2] - a[2]) * f)}`;
+}
+
+/* ---------- uzaysal ızgara (komşu araması) ---------- */
+function gridBuild(g, x, y, N, cell) {
+  const cols = Math.max(1, Math.floor(W / cell)), rows = Math.max(1, Math.floor(H / cell)), nc = cols * rows;
+  if (!g.start || g.start.length < nc + 1) { g.start = new Int32Array(nc + 1); g.fill = new Int32Array(nc); }
+  if (!g.order || g.order.length < N) { g.order = new Int32Array(N); g.cellOf = new Int32Array(N); }
+  const cw = W / cols, ch = H / rows, st = g.start, fl = g.fill, ord = g.order, co = g.cellOf;
+  st.fill(0, 0, nc + 1);
+  for (let i = 0; i < N; i++) {
+    const cx = Math.min(cols - 1, Math.max(0, (x[i] / cw) | 0)), cy = Math.min(rows - 1, Math.max(0, (y[i] / ch) | 0));
+    const c = cy * cols + cx; co[i] = c; st[c + 1]++;
+  }
+  for (let c = 0; c < nc; c++) { st[c + 1] += st[c]; fl[c] = st[c]; }
+  for (let i = 0; i < N; i++) ord[fl[co[i]]++] = i;
+  g.cols = cols; g.rows = rows;
+}
+function gridNeighbors(g, c, nb) {
+  const cols = g.cols, rows = g.rows, cx = c % cols, cy = (c / cols) | 0; let n = 0;
+  for (let oy = -1; oy <= 1; oy++) {
+    const yy = (cy + oy + rows) % rows;
+    for (let ox = -1; ox <= 1; ox++) {
+      const cc = yy * cols + (cx + ox + cols) % cols; let dup = false;
+      for (let q = 0; q < n; q++) if (nb[q] === cc) { dup = true; break; }
+      if (!dup) nb[n++] = cc;
+    }
+  }
+  return n;
+}
+const NB = new Int32Array(9);
+
+/* ---------- 3B kamera ---------- */
+function makeCam(yaw, pitch) { return { yaw, pitch, zoom: 1, c: 1, s: 0, cp: 1, sp: 0 }; }
+function camPrep(cam) { cam.c = Math.cos(cam.yaw); cam.s = Math.sin(cam.yaw); cam.cp = Math.cos(cam.pitch); cam.sp = Math.sin(cam.pitch); }
+
+/* =====================================================================
+   1) PARÇACIK YAŞAMI
+   ===================================================================== */
+const Life = {
+  id: 'yasam', tab: 'Yaşam', title: 'Parçacık Yaşamı',
+  desc: 'Her renk diğer renkleri farklı güçte çeker ya da iter. Bu küçük kural tablosundan hücreye, solucana ve yörüngeye benzeyen yapılar kendiliğinden çıkar.',
+  hint: 'Sürükle: parçacıkları çek · Shift + sürükle: it',
+  tele: { label: 'Ortalama hız', unit: ' px/s' },
+  params: {
+    n: { label: 'Parçacık sayısı', min: 300, max: 4000, step: 100, v: 2200, reinit: true },
+    k: { label: 'Tür sayısı', min: 2, max: 8, step: 1, v: 6, reinit: true },
+    r: { label: 'Etki yarıçapı', min: 30, max: 160, step: 5, v: 80, unit: ' px' },
+    hl: { label: 'Sürtünme yarı ömrü', min: 0.01, max: 0.2, step: 0.005, v: 0.04, dec: 3, unit: ' s' },
+    f: { label: 'Kuvvet çarpanı', min: 1, max: 25, step: 0.5, v: 10, dec: 1 },
+  },
+  actions: [{ label: 'Yeni kurallar', fn() { Life.randomRules(); Life.drawMatrix(); } }],
+  g: {},
+  randomRules() {
+    const K = this.params.k.v; this.M = new Float32Array(K * K);
+    for (let i = 0; i < K * K; i++) this.M[i] = Math.round((Math.random() * 2 - 1) * 4) / 4;
+    this.cols = []; this.spr = [];
+    for (let t = 0; t < K; t++) { const rgb = hsl(18 + t * 360 / K, .86, .62); this.cols.push(rgb); this.spr.push(sprite(rgb, 12)); }
+  },
+  init() {
+    const N = this.params.n.v, K = this.params.k.v;
+    if (!this.M || this.M.length !== K * K) this.randomRules();
+    this.N = N; this.x = new Float32Array(N); this.y = new Float32Array(N);
+    this.vx = new Float32Array(N); this.vy = new Float32Array(N);
+    this.fx = new Float32Array(N); this.fy = new Float32Array(N); this.t = new Uint8Array(N);
+    for (let i = 0; i < N; i++) { this.x[i] = Math.random() * W; this.y[i] = Math.random() * H; this.t[i] = i % K; }
+    clear2d();
+  },
+  resize(ow, oh) { for (let i = 0; i < this.N; i++) { this.x[i] = this.x[i] / ow * W; this.y[i] = this.y[i] / oh * H; } },
+  step() {
+    const N = this.N, K = this.params.k.v, M = this.M, x = this.x, y = this.y, vx = this.vx, vy = this.vy, t = this.t, FX = this.fx, FY = this.fy;
+    const dt = 0.02, rmax = this.params.r.v, r2 = rmax * rmax, beta = 0.3;
+    const fric = Math.pow(0.5, dt / this.params.hl.v), ff = this.params.f.v * rmax;
+    const g = this.g; gridBuild(g, x, y, N, rmax);
+    const st = g.start, ord = g.order, co = g.cellOf, hw = W / 2, hh = H / 2;
+    for (let i = 0; i < N; i++) {
+      const xi = x[i], yi = y[i], ti = t[i] * K; let fx = 0, fy = 0;
+      const nn = gridNeighbors(g, co[i], NB);
+      for (let q = 0; q < nn; q++) {
+        const c = NB[q], e = st[c + 1];
+        for (let s = st[c]; s < e; s++) {
+          const j = ord[s]; if (j === i) continue;
+          let dx = x[j] - xi, dy = y[j] - yi;
+          if (dx > hw) dx -= W; else if (dx < -hw) dx += W;
+          if (dy > hh) dy -= H; else if (dy < -hh) dy += H;
+          const d2 = dx * dx + dy * dy;
+          if (d2 < r2 && d2 > 1e-4) {
+            const d = Math.sqrt(d2), rr = d / rmax;
+            const F = rr < beta ? rr / beta - 1 : M[ti + t[j]] * (1 - Math.abs(2 * rr - 1 - beta) / (1 - beta));
+            fx += dx / d * F; fy += dy / d * F;
+          }
+        }
+      }
+      FX[i] = fx * ff; FY[i] = fy * ff;
+    }
+    let sp = 0;
+    for (let i = 0; i < N; i++) {
+      let ax = FX[i], ay = FY[i];
+      if (ptr.down) {
+        const dx = ptr.x - x[i], dy = ptr.y - y[i], d = Math.hypot(dx, dy) + 1e-3;
+        if (d < 200) { const s = (ptr.shift ? -1 : 1) * 2600 * (1 - d / 200); ax += dx / d * s; ay += dy / d * s; }
+      }
+      vx[i] = vx[i] * fric + ax * dt; vy[i] = vy[i] * fric + ay * dt;
+      x[i] += vx[i] * dt; y[i] += vy[i] * dt;
+      if (x[i] < 0) x[i] += W; else if (x[i] >= W) x[i] -= W;
+      if (y[i] < 0) y[i] += H; else if (y[i] >= H) y[i] -= H;
+      sp += Math.hypot(vx[i], vy[i]);
+    }
+    tele.push(sp / N);
+  },
+  draw() {
+    fade(.22); ctx.globalCompositeOperation = 'lighter';
+    const x = this.x, y = this.y, t = this.t, spr = this.spr, s = 11, h = s / 2;
+    for (let i = 0; i < this.N; i++) ctx.drawImage(spr[t[i]], x[i] - h, y[i] - h, s, s);
+  },
+  extra(el) {
+    el.innerHTML = `<span class="label">Çekim tablosu</span><canvas class="figure" id="matrix" height="220"></canvas>
+      <p class="figcap">Satırdaki renk, sütundaki rengi ne kadar çekiyor? Mavi çekim, kırmızı itme. Bir hücreye tıklayıp değerini değiştir.</p>`;
+    const m = el.querySelector('#matrix');
+    m.addEventListener('pointerdown', e => {
+      const K = this.params.k.v, r = m.getBoundingClientRect(), cell = Math.min(r.width, r.height) / (K + 1);
+      const ox = (r.width - cell * (K + 1)) / 2;
+      const cx = Math.floor((e.clientX - r.left - ox) / cell) - 1, cy = Math.floor((e.clientY - r.top) / cell) - 1;
+      if (cx < 0 || cy < 0 || cx >= K || cy >= K) return;
+      const i = cy * K + cx, d = e.shiftKey || e.button === 2 ? -0.25 : 0.25;
+      let v = this.M[i] + d; if (v > 1) v = -1; if (v < -1) v = 1; this.M[i] = v; this.drawMatrix();
+    });
+    m.addEventListener('contextmenu', e => e.preventDefault());
+    this.drawMatrix();
+  },
+  drawMatrix() {
+    const m = $('#matrix'); if (!m) return;
+    const w = m.clientWidth, h = 220; m.width = w * DPR; m.height = h * DPR; m.style.height = h + 'px';
+    const g = m.getContext('2d'); g.setTransform(DPR, 0, 0, DPR, 0, 0); g.clearRect(0, 0, w, h);
+    const K = this.params.k.v, cell = Math.min(w, h) / (K + 1), ox = (w - cell * (K + 1)) / 2, pad = 1.5;
+    for (let i = 0; i < K; i++) {
+      g.fillStyle = `rgb(${this.cols[i]})`;
+      g.beginPath(); g.arc(ox + cell * (i + 1.5), cell * .5, cell * .2, 0, 7); g.fill();
+      g.beginPath(); g.arc(ox + cell * .5, cell * (i + 1.5), cell * .2, 0, 7); g.fill();
+      for (let j = 0; j < K; j++) {
+        const v = this.M[i * K + j], a = Math.abs(v);
+        g.fillStyle = v >= 0 ? `rgba(124,200,255,${.12 + a * .78})` : `rgba(255,96,96,${.12 + a * .78})`;
+        g.fillRect(ox + cell * (j + 1) + pad, cell * (i + 1) + pad, cell - pad * 2, cell - pad * 2);
+        if (cell > 26) {
+          g.fillStyle = a > .5 ? '#06070b' : 'rgba(236,229,216,.85)';
+          g.font = `500 ${Math.min(11, cell * .3)}px "IBM Plex Mono", monospace`; g.textAlign = 'center'; g.textBaseline = 'middle';
+          g.fillText(trNum(v, 2).replace(',00', ''), ox + cell * (j + 1.5), cell * (i + 1.5));
+        }
+      }
+    }
+  },
+};
+
+/* =====================================================================
+   2) GALAKSİ ÇARPIŞMASI  (kısıtlı N-cisim, Toomre & Toomre 1972)
+   ===================================================================== */
+const Gal = {
+  id: 'galaksi', tab: 'Galaksi', title: 'Galaksi Çarpışması',
+  desc: 'İki sarmal disk birbirine düşüyor. Gelgit kuvvetleri yıldızları uzun kuyruklar ve köprüler halinde koparıyor; Anten ve Fareler galaksileri bu yolla şekillendi.',
+  hint: 'Sürükle: kamerayı döndür · Tekerlek: yakınlaştır',
+  tele: { label: 'Çekirdekler arası uzaklık', unit: ' kpc', dec: 1 },
+  params: {
+    n: { label: 'Yıldız sayısı', min: 2000, max: 16000, step: 500, v: 9000, reinit: true },
+    q: { label: 'Kütle oranı (B / A)', min: 0.2, max: 1, step: 0.05, v: 0.5, dec: 2, reinit: true },
+    p: { label: 'En yakın geçiş', min: 1, max: 6, step: 0.1, v: 2.4, dec: 1, unit: ' kpc', reinit: true },
+    tilt: { label: 'Disk eğimi', min: 0, max: 90, step: 1, v: 35, unit: '°', reinit: true },
+    sp: { label: 'Zaman hızı', min: 0.2, max: 3, step: 0.1, v: 1, dec: 1, unit: '×' },
+  },
+  spin: 1,
+  cam: makeCam(0.4, 0.95),
+  init() {
+    const N = this.params.n.v, q = this.params.q.v, p = this.params.p.v, tilt = this.params.tilt.v * Math.PI / 180;
+    const M1 = 1, M2 = q, Mt = M1 + M2, R0 = 10;
+    const v = Math.sqrt(2 * Mt / R0), L = Math.sqrt(2 * Mt * p), vt = L / R0, vr = -Math.sqrt(Math.max(0, v * v - vt * vt));
+    this.cm = [M1, M2];
+    this.c = [[-q / Mt * R0, 0, 0], [M1 / Mt * R0, 0, 0]];
+    this.cv = [[-q / Mt * vr, -q / Mt * vt, 0], [M1 / Mt * vr, M1 / Mt * vt, 0]];
+    this.N = N;
+    const P = this.P = new Float32Array(N * 3), V = this.V = new Float32Array(N * 3), S = this.S = new Uint8Array(N);
+    const na = Math.round(N / (1 + q * .85)), eps2 = 0.12 * 0.12;
+    const rot = [[tilt, 0], [-tilt * .7, 1.1]];
+    for (let i = 0; i < N; i++) {
+      const g = i < na ? 0 : 1, Mg = this.cm[g], Rmax = g ? 0.6 + 2.0 * Math.sqrt(q) : 2.6;
+      const r = 0.18 + Rmax * Math.pow(Math.random(), 0.8), th = Math.random() * Math.PI * 2;
+      const vc = Math.sqrt(Mg * r * r / Math.pow(r * r + eps2, 1.5)) * this.spin;
+      let lx = r * Math.cos(th), ly = r * Math.sin(th), lz = (Math.random() - .5) * .06;
+      let ux = -Math.sin(th) * vc, uy = Math.cos(th) * vc, uz = 0;
+      // eğim: x ekseni etrafında, sonra z etrafında
+      const [ta, tz] = rot[g], ca = Math.cos(ta), sa = Math.sin(ta), cz = Math.cos(tz), sz = Math.sin(tz);
+      let y2 = ly * ca - lz * sa, z2 = ly * sa + lz * ca; ly = y2; lz = z2;
+      y2 = uy * ca - uz * sa; z2 = uy * sa + uz * ca; uy = y2; uz = z2;
+      let x3 = lx * cz - ly * sz; ly = lx * sz + ly * cz; lx = x3;
+      x3 = ux * cz - uy * sz; uy = ux * sz + uy * cz; ux = x3;
+      const C = this.c[g], CV = this.cv[g], k = i * 3;
+      P[k] = C[0] + lx; P[k + 1] = C[1] + ly; P[k + 2] = C[2] + lz;
+      V[k] = CV[0] + ux; V[k + 1] = CV[1] + uy; V[k + 2] = CV[2] + uz;
+      S[i] = g * 2 + (r < Rmax * .32 ? 0 : 1);
+    }
+    if (!this.spr) this.spr = [sprite('255,238,214', 8), sprite('140,182,255', 8), sprite('255,214,170', 8), sprite('255,128,110', 8), sprite('255,240,220', 32)];
+    clear2d();
+  },
+  step(dt) {
+    const sub = 3, h = 0.012 * this.params.sp.v;
+    const P = this.P, V = this.V, N = this.N, c = this.c, cv = this.cv, m = this.cm, e2 = 0.12 * 0.12;
+    for (let s = 0; s < sub; s++) {
+      const dx = c[1][0] - c[0][0], dy = c[1][1] - c[0][1], dz = c[1][2] - c[0][2];
+      const r2 = dx * dx + dy * dy + dz * dz + 0.09, inv = 1 / (r2 * Math.sqrt(r2));
+      cv[0][0] += dx * m[1] * inv * h; cv[0][1] += dy * m[1] * inv * h; cv[0][2] += dz * m[1] * inv * h;
+      cv[1][0] -= dx * m[0] * inv * h; cv[1][1] -= dy * m[0] * inv * h; cv[1][2] -= dz * m[0] * inv * h;
+      for (let g = 0; g < 2; g++) for (let a = 0; a < 3; a++) c[g][a] += cv[g][a] * h;
+      const ax0 = c[0][0], ay0 = c[0][1], az0 = c[0][2], ax1 = c[1][0], ay1 = c[1][1], az1 = c[1][2], m0 = m[0], m1 = m[1];
+      for (let i = 0, k = 0; i < N; i++, k += 3) {
+        const px = P[k], py = P[k + 1], pz = P[k + 2];
+        let x0 = ax0 - px, y0 = ay0 - py, z0 = az0 - pz, q0 = x0 * x0 + y0 * y0 + z0 * z0 + e2;
+        let x1 = ax1 - px, y1 = ay1 - py, z1 = az1 - pz, q1 = x1 * x1 + y1 * y1 + z1 * z1 + e2;
+        const f0 = m0 / (q0 * Math.sqrt(q0)) * h, f1 = m1 / (q1 * Math.sqrt(q1)) * h;
+        V[k] += x0 * f0 + x1 * f1; V[k + 1] += y0 * f0 + y1 * f1; V[k + 2] += z0 * f0 + z1 * f1;
+        P[k] = px + V[k] * h; P[k + 1] = py + V[k + 1] * h; P[k + 2] = pz + V[k + 2] * h;
+      }
+    }
+    if (!ptr.down && !reduceMotion) this.cam.yaw += dt * 0.04;
+    tele.push(Math.hypot(c[1][0] - c[0][0], c[1][1] - c[0][1], c[1][2] - c[0][2]) );
+  },
+  project(x, y, z, out) {
+    const cam = this.cam, x1 = x * cam.c - y * cam.s, y1 = x * cam.s + y * cam.c;
+    const sy = y1 * cam.cp - z * cam.sp, d = y1 * cam.sp + z * cam.cp, D = 26;
+    const f = D / (D + d); if (f <= 0) return false;
+    const sc = Math.min(W, H) / 12 * cam.zoom * f;
+    out[0] = W / 2 + x1 * sc; out[1] = H / 2 + sy * sc; out[2] = f; return true;
+  },
+  draw() {
+    fade(.34); ctx.globalCompositeOperation = 'lighter'; camPrep(this.cam);
+    const P = this.P, S = this.S, spr = this.spr, o = this._o || (this._o = new Float32Array(3));
+    for (let i = 0, k = 0; i < this.N; i++, k += 3) {
+      if (!this.project(P[k], P[k + 1], P[k + 2], o)) continue;
+      const s = (S[i] & 1 ? 3.2 : 4.2) * o[2] * Math.sqrt(this.cam.zoom);
+      if (o[0] < -s || o[1] < -s || o[0] > W + s || o[1] > H + s) continue;
+      ctx.drawImage(spr[S[i]], o[0] - s / 2, o[1] - s / 2, s, s);
+    }
+    for (let g = 0; g < 2; g++) if (this.project(this.c[g][0], this.c[g][1], this.c[g][2], o)) {
+      const s = (g ? 34 : 46) * o[2] * Math.sqrt(this.cam.zoom); ctx.drawImage(spr[4], o[0] - s / 2, o[1] - s / 2, s, s);
+    }
+  },
+  drag(dx, dy) { this.cam.yaw += dx * 0.007; this.cam.pitch = clamp(this.cam.pitch + dy * 0.007, -1.55, 1.55); },
+  wheel(d) { this.cam.zoom = clamp(this.cam.zoom * Math.exp(-d * 0.0012), 0.3, 5); },
+  extra(el) {
+    el.innerHTML = `<span class="label">Disk dönüşü</span><div class="seg" id="spinSeg">
+      <button class="chip" type="button" data-s="1"><span class="sw" style="background:#8cb6ff"></span>Yörüngeyle aynı yönde</button>
+      <button class="chip" type="button" data-s="-1"><span class="sw" style="background:#ff806e"></span>Ters yönde</button></div>
+      <p class="figcap">Aynı yönde dönen diskler uzun gelgit kuyrukları bırakır; ters yönde dönenler çoğunlukla bütün kalır.</p>`;
+    const seg = el.querySelector('#spinSeg');
+    const sync = () => seg.querySelectorAll('.chip').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.s === this.spin)));
+    seg.addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; this.spin = +b.dataset.s; sync(); this.init(); tele.reset(); });
+    sync();
+  },
+};
+
+/* =====================================================================
+   3) TURING DESENLERİ  (Gray-Scott, WebGL2)
+   ===================================================================== */
+const VS = `#version 300 es
+layout(location=0) in vec2 p; out vec2 uv;
+void main(){ uv = p * .5 + .5; gl_Position = vec4(p, 0., 1.); }`;
+const FS_SIM = `#version 300 es
+precision highp float;
+uniform sampler2D s; uniform vec2 px; uniform float F, K, uMap, uBrush; uniform vec3 brush;
+in vec2 uv; out vec4 o;
+void main(){
+  vec2 c = texture(s, uv).rg;
+  vec2 l = -c
+    + .2 * (texture(s, uv + vec2(px.x, 0.)).rg + texture(s, uv - vec2(px.x, 0.)).rg
+          + texture(s, uv + vec2(0., px.y)).rg + texture(s, uv - vec2(0., px.y)).rg)
+    + .05 * (texture(s, uv + px).rg + texture(s, uv - px).rg
+           + texture(s, uv + vec2(px.x, -px.y)).rg + texture(s, uv + vec2(-px.x, px.y)).rg);
+  float f = F, k = K;
+  if (uMap > .5) { f = mix(.005, .09, uv.y); k = mix(.045, .07, uv.x); }
+  float a = c.r, b = c.g, abb = a * b * b;
+  a += l.r - abb + f * (1. - a);
+  b += .5 * l.g + abb - (k + f) * b;
+  if (uBrush > .5) {
+    vec2 d = (uv - brush.xy) / px;
+    if (dot(d, d) < brush.z * brush.z) { if (uBrush > 1.5) { a = 1.; b = 0.; } else { b = .9; } }
+  }
+  o = vec4(clamp(a, 0., 1.), clamp(b, 0., 1.), 0., 1.);
+}`;
+const FS_SHOW = `#version 300 es
+precision highp float;
+uniform sampler2D s; uniform vec2 px; uniform vec3 c0, c1, c2, c3;
+in vec2 uv; out vec4 o;
+vec3 pal(float t){ t = clamp(t, 0., 1.);
+  if (t < .33) return mix(c0, c1, t / .33);
+  if (t < .66) return mix(c1, c2, (t - .33) / .33);
+  return mix(c2, c3, (t - .66) / .34); }
+void main(){
+  float b = texture(s, uv).g;
+  float bx = texture(s, uv + vec2(px.x, 0.)).g - texture(s, uv - vec2(px.x, 0.)).g;
+  float by = texture(s, uv + vec2(0., px.y)).g - texture(s, uv - vec2(0., px.y)).g;
+  vec3 n = normalize(vec3(-bx * 5., -by * 5., 1.));
+  vec3 L = normalize(vec3(-.45, .55, .8));
+  float d = max(dot(n, L), 0.);
+  float sp = pow(max(dot(reflect(-L, n), vec3(0., 0., 1.)), 0.), 28.);
+  float t = smoothstep(0., .42, b);
+  o = vec4(pal(t) * (.6 + .5 * d) + sp * .38 * t, 1.);
+}`;
+const RD = {
+  id: 'turing', tab: 'Turing', title: 'Turing Desenleri', gl: true,
+  desc: 'Gray-Scott tepkime-difüzyon modeli: iki kimyasal yayılır ve birbirini tüketir. Turing’in 1952’de öngördüğü gibi düzgün bir karışımdan benekler, çizgiler ve labirentler doğar.',
+  hint: 'Sürükle: kimyasal ekle · Shift + sürükle: sil',
+  tele: { label: 'Desen kaplama oranı', unit: ' %', dec: 1 },
+  params: {
+    it: { label: 'Hız (adım / kare)', min: 1, max: 40, step: 1, v: 16 },
+    F: { label: 'Besleme oranı F', min: 0.005, max: 0.09, step: 0.0001, v: 0.0367, dec: 4 },
+    K: { label: 'Yok olma oranı k', min: 0.045, max: 0.07, step: 0.0001, v: 0.0649, dec: 4 },
+    res: { label: 'Hücre boyutu', min: 1, max: 4, step: 1, v: 2, unit: ' px', reinit: true },
+  },
+  presets: [
+    { n: 'Mitoz', F: .0367, K: .0649 }, { n: 'Mercan', F: .0545, K: .062 }, { n: 'Labirent', F: .029, K: .057 },
+    { n: 'Solucan', F: .078, K: .061 }, { n: 'Benek', F: .03, K: .062 }, { n: 'Spiral', F: .018, K: .051 },
+  ],
+  palettes: [
+    { n: 'Lav', c: [[.02, .02, .04], [.46, .05, .08], [.98, .46, .1], [1, .94, .72]] },
+    { n: 'Okyanus', c: [[.01, .03, .07], [.02, .25, .42], [.22, .8, .78], [.93, 1, .96]] },
+    { n: 'Mor ışık', c: [[.03, .01, .06], [.3, .08, .5], [.86, .36, .86], [1, .86, .95]] },
+    { n: 'Mürekkep', c: [[.93, .9, .84], [.62, .57, .52], [.19, .17, .21], [.05, .05, .08]] },
+  ],
+  pal: 0, map: false, preset: 0,
+  actions: [
+    { label: 'Yeni tohum', fn() { RD.init(); } },
+    { label: 'Harita modu', id: 'mapBtn', fn() { RD.map = !RD.map; RD.init(); RD.syncExtra(); } },
+  ],
+  glSetup() {
+    if (this.glx !== undefined) return !!this.glx;
+    const gl = glc.getContext('webgl2', { antialias: false, alpha: false, preserveDrawingBuffer: false });
+    if (!gl) { this.glx = null; return false; }
+    gl.getExtension('EXT_color_buffer_float'); gl.getExtension('EXT_color_buffer_half_float');
+    const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+    const prog = fs => { const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(p);
+      if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+      const u = {}; const n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS); for (let i = 0; i < n; i++) { const a = gl.getActiveUniform(p, i); u[a.name] = gl.getUniformLocation(p, a.name); } return { p, u }; };
+    try { this.sim = prog(FS_SIM); this.show = prog(FS_SHOW); } catch (e) { console.error(e); this.glx = null; return false; }
+    const vb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, vb);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    this.glx = gl; return true;
+  },
+  init() {
+    if (!this.glSetup()) { showMsg('Bu mod WebGL2 gerektiriyor; tarayıcın ya da cihazın desteklemiyor. Diğer modlar çalışmaya devam eder.'); return; }
+    const gl = this.glx, r = this.params.res.v, w = Math.max(32, Math.round(W / r)), h = Math.max(32, Math.round(H / r));
+    const data = new Float32Array(w * h * 4);
+    for (let i = 0; i < w * h; i++) { data[i * 4] = 1; data[i * 4 + 3] = 1; }
+    const seed = (cx, cy, rad) => {
+      for (let y = -rad; y <= rad; y++) for (let x = -rad; x <= rad; x++) {
+        if (x * x + y * y > rad * rad) continue;
+        const X = ((cx + x) % w + w) % w, Y = ((cy + y) % h + h) % h, k = (Y * w + X) * 4;
+        data[k] = .5; data[k + 1] = .25 + Math.random() * .1;
+      }
+    };
+    const count = this.map ? Math.round(w * h / 260) : 14 + Math.round(w * h / 9000);
+    for (let i = 0; i < count; i++) seed((Math.random() * w) | 0, (Math.random() * h) | 0, this.map ? 2 + (Math.random() * 3 | 0) : 3 + (Math.random() * 6 | 0));
+    if (this.tex) { this.tex.forEach(t => gl.deleteTexture(t)); this.fbo.forEach(f => gl.deleteFramebuffer(f)); }
+    this.tex = []; this.fbo = [];
+    for (let i = 0; i < 2; i++) {
+      const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, w, h, 0, gl.RGBA, gl.FLOAT, data);
+      const f = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, f);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0);
+      if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) { showMsg('Bu cihazın grafik birimi kayan noktalı dokulara çizim yapamıyor; Turing modu kullanılamıyor.'); this.ok = false; return; }
+      this.tex.push(t); this.fbo.push(f);
+    }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    this.sw = w; this.sh = h; this.cur = 0; this.ok = true; hideMsg();
+  },
+  step() {
+    if (!this.ok) return;
+    const gl = this.glx, S = this.sim, n = this.params.it.v;
+    gl.useProgram(S.p); gl.viewport(0, 0, this.sw, this.sh);
+    gl.uniform2f(S.u.px, 1 / this.sw, 1 / this.sh); gl.uniform1f(S.u.F, this.params.F.v); gl.uniform1f(S.u.K, this.params.K.v);
+    gl.uniform1f(S.u.uMap, this.map ? 1 : 0); gl.uniform1i(S.u.s, 0); gl.activeTexture(gl.TEXTURE0);
+    for (let i = 0; i < n; i++) {
+      const brush = i === 0 && ptr.down ? (ptr.shift ? 2 : 1) : 0;
+      gl.uniform1f(S.u.uBrush, brush);
+      if (brush) gl.uniform3f(S.u.brush, ptr.x / W, 1 - ptr.y / H, 14 / this.params.res.v);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbo[1 - this.cur]); gl.bindTexture(gl.TEXTURE_2D, this.tex[this.cur]);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); this.cur = 1 - this.cur;
+    }
+  },
+  draw() {
+    if (!this.ok) return;
+    const gl = this.glx, S = this.show, c = this.palettes[this.pal].c;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, glc.width, glc.height); gl.useProgram(S.p);
+    gl.uniform2f(S.u.px, 1 / this.sw, 1 / this.sh); gl.uniform1i(S.u.s, 0);
+    gl.uniform3fv(S.u.c0, c[0]); gl.uniform3fv(S.u.c1, c[1]); gl.uniform3fv(S.u.c2, c[2]); gl.uniform3fv(S.u.c3, c[3]);
+    gl.bindTexture(gl.TEXTURE_2D, this.tex[this.cur]); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    if (frame % 8 === 0) this.measure();
+  },
+  measure() {
+    const m = this._m || (this._m = document.createElement('canvas')); m.width = m.height = 40;
+    const g = this._mg || (this._mg = m.getContext('2d', { willReadFrequently: true }));
+    g.drawImage(glc, 0, 0, 40, 40);
+    const d = g.getImageData(0, 0, 40, 40).data, c0 = this.palettes[this.pal].c[0].map(v => v * 255); let on = 0;
+    for (let i = 0; i < d.length; i += 4) if (Math.abs(d[i] - c0[0]) + Math.abs(d[i + 1] - c0[1]) + Math.abs(d[i + 2] - c0[2]) > 90) on++;
+    tele.push(on / 16);
+  },
+  extra(el) {
+    el.innerHTML = `<span class="label">Hazır desenler</span><div class="seg" id="preSeg">${this.presets.map((p, i) => `<button class="chip" type="button" data-i="${i}">${p.n}</button>`).join('')}</div>
+      <span class="label">Renk paleti</span><div class="seg" id="palSeg">${this.palettes.map((p, i) => `<button class="chip" type="button" data-i="${i}"><span class="sw" style="background:rgb(${p.c[2].map(v => v * 255 | 0)})"></span>${p.n}</button>`).join('')}</div>
+      <span class="label">Pearson haritası · F – k uzayı</span><canvas class="figure" id="fk" height="170"></canvas>
+      <p class="figcap" id="fkCap">Haritaya tıklayarak F ve k değerini seç. Desenler yalnızca ölüm (sol üst) ile tekdüzelik (sağ alt) arasındaki ince şeritte yaşar.</p>`;
+    el.querySelector('#preSeg').addEventListener('click', e => {
+      const b = e.target.closest('.chip'); if (!b) return; const p = this.presets[+b.dataset.i];
+      this.preset = +b.dataset.i; setParam('F', p.F); setParam('K', p.K);
+      if (this.map) { this.map = false; this.init(); }
+      this.syncExtra();
+    });
+    el.querySelector('#palSeg').addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; this.pal = +b.dataset.i; this.syncExtra(); tele.reset(); });
+    const fk = el.querySelector('#fk');
+    fk.addEventListener('pointerdown', e => {
+      const r = fk.getBoundingClientRect(), L = this.fkBox(r.width, r.height);
+      const u = clamp((e.clientX - r.left - L.x) / L.w, 0, 1), v = clamp(1 - (e.clientY - r.top - L.y) / L.h, 0, 1);
+      setParam('K', +(0.045 + u * 0.025).toFixed(4)); setParam('F', +(0.005 + v * 0.085).toFixed(4));
+      this.preset = -1; if (this.map) { this.map = false; this.init(); } this.syncExtra();
+    });
+    this.syncExtra();
+  },
+  fkBox(w, h) { return { x: 34, y: 10, w: w - 44, h: h - 34 }; },
+  syncExtra() {
+    document.querySelectorAll('#preSeg .chip').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.i === this.preset && !this.map)));
+    document.querySelectorAll('#palSeg .chip').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.i === this.pal)));
+    const mb = document.querySelector('[data-act="mapBtn"]'); if (mb) mb.textContent = this.map ? 'Haritayı kapat' : 'Harita modu';
+    this.drawFK();
+  },
+  onParam(k) { if (k === 'F' || k === 'K') { this.preset = this.presets.findIndex(p => p.F === this.params.F.v && p.K === this.params.K.v); this.syncExtra(); } },
+  drawFK() {
+    const c = $('#fk'); if (!c) return;
+    const w = c.clientWidth, h = 170; c.width = w * DPR; c.height = h * DPR; c.style.height = h + 'px';
+    const g = c.getContext('2d'); g.setTransform(DPR, 0, 0, DPR, 0, 0); g.clearRect(0, 0, w, h);
+    const L = this.fkBox(w, h), X = k => L.x + (k - .045) / .025 * L.w, Y = f => L.y + (1 - (f - .005) / .085) * L.h;
+    g.strokeStyle = 'rgba(236,229,216,.07)'; g.lineWidth = 1;
+    for (let i = 0; i <= 5; i++) { const k = .045 + i * .005; g.beginPath(); g.moveTo(X(k), L.y); g.lineTo(X(k), L.y + L.h); g.stroke(); }
+    for (let i = 0; i <= 4; i++) { const f = .01 + i * .02; g.beginPath(); g.moveTo(L.x, Y(f)); g.lineTo(L.x + L.w, Y(f)); g.stroke(); }
+    // eyer-düğüm sınırı: k = √F / 2 − F  (bu eğrinin dışında yalnızca tekdüze durum kalır)
+    g.beginPath(); let on = false;
+    for (let i = 0; i <= 120; i++) { const f = .005 + i / 120 * .085, k = Math.sqrt(f) / 2 - f; if (k < .045 || k > .07) { on = false; continue; } on ? g.lineTo(X(k), Y(f)) : g.moveTo(X(k), Y(f)); on = true; }
+    g.strokeStyle = 'rgba(255,180,74,.55)'; g.setLineDash([3, 3]); g.stroke(); g.setLineDash([]);
+    g.font = '500 9px "IBM Plex Mono", monospace'; g.fillStyle = 'rgba(149,142,130,1)'; g.textBaseline = 'top'; g.textAlign = 'center';
+    for (let i = 0; i <= 5; i += 1) { const k = .045 + i * .005; g.textAlign = i === 5 ? 'right' : 'center'; g.fillText(trNum(k, 3), X(k) + (i === 5 ? 4 : 0), L.y + L.h + 5); }
+    g.textAlign = 'right'; g.textBaseline = 'middle';
+    for (let i = 0; i <= 4; i++) { const f = .01 + i * .02; g.fillText(trNum(f, 2), L.x - 5, Y(f)); }
+    g.fillStyle = 'rgba(236,229,216,.6)'; g.textAlign = 'right'; g.textBaseline = 'bottom'; g.fillText('k →', L.x + L.w - 3, L.y + L.h - 3);
+    g.textAlign = 'left'; g.textBaseline = 'top'; g.fillText('F ↑', L.x + 4, L.y + 3);
+    this.presets.forEach((p, i) => {
+      const x = X(p.K), y = Y(p.F); g.fillStyle = i === this.preset && !this.map ? '#ffb44a' : 'rgba(236,229,216,.75)';
+      g.beginPath(); g.arc(x, y, 2.6, 0, 7); g.fill();
+      g.font = '500 9.5px "Bricolage Grotesque", sans-serif'; g.textAlign = x > L.x + L.w - 50 ? 'right' : 'left'; g.textBaseline = 'middle';
+      g.fillText(p.n, x + (g.textAlign === 'right' ? -6 : 6), y);
+    });
+    if (this.map) {
+      g.strokeStyle = '#7cc8ff'; g.lineWidth = 1.5; g.strokeRect(L.x + .5, L.y + .5, L.w - 1, L.h - 1);
+      g.fillStyle = '#7cc8ff'; g.textAlign = 'center'; g.font = '500 10px "IBM Plex Mono", monospace'; g.fillText('tüm harita ekranda', L.x + L.w / 2, L.y + L.h / 2);
+    } else {
+      const x = X(this.params.K.v), y = Y(this.params.F.v);
+      g.strokeStyle = '#ffb44a'; g.lineWidth = 1; g.beginPath(); g.moveTo(x, L.y); g.lineTo(x, L.y + L.h); g.moveTo(L.x, y); g.lineTo(L.x + L.w, y); g.globalAlpha = .35; g.stroke(); g.globalAlpha = 1;
+      g.beginPath(); g.arc(x, y, 5, 0, 7); g.stroke();
+    }
+    const cap = $('#fkCap');
+    if (cap) cap.textContent = this.map
+      ? 'Harita modu: ekranın yatay ekseni k, dikey ekseni F. Her bölge kendi parametresiyle çalışıyor; desenlerin nerede doğduğunu tek bakışta görürsün.'
+      : 'Haritaya tıklayarak F ve k değerini seç. Kesikli eğri, tekdüze durumun kararsızlaştığı sınır; desenler bu sınırın hemen altında yaşar.';
+  },
+};
+
+/* =====================================================================
+   4) GARİP ÇEKİCİLER
+   ===================================================================== */
+const Att = {
+  id: 'cekici', tab: 'Çekici', title: 'Garip Çekiciler',
+  desc: 'Binlerce parçacık aynı kaotik denklemi izliyor. Başlangıçtaki küçük farklar hızla büyür, yine de bütün yörüngeler aynı karmaşık şeklin üzerinde kalır.',
+  hint: 'Sürükle: döndür · Tekerlek: yakınlaştır',
+  tele: { label: 'x(t) · tek bir izleyici parçacık', dec: 2 },
+  params: {
+    n: { label: 'Parçacık sayısı', min: 500, max: 12000, step: 250, v: 6000, reinit: true },
+    sp: { label: 'Zaman hızı', min: 0.2, max: 3, step: 0.1, v: 1, dec: 1, unit: '×' },
+    tr: { label: 'İz uzunluğu', min: 1, max: 10, step: 1, v: 7 },
+  },
+  sys: 'lorenz',
+  systems: {
+    lorenz: { n: 'Lorenz', dt: .006, start: [1, 1, 1], f(x, y, z, o) { o[0] = 10 * (y - x); o[1] = x * (28 - z) - y; o[2] = x * y - 8 / 3 * z; },
+      eq: 'dx/dt = σ(y − x)\ndy/dt = x(ρ − z) − y\ndz/dt = xy − βz\n<em>σ = 10   ρ = 28   β = 8/3</em>' },
+    aizawa: { n: 'Aizawa', dt: .012, start: [.1, 0, 0], f(x, y, z, o) { o[0] = (z - .7) * x - 3.5 * y; o[1] = 3.5 * x + (z - .7) * y; o[2] = .6 + .95 * z - z * z * z / 3 - (x * x + y * y) * (1 + .25 * z) + .1 * z * x * x * x; },
+      eq: 'dx/dt = (z − b)x − dy\ndy/dt = dx + (z − b)y\ndz/dt = c + az − z³/3 − (x² + y²)(1 + ez) + fzx³\n<em>a=.95 b=.7 c=.6 d=3.5 e=.25 f=.1</em>' },
+    thomas: { n: 'Thomas', dt: .05, start: [.1, 0, 0], f(x, y, z, o) { const b = .208186; o[0] = Math.sin(y) - b * x; o[1] = Math.sin(z) - b * y; o[2] = Math.sin(x) - b * z; },
+      eq: 'dx/dt = sin y − bx\ndy/dt = sin z − by\ndz/dt = sin x − bz\n<em>b = 0,208186</em>' },
+    halvorsen: { n: 'Halvorsen', dt: .006, start: [-1.48, -1.51, 2.04], f(x, y, z, o) { const a = 1.89; o[0] = -a * x - 4 * y - 4 * z - y * y; o[1] = -a * y - 4 * z - 4 * x - z * z; o[2] = -a * z - 4 * x - 4 * y - x * x; },
+      eq: 'dx/dt = −ax − 4y − 4z − y²\ndy/dt = −ay − 4z − 4x − z²\ndz/dt = −az − 4x − 4y − x²\n<em>a = 1,89</em>' },
+  },
+  cam: makeCam(0.6, 1.25),
+  init() {
+    const S = this.systems[this.sys], o = [0, 0, 0], k1 = [0, 0, 0];
+    let x = S.start[0], y = S.start[1], z = S.start[2]; const dt = S.dt;
+    const adv = () => { S.f(x, y, z, k1); S.f(x + k1[0] * dt / 2, y + k1[1] * dt / 2, z + k1[2] * dt / 2, o); x += o[0] * dt; y += o[1] * dt; z += o[2] * dt; };
+    for (let i = 0; i < 4000; i++) adv();
+    const POOL = 8000, pool = new Float32Array(POOL * 3); let mn = [1e9, 1e9, 1e9], mx = [-1e9, -1e9, -1e9];
+    for (let i = 0; i < POOL; i++) {
+      for (let s = 0; s < 5; s++) adv();
+      pool[i * 3] = x; pool[i * 3 + 1] = y; pool[i * 3 + 2] = z;
+      mn = [Math.min(mn[0], x), Math.min(mn[1], y), Math.min(mn[2], z)]; mx = [Math.max(mx[0], x), Math.max(mx[1], y), Math.max(mx[2], z)];
+    }
+    this.pool = pool; this.ctr = [(mn[0] + mx[0]) / 2, (mn[1] + mx[1]) / 2, (mn[2] + mx[2]) / 2];
+    this.ext = Math.max(mx[0] - mn[0], mx[1] - mn[1], mx[2] - mn[2]); this.sc = 2.1 / this.ext;
+    const N = this.N = this.params.n.v; this.P = new Float32Array(N * 3); this.C = new Uint8Array(N);
+    for (let i = 0; i < N; i++) this.respawn(i);
+    this.vmax = 1;
+    if (!this.spr) {
+      const stops = [[50, 70, 230], [70, 190, 255], [255, 190, 90], [255, 110, 90], [255, 236, 220]];
+      this.spr = []; for (let i = 0; i < 24; i++) this.spr.push(sprite(lerpRGB(stops, i / 23), 8));
+    }
+    clear2d();
+  },
+  respawn(i) {
+    const j = (Math.random() * (this.pool.length / 3)) | 0, e = this.ext * 1e-3, P = this.P;
+    P[i * 3] = this.pool[j * 3] + rand(-e, e); P[i * 3 + 1] = this.pool[j * 3 + 1] + rand(-e, e); P[i * 3 + 2] = this.pool[j * 3 + 2] + rand(-e, e);
+  },
+  step(dt) {
+    const S = this.systems[this.sys], h = S.dt * this.params.sp.v, P = this.P, C = this.C, N = this.N, o = this._o || (this._o = [0, 0, 0]), k = this._k || (this._k = [0, 0, 0]);
+    const lim = this.ext * 4; let vm = 0;
+    for (let s = 0; s < 2; s++) for (let i = 0, j = 0; i < N; i++, j += 3) {
+      const x = P[j], y = P[j + 1], z = P[j + 2];
+      S.f(x, y, z, k); S.f(x + k[0] * h / 2, y + k[1] * h / 2, z + k[2] * h / 2, o);
+      P[j] = x + o[0] * h; P[j + 1] = y + o[1] * h; P[j + 2] = z + o[2] * h;
+      if (s) {
+        const v = Math.hypot(o[0], o[1], o[2]); if (v > vm) vm = v;
+        C[i] = Math.min(23, (v / this.vmax * 23) | 0);
+        if (!(Math.abs(P[j] - this.ctr[0]) < lim && Math.abs(P[j + 1] - this.ctr[1]) < lim && Math.abs(P[j + 2] - this.ctr[2]) < lim)) this.respawn(i);
+      }
+    }
+    this.vmax = this.vmax * .95 + vm * .05;
+    if (!ptr.down && !reduceMotion) this.cam.yaw += dt * 0.12;
+    tele.push((P[0] - this.ctr[0]) * this.sc);
+  },
+  draw() {
+    fade(0.33 - this.params.tr.v * 0.03); ctx.globalCompositeOperation = 'lighter'; camPrep(this.cam);
+    const cam = this.cam, P = this.P, C = this.C, spr = this.spr, cx = this.ctr[0], cy = this.ctr[1], cz = this.ctr[2], sc = this.sc;
+    const base = Math.min(W, H) * .42 * cam.zoom, D = 4.5, sz = 3.2 * Math.sqrt(cam.zoom);
+    for (let i = 0, j = 0; i < this.N; i++, j += 3) {
+      const x = (P[j] - cx) * sc, y = (P[j + 1] - cy) * sc, z = (P[j + 2] - cz) * sc;
+      const x1 = x * cam.c - y * cam.s, d1 = x * cam.s + y * cam.c;
+      const up = z * cam.cp - d1 * cam.sp, dep = z * cam.sp + d1 * cam.cp, f = D / (D + dep);
+      if (f <= 0) continue;
+      const s = sz * f; ctx.drawImage(spr[C[i]], W / 2 + x1 * base * f - s / 2, H / 2 - up * base * f - s / 2, s, s);
+    }
+  },
+  drag(dx, dy) { this.cam.yaw += dx * 0.007; this.cam.pitch = clamp(this.cam.pitch - dy * 0.007, -1.55, 1.55); },
+  wheel(d) { this.cam.zoom = clamp(this.cam.zoom * Math.exp(-d * 0.0012), 0.3, 5); },
+  extra(el) {
+    el.innerHTML = `<span class="label">Sistem</span><div class="seg" id="sysSeg">${Object.entries(this.systems).map(([k, s]) => `<button class="chip" type="button" data-k="${k}">${s.n}</button>`).join('')}</div>
+      <pre class="eq" id="eq"></pre>
+      <p class="figcap">Renk anlık hızı gösterir: mavi yavaş, sıcak tonlar hızlı.</p>`;
+    const seg = el.querySelector('#sysSeg');
+    const sync = () => { seg.querySelectorAll('.chip').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.k === this.sys))); el.querySelector('#eq').innerHTML = this.systems[this.sys].eq; };
+    seg.addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; this.sys = b.dataset.k; sync(); this.init(); tele.reset(); });
+    sync();
+  },
+};
+
+/* =====================================================================
+   5) SÜRÜ  (Reynolds boids)
+   ===================================================================== */
+const Boids = {
+  id: 'suru', tab: 'Sürü', title: 'Sığırcık Sürüsü',
+  desc: 'Her kuş yalnızca üç kurala uyar: komşularına çarpma, onlarla aynı yöne uç, grubun ortasına yaklaş. Lider yok, ama sürü tek bir canlı gibi dalgalanır.',
+  hint: 'İmleç bir yırtıcıdır: kuşlar ondan kaçar · Basılı tut: daha geniş korku alanı',
+  tele: { label: 'Düzen parametresi φ', dec: 2, range: [0, 1] },
+  params: {
+    n: { label: 'Kuş sayısı', min: 100, max: 3000, step: 50, v: 1400, reinit: true },
+    r: { label: 'Görüş yarıçapı', min: 15, max: 110, step: 1, v: 44, unit: ' px' },
+    sep: { label: 'Ayrılma', min: 0, max: 3, step: 0.05, v: 1.6, dec: 2 },
+    ali: { label: 'Hizalanma', min: 0, max: 3, step: 0.05, v: 1.0, dec: 2 },
+    coh: { label: 'Birleşme', min: 0, max: 3, step: 0.05, v: 0.9, dec: 2 },
+    vmax: { label: 'Azami hız', min: 1, max: 8, step: 0.1, v: 3.6, dec: 1, unit: ' px/kare' },
+  },
+  g: {},
+  init() {
+    const N = this.N = this.params.n.v;
+    this.x = new Float32Array(N); this.y = new Float32Array(N); this.vx = new Float32Array(N); this.vy = new Float32Array(N);
+    this.ax = new Float32Array(N); this.ay = new Float32Array(N);
+    for (let i = 0; i < N; i++) { this.x[i] = Math.random() * W; this.y[i] = Math.random() * H; const a = Math.random() * 6.283; this.vx[i] = Math.cos(a) * 2; this.vy[i] = Math.sin(a) * 2; }
+    if (!this.col) { this.col = []; for (let i = 0; i < 24; i++) this.col.push(`rgb(${hsl(i * 15 + 20, .72, .64)})`); }
+    clear2d();
+  },
+  resize(ow, oh) { Life.resize.call(this, ow, oh); },
+  step(dt) {
+    const N = this.N, x = this.x, y = this.y, vx = this.vx, vy = this.vy, AX = this.ax, AY = this.ay;
+    const r = this.params.r.v, r2 = r * r, rs2 = (r * .42) ** 2, vmax = this.params.vmax.v;
+    const wS = this.params.sep.v, wA = this.params.ali.v, wC = this.params.coh.v, kt = clamp(dt * 60, 0.2, 2);
+    const g = this.g; gridBuild(g, x, y, N, r);
+    const st = g.start, ord = g.order, co = g.cellOf, hw = W / 2, hh = H / 2;
+    const pr = ptr.down ? 230 : 130, pa = ptr.active;
+    for (let i = 0; i < N; i++) {
+      const xi = x[i], yi = y[i]; let n = 0, sx = 0, sy = 0, avx = 0, avy = 0, cx = 0, cy = 0;
+      const nn = gridNeighbors(g, co[i], NB);
+      for (let q = 0; q < nn; q++) {
+        const c = NB[q], e = st[c + 1];
+        for (let s = st[c]; s < e; s++) {
+          const j = ord[s]; if (j === i) continue;
+          let dx = x[j] - xi, dy = y[j] - yi;
+          if (dx > hw) dx -= W; else if (dx < -hw) dx += W;
+          if (dy > hh) dy -= H; else if (dy < -hh) dy += H;
+          const d2 = dx * dx + dy * dy;
+          if (d2 < r2) { n++; avx += vx[j]; avy += vy[j]; cx += dx; cy += dy; if (d2 < rs2 && d2 > 1e-3) { sx -= dx / d2; sy -= dy / d2; } }
+        }
+      }
+      let fx = 0, fy = 0;
+      if (n) {
+        let m = Math.hypot(avx, avy); if (m > 0) { fx += (avx / m * vmax - vx[i]) * .045 * wA; fy += (avy / m * vmax - vy[i]) * .045 * wA; }
+        m = Math.hypot(cx, cy); if (m > 0) { fx += (cx / m * vmax - vx[i]) * .014 * wC; fy += (cy / m * vmax - vy[i]) * .014 * wC; }
+        m = Math.hypot(sx, sy); if (m > 0) { fx += (sx / m * vmax - vx[i]) * .1 * wS; fy += (sy / m * vmax - vy[i]) * .1 * wS; }
+      }
+      if (pa) {
+        let dx = xi - ptr.x, dy = yi - ptr.y; const d = Math.hypot(dx, dy) + 1e-3;
+        if (d < pr) { const s = 1.4 * (1 - d / pr); fx += dx / d * s; fy += dy / d * s; }
+      }
+      AX[i] = fx; AY[i] = fy;
+    }
+    let px = 0, py = 0;
+    for (let i = 0; i < N; i++) {
+      vx[i] += AX[i] * kt; vy[i] += AY[i] * kt;
+      let s = Math.hypot(vx[i], vy[i]) || 1e-3; const lim = clamp(s, vmax * .45, ptr.active ? vmax * 1.6 : vmax);
+      vx[i] = vx[i] / s * lim; vy[i] = vy[i] / s * lim;
+      x[i] += vx[i] * kt; y[i] += vy[i] * kt;
+      if (x[i] < 0) x[i] += W; else if (x[i] >= W) x[i] -= W;
+      if (y[i] < 0) y[i] += H; else if (y[i] >= H) y[i] -= H;
+      px += vx[i] / lim; py += vy[i] / lim;
+    }
+    tele.push(Math.hypot(px, py) / N);
+  },
+  draw() {
+    fade(.3); ctx.globalCompositeOperation = 'lighter';
+    const paths = this._p = []; for (let b = 0; b < 24; b++) paths.push(new Path2D());
+    const x = this.x, y = this.y, vx = this.vx, vy = this.vy, L = 7, Wd = 2.6;
+    for (let i = 0; i < this.N; i++) {
+      const s = Math.hypot(vx[i], vy[i]) || 1, ux = vx[i] / s, uy = vy[i] / s;
+      let b = Math.floor((Math.atan2(uy, ux) + Math.PI) / (2 * Math.PI) * 24); if (b > 23) b = 23;
+      const p = paths[b], X = x[i], Y = y[i];
+      p.moveTo(X + ux * L, Y + uy * L); p.lineTo(X - ux * L * .6 - uy * Wd, Y - uy * L * .6 + ux * Wd); p.lineTo(X - ux * L * .6 + uy * Wd, Y - uy * L * .6 - ux * Wd); p.closePath();
+    }
+    ctx.globalAlpha = .9; for (let b = 0; b < 24; b++) { ctx.fillStyle = this.col[b]; ctx.fill(paths[b]); } ctx.globalAlpha = 1;
+    if (ptr.active) {
+      ctx.globalCompositeOperation = 'source-over'; ctx.strokeStyle = 'rgba(255,96,96,.5)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(ptr.x, ptr.y, ptr.down ? 230 : 130, 0, 7); ctx.stroke();
+    }
+  },
+  extra(el) {
+    el.innerHTML = `<span class="label">Okuma kılavuzu</span>
+      <p class="figcap">Renk uçuş yönünü gösterir; aynı renkteki kuşlar aynı yöne uçuyor. Aşağıdaki φ değeri 0’a yakınsa sürü dağınık, 1’e yakınsa herkes tek bir yöne akıyor. Hizalanmayı sıfıra çekip φ’nin çöküşünü izle.</p>`;
+  },
+};
+
+/* ---------- telemetri (canlı çizgi grafik) ---------- */
+const tele = {
+  buf: new Float32Array(300), n: 0, i: 0,
+  push(v) { if (!isFinite(v)) return; this.buf[this.i] = v; this.i = (this.i + 1) % this.buf.length; this.n = Math.min(this.n + 1, this.buf.length); this.last = v; },
+  reset() { this.n = 0; this.i = 0; this.last = undefined; },
+  draw() {
+    const c = $('#spark'), w = c.clientWidth, h = 64; if (!w) return;
+    if (c.width !== Math.round(w * DPR)) { c.width = Math.round(w * DPR); c.height = h * DPR; }
+    const g = c.getContext('2d'); g.setTransform(DPR, 0, 0, DPR, 0, 0); g.clearRect(0, 0, w, h);
+    const T = mode.tele; $('#teleVal').textContent = this.last == null ? '—' : trNum(this.last, T.dec) + (T.unit || '');
+    g.strokeStyle = 'rgba(236,229,216,.06)'; g.lineWidth = 1;
+    for (let k = 1; k < 4; k++) { g.beginPath(); g.moveTo(0, k * h / 4 + .5); g.lineTo(w, k * h / 4 + .5); g.stroke(); }
+    if (this.n < 2) return;
+    let lo = Infinity, hi = -Infinity;
+    for (let k = 0; k < this.n; k++) { const v = this.buf[(this.i - this.n + k + this.buf.length) % this.buf.length]; if (v < lo) lo = v; if (v > hi) hi = v; }
+    if (T.range) { lo = T.range[0]; hi = T.range[1]; } else { const pad = (hi - lo) * .12 || Math.abs(hi) * .1 || 1; lo -= pad; hi += pad; }
+    const N = this.buf.length, X = k => (k + (N - this.n)) / (N - 1) * w, Y = v => 6 + (1 - (v - lo) / (hi - lo)) * (h - 12);
+    g.beginPath();
+    for (let k = 0; k < this.n; k++) { const v = this.buf[(this.i - this.n + k + N) % N]; k ? g.lineTo(X(k), Y(v)) : g.moveTo(X(k), Y(v)); }
+    const grd = g.createLinearGradient(0, 0, 0, h); grd.addColorStop(0, 'rgba(255,180,74,.28)'); grd.addColorStop(1, 'rgba(255,180,74,0)');
+    g.lineWidth = 1.5; g.strokeStyle = '#ffb44a'; g.lineJoin = 'round'; g.stroke();
+    g.lineTo(X(this.n - 1), h); g.lineTo(X(0), h); g.closePath(); g.fillStyle = grd; g.fill();
+    const ex = X(this.n - 1), ey = Y(this.last);
+    g.fillStyle = '#ffb44a'; g.beginPath(); g.arc(ex - 2, ey, 3, 0, 7); g.fill();
+    g.fillStyle = 'rgba(149,142,130,1)'; g.font = '500 9px "IBM Plex Mono", monospace'; g.textAlign = 'left'; g.textBaseline = 'top';
+    g.fillText(trNum(hi, T.dec), 4, 3); g.textBaseline = 'bottom'; g.fillText(trNum(lo, T.dec), 4, h - 2);
+  },
+};
+
+/* ---------- arayüz ---------- */
+const MODES = [Life, Gal, RD, Att, Boids];
+function showMsg(t) { const m = $('#msg'); m.textContent = t; m.hidden = false; }
+function hideMsg() { $('#msg').hidden = true; }
+function fmt(p) { return trNum(p.v, p.dec) + (p.unit || ''); }
+function fillPct(p) { return ((p.v - p.min) / (p.max - p.min) * 100).toFixed(1) + '%'; }
+function setParam(k, v) { const p = mode.params[k]; p.v = v; if (p.el) { p.el.value = v; p.out.textContent = fmt(p); p.el.style.setProperty('--fill', fillPct(p)); } }
+
+function buildTabs() {
+  const t = $('#tabs');
+  t.innerHTML = MODES.map((m, i) => `<button class="tab" type="button" role="tab" data-i="${i}" id="tab-${m.id}"><b>${i + 1}</b>${m.tab}</button>`).join('');
+  t.addEventListener('click', e => { const b = e.target.closest('.tab'); if (b) setMode(+b.dataset.i); });
+}
+function buildUI() {
+  $('#mTitle').textContent = mode.title; $('#mDesc').textContent = mode.desc; $('#hint').textContent = mode.hint;
+  $('#teleLabel').textContent = mode.tele.label;
+  document.querySelectorAll('.tab').forEach((b, i) => b.setAttribute('aria-selected', String(MODES[i] === mode)));
+  const c = $('#controls'); c.innerHTML = '';
+  for (const [k, p] of Object.entries(mode.params)) {
+    const id = `p-${mode.id}-${k}`, row = document.createElement('div'); row.className = 'ctl';
+    row.innerHTML = `<div class="row"><label for="${id}">${p.label}</label><output for="${id}"></output></div><input type="range" id="${id}" min="${p.min}" max="${p.max}" step="${p.step}">`;
+    const inp = row.querySelector('input'), out = row.querySelector('output');
+    inp.value = p.v; out.textContent = fmt(p); inp.style.setProperty('--fill', fillPct(p)); p.el = inp; p.out = out;
+    inp.addEventListener('input', () => { p.v = +inp.value; out.textContent = fmt(p); inp.style.setProperty('--fill', fillPct(p)); if (!p.reinit) mode.onParam?.(k); });
+    inp.addEventListener('change', () => { if (p.reinit) { mode.init(); tele.reset(); if (k === 'k' && mode === Life) Life.drawMatrix(); } });
+    c.appendChild(row);
+  }
+  const ex = $('#extra'); ex.innerHTML = ''; ex.hidden = !mode.extra; mode.extra?.(ex);
+  const a = $('#actions'); a.querySelectorAll('.btn.mode').forEach(b => b.remove());
+  (mode.actions || []).forEach(act => {
+    const b = document.createElement('button'); b.className = 'btn mode'; b.type = 'button'; b.textContent = act.label;
+    if (act.id) b.dataset.act = act.id; b.addEventListener('click', () => { act.fn(); tele.reset(); }); a.appendChild(b);
+  });
+  mode.syncExtra?.();
+}
+function setMode(i) {
+  const next = MODES[i]; if (!next || next === mode) return;
+  mode = next; hideMsg(); tele.reset();
+  glc.hidden = !mode.gl; cv.hidden = !!mode.gl;
+  clear2d(); mode.init(); buildUI();
+  try { history.replaceState(null, '', '#' + mode.id); } catch (e) {}
+}
+function setPaused(p) { paused = p; $('#pauseBtn').textContent = p ? 'Devam et' : 'Duraklat'; $('#pausedTag').hidden = !p; }
+
+function resize() {
+  const ow = W, oh = H;
+  DPR = Math.min(2, window.devicePixelRatio || 1); W = Math.max(1, view.clientWidth); H = Math.max(1, view.clientHeight);
+  cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR); ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  glc.width = Math.round(W * Math.min(DPR, 1.5)); glc.height = Math.round(H * Math.min(DPR, 1.5));
+  if (!mode) return;
+  clear2d();
+  if (mode.resize && ow > 1) mode.resize(ow, oh);
+  else { clearTimeout(resize.t); resize.t = setTimeout(() => mode.init(), 160); }
+  redrawFigures();
+}
+
+/* ---------- giriş ---------- */
+function setXY(e) { const r = view.getBoundingClientRect(); ptr.x = e.clientX - r.left; ptr.y = e.clientY - r.top; }
+view.addEventListener('pointerdown', e => {
+  setXY(e); ptr.px = ptr.x; ptr.py = ptr.y; ptr.down = true; ptr.active = true; ptr.shift = e.shiftKey || e.button === 2;
+  try { view.setPointerCapture(e.pointerId); } catch (_) {}
+});
+view.addEventListener('pointermove', e => {
+  setXY(e); if (e.pointerType === 'mouse') ptr.active = true;
+  if (ptr.down) { ptr.shift = e.shiftKey || ptr.shift; mode.drag?.(ptr.x - ptr.px, ptr.y - ptr.py); }
+  ptr.px = ptr.x; ptr.py = ptr.y;
+});
+const up = e => { ptr.down = false; ptr.shift = false; if (e.pointerType !== 'mouse') ptr.active = false; };
+view.addEventListener('pointerup', up); view.addEventListener('pointercancel', up);
+view.addEventListener('pointerleave', () => { if (!ptr.down) ptr.active = false; });
+view.addEventListener('contextmenu', e => e.preventDefault());
+view.addEventListener('wheel', e => { if (mode.wheel) { e.preventDefault(); mode.wheel(e.deltaY); } }, { passive: false });
+addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const tag = e.target.tagName;
+  if (e.key === ' ' && tag !== 'INPUT') { e.preventDefault(); setPaused(!paused); }
+  else if (e.key === 'r' || e.key === 'R') { mode.init(); tele.reset(); }
+  else if (e.key === 'h' || e.key === 'H') togglePanel();
+  else if (/^[1-5]$/.test(e.key)) setMode(+e.key - 1);
+});
+function togglePanel() { const p = $('#panel'), hidden = !p.classList.toggle('gone'); $('#showPanel').hidden = hidden; redrawFigures(); }
+function redrawFigures() { if (mode === Life) Life.drawMatrix(); if (mode === RD) RD.drawFK(); }
+$('#hide').addEventListener('click', togglePanel); $('#showPanel').addEventListener('click', togglePanel);
+$('#collapse').addEventListener('click', () => { const c = $('#panel').classList.toggle('collapsed'); $('#collapse').textContent = c ? '+' : '–'; $('#collapse').setAttribute('aria-label', c ? 'Paneli genişlet' : 'Paneli daralt'); redrawFigures(); });
+$('#pauseBtn').addEventListener('click', () => setPaused(!paused));
+$('#resetBtn').addEventListener('click', () => { mode.init(); tele.reset(); });
+addEventListener('resize', resize);
+
+/* ---------- ana döngü ---------- */
+let last = performance.now(), fpsT = last, fpsN = 0;
+function loop(t) {
+  requestAnimationFrame(loop);
+  const dt = Math.min(0.05, (t - last) / 1000); last = t; frame++;
+  fpsN++; if (t - fpsT > 500) { $('#fps').textContent = Math.round(fpsN * 1000 / (t - fpsT)) + ' fps'; fpsT = t; fpsN = 0; }
+  if (!paused) { mode.step(dt); mode.draw(); }
+  if (frame % 2 === 0) tele.draw();
+}
+
+buildTabs();
+resize();
+const start = Math.max(0, MODES.findIndex(m => '#' + m.id === location.hash));
+setMode(start);
+if (innerWidth <= 720) { $('#panel').classList.add('collapsed'); $('#collapse').textContent = '+'; }
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
