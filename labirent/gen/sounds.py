@@ -276,6 +276,32 @@ def tension():
     return reverb(drone + air, 0.6, 3.0)
 
 
+def griever_scream(v):
+    """a long rising shriek: screaming throat over grinding metal, ending in a rattle"""
+    d = 2.2 + v * 0.25
+    n = int(d * SR)
+    t = T(d)
+    base = [520, 610, 440, 700][v]
+    f = base * (1 + 0.35 * np.clip(t / 0.5, 0, 1)) * (1 + 0.04 * np.sin(2 * np.pi * (7 + v) * t)) * (1 - 0.25 * np.clip((t - d * 0.6) / (d * 0.4), 0, 1))
+    voice = formant(osc(f, 'saw'), 'e') * 0.9 + formant(osc(f * 1.5, 'saw'), 'a') * 0.45
+    grit = bp(noise(d), 1500, 6000) * 0.5 * (0.6 + 0.4 * np.sin(2 * np.pi * 31 * t))
+    metal = osc(f * 2.7 + 90 * np.sin(2 * np.pi * 5 * t), 'sine') * 0.18
+    rattle_ = rattle(n, 26 + v * 4, 0.9) * bp(noise(d), 600, 3000) * 0.35 * np.clip((t - d * 0.55) / (d * 0.3), 0, 1)
+    x = (voice + grit + metal + rattle_) * env(n, 0.06, d * 0.55, 1.1)
+    sub = boom(d, 90, 50, 0.5) * 0.4
+    return reverb(np.clip(x * 1.3, -1.2, 1.2) + sub, 0.55, 2.5)
+
+
+def griever_chase(v):
+    """short clicking shrieks while hunting"""
+    d = 0.9
+    n = int(d * SR)
+    t = T(d)
+    f = 820 + v * 140 + 260 * np.sin(2 * np.pi * 3 * t)
+    x = formant(osc(f, 'saw'), 'e') * env(n, 0.01, 0.3, 1.5) + crackle(d, 140) * 0.7 * env(n, 0.005, 0.5)
+    return reverb(x, 0.4, 1.6)
+
+
 os.makedirs(OUT, exist_ok=True)
 SOUNDS = {
     'wall_grind': [wall_grind()], 'door_close': [door_close()], 'door_slam': [door_slam()], 'door_open': [door_open()],
@@ -286,7 +312,7 @@ SOUNDS = {
     'maze_ambient': [maze_ambient(v) for v in (0, 1)], 'serum_inject': [serum_inject()], 'terminal_beep': [terminal_beep()],
     'escape': [escape()], 'wind_gust': [wind_gust(v) for v in (0, 1, 2)], 'heartbeat': [heartbeat()],
     'distant_cry': [distant_cry(v) for v in (0, 1, 2)], 'birds': [birds(v) for v in (0, 1)], 'crickets': [crickets()],
-    'tension': [tension()],
+    'tension': [tension()], 'griever_scream': [griever_scream(v) for v in range(4)], 'griever_chase': [griever_chase(v) for v in range(3)],
 }
 STREAM = {'box_rise', 'door_close', 'door_open', 'escape', 'maze_ambient', 'tension'}
 index = {}

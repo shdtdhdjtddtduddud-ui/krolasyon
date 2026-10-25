@@ -28,7 +28,9 @@ public final class Hud {
             g.fill(x0 - 2, y0 - 2, x0 + size + 2, y0 + size + 2, 0xFF2A2418);
             g.fill(x0 - 1, y0 - 1, x0 + size + 1, y0 + size + 1, 0xFF8C7A55);
             g.enableScissor(x0, y0, x0 + size, y0 + size);
-            MapRenderer.draw(g, x0, y0, size, size, mc.player.getX(), mc.player.getZ(), 1.0F, false);
+            int pbx = mc.player.getBlockX(), pbz = mc.player.getBlockZ();
+            g.blit(MinimapTexture.get(pbx, pbz), x0, y0, 0, 0, size, size, MinimapTexture.SIZE, MinimapTexture.SIZE);
+            MapRenderer.overlay(g, x0, y0, size, size, pbx + 0.5, pbz + 0.5, 1.0F, false);
             g.disableScissor();
             Font f = mc.font;
             g.drawString(f, "K", x0 + size / 2 - 2, y0 + 2, 0xFFFFFFFF, true);

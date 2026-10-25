@@ -241,5 +241,36 @@
         "stream": true
       }
     ]
+  },
+  "griever_scream": {
+    "subtitle": "subtitles.labirent.griever_scream",
+    "sounds": [
+      {
+        "name": "labirent:griever_scream1"
+      },
+      {
+        "name": "labirent:griever_scream2"
+      },
+      {
+        "name": "labirent:griever_scream3"
+      },
+      {
+        "name": "labirent:griever_scream4"
+      }
+    ]
+  },
+  "griever_chase": {
+    "subtitle": "subtitles.labirent.griever_chase",
+    "sounds": [
+      {
+        "name": "labirent:griever_chase1"
+      },
+      {
+        "name": "labirent:griever_chase2"
+      },
+      {
+        "name": "labirent:griever_chase3"
+      }
+    ]
   }
 }

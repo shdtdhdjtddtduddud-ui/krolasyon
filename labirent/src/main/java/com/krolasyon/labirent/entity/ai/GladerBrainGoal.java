@@ -69,8 +69,18 @@ public class GladerBrainGoal extends Goal {
             g.getNavigation().stop();
             return;
         }
+        if (g.stumbling()) {
+            g.getNavigation().stop();
+            return;
+        }
+        long now = level.getGameTime();
+        if (g.social().tick(level, now)) {
+            nav.stop();
+            return;
+        }
         nav.tick();
         if (++think % 10 != 0) return;
+        if (think % 40 == 0 && g.getOrder() == GladerEntity.Order.WORK && !running) g.social().consider(level, now, night, dusk);
 
         switch (g.getOrder()) {
             case FOLLOW -> { follow(level); return; }
@@ -120,7 +130,61 @@ public class GladerBrainGoal extends Goal {
             sleep(level);
             return;
         }
-        if (++jobTimer % 2 == 0) Jobs.work(g, level, m);
+        if (++jobTimer % 2 == 0) {
+            if (!idleStyle(level, m)) Jobs.work(g, level, m);
+        }
+    }
+
+    /** personality shows when there is a spare moment; returns true if it took over this tick */
+    private boolean idleStyle(ServerLevel level, MazeManager m) {
+        Personality per = g.personality();
+        net.minecraft.util.RandomSource r = g.getRandom();
+        switch (per.idle) {
+            case TAG_ALONG -> {
+                // Chuck tags along after the captain (or anyone) when they are around
+                Player p = level.getNearestPlayer(g, 18);
+                if (p != null && Glade.inside(p.getX(), p.getZ()) && (jobTimer / 30) % 3 != 0) {
+                    double d = g.distanceToSqr(p);
+                    if (d > 4.5 * 4.5) g.getNavigation().moveTo(p, d > 100 ? 1.3 : 1.0);
+                    else {
+                        g.getNavigation().stop();
+                        g.getLookControl().setLookAt(p);
+                    }
+                    return true;
+                }
+            }
+            case BROOD -> {
+                // Gally keeps his distance from the captain and stares
+                Player cap = m.state.captain == null ? null : level.getPlayerByUUID(m.state.captain);
+                if (cap != null && g.distanceToSqr(cap) < 5 * 5) {
+                    net.minecraft.world.phys.Vec3 away = g.position().subtract(cap.position()).normalize().scale(6);
+                    g.getNavigation().moveTo(g.getX() + away.x, g.getY(), g.getZ() + away.z, 0.9);
+                    g.getLookControl().setLookAt(cap);
+                    return true;
+                }
+                if (cap != null && g.distanceToSqr(cap) < 14 * 14 && r.nextInt(4) == 0) {
+                    g.getLookControl().setLookAt(cap);
+                }
+            }
+            case JOG -> {
+                // Minho never sits still: laps around the Glade when not in the maze
+                if (g.getRole() == Role.KOSUCU && r.nextInt(3) == 0 && g.getNavigation().isDone()) {
+                    int corner = (jobTimer / 6) % 4;
+                    int[][] c = {{-22, -2}, {-2, 22}, {22, -2}, {-2, -22}};
+                    g.getNavigation().moveTo(c[corner][0] + 0.5, Glade.Y, c[corner][1] + 0.5, 1.15);
+                    return true;
+                }
+            }
+            case PATROL -> {
+                if (r.nextInt(5) == 0 && g.getNavigation().isDone() && g.getRole() != Role.SIFACI) {
+                    BlockPos d = Glade.doorInside(r.nextInt(4));
+                    g.getNavigation().moveTo(d.getX() + 0.5, d.getY(), d.getZ() + 0.5, 0.9);
+                    return true;
+                }
+            }
+            default -> {}
+        }
+        return false;
     }
 
     // ------------------------------------------------------------------ helpers

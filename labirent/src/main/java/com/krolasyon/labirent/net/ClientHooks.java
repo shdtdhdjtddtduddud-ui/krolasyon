@@ -31,6 +31,18 @@ public final class ClientHooks {
 
     static void state(Net.State s) { ClientState.state = s; }
 
+    static void speech(Net.Speech m) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return;
+        ClientState.bubbles.put(m.entityId(), new ClientState.Bubble(m.text(), mc.level.getGameTime()));
+    }
+
+    static void stumble(Net.Stumble m) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return;
+        ClientState.stumbles.put(m.entityId(), new ClientState.Fall(m.kind(), mc.level.getGameTime(), m.ticks()));
+    }
+
     static void cinematic(Net.Cinematic c) {
         ClientState.cinematic = c.id();
         ClientState.cinematicTicks = 0;

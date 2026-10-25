@@ -37,6 +37,8 @@ public final class ModSounds {
     public static final RegistryObject<SoundEvent> BIRDS = reg("birds");
     public static final RegistryObject<SoundEvent> CRICKETS = reg("crickets");
     public static final RegistryObject<SoundEvent> TENSION = reg("tension");
+    public static final RegistryObject<SoundEvent> GRIEVER_SCREAM = reg("griever_scream");
+    public static final RegistryObject<SoundEvent> GRIEVER_CHASE = reg("griever_chase");
 
     private static RegistryObject<SoundEvent> reg(String name) {
         return SOUNDS.register(name, () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(Labirent.MODID, name)));

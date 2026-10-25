@@ -1,6 +1,7 @@
 plugins {
     id 'eclipse'
     id 'net.minecraftforge.gradle' version '[6.0.16,6.2)'
+    id 'org.spongepowered.mixin' version '0.7.+'
 }
 
 version = '1.0.0'
@@ -29,6 +30,7 @@ minecraft {
 }
 
 repositories {
+    maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
     maven {
         url = 'https://api.modrinth.com/maven'
         content { includeGroup 'maven.modrinth' }
@@ -37,6 +39,7 @@ repositories {
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.2.0'
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     // only for the CI shader screenshot run: gradle runClient -PoculusVer=... -PembeddiumVer=...
     if (project.hasProperty('oculusVer')) {
         runtimeOnly fg.deobf("maven.modrinth:embeddium:${project.embeddiumVer}")
@@ -51,13 +54,18 @@ tasks.register('shaderZip', Zip) {
 }
 tasks.named('build').configure { dependsOn 'shaderZip' }
 
+mixin {
+    add sourceSets.main, 'labirent.refmap.json'
+    config 'labirent.mixins.json'
+}
+
 tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
 
 tasks.named('jar', Jar).configure {
     manifest {
         attributes(["Specification-Title": "labirent", "Specification-Vendor": "krolasyon",
                     "Specification-Version": "1", "Implementation-Title": project.name,
-                    "Implementation-Version": project.jar.archiveVersion])
+                    "Implementation-Version": project.jar.archiveVersion, "MixinConfigs": "labirent.mixins.json"])
     }
     finalizedBy 'reobfJar'
 }

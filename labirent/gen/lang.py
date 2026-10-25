@@ -42,7 +42,7 @@ add('item.labirent.', {
     'griever_spawn_egg': 'Kederci Çağırma Yumurtası', 'glader_spawn_egg': 'Ayrıklı Çağırma Yumurtası',
     'beetle_blade_spawn_egg': 'Böcek-Bıçak Çağırma Yumurtası',
 })
-add('entity.labirent.', {'griever': 'Kederci', 'glader': 'Ayrıklı', 'beetle_blade': 'Böcek-Bıçak', 'box_elevator': 'Kutu'})
+add('entity.labirent.', {'griever_corpse': 'Kederci Cesedi', 'griever': 'Kederci', 'glader': 'Ayrıklı', 'beetle_blade': 'Böcek-Bıçak', 'box_elevator': 'Kutu'})
 add('effect.labirent.', {'griever_venom': 'Kederci Zehri', 'changing': 'Değişim'})
 add('subtitles.labirent.', {
     'wall_grind': 'Labirent duvarları yer değiştiriyor', 'door_close': 'Dev kapılar kapanıyor', 'door_slam': 'Kapılar kapandı',
@@ -51,7 +51,7 @@ add('subtitles.labirent.', {
     'griever_step': 'Metal ayak sesleri', 'griever_sting': 'Kederci sokuyor', 'griever_roll': 'Kederci yuvarlanıyor',
     'beetle_scuttle': 'Böcek-bıçak koşuşturuyor', 'story_sting': 'Bir şeyler değişti', 'maze_ambient': 'Labirentin uğultusu',
     'serum_inject': 'Serum enjekte edildi', 'terminal_beep': 'Terminal bipliyor', 'escape': 'Özgürlük', 'wind_gust': 'Koridorlarda rüzgâr', 'heartbeat': 'Kalp atışı', 'distant_cry': 'Uzaktan bir çığlık',
-    'birds': 'Kuş cıvıltıları', 'crickets': 'Cırcır böcekleri', 'tension': 'Gerilim',
+    'birds': 'Kuş cıvıltıları', 'crickets': 'Cırcır böcekleri', 'tension': 'Gerilim', 'griever_scream': 'Kederci çığlık atıyor', 'griever_chase': 'Kederci avlanıyor',
 })
 
 add('role.labirent.', {
@@ -72,7 +72,7 @@ add('objective.labirent.', {
     'talk_newt': 'Newt ile konuş', 'read_journal': 'Ayrık Günlüğü\'nü oku (J)', 'watch_doors': 'Kapılar kapanırken Ayrık\'ta ol',
     'assign_runner': 'Birine Koşucu görevi ver (K)', 'assign_cook': 'Birine Aşçı görevi ver', 'eat_meal': 'Ayrık yemeği ye',
     'map_10': 'Labirentin %%10\'unu haritala', 'maze_time': 'Gündüz labirentte 3 dakika geçir (saniye)',
-    'kill_griever': 'Bir Kederci öldür', 'ben_fate': 'Sokulan Ben\'i serumla iyileştir',
+    'kill_griever': 'Bir Kederci öldür', 'ben_fate': 'Sokulan Alby\'yi serumla iyileştir',
     'map_30': 'Labirentin %%30\'unu haritala', 'find_stones': '4 farklı bölümde Şifre Taşı bul',
     'talk_teresa': 'Teresa ile konuş', 'survive_nights': 'Kapısız 3 gece hayatta kal',
     'code_words': '8 şifre kelimesini çöz (Şifre Taşları)', 'remember': 'Bilerek sokul ve serumla Değişim\'i yaşa',
@@ -131,7 +131,10 @@ add('msg.labirent.', {
     'journal_updated': 'Ayrık Günlüğü güncellendi. (J)',
     'survived': 'Kapısız bir gece daha atlatıldı! (%s/3)',
     'teresa_note': 'Not: "O sonuncusu. Ebediyen."',
-    'event.ben': '☠ Ben labirentten sendeleyerek döndü. Kederci onu sokmuş! Şifacılar, serum!',
+    'event.ben': '☠ Alby labirentten sendeleyerek döndü. Kederci onu sokmuş! Serum, çabuk!',
+    'corpse_empty': '§7Bu cesette sökülecek bir şey kalmadı.', 'corpse_stripped': '§aCesetten parçaları söktün.',
+    'tripped': '§7Bir taşa takılıp yüzüstü düştün!', 'slipped': '§7Islak yosunda kaydın!',
+    'box_supplies': '§eKutu geldi! Bu ay sadece erzak var. Kutu\'dan almayı unutmayın.',
     'event.walls': 'Koşucular haritaları üst üste koydu: her gece değişen duvarlar bir desen oluşturuyor...',
     'event.code': 'Teresa: "Labirent bir şifre. Her bölümün taşında bir kelime var. Önce o bölümü iyi haritalayın."',
     'event.hole': 'Hatırladın: Kederciler Uçurum\'daki görünmez bir delikten gelip gidiyor. Bir Çekirdek taşıyan geçebilir!',
@@ -238,10 +241,13 @@ STORY = {
               'Şifre ha? Ya bu da onların oyunuysa?',
               'Delikten geçen geri dönmez. Ben burada kalıyorum.',
               'Belki de haklıydın. Belki.'],
-    'alby': ['...ateş... çok sıcak... Kutu... sen...', 'Seni... gördüm... Değişim\'de... senin yüzünü...',
-             'Ben Alby. Eski lider. Şimdi sen varsın. Ayrık\'ı ayakta tut.', 'Hatırlamak istemiyorum. Bazı şeyler unutulmalı.',
-             'Bizi buraya koyanlar izliyor. Her an.', 'Kapılar açık kaldı. Sorumluluk bende olsaydı... neyse ki değil.',
-             'Kelimeleri çözün. Ben gördüklerimi anlatamam; boğazım düğümleniyor.', 'Git. Ben buradan sizi kollarım.',
+    'alby': ['Ben Alby. Eskiden lider bendim. Not seni seçmiş... Ben de seni izleyeceğim.',
+             'Herkese bir iş ver. Boş duran düşünür, düşünen delirir.',
+             'Koşucuları akşamdan önce say. Biri eksikse kapıda ben beklerim.',
+             '...ateş... Labirentte bir şey gördüm... seni... Değişim\'de senin yüzünü gördüm...',
+             'Değişim\'den geçtim. Hatırladıklarımı anlatamıyorum; boğazım düğümleniyor.',
+             'Kapılar açık kaldı. Bu gece kimse uyumayacak. Yaralıları bana getirin.',
+             'Kelimeleri çözün. Ben gördüklerimi anlatamam ama şifre gerçek.', 'Git. Ben burada sizi kollarım.',
              'Ayrık seninle gurur duyar.'],
     'winston': ['Ben Winston, Kan Evi\'nden sorumluyum. Hayvanlara iyi bak, onlar da sana bakar.',
                 'Kasap lazım mı? Benden iyisini bulamazsın.', 'Koşucular et yiyor, bahçıvanlar sebze. Denge.', 'Hayvanlar geceleri susuyor artık.',
@@ -267,6 +273,14 @@ STORY = {
 for who, lines in STORY.items():
     for i, l in enumerate(lines):
         L[f'talk.labirent.{who}.{i}'] = l
+
+import dialogue
+JAVA_TABLE = dialogue.build(L)
+with open(os.path.join(os.path.dirname(__file__), '..', 'src/main/java/com/krolasyon/labirent/entity/ai/DialogueTable.java'), 'w', encoding='utf-8') as f:
+    f.write(JAVA_TABLE)
+
+for i, l in enumerate(['Ah! Kahretsin!', 'Ayağım takıldı!', 'Of... iyiyim, iyiyim!', 'Kim koydu bu taşı buraya?!']):
+    L[f'chat.labirent.trip.{i}'] = l
 
 ROOT = os.path.join(os.path.dirname(__file__), '..', 'src/main/resources/assets/labirent/lang')
 os.makedirs(ROOT, exist_ok=True)

@@ -59,6 +59,9 @@ public final class BoxDirector {
 
     public void queueNpc(String name, boolean supplies) { queue.add(new Arrival(null, name, supplies, false)); }
 
+    /** the monthly Box: only crates, no new Glader */
+    public void queueSupplies() { queue.add(new Arrival(null, null, true, false)); }
+
     public void queueTeresa() { queue.add(new Arrival(null, "Teresa", false, true)); }
 
     public void tick(ServerLevel level, int day, int dayPhase) {
@@ -77,7 +80,7 @@ public final class BoxDirector {
                     && day - st.lastArrivalDay >= LabConfig.MONTH_DAYS.get() && dayPhase >= 6000 && dayPhase < 9000) {
                 st.lastArrivalDay = day;
                 st.setDirty();
-                queueNpc(NEWCOMER_NAMES[(st.arrivals * 7 + 3) % NEWCOMER_NAMES.length], true);
+                queueSupplies();
             }
             if (queue.isEmpty()) return;
             current = queue.poll();
@@ -111,7 +114,7 @@ public final class BoxDirector {
                             Net.title(p, Component.translatable("title.labirent.wake"), Component.translatable("title.labirent.wake.sub"), 10, 70, 20);
                             rider = p;
                         }
-                    } else {
+                    } else if (current.npcName() != null) {
                         GladerEntity g = new GladerEntity(ModEntities.GLADER.get(), level);
                         g.moveTo(0, Glade.SHAFT_BOTTOM + 0.2, 0, 0F, 0F);
                         boolean teresa = current.teresa();
@@ -200,9 +203,12 @@ public final class BoxDirector {
             Net.sendFullMap(p, st);
             m.story.onPlayerArrived(p);
         }
-        for (ServerPlayer p : level.players())
-            if (p != rider) p.sendSystemMessage(Component.translatable("msg.labirent.box_arrived",
-                    rider == null ? "?" : rider instanceof GladerEntity g ? g.getGladerName() : rider.getName().getString()));
+        for (ServerPlayer p : level.players()) {
+            if (p == rider) continue;
+            if (rider == null) p.sendSystemMessage(Component.translatable("msg.labirent.box_supplies"));
+            else p.sendSystemMessage(Component.translatable("msg.labirent.box_arrived",
+                    rider instanceof GladerEntity g ? g.getGladerName() : rider.getName().getString()));
+        }
     }
 
     private void supplies(ServerLevel level) {

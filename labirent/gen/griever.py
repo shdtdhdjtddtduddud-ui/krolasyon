@@ -60,7 +60,8 @@ for k, z in enumerate((-9, 0, 9)):
         C = (sx * 31, 23, z + (k - 1) * 11 - 3)
         M.bone(hip, 'body', A)
         LT = M.seg(f'{side}_thigh{k}', hip, A, B, 4.0, 4.0, 'leg_metal', extend=1.5)
-        M.seg(f'{side}_shin{k}', f'{side}_thigh{k}', B, C, 3.0, 3.0, 'leg_metal_light', extend=1)
+        M.bone_w(f'{side}_knee{k}', f'{side}_thigh{k}', B, R0)       # level knee bone: clean flex axes
+        M.seg(f'{side}_shin{k}', f'{side}_knee{k}', B, C, 3.0, 3.0, 'leg_metal_light', extend=1)
         M.cube_l(f'{side}_shin{k}', (-0.6, 2, 1.4), (1.2, 14, 1.2), 'cable')
         # knee joint + piston
         M.cube_l(f'{side}_thigh{k}', (-2.6, LT - 2.6, -2.6), (5.2, 5.2, 5.2), 'joint')
@@ -243,109 +244,186 @@ def head(c, face, W, H, r):
 # ---------------- animations ----------------
 A = {}
 HIPS = [f'{s}_hip{k}' for s in ('right', 'left') for k in range(3)]
+KNEES = [f'{s}_knee{k}' for s in ('right', 'left') for k in range(3)]
 TAILS = [f'tail{i}' for i in range(5)] + ['stinger']
 
 
-def leg_cycle(a, length, swing=16, lift=22, offset_groups=True):
-    """tripod gait on the hip bones: (right0,left1,right2) vs (left0,right1,left2)"""
+def sgn(side):
+    return -1 if side == 'right' else 1
+
+
+def gait(a, length, swing=16, lift=10, knee=26, steps=12, body_bob=0.9, pitch=0.0):
+    """tripod gait with knees: each leg swings forward lifted and bent, then plants and pushes back"""
     for side in ('right', 'left'):
-        sgn = -1 if side == 'right' else 1
+        s = sgn(side)
         for k in range(3):
             grp = (k + (0 if side == 'right' else 1)) % 2
-            ph = 0.5 * grp if offset_groups else 0
-            keys = []
-            for step in range(9):
-                t = step / 8
+            ph = 0.5 * grp + k * 0.04
+            hk, kk = [], []
+            for st in range(steps + 1):
+                t = st / steps
                 u = (t + ph) % 1.0
-                # forward swing while lifted in the first half, push back on the ground in the second
-                if u < 0.5:
-                    y = swing * math.cos(u / 0.5 * math.pi)          # back -> front
-                    z = lift * math.sin(u / 0.5 * math.pi)
-                else:
-                    y = -swing * math.cos((u - 0.5) / 0.5 * math.pi)  # front -> back
-                    z = 0
-                keys.append((t * length, (0, sgn * -y, -sgn * z)))
-            a.rot(f'{side}_hip{k}', *keys)
+                if u < 0.45:        # swing: up and forward
+                    w = u / 0.45
+                    y = swing * math.cos(w * math.pi)
+                    z = lift * math.sin(w * math.pi)
+                    kz = knee * math.sin(w * math.pi) ** 0.8
+                    kx = -8 * math.sin(w * math.pi)
+                else:               # stance: planted, pushing back
+                    w = (u - 0.45) / 0.55
+                    y = -swing * math.cos(w * math.pi)
+                    z = -2.5 * math.sin(w * math.pi)
+                    kz = -4 * math.sin(w * math.pi)
+                    kx = 3 * math.sin(w * math.pi)
+                hk.append((t * length, (0, s * -y, -s * z)))
+                kk.append((t * length, (kx, 0, -s * kz)))
+            a.rot(f'{side}_hip{k}', *hk)
+            a.rot(f'{side}_knee{k}', *kk)
+    bob = []
+    roll = []
+    for st in range(steps + 1):
+        t = st / steps
+        bob.append((t * length, (0, -body_bob * abs(math.sin(t * math.tau)), 0)))
+        roll.append((t * length, (pitch + 1.5 * math.sin(t * math.tau * 2), 2.5 * math.sin(t * math.tau), 3 * math.sin(t * math.tau))))
+    a.pos('body', *bob)
+    a.rot('body', *roll)
 
 
-def tail_sway(a, length, amp=6, sway=6, n=4):
+def tail_wave(a, length, amp=7, sway=7, lift=0.0, steps=8, lag=0.55, speed=1):
     for i, t in enumerate(TAILS):
         keys = []
-        for s in range(n + 1):
-            tt = s / n * length
-            ph = s / n * math.tau - i * 0.6
-            keys.append((tt, (amp * math.sin(ph) * (0.5 + i * 0.12), 0, sway * math.cos(ph) * (0.3 + i * 0.1))))
+        for st in range(steps + 1):
+            tt = st / steps
+            ph = tt * math.tau * speed - i * lag
+            grow = 0.45 + i * 0.16
+            keys.append((tt * length, (lift + amp * math.sin(ph) * grow, sway * 0.4 * math.sin(ph * 0.5) * grow, sway * math.cos(ph) * grow)))
         a.rot(t, *keys)
 
 
-idle = Anim('idle', 3.0, loop=True)
-idle.scl('body', (0, (1, 1, 1)), (1.5, (1.04, 1.06, 1.02)), (3.0, (1, 1, 1)))
-idle.rot('head', (0, (0, 0, 0)), (1.0, (6, 8, 0)), (2.0, (-4, -6, 0)), (3.0, (0, 0, 0)))
-idle.rot('mand_r', (0, (0, 0, 0)), (0.4, (0, -20, 0)), (0.8, (0, 0, 0)), (2.2, (0, 0, 0)), (2.5, (0, -15, 0)), (3.0, (0, 0, 0)))
-idle.rot('mand_l', (0, (0, 0, 0)), (0.4, (0, 20, 0)), (0.8, (0, 0, 0)), (2.2, (0, 0, 0)), (2.5, (0, 15, 0)), (3.0, (0, 0, 0)))
-idle.rot('sensor', (0, (0, 0, 0)), (0.75, (15, 0, 10)), (1.5, (0, 0, -10)), (2.25, (-10, 0, 0)), (3.0, (0, 0, 0)))
-for hp in HIPS:
-    d = 2 if hp.startswith('right') else -2
-    idle.rot(hp, (0, (0, 0, 0)), (1.5, (0, 0, d)), (3.0, (0, 0, 0)))
-tail_sway(idle, 3.0)
+def chatter(a, length, amp=18, n=6):
+    keys_r, keys_l = [], []
+    for st in range(n + 1):
+        t = st / n
+        o = amp * (0.5 + 0.5 * math.sin(t * math.tau * 3))
+        keys_r.append((t * length, (0, -o, 0)))
+        keys_l.append((t * length, (0, o, 0)))
+    a.rot('mand_r', *keys_r)
+    a.rot('mand_l', *keys_l)
+
+
+idle = Anim('idle', 4.0, loop=True)
+idle.scl('body', (0, (1, 1, 1)), (2.0, (1.04, 1.07, 1.02)), (4.0, (1, 1, 1)))
+idle.rot('head', (0, (0, 0, 0)), (1.0, (8, 12, 0)), (2.2, (-4, -10, 2)), (3.2, (3, 4, 0)), (4.0, (0, 0, 0)))
+idle.rot('sensor', (0, (0, 0, 0)), (1.0, (18, 0, 12)), (2.0, (0, 0, -12)), (3.0, (-12, 0, 0)), (4.0, (0, 0, 0)))
+chatter(idle, 4.0, 10, 8)
+for side in ('right', 'left'):
+    s = sgn(side)
+    for k in range(3):
+        d = 2.5 * s
+        o = k * 0.4
+        idle.rot(f'{side}_hip{k}', (0, (0, 0, 0)), (1.2 + o, (0, 0, d)), (2.6 + o, (0, 1.5 * s, -d * 0.4)), (4.0, (0, 0, 0)))
+        idle.rot(f'{side}_knee{k}', (0, (0, 0, 0)), (1.6 + o, (0, 0, -3 * s)), (4.0, (0, 0, 0)))
+# one leg twitches, like a machine settling
+idle.rot('right_hip0', (0, (0, 0, 0)), (2.9, (0, 0, 0)), (3.05, (0, -10, 18)), (3.3, (0, 0, 0)), (4.0, (0, 0, 0)))
+idle.rot('right_knee0', (0, (0, 0, 0)), (2.9, (0, 0, 0)), (3.05, (0, 0, 25)), (3.35, (0, 0, 0)), (4.0, (0, 0, 0)))
+tail_wave(idle, 4.0, amp=5, sway=5)
 A['IDLE'] = idle
 
-walk = Anim('walk', 1.0, loop=True)
-leg_cycle(walk, 1.0)
-walk.pos('body', (0, (0, 0, 0)), (0.25, (0, 0.8, 0)), (0.5, (0, 0, 0)), (0.75, (0, 0.8, 0)), (1.0, (0, 0, 0)))
-walk.rot('body', (0, (0, 0, 2)), (0.5, (0, 0, -2)), (1.0, (0, 0, 2)))
-walk.rot('head', (0, (0, -6, 0)), (0.5, (0, 6, 0)), (1.0, (0, -6, 0)))
-tail_sway(walk, 1.0, amp=4, sway=8, n=4)
+walk = Anim('walk', 1.1, loop=True)
+gait(walk, 1.1)
+walk.rot('head', (0, (2, -5, 0)), (0.55, (-2, 5, 0)), (1.1, (2, -5, 0)))
+chatter(walk, 1.1, 8, 4)
+tail_wave(walk, 1.1, amp=5, sway=9, lag=0.7)
 A['WALK'] = walk
 
-run = Anim('run', 0.6, loop=True)
-leg_cycle(run, 0.6, swing=24, lift=30)
-run.rot('body', (0, (4, 0, 3)), (0.3, (4, 0, -3)), (0.6, (4, 0, 3)))
-run.pos('body', (0, (0, 0, 0)), (0.15, (0, 1.5, 0)), (0.3, (0, 0, 0)), (0.45, (0, 1.5, 0)), (0.6, (0, 0, 0)))
-tail_sway(run, 0.6, amp=8, sway=4, n=4)
+run = Anim('run', 0.62, loop=True)
+gait(run, 0.62, swing=24, lift=16, knee=40, body_bob=2.0, pitch=7)
+run.rot('head', (0, (-8, -4, 0)), (0.31, (-4, 4, 0)), (0.62, (-8, -4, 0)))
+chatter(run, 0.62, 22, 4)
+tail_wave(run, 0.62, amp=9, sway=4, lift=-6, lag=0.9)
 A['RUN'] = run
 
-# claw strike with both scythe legs
+# rearing scream: front up, mandibles wide, tail shivering
+scream = Anim('scream', 1.7)
+scream.rot('base', (0, (0, 0, 0)), (0.35, (-28, 0, 0)), (1.25, (-30, 0, 0)), (1.7, (0, 0, 0)))
+scream.pos('base', (0, (0, 0, 0)), (0.35, (0, 5, 3)), (1.25, (0, 5, 3)), (1.7, (0, 0, 0)))
+scream.rot('head', (0, (0, 0, 0)), (0.35, (-25, 0, 0)), (0.6, (-32, 6, 0)), (0.85, (-28, -6, 0)), (1.25, (-30, 0, 0)), (1.7, (0, 0, 0)))
+shake = [(0, (0, 0, 0))] + [(0.3 + i * 0.07, (0, (-42 if i % 2 else -30), 0)) for i in range(13)] + [(1.7, (0, 0, 0))]
+scream.rot('mand_r', *shake)
+scream.rot('mand_l', *[(t, (0, -v[1], 0)) for t, v in shake])
+for side in ('right', 'left'):
+    s = sgn(side)
+    scream.rot(f'{side}_hip0', (0, (0, 0, 0)), (0.35, (0, s * 30, -s * 55)), (0.8, (0, s * 20, -s * 62)), (1.25, (0, s * 30, -s * 55)), (1.7, (0, 0, 0)))
+    scream.rot(f'{side}_knee0', (0, (0, 0, 0)), (0.35, (-20, 0, -s * 35)), (0.8, (-10, 0, -s * 45)), (1.25, (-20, 0, -s * 35)), (1.7, (0, 0, 0)))
+    scream.rot(f'{side}_hip2', (0, (0, 0, 0)), (0.35, (0, -s * 10, s * 10)), (1.25, (0, -s * 10, s * 10)), (1.7, (0, 0, 0)))
+for i, t in enumerate(TAILS):
+    keys = [(0, (0, 0, 0)), (0.35, (14 - i * 2, 0, 0))]
+    for k in range(10):
+        keys.append((0.42 + k * 0.08, (14 - i * 2 + (4 if k % 2 else -4), 0, (6 if k % 2 else -6) * (0.3 + i * 0.15))))
+    keys.append((1.7, (0, 0, 0)))
+    scream.rot(t, *keys)
+scream.scl('body', (0, (1, 1, 1)), (0.4, (1.08, 1.12, 1.05)), (1.2, (1.06, 1.1, 1.04)), (1.7, (1, 1, 1)))
+A['SCREAM'] = scream
+
+# claw strike: both scythe legs come up bent, then stab down straight
 claw = Anim('claw', 0.8)
-claw.rot('right_hip0', (0, (0, 0, 0)), (0.3, (0, -35, 55)), (0.45, (0, -40, -10)), (0.8, (0, 0, 0)))
-claw.rot('left_hip0', (0, (0, 0, 0)), (0.3, (0, 35, -55)), (0.45, (0, 40, 10)), (0.8, (0, 0, 0)))
-claw.rot('body', (0, (0, 0, 0)), (0.3, (-12, 0, 0)), (0.45, (10, 0, 0)), (0.8, (0, 0, 0)))
-claw.pos('body', (0, (0, 0, 0)), (0.3, (0, 2, 2)), (0.45, (0, -1, -4)), (0.8, (0, 0, 0)))
-claw.rot('head', (0, (0, 0, 0)), (0.3, (-20, 0, 0)), (0.45, (15, 0, 0)), (0.8, (0, 0, 0)))
-claw.rot('mand_r', (0, (0, 0, 0)), (0.3, (0, -30, 0)), (0.45, (0, 5, 0)), (0.8, (0, 0, 0)))
-claw.rot('mand_l', (0, (0, 0, 0)), (0.3, (0, 30, 0)), (0.45, (0, -5, 0)), (0.8, (0, 0, 0)))
+for side in ('right', 'left'):
+    s = sgn(side)
+    claw.rot(f'{side}_hip0', (0, (0, 0, 0)), (0.28, (0, s * 40, -s * 60)), (0.42, (0, s * 45, s * 8)), (0.8, (0, 0, 0)))
+    claw.rot(f'{side}_knee0', (0, (0, 0, 0)), (0.28, (-30, 0, -s * 50)), (0.42, (10, 0, s * 10)), (0.8, (0, 0, 0)))
+claw.rot('body', (0, (0, 0, 0)), (0.28, (-14, 0, 0)), (0.42, (10, 0, 0)), (0.8, (0, 0, 0)))
+claw.pos('body', (0, (0, 0, 0)), (0.28, (0, 2, 3)), (0.42, (0, -1, -5)), (0.8, (0, 0, 0)))
+claw.rot('head', (0, (0, 0, 0)), (0.28, (-22, 0, 0)), (0.42, (16, 0, 0)), (0.8, (0, 0, 0)))
+claw.rot('mand_r', (0, (0, 0, 0)), (0.28, (0, -38, 0)), (0.42, (0, 6, 0)), (0.8, (0, 0, 0)))
+claw.rot('mand_l', (0, (0, 0, 0)), (0.28, (0, 38, 0)), (0.42, (0, -6, 0)), (0.8, (0, 0, 0)))
 A['CLAW'] = claw
 
-# sting: tail rears back, then whips over the head
+# sting: anticipation (coil back), whip over the head with a ripple running down the tail, recoil
 sting = Anim('sting', 1.2)
 coil = {'tail0': 14, 'tail1': 12, 'tail2': 8, 'tail3': 6, 'tail4': 4, 'stinger': 8}
 strike = {'tail0': -26, 'tail1': -22, 'tail2': -16, 'tail3': -14, 'tail4': -10, 'stinger': -30}
-for t in TAILS:
-    sting.rot(t, (0, (0, 0, 0)), (0.35, (coil[t], 0, 0)), (0.55, (coil[t] * 1.1, 0, 0)), (0.68, (strike[t], 0, 0)),
-              (0.9, (strike[t] * 0.8, 0, 0)), (1.2, (0, 0, 0)))
+for i, t in enumerate(TAILS):
+    d = i * 0.025
+    sting.rot(t, (0, (0, 0, 0)), (0.35 + d, (coil[t], 0, 0)), (0.52 + d, (coil[t] * 1.15, 0, 0)), (0.66 + d, (strike[t], 0, 0)),
+              (0.8 + d, (strike[t] * 0.7, 0, 0)), (0.95 + d, (strike[t] * 0.85, 0, 0)), (1.2, (0, 0, 0)))
 sting.rot('body', (0, (0, 0, 0)), (0.5, (8, 0, 0)), (0.68, (-10, 0, 0)), (1.2, (0, 0, 0)))
 sting.pos('body', (0, (0, 0, 0)), (0.5, (0, 1, 3)), (0.68, (0, -1, -3)), (1.2, (0, 0, 0)))
+for side in ('right', 'left'):
+    s = sgn(side)
+    for k in range(3):
+        sting.rot(f'{side}_knee{k}', (0, (0, 0, 0)), (0.5, (0, 0, -s * 8)), (0.68, (0, 0, s * 6)), (1.2, (0, 0, 0)))
 A['STING'] = sting
 
-# roll: curls up and tumbles forward like the book's Grievers
+# roll: curls into a ball and tumbles, like the book's Grievers
 roll = Anim('roll', 1.0)
 roll.rot('base', (0, (0, 0, 0), 'L'), (0.2, (0, 0, 0), 'L'), (0.4, (-120, 0, 0), 'L'), (0.6, (-240, 0, 0), 'L'), (0.8, (-360, 0, 0), 'L'),
          (1.0, (-360, 0, 0), 'L'))
 roll.pos('base', (0, (0, 0, 0)), (0.2, (0, 4, 0)), (0.5, (0, 10, -8)), (0.8, (0, 4, -4)), (1.0, (0, 0, 0)))
-for hp in HIPS:
-    s = 1 if hp.startswith('right') else -1
-    roll.rot(hp, (0, (0, 0, 0)), (0.2, (0, 0, s * 70)), (0.8, (0, 0, s * 70)), (1.0, (0, 0, 0)))
+for side in ('right', 'left'):
+    s = sgn(side)
+    for k in range(3):
+        roll.rot(f'{side}_hip{k}', (0, (0, 0, 0)), (0.2, (0, 0, -s * 65)), (0.8, (0, 0, -s * 65)), (1.0, (0, 0, 0)))
+        roll.rot(f'{side}_knee{k}', (0, (0, 0, 0)), (0.2, (0, 0, -s * 60)), (0.8, (0, 0, -s * 60)), (1.0, (0, 0, 0)))
 for t in TAILS:
     roll.rot(t, (0, (0, 0, 0)), (0.2, (25, 0, 0)), (0.8, (25, 0, 0)), (1.0, (0, 0, 0)))
 A['ROLL'] = roll
 
+# death: spasm, legs fold under like a dead spider, tail flops down with a bounce
 death = Anim('death', 2.5)
-for hp in HIPS:
-    s = 1 if hp.startswith('right') else -1
-    death.rot(hp, (0, (0, 0, 0)), (0.3, (0, 0, s * 40)), (1.2, (0, 0, -s * 35)), (2.5, (0, 0, -s * 38)))
-death.pos('base', (0, (0, 0, 0)), (0.3, (0, -3, 0)), (1.2, (0, -10, 0)), (2.5, (0, -11, 0)))
-death.rot('base', (0, (0, 0, 0)), (0.3, (-10, 0, 0)), (1.2, (6, 0, 12)), (2.5, (6, 0, 14)))
+for side in ('right', 'left'):
+    s = sgn(side)
+    for k in range(3):
+        o = k * 0.08
+        death.rot(f'{side}_hip{k}', (0, (0, 0, 0)), (0.25 + o, (0, s * 15, -s * 30)), (0.6 + o, (0, -s * 10, s * 20)),
+                  (1.4 + o, (0, s * 4, s * 12)), (2.5, (0, s * 4, s * 12)))
+        death.rot(f'{side}_knee{k}', (0, (0, 0, 0)), (0.25 + o, (0, 0, -s * 25)), (0.6 + o, (0, 0, s * 20)),
+                  (1.4 + o, (0, 0, s * 58)), (2.5, (0, 0, s * 62)))
+death.pos('base', (0, (0, 0, 0)), (0.25, (0, 2, 0)), (0.9, (0, -9, 0)), (1.15, (0, -8, 0)), (2.5, (0, -10, 0)))
+death.rot('base', (0, (0, 0, 0)), (0.25, (-12, 0, 0)), (0.9, (6, 0, 10)), (1.4, (4, 0, 14)), (2.5, (5, 0, 15)))
 for i, t in enumerate(TAILS):
-    death.rot(t, (0, (0, 0, 0)), (0.4, (-15, 0, 10)), (1.4, (40, 0, 20)), (2.5, (45, 0, 22)))
-death.rot('head', (0, (0, 0, 0)), (0.3, (-30, 0, 0)), (1.2, (25, 0, 10)), (2.5, (28, 0, 12)))
+    d = i * 0.05
+    death.rot(t, (0, (0, 0, 0)), (0.3 + d, (-18, 0, 10)), (1.1 + d, (42, 0, 18)), (1.35 + d, (32, 0, 16)), (1.6 + d, (40, 0, 18)), (2.5, (42, 0, 18)))
+death.rot('head', (0, (0, 0, 0)), (0.25, (-35, 0, 0)), (0.9, (25, 0, 10)), (2.5, (30, 0, 14)))
+death.rot('mand_r', (0, (0, 0, 0)), (0.25, (0, -40, 0)), (1.0, (0, -15, 0)), (2.5, (0, -12, 0)))
+death.rot('mand_l', (0, (0, 0, 0)), (0.25, (0, 40, 0)), (1.0, (0, 15, 0)), (2.5, (0, 12, 0)))
 A['DEATH'] = death

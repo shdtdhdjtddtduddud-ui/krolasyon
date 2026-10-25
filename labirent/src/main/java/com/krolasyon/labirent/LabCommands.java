@@ -61,7 +61,7 @@ public final class LabCommands {
                 }))
                 .then(Commands.literal("kutu").requires(s -> s.hasPermission(2)).executes(c -> {
                     MazeManager m = MazeManager.get();
-                    if (m != null) m.box.queueNpc(com.krolasyon.labirent.maze.BoxDirector.NEWCOMER_NAMES[m.state.arrivals % 24], true);
+                    if (m != null) m.box.queueSupplies();
                     return 1;
                 }))
                 .then(Commands.literal("bolum").requires(s -> s.hasPermission(2)).then(Commands.argument("n", IntegerArgumentType.integer(1, 9)).executes(c -> {
@@ -69,6 +69,13 @@ public final class LabCommands {
                     if (m != null) m.story.forceChapter(IntegerArgumentType.getInteger(c, "n") - 1);
                     return 1;
                 })))
+                .then(Commands.literal("tokez").requires(s -> s.hasPermission(2)).executes(c -> {
+                    var src = c.getSource();
+                    for (var g : src.getLevel().getEntitiesOfClass(com.krolasyon.labirent.entity.GladerEntity.class,
+                            new net.minecraft.world.phys.AABB(net.minecraft.core.BlockPos.containing(src.getPosition())).inflate(30)))
+                        g.stumble(g.getRandom().nextInt(2));
+                    return 1;
+                }))
                 .then(Commands.literal("gunes").requires(s -> s.hasPermission(2)).executes(c -> {
                     MazeManager m = MazeManager.get();
                     if (m == null) return 0;

@@ -48,6 +48,10 @@ public final class Net {
 
     public record Cinematic(int id) {}
 
+    public record Speech(int entityId, Component text) {}
+
+    public record Stumble(int entityId, int kind, int ticks) {}
+
     public record RosterEntry(UUID id, String name, int role, boolean npc, float x, float z, boolean stung, int entityId) {}
 
     public record State(UUID captain, String captainName, int chapter, int[] progress, int stones, int words, int events, int monthDays,
@@ -103,6 +107,14 @@ public final class Net {
                 .encoder((m, b) -> b.writeVarInt(m.id()))
                 .decoder(b -> new Cinematic(b.readVarInt()))
                 .consumerMainThread((m, c) -> client(() -> () -> ClientHooks.cinematic(m))).add();
+        CH.messageBuilder(Speech.class, id++, NetworkDirection.PLAY_TO_CLIENT)
+                .encoder((m, b) -> { b.writeVarInt(m.entityId()); b.writeComponent(m.text()); })
+                .decoder(b -> new Speech(b.readVarInt(), b.readComponent()))
+                .consumerMainThread((m, c) -> client(() -> () -> ClientHooks.speech(m))).add();
+        CH.messageBuilder(Stumble.class, id++, NetworkDirection.PLAY_TO_CLIENT)
+                .encoder((m, b) -> { b.writeVarInt(m.entityId()); b.writeVarInt(m.kind()); b.writeVarInt(m.ticks()); })
+                .decoder(b -> new Stumble(b.readVarInt(), b.readVarInt(), b.readVarInt()))
+                .consumerMainThread((m, c) -> client(() -> () -> ClientHooks.stumble(m))).add();
         CH.messageBuilder(State.class, id++, NetworkDirection.PLAY_TO_CLIENT)
                 .encoder(Net::writeState)
                 .decoder(Net::readState)
@@ -194,6 +206,15 @@ public final class Net {
         for (ServerPlayer p : level.players()) CH.send(PacketDistributor.PLAYER.with(() -> p), msg);
     }
 
+    public static void speech(net.minecraft.world.entity.Entity e, Component text) {
+        CH.send(PacketDistributor.TRACKING_ENTITY.with(() -> e), new Speech(e.getId(), text));
+    }
+
+    /** kind 0 = trip forward, 1 = slip backwards */
+    public static void stumble(net.minecraft.world.entity.Entity e, int kind, int ticks) {
+        CH.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> e), new Stumble(e.getId(), kind, ticks));
+    }
+
     public static void shake(ServerPlayer p, float strength, int ticks) {
         CH.send(PacketDistributor.PLAYER.with(() -> p), new Shake(strength, ticks));
     }
@@ -212,11 +233,15 @@ public final class Net {
         p.connection.send(new ClientboundSetTitleTextPacket(title));
     }
 
+    public static void sendState(ServerPlayer p, State s) {
+        CH.send(PacketDistributor.PLAYER.with(() -> p), s);
+    }
+
     public static void sendState(ServerPlayer p, MazeManager m) {
         CH.send(PacketDistributor.PLAYER.with(() -> p), buildState(m));
     }
 
-    private static State buildState(MazeManager m) {
+    public static State buildState(MazeManager m) {
         MazeState s = m.state;
         List<RosterEntry> roster = new ArrayList<>();
         ServerLevel level = m.level();

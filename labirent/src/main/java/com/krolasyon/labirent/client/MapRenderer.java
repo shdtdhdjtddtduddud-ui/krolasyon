@@ -57,6 +57,12 @@ public final class MapRenderer {
                 fill(g, px0, py0, px1, py1, col, x0, y0, w, h);
             }
         }
+        overlay(g, x0, y0, w, h, cx, cz, scale, full);
+    }
+
+    /** landmarks, sector numbers, people and the player arrow on top of the terrain */
+    public static void overlay(GuiGraphics g, int x0, int y0, int w, int h, double cx, double cz, float scale, boolean full) {
+        Net.State st = ClientState.state;
         // landmarks
         marker(g, 0, 0, cx, cz, x0, y0, w, h, scale, 0xFF8B5A2B, 3);   // the Box
         marker(g, -19, -19, cx, cz, x0, y0, w, h, scale, 0xFFE0E0E0, 2); // map room

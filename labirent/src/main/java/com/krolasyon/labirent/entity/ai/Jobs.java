@@ -138,7 +138,7 @@ public final class Jobs {
     private static void farm(GladerEntity g, ServerLevel level) {
         BlockPos target = null;
         for (int tries = 0; tries < 12 && target == null; tries++) {
-            BlockPos p = new BlockPos(7 + g.getRandom().nextInt(21), Glade.Y, 7 + g.getRandom().nextInt(12));
+            BlockPos p = new BlockPos(7 + g.getRandom().nextInt(21), Glade.Y, 7 + g.getRandom().nextInt(21));
             BlockState s = level.getBlockState(p);
             if (s.getBlock() instanceof CropBlock c && c.isMaxAge(s)) target = p;
         }
@@ -167,7 +167,7 @@ public final class Jobs {
 
     // ------------------------------------------------------------------ slicer
     private static void slice(GladerEntity g, ServerLevel level) {
-        BlockPos pen = new BlockPos(13, Glade.Y, 24);
+        BlockPos pen = new BlockPos(-21, Glade.Y, 22);
         if (!g.inventory.isEmpty()) {
             deposit(g, level, Glade.SLICER_CHEST);
             return;
@@ -177,7 +177,7 @@ public final class Jobs {
             rest(g, level, pen, 4);
             return;
         }
-        AABB box = new AABB(6, Glade.Y - 1, 20, 21, Glade.Y + 3, 28);
+        AABB box = new AABB(-28, Glade.Y - 1, 17, -15, Glade.Y + 3, 28);
         List<Animal> animals = level.getEntitiesOfClass(Animal.class, box);
         Class<?>[] kinds = {Cow.class, Pig.class, Sheep.class, Chicken.class};
         for (Class<?> k : kinds) {

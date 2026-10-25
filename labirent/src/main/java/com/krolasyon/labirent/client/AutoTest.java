@@ -56,6 +56,8 @@ public final class AutoTest {
         cmd(60, "glade_overview", false, "tp @a 30 110 30 135 35");
         cmd(60, "glade_homestead", false, "tp @a 2 72 -2 -120 10");
         cmd(60, "glade_npcs", false, "tp @a -1 68 12 180 15");
+        cmd(40, "glade_npcs_close", true, "tp @a -1 66 10 180 10");
+        cmd(9, "npcs_stumble", false, "labirent tokez");
         cmd(60, "maze_from_above", false, "tp @a -60 120 -60 -45 40");
         cmd(60, "north_door", true, "tp @a 0 70 -18 180 -5");
         cmd(60, "corridor", false, "tp @a -3 66 -33 180 0");

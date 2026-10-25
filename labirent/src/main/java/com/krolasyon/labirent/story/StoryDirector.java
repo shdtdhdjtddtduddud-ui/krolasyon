@@ -99,7 +99,7 @@ public final class StoryDirector {
         switch (ch) {
             case 2 -> sayFrom(level, "minho", "talk.labirent.event.runners");
             case 3 -> {
-                GladerEntity ben = find(level, "ben");
+                GladerEntity ben = find(level, "alby");
                 if (ben != null) {
                     ben.addEffect(new MobEffectInstance(ModEffects.VENOM.get(), 20 * 60 * 8, 0));
                     ben.teleportTo(Glade.GATHER.getX() + 0.5, Glade.Y, Glade.GATHER.getZ() + 2.5);
@@ -120,8 +120,15 @@ public final class StoryDirector {
     }
 
     // ------------------------------------------------------------------ tick
+    private boolean cleaned;
+
     public void tick(ServerLevel level, int day, int phase, boolean night) {
         if (!st().has(MazeState.EV_NPCS) && m.gladeReady()) spawnFounders(level);
+        if (!cleaned && level.getGameTime() % 100 == 0) {
+            // only the five Gladers (and Teresa) live in the Glade now; older worlds lose the rest
+            cleaned = true;
+            for (GladerEntity g : ServerHooks.allGladers(level)) if (!g.hasCustomSkin()) g.discard();
+        }
         long t = level.getGameTime();
         if (t % 20 == 0) {
             int pct = ExploreTracker.percent(st());
@@ -177,19 +184,16 @@ public final class StoryDirector {
     private void spawnFounders(ServerLevel level) {
         st().set(MazeState.EV_NPCS);
         Object[][] founders = {
-                {"Newt", 4, Role.BAHCIVAN, "newt"}, {"Minho", 4, Role.KOSUCU, "minho"}, {"Tavacı", 8, Role.ASCI, "frypan"},
-                {"Chuck", 0, Role.SERBEST, "chuck"}, {"Gally", 3, Role.BEKCI, "gally"}, {"Alby", 7, Role.SERBEST, "alby"},
-                {"Winston", 2, Role.KASAP, "winston"}, {"Clint", 6, Role.SIFACI, "clint"}, {"Ben", 3, Role.KOSUCU, "ben"},
-                {"Zart", 0, Role.BAHCIVAN, "zart"}};
+                {"Newt", 0, Role.BAHCIVAN, "newt"}, {"Minho", 0, Role.KOSUCU, "minho"}, {"Alby", 0, Role.SIFACI, "alby"},
+                {"Chuck", 0, Role.ASCI, "chuck"}, {"Gally", 0, Role.BEKCI, "gally"}};
         int k = 0;
         for (Object[] f : founders) {
             GladerEntity g = ModEntities.GLADER.get().create(level);
             if (g == null) continue;
             g.setup((String) f[0], (Integer) f[1], (Role) f[2]);
             g.setStoryId((String) f[3]);
-            BlockPos p = Glade.GATHER.offset((k % 5) * 2 - 4, 0, (k / 5) * 2);
+            BlockPos p = Glade.GATHER.offset(k * 2 - 4, 0, 0);
             g.moveTo(p.getX() + 0.5, p.getY(), p.getZ() + 0.5, 180F, 0F);
-            if ("alby".equals(f[3])) g.addEffect(new MobEffectInstance(ModEffects.CHANGING.get(), 20 * 60 * 10, 0));
             level.addFreshEntity(g);
             k++;
         }
@@ -199,7 +203,7 @@ public final class StoryDirector {
         for (int i = 0; i < herd.length; i++) {
             Entity a = herd[i].create(level);
             if (a instanceof Animal an) {
-                an.moveTo(8.5 + (i % 6) * 2, Glade.Y, 22.5 + (i / 6) * 2, level.random.nextFloat() * 360F, 0F);
+                an.moveTo(-25.5 + (i % 6) * 1.6, Glade.Y, 20.5 + (i / 6) * 3, level.random.nextFloat() * 360F, 0F);
                 an.setPersistenceRequired();
                 level.addFreshEntity(an);
             }
@@ -243,14 +247,17 @@ public final class StoryDirector {
     public void onGladerDied(GladerEntity g, DamageSource src) {
         ServerLevel level = m.level();
         if (level == null) return;
-        if ("ben".equals(g.storyId())) progress(Objective.BEN_FATE, 1);
+        if ("alby".equals(g.storyId()) && st().chapter >= 3) progress(Objective.BEN_FATE, 1);
         broadcast(level, Component.translatable("msg.labirent.glader_died", g.getGladerName()).withStyle(ChatFormatting.DARK_RED));
     }
 
-    public void onGrieverKilled(GrieverEntity g, DamageSource src) { progress(Objective.KILL_GRIEVER, 1); }
+    public void onGrieverKilled(GrieverEntity g, DamageSource src) {
+        progress(Objective.KILL_GRIEVER, 1);
+        if (src.getEntity() instanceof net.minecraft.world.entity.player.Player p) com.krolasyon.labirent.TripEvents.rememberKill(p);
+    }
 
     public void onCured(LivingEntity target, Entity healer) {
-        if (target instanceof GladerEntity g && "ben".equals(g.storyId())) {
+        if (target instanceof GladerEntity g && "alby".equals(g.storyId()) && st().chapter >= 3) {
             progress(Objective.BEN_FATE, 1);
             g.setOrder(GladerEntity.Order.WORK, null);
         }

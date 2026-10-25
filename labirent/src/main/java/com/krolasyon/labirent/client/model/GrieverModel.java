@@ -31,6 +31,16 @@ public class GrieverModel extends HierarchicalModel<GrieverEntity> {
         KeyframeAnimations.animate(this, def, (long) (seconds * 1000F), weight, cache);
     }
 
+    /** the final frame of the death animation, for corpses */
+    public void poseCorpse(float age, boolean stripped) {
+        root().getAllParts().forEach(ModelPart::resetPose);
+        play(GrieverAnimations.DEATH, 2.45F, 1F);
+        // the odd dying twitch
+        float tw = (float) Math.max(0, Math.sin(age * 0.07F) - 0.96F) * 20F;
+        head.xRot += tw * 0.05F;
+        if (stripped) root.getChild("base").getChild("body").yScale = 0.9F;
+    }
+
     @Override
     public void setupAnim(GrieverEntity e, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         root().getAllParts().forEach(ModelPart::resetPose);
@@ -46,6 +56,7 @@ public class GrieverModel extends HierarchicalModel<GrieverEntity> {
                 case GrieverEntity.ANIM_CLAW -> GrieverAnimations.CLAW;
                 case GrieverEntity.ANIM_STING -> GrieverAnimations.STING;
                 case GrieverEntity.ANIM_ROLL -> GrieverAnimations.ROLL;
+                case GrieverEntity.ANIM_SCREAM -> GrieverAnimations.SCREAM;
                 default -> null;
             };
             castT = (ageInTicks - e.clientAnimStart) / 20F;

@@ -35,13 +35,15 @@ import java.util.EnumSet;
 
 /** Griever: a bloated slug body on clicking metal legs with a scorpion tail. Its sting starts the Changing. */
 public class GrieverEntity extends Monster {
-    public static final byte EV_CLAW = 60, EV_STING = 61, EV_ROLL = 62;
-    public static final int ANIM_CLAW = 0, ANIM_STING = 1, ANIM_ROLL = 2;
+    public static final byte EV_CLAW = 60, EV_STING = 61, EV_ROLL = 62, EV_SCREAM = 63;
+    public static final int ANIM_CLAW = 0, ANIM_STING = 1, ANIM_ROLL = 2, ANIM_SCREAM = 3;
 
     private boolean raider;
     private int stingCooldown = 60;
     private int rollCooldown = 80;
     private int clawCooldown;
+    private int screamCooldown;
+    private int chaseCry = 100;
     private int action = -1;
     private int actionTick;
 
@@ -87,7 +89,7 @@ public class GrieverEntity extends Monster {
 
     @Override
     public void handleEntityEvent(byte id) {
-        if (id >= EV_CLAW && id <= EV_ROLL) {
+        if (id >= EV_CLAW && id <= EV_SCREAM) {
             clientAnim = id - EV_CLAW;
             clientAnimStart = tickCount;
         } else super.handleEntityEvent(id);
@@ -108,7 +110,13 @@ public class GrieverEntity extends Monster {
         if (stingCooldown > 0) stingCooldown--;
         if (rollCooldown > 0) rollCooldown--;
         if (clawCooldown > 0) clawCooldown--;
+        if (screamCooldown > 0) screamCooldown--;
         if (action >= 0) tickAction();
+        // hunting cries while chasing
+        if (getTarget() != null && action < 0 && --chaseCry <= 0) {
+            chaseCry = 90 + random.nextInt(130);
+            playSound(ModSounds.GRIEVER_CHASE.get(), 2.2F, 0.9F + random.nextFloat() * 0.2F);
+        }
     }
 
     private void tickAction() {
@@ -131,6 +139,9 @@ public class GrieverEntity extends Monster {
                 }
                 if (actionTick >= 24) action = -1;
             }
+            case ANIM_SCREAM -> {
+                if (actionTick >= 34) action = -1;
+            }
             case ANIM_ROLL -> {
                 if (actionTick == 4 && t != null) {
                     Vec3 d = t.position().subtract(position()).multiply(1, 0, 1).normalize().scale(1.25);
@@ -144,6 +155,42 @@ public class GrieverEntity extends Monster {
                 if (actionTick >= 20) action = -1;
             }
             default -> action = -1;
+        }
+    }
+
+    @Override
+    public void setTarget(@javax.annotation.Nullable LivingEntity t) {
+        LivingEntity old = getTarget();
+        super.setTarget(t);
+        if (t != null && old == null && !level().isClientSide && screamCooldown <= 0 && action < 0) scream(t);
+    }
+
+    /** rears up and shrieks, and every Griever within earshot joins the hunt */
+    private void scream(LivingEntity t) {
+        screamCooldown = 400 + random.nextInt(300);
+        chaseCry = 60;
+        startAction(ANIM_SCREAM, EV_SCREAM);
+        level().playSound(null, blockPosition(), ModSounds.GRIEVER_SCREAM.get(), getSoundSource(), 5.0F, 0.9F + random.nextFloat() * 0.2F);
+        for (GrieverEntity o : level().getEntitiesOfClass(GrieverEntity.class, getBoundingBox().inflate(40), o -> o != this && o.getTarget() == null)) {
+            o.screamCooldown = Math.max(o.screamCooldown, 200);
+            o.setTarget(t);
+        }
+        if (t instanceof net.minecraft.server.level.ServerPlayer sp) com.krolasyon.labirent.net.Net.shake(sp, 0.35F, 30);
+    }
+
+    /** the body stays where it fell */
+    @Override
+    protected void tickDeath() {
+        deathTime++;
+        if (deathTime >= 50 && !level().isClientSide && !isRemoved()) {
+            GrieverCorpseEntity corpse = com.krolasyon.labirent.registry.ModEntities.GRIEVER_CORPSE.get().create(level());
+            if (corpse != null) {
+                corpse.moveTo(getX(), getY(), getZ(), yBodyRot, 0F);
+                corpse.setYBodyRot(yBodyRot);
+                level().addFreshEntity(corpse);
+                GrieverCorpseEntity.limit(level());
+            }
+            remove(RemovalReason.KILLED);
         }
     }
 

@@ -226,7 +226,10 @@ public final class MazeManager {
             }
         }
         if (ticks % 5 == 0) guardWalls(level);
-        if (ticks % 20 == 0) for (ServerPlayer p : level.players()) Net.sendState(p, this);
+        if (ticks % 20 == 0 && !level.players().isEmpty()) {
+            Net.State snapshot = Net.buildState(this);
+            for (ServerPlayer p : level.players()) Net.sendState(p, snapshot);
+        }
     }
 
     /** nobody walks on top of the walls */

@@ -27,7 +27,7 @@ public final class Glade {
     public static final BlockPos KITCHEN_CHEST = new BlockPos(10, Y, -8);
     public static final BlockPos KITCHEN_FIRE = new BlockPos(14, Y, -8);
     public static final BlockPos MED_CHEST = new BlockPos(21, Y + 5, -13);
-    public static final BlockPos SLICER_CHEST = new BlockPos(26, Y, 26);
+    public static final BlockPos SLICER_CHEST = new BlockPos(-10, Y, 26);
     public static final BlockPos GARDEN_CHEST = new BlockPos(8, Y, 8);
     public static final BlockPos MAP_TABLE = new BlockPos(-19, Y, -19);
     public static final BlockPos GATHER = new BlockPos(-1, Y, 6);
@@ -239,50 +239,60 @@ public final class Glade {
         Sculpt s = new Sculpt(l);
         RandomSource r = RandomSource.create(17);
         int g = MazeLayout.GROUND;
-        Block[] crops = {Blocks.WHEAT, Blocks.CARROTS, Blocks.POTATOES, Blocks.BEETROOTS, Blocks.WHEAT};
+        Block[] crops = {Blocks.WHEAT, Blocks.CARROTS, Blocks.POTATOES, Blocks.BEETROOTS, Blocks.WHEAT, Blocks.CARROTS};
         for (int x = 7; x <= 27; x++)
-            for (int z = 7; z <= 18; z++) {
+            for (int z = 7; z <= 27; z++) {
                 if (x == 11 || x == 17 || x == 23) { s.set(x, g, z, Blocks.WATER); continue; }
-                if (z == 12) { s.set(x, g, z, Blocks.DIRT_PATH); continue; }
+                if (z == 13 || z == 21) { s.set(x, g, z, Blocks.DIRT_PATH); continue; }
                 s.set(x, g, z, Blocks.FARMLAND.defaultBlockState().setValue(FarmBlock.MOISTURE, 7));
-                Block c = crops[((x - 7) / 4 + (z > 12 ? 2 : 0)) % crops.length];
+                Block c = crops[((x - 7) / 4 + (z > 21 ? 4 : z > 13 ? 2 : 0)) % crops.length];
                 BlockState cs = c.defaultBlockState();
                 if (c instanceof CropBlock cb) cs = cb.getStateForAge(r.nextInt(cb.getMaxAge() + 1));
                 s.set(x, g + 1, z, cs);
             }
-        s.walls(6, Y, 6, 28, Y, 19, Blocks.OAK_FENCE.defaultBlockState());
-        s.set(6, Y, 12, Blocks.OAK_FENCE_GATE.defaultBlockState().setValue(FenceGateBlock.FACING, Direction.EAST));
+        // little bridges over the irrigation channels on the paths
+        for (int x : new int[]{11, 17, 23})
+            for (int z : new int[]{13, 21}) s.set(x, g, z, Blocks.SPRUCE_SLAB.defaultBlockState()
+                    .setValue(SlabBlock.TYPE, net.minecraft.world.level.block.state.properties.SlabType.TOP));
+        s.walls(6, Y, 6, 28, Y, 28, Blocks.OAK_FENCE.defaultBlockState());
+        s.set(6, Y, 13, Blocks.OAK_FENCE_GATE.defaultBlockState().setValue(FenceGateBlock.FACING, Direction.EAST));
+        s.set(6, Y, 21, Blocks.OAK_FENCE_GATE.defaultBlockState().setValue(FenceGateBlock.FACING, Direction.EAST));
         s.set(GARDEN_CHEST.getX(), GARDEN_CHEST.getY(), GARDEN_CHEST.getZ(), Blocks.CHEST.defaultBlockState().setValue(ChestBlock.FACING, Direction.SOUTH));
         s.set(GARDEN_CHEST.getX() + 1, GARDEN_CHEST.getY(), GARDEN_CHEST.getZ(), Blocks.COMPOSTER);
         s.set(GARDEN_CHEST.getX(), g, GARDEN_CHEST.getZ(), Blocks.DIRT);
         s.set(GARDEN_CHEST.getX() + 1, g, GARDEN_CHEST.getZ(), Blocks.DIRT);
-        // little scarecrow
-        s.set(22, Y, 15, Blocks.OAK_FENCE);
-        s.set(22, Y + 1, 15, Blocks.HAY_BLOCK);
-        s.set(22, Y + 2, 15, Blocks.CARVED_PUMPKIN);
+        // scarecrows and a pumpkin / melon corner
+        for (int[] sc : new int[][]{{20, 16}, {14, 25}}) {
+            s.set(sc[0], Y, sc[1], Blocks.OAK_FENCE);
+            s.set(sc[0], Y + 1, sc[1], Blocks.HAY_BLOCK);
+            s.set(sc[0], Y + 2, sc[1], Blocks.CARVED_PUMPKIN);
+        }
+        for (int x = 25; x <= 27; x++)
+            for (int z = 25; z <= 27; z++) {
+                s.set(x, g, z, Blocks.GRASS_BLOCK);
+                s.set(x, Y, z, r.nextBoolean() ? Blocks.PUMPKIN : Blocks.MELON);
+            }
         s.finish();
     }
-
     private static void bloodHouse(ServerLevel l) {
         Sculpt s = new Sculpt(l);
-        s.walls(7, Y, 21, 20, Y, 27, Blocks.SPRUCE_FENCE.defaultBlockState());
-        s.set(13, Y, 21, Blocks.SPRUCE_FENCE_GATE.defaultBlockState().setValue(FenceGateBlock.FACING, Direction.NORTH));
-        s.set(9, Y, 25, Blocks.HAY_BLOCK);
-        s.set(10, Y, 25, Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3));
-        // barn
-        s.fill(21, Y - 1, 21, 27, Y - 1, 27, Blocks.SPRUCE_PLANKS);
-        s.walls(21, Y, 21, 27, Y + 4, 27, Blocks.STRIPPED_SPRUCE_LOG.defaultBlockState());
-        s.air(22, Y, 22, 26, Y + 4, 26);
-        s.fill(21, Y + 5, 21, 27, Y + 5, 27, Blocks.DARK_OAK_SLAB.defaultBlockState());
-        s.air(23, Y, 21, 25, Y + 2, 21);
+        // pen in the south-west, barn on its east side
+        s.walls(-27, Y, 18, -16, Y, 27, Blocks.SPRUCE_FENCE.defaultBlockState());
+        s.set(-21, Y, 18, Blocks.SPRUCE_FENCE_GATE.defaultBlockState().setValue(FenceGateBlock.FACING, Direction.NORTH));
+        s.set(-25, Y, 25, Blocks.HAY_BLOCK);
+        s.set(-24, Y, 25, Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3));
+        s.fill(-15, Y - 1, 21, -9, Y - 1, 27, Blocks.SPRUCE_PLANKS);
+        s.walls(-15, Y, 21, -9, Y + 4, 27, Blocks.STRIPPED_SPRUCE_LOG.defaultBlockState());
+        s.air(-14, Y, 22, -10, Y + 4, 26);
+        s.fill(-15, Y + 5, 21, -9, Y + 5, 27, Blocks.DARK_OAK_SLAB.defaultBlockState());
+        s.air(-13, Y, 21, -11, Y + 2, 21);
         s.set(SLICER_CHEST.getX(), SLICER_CHEST.getY(), SLICER_CHEST.getZ(), Blocks.CHEST.defaultBlockState().setValue(ChestBlock.FACING, Direction.WEST));
-        s.set(26, Y, 22, Blocks.SMOKER.defaultBlockState().setValue(SmokerBlock.FACING, Direction.WEST));
-        s.fill(22, Y, 26, 24, Y + 1, 26, Blocks.HAY_BLOCK);
-        s.set(26, Y, 24, Blocks.GRINDSTONE);
-        s.set(24, Y + 4, 24, Blocks.LANTERN.defaultBlockState().setValue(LanternBlock.HANGING, true));
+        s.set(-10, Y, 22, Blocks.SMOKER.defaultBlockState().setValue(SmokerBlock.FACING, Direction.WEST));
+        s.fill(-14, Y, 26, -12, Y + 1, 26, Blocks.HAY_BLOCK);
+        s.set(-10, Y, 24, Blocks.GRINDSTONE);
+        s.set(-12, Y + 4, 24, Blocks.LANTERN.defaultBlockState().setValue(LanternBlock.HANGING, true));
         s.finish();
     }
-
     private static void deadheads(ServerLevel l) {
         Sculpt s = new Sculpt(l);
         RandomSource r = RandomSource.create(23);
@@ -291,16 +301,17 @@ public final class Glade {
         Holder<ConfiguredFeature<?, ?>> birch = reg.getHolderOrThrow(TreeFeatures.BIRCH);
         Holder<ConfiguredFeature<?, ?>> dark = reg.getHolderOrThrow(TreeFeatures.DARK_OAK);
         int placed = 0;
-        for (int tries = 0; tries < 400 && placed < 26; tries++) {
-            int x = -27 + r.nextInt(20), z = 7 + r.nextInt(20);
+        for (int tries = 0; tries < 400 && placed < 16; tries++) {
+            int x = -27 + r.nextInt(20), z = 6 + r.nextInt(11);
             if (x > -13 && z < 16) continue; // graveyard clearing
+            if (z > 15) continue;
             BlockPos p = new BlockPos(x, Y, z);
             if (!l.getBlockState(p).isAir() || !l.getBlockState(p.below()).is(Blocks.GRASS_BLOCK)) continue;
             Holder<ConfiguredFeature<?, ?>> h = r.nextFloat() < 0.15F ? dark : r.nextFloat() < 0.4F ? birch : oak;
             if (h.value().place(l, l.getChunkSource().getGenerator(), r, p)) placed++;
         }
         for (int x = -28; x <= -7; x++)
-            for (int z = 7; z <= 28; z++)
+            for (int z = 6; z <= 16; z++)
                 if (r.nextFloat() < 0.18F && l.getBlockState(new BlockPos(x, Y, z)).isAir())
                     s.set(x, Y, z, r.nextFloat() < 0.6F ? Blocks.FERN : Blocks.GRASS);
         // graves of the ones the maze took

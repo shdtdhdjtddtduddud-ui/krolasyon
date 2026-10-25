@@ -29,6 +29,7 @@ public final class ClientEvents {
         e.registerEntityRenderer(ModEntities.GLADER.get(), GladerRenderer::new);
         e.registerEntityRenderer(ModEntities.BEETLE_BLADE.get(), BeetleBladeRenderer::new);
         e.registerEntityRenderer(ModEntities.BOX_ELEVATOR.get(), BoxElevatorRenderer::new);
+        e.registerEntityRenderer(ModEntities.GRIEVER_CORPSE.get(), GrieverCorpseRenderer::new);
     }
 
     @SubscribeEvent

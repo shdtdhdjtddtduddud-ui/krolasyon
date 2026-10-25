@@ -1,6 +1,7 @@
 package com.krolasyon.labirent.entity;
 
 import com.krolasyon.labirent.entity.ai.GladerBrainGoal;
+import com.krolasyon.labirent.entity.ai.Personality;
 import com.krolasyon.labirent.item.CaptainBatonItem;
 import com.krolasyon.labirent.maze.Glade;
 import com.krolasyon.labirent.maze.MazeManager;
@@ -50,17 +51,21 @@ public class GladerEntity extends PathfinderMob {
     private static final EntityDataAccessor<Boolean> DATA_NEWCOMER = SynchedEntityData.defineId(GladerEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_STUNG = SynchedEntityData.defineId(GladerEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> DATA_ORDER = SynchedEntityData.defineId(GladerEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<String> DATA_STORY = SynchedEntityData.defineId(GladerEntity.class, EntityDataSerializers.STRING);
+    /** characters with their own painted skin */
+    public static final java.util.Set<String> CUSTOM_SKINS = java.util.Set.of("alby", "chuck", "minho", "newt", "gally", "teresa");
 
     public enum Order { WORK, FOLLOW, STAY, RETURN, GATHER, DEFEND }
 
     public final SimpleContainer inventory = new SimpleContainer(9);
+    private final com.krolasyon.labirent.entity.ai.GladerSocial social = new com.krolasyon.labirent.entity.ai.GladerSocial(this);
     @Nullable private BlockPos home;
     @Nullable private BlockPos orderPos;
     @Nullable private UUID followTarget;
     @Nullable private BlockPos bed;
     private boolean teresa;
     private int talkCooldown;
-    private String story = "";
+    private int stumbleTicks;
 
     public GladerEntity(EntityType<? extends PathfinderMob> type, Level level) {
         super(type, level);
@@ -83,6 +88,7 @@ public class GladerEntity extends PathfinderMob {
         entityData.define(DATA_NEWCOMER, false);
         entityData.define(DATA_STUNG, false);
         entityData.define(DATA_ORDER, 0);
+        entityData.define(DATA_STORY, "");
     }
 
     @Override
@@ -94,12 +100,16 @@ public class GladerEntity extends PathfinderMob {
         });
         goalSelector.addGoal(2, new AvoidEntityGoal<>(this, GrieverEntity.class, 10F, 1.1, 1.45) {
             @Override
-            public boolean canUse() { return getRole() != Role.BEKCI && getOrder() != Order.DEFEND && getHealth() < getMaxHealth() * 0.9F && super.canUse(); }
+            public boolean canUse() {
+                // the timid run as soon as they see one; the brave only when badly hurt
+                boolean scared = !personality().brave() || getHealth() < getMaxHealth() * 0.3F;
+                return getRole() != Role.BEKCI && getOrder() != Order.DEFEND && scared && super.canUse();
+            }
         });
         goalSelector.addGoal(3, new GladerBrainGoal(this));
         goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8F));
         goalSelector.addGoal(9, new RandomLookAroundGoal(this));
-        targetSelector.addGoal(1, new HurtByTargetGoal(this, GladerEntity.class, Player.class));
+        targetSelector.addGoal(1, new HurtByTargetGoal(this, GladerEntity.class, Player.class).setAlertOthers());
         targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, GrieverEntity.class, 10, true, false,
                 e -> getRole() == Role.BEKCI || getOrder() == Order.DEFEND || distanceToSqr(e) < 36));
         targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, BeetleBladeEntity.class, 40, true, false, e -> getRole() == Role.BEKCI));
@@ -140,7 +150,7 @@ public class GladerEntity extends PathfinderMob {
         setDropChance(EquipmentSlot.MAINHAND, 0F);
         double dmg = r == Role.BEKCI ? 7 : r == Role.KOSUCU ? 5 : 3;
         getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(dmg);
-        getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(r == Role.KOSUCU ? 0.36 : 0.32);
+        getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue((r == Role.KOSUCU ? 0.36 : 0.32) * personality().speed);
     }
 
     public boolean isNewcomer() { return entityData.get(DATA_NEWCOMER); }
@@ -155,12 +165,21 @@ public class GladerEntity extends PathfinderMob {
 
     public void setTeresa() {
         teresa = true;
-        story = "teresa";
+        setStoryId("teresa");
     }
 
-    public String storyId() { return story; }
+    public String storyId() { return entityData.get(DATA_STORY); }
 
-    public void setStoryId(String s) { story = s; }
+    public void setStoryId(String s) {
+        entityData.set(DATA_STORY, s == null ? "" : s);
+        equipFor(getRole());
+    }
+
+    public Personality personality() { return Personality.of(storyId()); }
+
+    public com.krolasyon.labirent.entity.ai.GladerSocial social() { return social; }
+
+    public boolean hasCustomSkin() { return CUSTOM_SKINS.contains(storyId()); }
 
     public Order getOrder() { return Order.values()[Math.max(0, Math.min(Order.values().length - 1, entityData.get(DATA_ORDER)))]; }
 
@@ -189,8 +208,8 @@ public class GladerEntity extends PathfinderMob {
     private BlockPos defaultHome() {
         return switch (getRole()) {
             case ASCI -> Glade.KITCHEN_FIRE.offset(0, 0, 2);
-            case BAHCIVAN -> new BlockPos(14, Glade.Y, 12);
-            case KASAP -> new BlockPos(14, Glade.Y, 24);
+            case BAHCIVAN -> new BlockPos(17, Glade.Y, 17);
+            case KASAP -> new BlockPos(-21, Glade.Y, 22);
             case SIFACI -> new BlockPos(14, Glade.Y, -16);
             case BEKCI -> Glade.doorInside(Math.abs(getUUID().hashCode()) % 4);
             case KOSUCU -> new BlockPos(-17, Glade.Y, -12);
@@ -242,6 +261,7 @@ public class GladerEntity extends PathfinderMob {
     private String lineKey() {
         if (isStung()) return "talk.labirent.stung." + random.nextInt(3);
         if (isNewcomer()) return "talk.labirent.newcomer." + random.nextInt(3);
+        String story = storyId();
         if (!story.isEmpty()) {
             MazeManager m = MazeManager.get();
             int ch = m == null ? 0 : m.state.chapter;
@@ -252,14 +272,47 @@ public class GladerEntity extends PathfinderMob {
 
     public void say(Player to, Component line) {
         to.sendSystemMessage(Component.literal("<" + getGladerName() + "> ").withStyle(getRole().color).append(line.copy().withStyle(ChatFormatting.WHITE)));
-        level().playSound(null, blockPosition(), SoundEvents.VILLAGER_AMBIENT, getSoundSource(), 0.5F, 1.3F + random.nextFloat() * 0.2F);
+        bubble(line);
+    }
+
+    /** a speech bubble above the head, seen by everyone around, plus a little mumble */
+    public void bubble(Component line) {
+        if (!(level() instanceof net.minecraft.server.level.ServerLevel sl)) return;
+        Net.speech(this, line);
+        float pitch = switch (personality()) {
+            case CHUCK -> 1.55F;
+            case GALLY, ALBY -> 0.95F;
+            case TERESA -> 1.45F;
+            default -> 1.2F;
+        };
+        sl.playSound(null, blockPosition(), SoundEvents.VILLAGER_AMBIENT, getSoundSource(), 0.45F, pitch + random.nextFloat() * 0.15F);
+    }
+
+    /** say something to every player nearby */
+    public void shout(Component line, double range) {
+        for (Player p : level().players())
+            if (p.distanceToSqr(this) < range * range)
+                p.sendSystemMessage(Component.literal("<" + getGladerName() + "> ").withStyle(getRole().color).append(line.copy().withStyle(ChatFormatting.WHITE)));
+        bubble(line);
     }
 
     public void ackOrder(Player captain) {
-        if (random.nextFloat() < 0.35F && distanceToSqr(captain) < 30 * 30) say(captain, Component.translatable("talk.labirent.ack." + random.nextInt(4)));
+        if (random.nextFloat() < 0.45F && distanceToSqr(captain) < 30 * 30) say(captain, social.ack());
     }
 
     public void sendRunning() { GladerBrainGoal.forceRun(this); }
+
+    public boolean stumbling() { return stumbleTicks > 0; }
+
+    /** trip (0) or slip (1): falls flat for a moment */
+    public void stumble(int kind) {
+        if (stumbleTicks > 0 || level().isClientSide) return;
+        stumbleTicks = 34;
+        getNavigation().stop();
+        Net.stumble(this, kind, 34);
+        playSound(SoundEvents.PLAYER_SMALL_FALL, 1F, 0.8F);
+        if (random.nextFloat() < 0.5F) bubble(Component.translatable("chat.labirent.trip." + random.nextInt(4)));
+    }
 
     // ------------------------------------------------------------------ life
     @Override
@@ -271,6 +324,17 @@ public class GladerEntity extends PathfinderMob {
             boolean venom = hasEffect(ModEffects.VENOM.get());
             if (venom != isStung()) setStung(venom);
             if (tickCount % 80 == 0 && getHealth() < getMaxHealth() && !venom) heal(1F);
+            if (stumbleTicks > 0) {
+                stumbleTicks--;
+                setDeltaMovement(getDeltaMovement().multiply(0.4, 1, 0.4));
+            } else if (onGround() && !Glade.inside(getX(), getZ())) {
+                // running flat out through the maze: sometimes a loose stone or wet moss wins
+                double speed = getDeltaMovement().horizontalDistance();
+                if (speed > 0.16) {
+                    float chance = com.krolasyon.labirent.entity.ai.GladerSocial.nearGriever(this, 12) ? 0.004F : 0.0007F;
+                    if (random.nextFloat() < chance) stumble(random.nextInt(3) == 0 ? 1 : 0);
+                }
+            }
         }
     }
 
@@ -313,7 +377,7 @@ public class GladerEntity extends PathfinderMob {
         t.putBoolean("Newcomer", isNewcomer());
         t.putInt("Order", getOrder().ordinal());
         t.putBoolean("Teresa", teresa);
-        t.putString("Story", story);
+        t.putString("Story", storyId());
         if (home != null) t.put("Home", NbtUtils.writeBlockPos(home));
         if (orderPos != null) t.put("OrderPos", NbtUtils.writeBlockPos(orderPos));
         if (bed != null) t.put("Bed", NbtUtils.writeBlockPos(bed));
@@ -331,7 +395,8 @@ public class GladerEntity extends PathfinderMob {
         setNewcomer(t.getBoolean("Newcomer"));
         entityData.set(DATA_ORDER, t.getInt("Order"));
         teresa = t.getBoolean("Teresa");
-        story = t.getString("Story");
+        entityData.set(DATA_STORY, t.getString("Story"));
+        equipFor(getRole());
         if (t.contains("Home")) home = NbtUtils.readBlockPos(t.getCompound("Home"));
         if (t.contains("OrderPos")) orderPos = NbtUtils.readBlockPos(t.getCompound("OrderPos"));
         if (t.contains("Bed")) bed = NbtUtils.readBlockPos(t.getCompound("Bed"));
