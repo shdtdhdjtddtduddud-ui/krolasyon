@@ -22,11 +22,10 @@ public final class MazeBuilder {
 
     public static final class Budget {
         private final long deadline;
-        private int ops;
 
         Budget(long nanos) { this.deadline = System.nanoTime() + nanos; }
 
-        public boolean ok() { return (++ops & 63) != 0 || System.nanoTime() < deadline; }
+        public boolean ok() { return System.nanoTime() < deadline; }
     }
 
     private final ArrayDeque<Job> jobs = new ArrayDeque<>();

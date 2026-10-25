@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "labirent:block/code_terminal_front",
+    "side": "labirent:block/code_terminal_side",
+    "top": "labirent:block/code_terminal_side"
+  }
+}

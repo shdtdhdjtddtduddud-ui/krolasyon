@@ -1,0 +1,21 @@
+{
+  "variants": {
+    "": [
+      {
+        "model": "labirent:block/maze_wall_ivy"
+      },
+      {
+        "model": "labirent:block/maze_wall_ivy",
+        "y": 90
+      },
+      {
+        "model": "labirent:block/maze_wall_ivy",
+        "y": 180
+      },
+      {
+        "model": "labirent:block/maze_wall_ivy",
+        "y": 270
+      }
+    ]
+  }
+}

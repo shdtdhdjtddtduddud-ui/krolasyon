@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "labirent:block/maze_door"
+    }
+  }
+}

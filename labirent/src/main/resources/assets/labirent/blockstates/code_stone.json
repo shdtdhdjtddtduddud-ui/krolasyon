@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "sector=0": {
+      "model": "labirent:block/code_stone_1"
+    },
+    "sector=1": {
+      "model": "labirent:block/code_stone_2"
+    },
+    "sector=2": {
+      "model": "labirent:block/code_stone_3"
+    },
+    "sector=3": {
+      "model": "labirent:block/code_stone_4"
+    },
+    "sector=4": {
+      "model": "labirent:block/code_stone_5"
+    },
+    "sector=5": {
+      "model": "labirent:block/code_stone_6"
+    },
+    "sector=6": {
+      "model": "labirent:block/code_stone_7"
+    },
+    "sector=7": {
+      "model": "labirent:block/code_stone_8"
+    }
+  }
+}

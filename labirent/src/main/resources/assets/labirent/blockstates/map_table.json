@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "labirent:block/map_table"
+    }
+  }
+}

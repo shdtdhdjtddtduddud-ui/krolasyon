@@ -1,0 +1,15 @@
+{
+  "type": "labirent:maze",
+  "generator": {
+    "type": "minecraft:flat",
+    "settings": {
+      "biome": "labirent:maze",
+      "features": false,
+      "lakes": false,
+      "layers": [
+        { "block": "minecraft:air", "height": 1 }
+      ],
+      "structure_overrides": []
+    }
+  }
+}

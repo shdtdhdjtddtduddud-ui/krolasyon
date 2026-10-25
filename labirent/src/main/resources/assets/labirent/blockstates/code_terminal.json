@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "labirent:block/code_terminal"
+    },
+    "facing=east": {
+      "model": "labirent:block/code_terminal",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "labirent:block/code_terminal",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "labirent:block/code_terminal",
+      "y": 270
+    }
+  }
+}

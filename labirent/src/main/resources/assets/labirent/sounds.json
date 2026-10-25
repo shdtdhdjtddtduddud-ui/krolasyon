@@ -1,0 +1,181 @@
+{
+  "wall_grind": {
+    "subtitle": "subtitles.labirent.wall_grind",
+    "sounds": [
+      {
+        "name": "labirent:wall_grind"
+      }
+    ]
+  },
+  "door_close": {
+    "subtitle": "subtitles.labirent.door_close",
+    "sounds": [
+      {
+        "name": "labirent:door_close",
+        "stream": true
+      }
+    ]
+  },
+  "door_slam": {
+    "subtitle": "subtitles.labirent.door_slam",
+    "sounds": [
+      {
+        "name": "labirent:door_slam"
+      }
+    ]
+  },
+  "door_open": {
+    "subtitle": "subtitles.labirent.door_open",
+    "sounds": [
+      {
+        "name": "labirent:door_open",
+        "stream": true
+      }
+    ]
+  },
+  "box_alarm": {
+    "subtitle": "subtitles.labirent.box_alarm",
+    "sounds": [
+      {
+        "name": "labirent:box_alarm"
+      }
+    ]
+  },
+  "box_rise": {
+    "subtitle": "subtitles.labirent.box_rise",
+    "sounds": [
+      {
+        "name": "labirent:box_rise",
+        "stream": true
+      }
+    ]
+  },
+  "box_arrive": {
+    "subtitle": "subtitles.labirent.box_arrive",
+    "sounds": [
+      {
+        "name": "labirent:box_arrive"
+      }
+    ]
+  },
+  "griever_ambient": {
+    "subtitle": "subtitles.labirent.griever_ambient",
+    "sounds": [
+      {
+        "name": "labirent:griever_ambient1"
+      },
+      {
+        "name": "labirent:griever_ambient2"
+      },
+      {
+        "name": "labirent:griever_ambient3"
+      }
+    ]
+  },
+  "griever_hurt": {
+    "subtitle": "subtitles.labirent.griever_hurt",
+    "sounds": [
+      {
+        "name": "labirent:griever_hurt1"
+      },
+      {
+        "name": "labirent:griever_hurt2"
+      }
+    ]
+  },
+  "griever_death": {
+    "subtitle": "subtitles.labirent.griever_death",
+    "sounds": [
+      {
+        "name": "labirent:griever_death"
+      }
+    ]
+  },
+  "griever_step": {
+    "subtitle": "subtitles.labirent.griever_step",
+    "sounds": [
+      {
+        "name": "labirent:griever_step1"
+      },
+      {
+        "name": "labirent:griever_step2"
+      },
+      {
+        "name": "labirent:griever_step3"
+      }
+    ]
+  },
+  "griever_sting": {
+    "subtitle": "subtitles.labirent.griever_sting",
+    "sounds": [
+      {
+        "name": "labirent:griever_sting"
+      }
+    ]
+  },
+  "griever_roll": {
+    "subtitle": "subtitles.labirent.griever_roll",
+    "sounds": [
+      {
+        "name": "labirent:griever_roll"
+      }
+    ]
+  },
+  "beetle_scuttle": {
+    "subtitle": "subtitles.labirent.beetle_scuttle",
+    "sounds": [
+      {
+        "name": "labirent:beetle_scuttle1"
+      },
+      {
+        "name": "labirent:beetle_scuttle2"
+      }
+    ]
+  },
+  "story_sting": {
+    "subtitle": "subtitles.labirent.story_sting",
+    "sounds": [
+      {
+        "name": "labirent:story_sting"
+      }
+    ]
+  },
+  "maze_ambient": {
+    "subtitle": "subtitles.labirent.maze_ambient",
+    "sounds": [
+      {
+        "name": "labirent:maze_ambient1",
+        "stream": true
+      },
+      {
+        "name": "labirent:maze_ambient2",
+        "stream": true
+      }
+    ]
+  },
+  "serum_inject": {
+    "subtitle": "subtitles.labirent.serum_inject",
+    "sounds": [
+      {
+        "name": "labirent:serum_inject"
+      }
+    ]
+  },
+  "terminal_beep": {
+    "subtitle": "subtitles.labirent.terminal_beep",
+    "sounds": [
+      {
+        "name": "labirent:terminal_beep"
+      }
+    ]
+  },
+  "escape": {
+    "subtitle": "subtitles.labirent.escape",
+    "sounds": [
+      {
+        "name": "labirent:escape",
+        "stream": true
+      }
+    ]
+  }
+}
