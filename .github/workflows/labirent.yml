@@ -33,12 +33,14 @@ jobs:
         if: contains(github.event.head_commit.message, '[cp]')
         shell: bash
         run: gradle exportClasspath --no-daemon
-      - uses: actions/upload-artifact@v4
+      - name: Encrypt classpath bundle
         if: contains(github.event.head_commit.message, '[cp]')
-        with:
-          name: classpath
-          path: labirent/build/cp/classpath.zip
-          retention-days: 3
+        shell: bash
+        run: |
+          openssl rand -hex 32 > k.txt
+          openssl enc -aes-256-cbc -pbkdf2 -salt -in build/cp/classpath.zip -out cp.bin -pass file:k.txt
+          openssl pkeyutl -encrypt -pubin -inkey ci_pub.pem -in k.txt -out cp.key
+          rm k.txt build/cp/classpath.zip
       - name: Visual self-test (headless client)
         id: vt
         if: steps.b.outputs.status == '0' && contains(github.event.head_commit.message, '[ltest]')
@@ -70,6 +72,7 @@ jobs:
           FILES="build.log"
           for f in build/libs/*.jar; do [ -f "$f" ] && FILES="$FILES $f"; done
           [ -f vtest.zip ] && FILES="$FILES vtest.zip"
+          [ -f cp.bin ] && FILES="$FILES cp.bin cp.key"
           gh release create "$TAG" $FILES --title "Labirent build ${{ github.run_number }} (status ${{ steps.b.outputs.status }})" --notes "commit ${{ github.sha }}" --prerelease --target "${{ github.sha }}"
       - name: Fail on build error
         if: steps.b.outputs.status != '0'
