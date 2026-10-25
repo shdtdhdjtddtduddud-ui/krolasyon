@@ -29,6 +29,7 @@ public class MazeState extends SavedData {
     public int lastShiftNight = -1;
     public int shiftCount;
     public int shiftedSectorsMask;
+    public int shiftPendingMask;
     @Nullable public UUID captain;
     public String captainName = "";
     public final Map<UUID, Role> roles = new HashMap<>();
@@ -67,6 +68,7 @@ public class MazeState extends SavedData {
         s.lastShiftNight = t.getInt("lastShiftNight");
         s.shiftCount = t.getInt("shiftCount");
         s.shiftedSectorsMask = t.getInt("shiftedMask");
+        s.shiftPendingMask = t.getInt("shiftPending");
         if (t.hasUUID("captain")) s.captain = t.getUUID("captain");
         s.captainName = t.getString("captainName");
         ListTag rl = t.getList("roles", Tag.TAG_COMPOUND);
@@ -102,6 +104,7 @@ public class MazeState extends SavedData {
         t.putInt("lastShiftNight", lastShiftNight);
         t.putInt("shiftCount", shiftCount);
         t.putInt("shiftedMask", shiftedSectorsMask);
+        t.putInt("shiftPending", shiftPendingMask);
         if (captain != null) t.putUUID("captain", captain);
         t.putString("captainName", captainName);
         ListTag rl = new ListTag();
