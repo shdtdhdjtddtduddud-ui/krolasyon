@@ -58,11 +58,11 @@ public final class AutoTest {
         cmd(60, "glade_npcs", false, "tp @a -1 68 12 180 15");
         cmd(60, "maze_from_above", false, "tp @a -60 120 -60 -45 40");
         cmd(60, "north_door", true, "tp @a 0 70 -18 180 -5");
-        cmd(60, "corridor", false, "tp @a 0 66 -40 180 0");
-        cmd(40, null, false, "gamemode creative @a", "tp @a 0 65 -40 180 0",
-                "summon labirent:griever 0 65 -50 {Rotation:[0f,0f],NoAI:1b}", "summon labirent:beetle_blade 2 65 -44");
-        cmd(60, "griever_front", false, "tp @a 0 66 -43 180 5");
-        cmd(40, "griever_side", false, "tp @a 6 67 -50 90 10");
+        cmd(60, "corridor", false, "tp @a -3 66 -33 180 0");
+        cmd(40, null, false, "gamemode creative @a", "tp @a -4 65 -33 -90 0",
+                "summon labirent:griever 4 65 -33 {Rotation:[90f,0f],NoAI:1b}", "summon labirent:beetle_blade 0 65 -34");
+        cmd(60, "griever_front", false, "tp @a -3 66 -33 -90 8");
+        cmd(40, "griever_side", false, "tp @a 4 67 -29 180 25");
         cmd(5, null, false, "kill @e[type=labirent:griever]", "time set 12300");
         cmd(200, "doors_closing", true, "tp @a 0 70 -15 180 -5");
         cmd(180, "doors_closed", false, "tp @a 0 70 -15 180 -5");
@@ -71,8 +71,7 @@ public final class AutoTest {
         screen(40, "journal_screen", JournalScreen::create);
         cmd(20, null, false, "labirent bolum 6", "labirent gunes", "time set 6000");
         cmd(200, "sun_gone", true, "tp @a 0 66 0 0 -10");
-        cmd(20, null, false, "tp @a -118 66 0 -90 10");
-        cmd(60, "cliff", false, "tp @a -114 70 2 90 10");
+        cmd(60, "cliff", false, "tp @a -116 67 -3 90 15");
         cmd(60, "chamber", false, "tp @a 403 61 0 -90 0");
         step(20, "END", false);
     }

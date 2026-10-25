@@ -118,7 +118,8 @@ public final class MazeManager {
 
     @SubscribeEvent
     public static void onMount(EntityMountEvent e) {
-        if (e.isDismounting() && e.getEntityBeingMounted() instanceof BoxElevatorEntity box && !box.released()) e.setCanceled(true);
+        if (e.getLevel().isClientSide()) return;
+        if (e.isDismounting() && e.getEntityBeingMounted() instanceof BoxElevatorEntity box && box.isAlive() && !box.released()) e.setCanceled(true);
     }
 
     // ------------------------------------------------------------------ build

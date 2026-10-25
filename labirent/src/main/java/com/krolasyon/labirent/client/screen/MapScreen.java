@@ -46,7 +46,7 @@ public class MapScreen extends Screen {
         Net.State st = ClientState.state;
         String pct = st == null ? "?" : st.mapPercent() + "%";
         g.drawString(font, Component.translatable("screen.labirent.map.info", pct), x0, height - pad + 6, 0xFFCCCCCC, true);
-        legend(g, x0 + w - 150, height - pad + 6);
+        legend(g, x0 + w - 160, 8);
         if (mapRoom) codeWords(g, x0 + w + 12, y0);
         super.render(g, mx, my, partial);
     }
