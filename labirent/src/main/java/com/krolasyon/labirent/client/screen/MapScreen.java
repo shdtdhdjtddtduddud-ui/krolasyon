@@ -42,11 +42,11 @@ public class MapScreen extends Screen {
         g.enableScissor(x0, y0, x0 + w, y0 + h);
         MapRenderer.draw(g, x0, y0, w, h, cx, cz, zoom, true);
         g.disableScissor();
-        g.drawCenteredString(font, title, width / 2, 8, 0xFFFFE0A0);
+        g.drawString(font, title, x0 + w - font.width(title), 8, 0xFFFFE0A0, true);
         Net.State st = ClientState.state;
         String pct = st == null ? "?" : st.mapPercent() + "%";
-        g.drawString(font, Component.translatable("screen.labirent.map.info", pct), x0, height - pad + 6, 0xFFCCCCCC, true);
-        legend(g, x0 + w - 160, 8);
+        g.drawString(font, Component.translatable("screen.labirent.map.info", pct), x0, 8, 0xFFCCCCCC, true);
+        legend(g, x0 + w - 160, height - pad + 8);
         if (mapRoom) codeWords(g, x0 + w + 12, y0);
         super.render(g, mx, my, partial);
     }
