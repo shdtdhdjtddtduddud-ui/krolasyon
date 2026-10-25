@@ -1,0 +1,51 @@
+plugins {
+    id 'eclipse'
+    id 'net.minecraftforge.gradle' version '[6.0.16,6.2)'
+}
+
+version = '1.0.0'
+group = 'com.krolasyon.labirent'
+base { archivesName = 'labirent_olumcul_kacis-1.20.1-forge' }
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+minecraft {
+    mappings channel: 'official', version: '1.20.1'
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.console.level', 'info'
+            property 'labirent.autotest', 'true'
+            args '--width', '1280', '--height', '720'
+            mods {
+                labirent {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+repositories {}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.1-47.2.0'
+}
+
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+
+tasks.named('jar', Jar).configure {
+    manifest {
+        attributes(["Specification-Title": "labirent", "Specification-Vendor": "krolasyon",
+                    "Specification-Version": "1", "Implementation-Title": project.name,
+                    "Implementation-Version": project.jar.archiveVersion])
+    }
+    finalizedBy 'reobfJar'
+}
+
+// CI helper: bundles the compile classpath so the sources can be type-checked offline
+tasks.register('exportClasspath', Zip) {
+    from(configurations.compileClasspath)
+    archiveFileName = 'classpath.zip'
+    destinationDirectory = layout.buildDirectory.dir('cp')
+}

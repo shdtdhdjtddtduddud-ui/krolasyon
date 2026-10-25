@@ -1,0 +1,26 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="labirent"
+version="1.0.0"
+displayName="Labirent: Ölümcül Kaçış"
+authors="krolasyon"
+description='''
+Kitaptan uyarlanmış, hikayeli ve çok oyunculu bir labirent hayatta kalma modu.
+'''
+
+[[dependencies.labirent]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.labirent]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"

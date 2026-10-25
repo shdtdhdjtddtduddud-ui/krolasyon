@@ -1,6 +1,9 @@
 name: Build mod jar
 on:
   push:
+    paths-ignore:
+      - 'labirent/**'
+      - '.github/workflows/labirent.yml'
   workflow_dispatch:
 permissions:
   contents: write
