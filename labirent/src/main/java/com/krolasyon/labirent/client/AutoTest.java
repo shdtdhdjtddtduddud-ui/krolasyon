@@ -69,7 +69,7 @@ public final class AutoTest {
         screen(40, "map_screen", () -> new MapScreen(false));
         screen(40, "captain_screen", CaptainScreen::new);
         screen(40, "journal_screen", JournalScreen::create);
-        cmd(20, null, false, "labirent bolum 6", "time set 6000");
+        cmd(20, null, false, "labirent bolum 6", "labirent gunes", "time set 6000");
         cmd(200, "sun_gone", true, "tp @a 0 66 0 0 -10");
         cmd(20, null, false, "tp @a -118 66 0 -90 10");
         cmd(60, "cliff", false, "tp @a -114 70 2 90 10");

@@ -69,6 +69,13 @@ public final class LabCommands {
                     if (m != null) m.story.forceChapter(IntegerArgumentType.getInteger(c, "n") - 1);
                     return 1;
                 })))
+                .then(Commands.literal("gunes").requires(s -> s.hasPermission(2)).executes(c -> {
+                    MazeManager m = MazeManager.get();
+                    if (m == null) return 0;
+                    m.state.events ^= MazeState.EV_SUN_GONE;
+                    m.state.setDirty();
+                    return 1;
+                }))
                 .then(Commands.literal("sifirla").requires(s -> s.hasPermission(2)).executes(c -> {
                     MazeManager m = MazeManager.get();
                     if (m == null) return 0;
