@@ -72,7 +72,8 @@ public final class AutoTest {
         cmd(20, null, false, "labirent bolum 6", "labirent gunes", "time set 6000");
         cmd(200, "sun_gone", true, "tp @a 0 66 0 0 -10");
         cmd(60, "cliff", false, "tp @a -116 67 -3 90 15");
-        cmd(60, "chamber", false, "tp @a 403 61 0 -90 0");
+        cmd(20, null, false, "tp @a 403 61 0 -90 0");
+        step(220, "chamber", false);
         step(20, "END", false);
     }
 

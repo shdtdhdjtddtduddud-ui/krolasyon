@@ -47,5 +47,5 @@ vec3 skyGradient(vec3 viewDir) {
     c += vec3(1.0, 0.75, 0.5) * pow(sd, 64.0) * day * 0.6;
     if (y < 0.0) c = mix(c, horizon * 0.6, clamp(-y * 3.0, 0.0, 1.0));
     c = mix(c, vec3(luma(c)) * 0.75, rainStrength * 0.7);
-    return mix(c, fogColor * 0.95, greySky());
+    return mix(c, fogColor * 0.36, greySky());
 }
