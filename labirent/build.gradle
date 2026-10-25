@@ -16,6 +16,8 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.console.level', 'info'
             property 'labirent.autotest', 'true'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             args '--width', '1280', '--height', '720'
             mods {
                 labirent {
@@ -26,11 +28,28 @@ minecraft {
     }
 }
 
-repositories {}
+repositories {
+    maven {
+        url = 'https://api.modrinth.com/maven'
+        content { includeGroup 'maven.modrinth' }
+    }
+}
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.2.0'
+    // only for the CI shader screenshot run: gradle runClient -PoculusVer=... -PembeddiumVer=...
+    if (project.hasProperty('oculusVer')) {
+        runtimeOnly fg.deobf("maven.modrinth:embeddium:${project.embeddiumVer}")
+        runtimeOnly fg.deobf("maven.modrinth:oculus:${project.oculusVer}")
+    }
 }
+
+tasks.register('shaderZip', Zip) {
+    from('shaderpack') { include 'shaders/**' }
+    archiveFileName = 'Labirent_Shaders.zip'
+    destinationDirectory = layout.buildDirectory.dir('libs')
+}
+tasks.named('build').configure { dependsOn 'shaderZip' }
 
 tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
 

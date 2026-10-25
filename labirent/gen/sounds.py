@@ -212,6 +212,70 @@ def escape():
     return reverb(rise + b + wind, 0.5, 3.0)
 
 
+def wind_gust(v):
+    d = 5.0
+    n = int(d * SR)
+    t = T(d)
+    w = sweep_bp(noise(d), 200 + v * 80, 1200 + v * 300, 2.2) * np.sin(np.pi * t / d) ** 1.5
+    whistle = osc(700 + v * 150 + 120 * np.sin(2 * np.pi * 0.3 * t), 'sine') * np.sin(np.pi * t / d) ** 3 * 0.06
+    rustle = crackle(d, 50) * np.sin(np.pi * t / d) ** 2 * 0.35
+    return reverb(w + whistle + rustle, 0.5, 2.0)
+
+
+def heartbeat():
+    d = 0.9
+    n = int(d * SR)
+    x = np.zeros(n)
+    for dt, a in ((0.0, 1.0), (0.22, 0.7)):
+        p = int(dt * SR)
+        b = boom(0.25, 70, 38, 0.06) * a
+        x[p:p + len(b)] += b[:n - p]
+    return lp(x, 300)
+
+
+def distant_cry(v):
+    d = 4.0
+    n = int(d * SR)
+    t = T(d)
+    cry = formant(osc(glide(d, 420 + v * 60, 180), 'saw') * (1 + 0.1 * np.sin(2 * np.pi * 9 * t)), 'u')
+    cry *= env(n, 0.4, 1.4, 1.0)
+    clicks = crackle(d, 25) * env(n, 0.8, 1.6) * 0.4
+    x = lp(cry * 0.8 + clicks, 2200)
+    return reverb(x, 0.75, 3.5)
+
+
+def birds(v):
+    d = 3.0
+    n = int(d * SR)
+    x = np.zeros(n)
+    for k in range(4 + v * 2):
+        p = int(R.random() * (d - 0.4) * SR)
+        f0 = 2400 + R.random() * 1800
+        L = 0.06 + R.random() * 0.12
+        chirp = osc(glide(L, f0, f0 * (0.7 + R.random() * 0.8)), 'sine') * env(int(L * SR), 0.005, L * 0.6)
+        x[p:p + len(chirp)] += chirp[:n - p] * (0.4 + R.random() * 0.6)
+    return reverb(x, 0.35, 1.5)
+
+
+def crickets():
+    d = 4.0
+    n = int(d * SR)
+    t = T(d)
+    chirp = osc(np.full(n, 4300.0), 'sine') * (0.5 + 0.5 * np.sign(np.sin(2 * np.pi * 32 * t))) * (np.sin(2 * np.pi * 1.6 * t) > 0.2)
+    chirp2 = osc(np.full(n, 3900.0), 'sine') * (0.5 + 0.5 * np.sign(np.sin(2 * np.pi * 29 * t + 1))) * (np.sin(2 * np.pi * 1.3 * t + 2) > 0.3)
+    return reverb((chirp + chirp2 * 0.7) * 0.4 * adsr(n, 0.3, 1.0, 0.5), 0.4, 1.5)
+
+
+def tension():
+    d = 8.0
+    n = int(d * SR)
+    t = T(d)
+    drone = sum(osc(np.full(n, f) * (1 + 0.003 * np.sin(2 * np.pi * (0.1 + i * 0.07) * t)), 'saw') for i, f in enumerate((55, 58.3, 82.4)))
+    drone = lp(drone, 420) * adsr(n, 2.5, 0.9, 2.5) * 0.5
+    air = sweep_bp(noise(d), 600, 2400, 3.0) * adsr(n, 3.0, 0.6, 2.5) * 0.15
+    return reverb(drone + air, 0.6, 3.0)
+
+
 os.makedirs(OUT, exist_ok=True)
 SOUNDS = {
     'wall_grind': [wall_grind()], 'door_close': [door_close()], 'door_slam': [door_slam()], 'door_open': [door_open()],
@@ -220,9 +284,11 @@ SOUNDS = {
     'griever_death': [griever_death()], 'griever_step': [griever_step(v) for v in (0, 1, 2)], 'griever_sting': [griever_sting()],
     'griever_roll': [griever_roll()], 'beetle_scuttle': [beetle_scuttle(v) for v in (0, 1)], 'story_sting': [story_sting()],
     'maze_ambient': [maze_ambient(v) for v in (0, 1)], 'serum_inject': [serum_inject()], 'terminal_beep': [terminal_beep()],
-    'escape': [escape()],
+    'escape': [escape()], 'wind_gust': [wind_gust(v) for v in (0, 1, 2)], 'heartbeat': [heartbeat()],
+    'distant_cry': [distant_cry(v) for v in (0, 1, 2)], 'birds': [birds(v) for v in (0, 1)], 'crickets': [crickets()],
+    'tension': [tension()],
 }
-STREAM = {'box_rise', 'door_close', 'door_open', 'escape', 'maze_ambient'}
+STREAM = {'box_rise', 'door_close', 'door_open', 'escape', 'maze_ambient', 'tension'}
 index = {}
 for name, variants in SOUNDS.items():
     files = []

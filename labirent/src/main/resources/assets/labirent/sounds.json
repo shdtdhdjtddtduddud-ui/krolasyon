@@ -177,5 +177,69 @@
         "stream": true
       }
     ]
+  },
+  "wind_gust": {
+    "subtitle": "subtitles.labirent.wind_gust",
+    "sounds": [
+      {
+        "name": "labirent:wind_gust1"
+      },
+      {
+        "name": "labirent:wind_gust2"
+      },
+      {
+        "name": "labirent:wind_gust3"
+      }
+    ]
+  },
+  "heartbeat": {
+    "subtitle": "subtitles.labirent.heartbeat",
+    "sounds": [
+      {
+        "name": "labirent:heartbeat"
+      }
+    ]
+  },
+  "distant_cry": {
+    "subtitle": "subtitles.labirent.distant_cry",
+    "sounds": [
+      {
+        "name": "labirent:distant_cry1"
+      },
+      {
+        "name": "labirent:distant_cry2"
+      },
+      {
+        "name": "labirent:distant_cry3"
+      }
+    ]
+  },
+  "birds": {
+    "subtitle": "subtitles.labirent.birds",
+    "sounds": [
+      {
+        "name": "labirent:birds1"
+      },
+      {
+        "name": "labirent:birds2"
+      }
+    ]
+  },
+  "crickets": {
+    "subtitle": "subtitles.labirent.crickets",
+    "sounds": [
+      {
+        "name": "labirent:crickets"
+      }
+    ]
+  },
+  "tension": {
+    "subtitle": "subtitles.labirent.tension",
+    "sounds": [
+      {
+        "name": "labirent:tension",
+        "stream": true
+      }
+    ]
   }
 }

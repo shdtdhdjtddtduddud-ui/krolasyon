@@ -13,3 +13,12 @@ Kitaptan uyarlanmış, hikayeli, çok oyunculu labirent hayatta kalma modu.
 Komutlar: `/labirent durum | rol <oyuncu> <rol> | emir <metin> | kaptan <oyuncu>`; yöneticiler için `git | kutu | bolum <n> | sifirla`.
 
 Varlıklar `gen/` içindeki Python betikleriyle üretilir (`build.py` model+animasyon, `textures.py`, `models.py`, `sounds.py`, `lang.py`).
+
+## Labirent Shaders (Iris / Oculus)
+
+`shaderpack/shaders` — moda özel shaderpack (sürümlerde `Labirent_Shaders.zip`). Forge'da **Oculus** (+ Embeddium) ile çalışır:
+`shaderpacks` klasörüne zip'i koy, Video Ayarları → Shader Paketleri.
+
+Yumuşak gölgeler, hacimsel ışık huzmeleri, labirent zemin pusu, SSAO, prosedürel gökyüzü (güneş sönünce gri), rüzgârda
+sallanan yaprak/ot/ekin ve sadece yaprak katmanı sallanan sarmaşıklı duvarlar, taş kabartması, su yansımaları, Kederci
+gözlerinde bloom, ACES + sinematik renk, vinyet, film greni. `tools/check.py` tüm programları yerel GL ile derler.

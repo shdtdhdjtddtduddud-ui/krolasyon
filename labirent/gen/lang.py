@@ -50,7 +50,8 @@ add('subtitles.labirent.', {
     'griever_ambient': 'Kederci tıkırdıyor', 'griever_hurt': 'Kederci çığlık atıyor', 'griever_death': 'Kederci ölüyor',
     'griever_step': 'Metal ayak sesleri', 'griever_sting': 'Kederci sokuyor', 'griever_roll': 'Kederci yuvarlanıyor',
     'beetle_scuttle': 'Böcek-bıçak koşuşturuyor', 'story_sting': 'Bir şeyler değişti', 'maze_ambient': 'Labirentin uğultusu',
-    'serum_inject': 'Serum enjekte edildi', 'terminal_beep': 'Terminal bipliyor', 'escape': 'Özgürlük',
+    'serum_inject': 'Serum enjekte edildi', 'terminal_beep': 'Terminal bipliyor', 'escape': 'Özgürlük', 'wind_gust': 'Koridorlarda rüzgâr', 'heartbeat': 'Kalp atışı', 'distant_cry': 'Uzaktan bir çığlık',
+    'birds': 'Kuş cıvıltıları', 'crickets': 'Cırcır böcekleri', 'tension': 'Gerilim',
 })
 
 add('role.labirent.', {

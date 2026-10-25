@@ -43,24 +43,37 @@ jobs:
           rm k.txt build/cp/classpath.zip
       - name: Visual self-test (headless client)
         id: vt
-        if: steps.b.outputs.status == '0' && contains(github.event.head_commit.message, '[ltest]')
+        if: steps.b.outputs.status == '0' && (contains(github.event.head_commit.message, '[ltest]') || contains(github.event.head_commit.message, '[stest]'))
         continue-on-error: true
         shell: bash
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
           MESA_GL_VERSION_OVERRIDE: '4.5'
+          MESA_GLSL_VERSION_OVERRIDE: '450'
+          STEST: ${{ contains(github.event.head_commit.message, '[stest]') }}
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq xvfb libgl1-mesa-dri libglx-mesa0 mesa-utils > /dev/null
           mkdir -p run
           printf "onboardAccessibility:false\nrenderDistance:8\nsimulationDistance:6\npauseOnLostFocus:false\ntutorialStep:none\njoinedFirstServer:true\nskipMultiplayerWarning:true\nmaxFps:60\n" > run/options.txt
+          EXTRA=""
+          if [ "$STEST" = "true" ]; then
+            q='game_versions=%5B%221.20.1%22%5D&loaders=%5B%22forge%22%5D'
+            OC=$(curl -s "https://api.modrinth.com/v2/project/oculus/version?$q" | python3 -c "import json,sys; print(json.load(sys.stdin)[0]['version_number'])")
+            EM=$(curl -s "https://api.modrinth.com/v2/project/embeddium/version?$q" | python3 -c "import json,sys; print(json.load(sys.stdin)[0]['version_number'])")
+            echo "oculus $OC embeddium $EM"
+            EXTRA="-PoculusVer=$OC -PembeddiumVer=$EM"
+            mkdir -p run/shaderpacks run/config
+            cp build/libs/Labirent_Shaders.zip run/shaderpacks/
+            printf "enableShaders=true\nshaderPack=Labirent_Shaders.zip\nmaxShadowRenderDistance=8\n" > run/config/oculus.properties
+          fi
           set +e
-          timeout 1800 xvfb-run -a -s "-screen 0 1280x720x24" gradle runClient --no-daemon > client.log 2>&1
+          timeout 2400 xvfb-run -a -s "-screen 0 1280x720x24" gradle runClient --no-daemon $EXTRA > client.log 2>&1
           echo "client exit $?"
           mkdir -p vtest
           cp run/screenshots/ltest_*.png vtest/ 2>/dev/null
           cp run/logs/latest.log vtest/latest.log 2>/dev/null
           tail -c 200000 client.log > vtest/client_tail.log
-          grep -E "AUTOTEST|Exception|ERROR" client.log | head -400 > vtest/summary.log
+          grep -E "AUTOTEST|Exception|ERROR|oculus|Oculus|Iris|shader" client.log | head -400 > vtest/summary.log
           cd vtest && zip -q ../vtest.zip * ; ls -la
       - name: Publish release
         if: always()
@@ -70,7 +83,7 @@ jobs:
         run: |
           TAG="labirent-${{ github.run_number }}"
           FILES="build.log"
-          for f in build/libs/*.jar; do [ -f "$f" ] && FILES="$FILES $f"; done
+          for f in build/libs/*.jar build/libs/*.zip; do [ -f "$f" ] && FILES="$FILES $f"; done
           [ -f vtest.zip ] && FILES="$FILES vtest.zip"
           [ -f cp.bin ] && FILES="$FILES cp.bin cp.key"
           gh release create "$TAG" $FILES --title "Labirent build ${{ github.run_number }} (status ${{ steps.b.outputs.status }})" --notes "commit ${{ github.sha }}" --prerelease --target "${{ github.sha }}"

@@ -31,6 +31,12 @@ public final class ModSounds {
     public static final RegistryObject<SoundEvent> SERUM_INJECT = reg("serum_inject");
     public static final RegistryObject<SoundEvent> TERMINAL_BEEP = reg("terminal_beep");
     public static final RegistryObject<SoundEvent> ESCAPE = reg("escape");
+    public static final RegistryObject<SoundEvent> WIND_GUST = reg("wind_gust");
+    public static final RegistryObject<SoundEvent> HEARTBEAT = reg("heartbeat");
+    public static final RegistryObject<SoundEvent> DISTANT_CRY = reg("distant_cry");
+    public static final RegistryObject<SoundEvent> BIRDS = reg("birds");
+    public static final RegistryObject<SoundEvent> CRICKETS = reg("crickets");
+    public static final RegistryObject<SoundEvent> TENSION = reg("tension");
 
     private static RegistryObject<SoundEvent> reg(String name) {
         return SOUNDS.register(name, () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(Labirent.MODID, name)));
