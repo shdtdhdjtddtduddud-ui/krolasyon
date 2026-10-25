@@ -172,7 +172,7 @@ add('talk.labirent.', {
     'newcomer.0': 'Neredeyim? Siz kimsiniz?', 'newcomer.1': 'Hiçbir şey hatırlamıyorum... sadece adımı.', 'newcomer.2': 'Burası neresi? Bırakın gideyim!',
     'event.runners': 'Koşucular, toplanın! Kapılar açıldığı an koşuyoruz, kapanmadan önce dönüyoruz. Kural bu.',
     'event.doors': 'Bak... kapılar kapanıyor. Her akşam böyle. İçeride kalırsan sabahı göremezsin.',
-    'event.welcome_captain': 'Kutu\'da bir not vardı: "Bu kişi sizin yeni lideriniz." Alby sokuldu, Değişim\'de... Şimdilik sana uyacağız, Kaptan. Bizi hayal kırıklığına uğratma.',
+    'event.welcome_captain': 'Kutu\'da bir not vardı: "Bu kişi sizin yeni lideriniz." Alby bundan hiç hoşlanmadı, Gally hiç... Ama şimdilik sana uyacağız, Kaptan. Bizi hayal kırıklığına uğratma.',
     'event.welcome': 'Bir çaylak daha! Hoş geldin. Kaptan sana bir iş verecek; o zamana kadar ayak altında dolaşma.',
 })
 
