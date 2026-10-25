@@ -126,7 +126,7 @@ void main() {
     // block light: warm, falls off quickly, flickers slightly
     float bl = ld.r;
     float flicker = 0.94 + 0.06 * noise2(vec2(frameTimeCounter * 8.0, 0.0));
-    light += vec3(1.0, 0.62, 0.32) * pow(bl, 3.2) * 1.35 * flicker * ao;
+    light += vec3(1.0, 0.62, 0.32) * pow(bl, 2.4) * 1.3 * flicker * ao;
     light += vec3(0.05) * nightVision;
 
     vec3 col = albedo * light;

@@ -16,7 +16,7 @@ vec3 sunColor() {
     vec3 night = vec3(0.35, 0.45, 0.75) * 0.25;
     vec3 c = h > 0.0 ? mix(golden, noon, smoothstep(0.0, 0.45, h)) : mix(golden * 0.4, night, smoothstep(0.0, 0.12, -h));
     c *= 1.0 - rainStrength * 0.75;
-    return mix(c, vec3(0.6, 0.62, 0.65) * 0.55, greySky());
+    return mix(c, vec3(0.6, 0.62, 0.65) * 0.4, greySky());
 }
 
 vec3 ambientColor() {

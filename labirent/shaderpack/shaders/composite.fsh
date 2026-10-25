@@ -64,6 +64,7 @@ void main() {
         float mu = dot(viewDir, lightDir);
         float g = 0.62;
         float phase = (1.0 - g * g) / (4.0 * 3.14159 * pow(1.0 + g * g - 2.0 * g * mu, 1.5)) * 3.0 + 0.12;
+        phase = mix(phase, 0.2, greySky());
         vec3 sunC = sunColor() * VL_STRENGTH;
         vec3 ambC = ambientColor() * 0.55;
         float skyExposure = eyeBrightnessSmooth.y / 240.0;
