@@ -14,7 +14,7 @@ const bool colortex0MipmapEnabled = true;
 vec3 bright(vec2 uv, float lod) {
     vec3 c = texture2D(colortex0, uv, lod).rgb;
     float l = luma(c);
-    return c * smoothstep(0.85, 2.2, l);
+    return c * smoothstep(1.3, 3.5, l);
 }
 
 void main() {

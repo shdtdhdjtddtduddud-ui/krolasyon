@@ -69,7 +69,7 @@ void main() {
 
     if (depth >= 1.0) {
         // sky: procedural gradient + stars/sun/moon written by the sky programs
-        vec3 sky = skyGradient(viewDir) * 1.6;
+        vec3 sky = skyGradient(viewDir) * mix(1.6, 0.85, greySky());
         sky += raw.rgb * (1.0 - greySky());
 /* DRAWBUFFERS:0 */
         gl_FragData[0] = vec4(sky, 1.0);
@@ -130,7 +130,7 @@ void main() {
     light += vec3(0.05) * nightVision;
 
     vec3 col = albedo * light;
-    if (mat == MAT_EMISSIVE) col += albedo * emissive * 3.0;
+    if (mat == MAT_EMISSIVE) col += albedo * emissive * 1.6;
     if (emissive > 0.0 && mat != MAT_EMISSIVE) col += toLinear(raw.rgb) * emissive * 3.0;
     // wet sheen in the rain
     col *= 1.0 - rainStrength * 0.12 * skyVis;

@@ -29,7 +29,7 @@ vec3 sampleScene(vec2 uv) {
 void main() {
     vec3 col = sampleScene(texcoord);
 #ifdef BLOOM
-    col += texture2D(colortex3, texcoord).rgb * 0.35 * BLOOM_STRENGTH;
+    col += texture2D(colortex3, texcoord).rgb * 0.22 * BLOOM_STRENGTH;
 #endif
     float sky = eyeBrightnessSmooth.y / 240.0;
     float exposure = mix(1.45, 1.0, sky) * EXPOSURE;

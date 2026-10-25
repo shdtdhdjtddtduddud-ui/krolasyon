@@ -14,7 +14,7 @@ varying float blockId;
 void main() {
     vec4 albedo = texture2D(texture, texcoord) * color;
 #ifdef ENTITY
-    albedo.rgb = mix(albedo.rgb, entityColor.rgb, entityColor.a);
+    albedo.rgb = mix(albedo.rgb, entityColor.rgb, entityColor.a * 0.55);
 #endif
 #ifndef NO_ALPHA_TEST
     if (albedo.a < 0.1) discard;
