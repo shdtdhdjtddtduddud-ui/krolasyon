@@ -126,11 +126,11 @@ void main() {
     // block light: warm, falls off quickly, flickers slightly
     float bl = ld.r;
     float flicker = 0.94 + 0.06 * noise2(vec2(frameTimeCounter * 8.0, 0.0));
-    light += vec3(1.0, 0.62, 0.32) * pow(bl, 3.0) * 2.4 * flicker * ao;
+    light += vec3(1.0, 0.62, 0.32) * pow(bl, 3.2) * 1.35 * flicker * ao;
     light += vec3(0.05) * nightVision;
 
     vec3 col = albedo * light;
-    if (mat == MAT_EMISSIVE) col += albedo * emissive * 6.0;
+    if (mat == MAT_EMISSIVE) col += albedo * emissive * 3.0;
     if (emissive > 0.0 && mat != MAT_EMISSIVE) col += toLinear(raw.rgb) * emissive * 3.0;
     // wet sheen in the rain
     col *= 1.0 - rainStrength * 0.12 * skyVis;

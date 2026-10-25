@@ -32,7 +32,7 @@ void main() {
     col += texture2D(colortex3, texcoord).rgb * 0.35 * BLOOM_STRENGTH;
 #endif
     float sky = eyeBrightnessSmooth.y / 240.0;
-    float exposure = mix(2.2, 1.0, sky) * EXPOSURE;
+    float exposure = mix(1.45, 1.0, sky) * EXPOSURE;
     col *= exposure;
     col = aces(col);
     // grade
@@ -49,5 +49,5 @@ void main() {
     // film grain
     float g = hash12(gl_FragCoord.xy + fract(frameTimeCounter) * 1000.0) - 0.5;
     col += g * FILM_GRAIN * 0.06;
-    gl_FragColor = vec4(col, 1.0);
+    gl_FragData[0] = vec4(col, 1.0);
 }

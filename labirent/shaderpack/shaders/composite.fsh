@@ -37,10 +37,10 @@ float shadowAt(vec3 worldRel) {
 
 float density(float y) {
     float ground = 65.0;
-    float haze = MAZE_HAZE * 0.022 * exp(-max(y - ground, 0.0) / 9.0);
-    float base = 0.0035;
+    float haze = MAZE_HAZE * 0.0075 * exp(-max(y - ground, 0.0) / 8.0);
+    float base = 0.0011;
     float d = (base + haze) * FOG_DENSITY;
-    d *= 1.0 + rainStrength * 1.8 + greySky() * 1.6;
+    d *= 1.0 + rainStrength * 1.5 + greySky() * 0.8;
     return d;
 }
 
@@ -63,9 +63,9 @@ void main() {
         vec3 lightDir = normalize(shadowLightPosition);
         float mu = dot(viewDir, lightDir);
         float g = 0.62;
-        float phase = (1.0 - g * g) / (4.0 * 3.14159 * pow(1.0 + g * g - 2.0 * g * mu, 1.5)) * 6.0 + 0.25;
+        float phase = (1.0 - g * g) / (4.0 * 3.14159 * pow(1.0 + g * g - 2.0 * g * mu, 1.5)) * 3.0 + 0.12;
         vec3 sunC = sunColor() * VL_STRENGTH;
-        vec3 ambC = ambientColor() * 1.3;
+        vec3 ambC = ambientColor() * 0.55;
         float skyExposure = eyeBrightnessSmooth.y / 240.0;
         float transmittance = 1.0;
         vec3 scatter = vec3(0.0);
@@ -79,7 +79,7 @@ void main() {
 #ifdef VOLUMETRIC_LIGHT
             lit = shadowAt(p);
 #endif
-            vec3 s = (sunC * phase * lit * mix(0.35, 1.0, skyExposure) + ambC) * d * stepLen;
+            vec3 s = (sunC * phase * lit * mix(0.03, 1.0, skyExposure) + ambC * mix(0.25, 1.0, skyExposure)) * d * stepLen;
             scatter += s * transmittance;
             transmittance *= exp(-d * stepLen);
         }
