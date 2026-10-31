@@ -44,4 +44,8 @@ public final class ModEntities {
     public static final RegistryObject<EntityType<SarkanEntity>> SARKAN = ENTITIES.register("sarkan",
             () -> EntityType.Builder.of(SarkanEntity::new, MobCategory.CREATURE)
                     .sized(1.5F, 3.4F).fireImmune().clientTrackingRange(12).build("sarkan"));
+
+    public static final RegistryObject<EntityType<NirumendEntity>> NIRUMEND = ENTITIES.register("nirumend",
+            () -> EntityType.Builder.of(NirumendEntity::new, MobCategory.CREATURE)
+                    .sized(3.4F, 3.8F).fireImmune().clientTrackingRange(12).build("nirumend"));
 }

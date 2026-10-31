@@ -303,3 +303,50 @@ def sarkan_icon(size=32):
     spec = np.hypot(xx - c * 1.38, yy - c * 0.62) < S * 0.1
     arr[spec & (a > 0), :3] = (250, 250, 245)
     return Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), 'RGBA').resize((size, size), Image.LANCZOS)
+
+
+def rock_spike_painter():
+    """same jagged spike model, as broken earth / stone for Nirumend"""
+    p = Painter(SPK)
+    nz = Noise3(44, freq=0.5)
+
+    @p.mat('shadow')
+    def rock(c, face, W, H, r):
+        Pw, n = texel_world(SPK, c, face, W, H)
+        h = 24 - Pw[..., 1]
+        t = 0.35 + 0.35 * nz(Pw) + 0.15 * smooth(0, 40, h)
+        col = ramp(t, [(70, 56, 40), (118, 96, 70), (160, 136, 104), (196, 176, 144)])
+        crack = smooth(0.86, 0.96, np.abs(np.sin(Pw[..., 0] * 1.1 + Pw[..., 1] * 0.7 + nz(Pw) * 6)))
+        col = lerp(col, (40, 30, 22), crack * 0.8)
+        return col, np.ones((H, W)), np.zeros((H, W, 4), np.float32)
+    return p
+
+
+def electric_tex():
+    """crackling electric shell: branching bright lines on a faint blue haze"""
+    n = _equirect()
+    nz = Noise3(82, freq=2.0)
+    v = np.abs(np.sin(nz(n * 3) * 14)) 
+    bolt = smooth(0.1, 0.0, v)
+    col = ramp(0.2 + 0.8 * bolt, [(40, 60, 120), (120, 170, 255), (220, 240, 255), (255, 255, 255)])
+    return _img(col, 0.12 + 0.85 * bolt)
+
+
+def nirumend_icon(size=32):
+    S = size * 8
+    yy, xx = np.mgrid[0:S, 0:S]
+    c = S / 2
+    r = np.hypot(xx - c, yy - c) / (S * 0.46)
+    nz_ = np.sqrt(np.clip(1 - r ** 2, 0, 1))
+    d = (-(xx - c) * 0.5 - (yy - c) * 0.6) / (S * 0.46) + nz_ * 0.62
+    col = ramp(0.3 + 0.4 * (d + 1) / 2, [(80, 60, 30), (160, 128, 80), (220, 196, 140), (248, 236, 200)])
+    a = (r < 1).astype(np.float32)
+    arr = np.zeros((S, S, 4), np.float32)
+    arr[..., :3] = col; arr[..., 3] = a * 255
+    body = (((xx - c) / (S * 0.24)) ** 2 + ((yy - c * 1.05) / (S * 0.14)) ** 2) < 1
+    arr[body & (a > 0), :3] = (120, 90, 50)
+    tusk = (np.abs(xx - c * 0.72) < S * 0.02) & (yy > c) & (yy < c * 1.35)
+    arr[tusk & (a > 0), :3] = (240, 180, 80)
+    spec = np.hypot(xx - c * 1.38, yy - c * 0.62) < S * 0.1
+    arr[spec & (a > 0), :3] = (250, 250, 245)
+    return Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), 'RGBA').resize((size, size), Image.LANCZOS)

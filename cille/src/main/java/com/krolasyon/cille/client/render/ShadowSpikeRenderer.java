@@ -16,6 +16,7 @@ import net.minecraft.util.Mth;
 public class ShadowSpikeRenderer extends EntityRenderer<ShadowSpikeEntity> {
     private static final ResourceLocation TEX = KabkabaRenderer.tex("shadow_spike");
     private static final ResourceLocation GLOW = KabkabaRenderer.tex("shadow_spike_glow");
+    private static final ResourceLocation ROCK = KabkabaRenderer.tex("rock_spike");
     private final SimpleModel<ShadowSpikeEntity> model;
 
     public ShadowSpikeRenderer(EntityRendererProvider.Context ctx) {
@@ -38,8 +39,9 @@ public class ShadowSpikeRenderer extends EntityRenderer<ShadowSpikeEntity> {
         pose.scale(0.85F * Math.min(1F, s + 0.3F), 0.85F * s, 0.85F * Math.min(1F, s + 0.3F));
         pose.scale(-1.0F, -1.0F, 1.0F);
         pose.translate(0.0F, -1.501F, 0.0F);
-        model.renderToBuffer(pose, buffers.getBuffer(RenderType.entityCutoutNoCull(TEX)), light, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
-        model.renderToBuffer(pose, buffers.getBuffer(RenderType.eyes(GLOW)), LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
+        boolean rock = e.getKind() == ShadowSpikeEntity.KIND_ROCK;
+        model.renderToBuffer(pose, buffers.getBuffer(RenderType.entityCutoutNoCull(rock ? ROCK : TEX)), light, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
+        if (!rock) model.renderToBuffer(pose, buffers.getBuffer(RenderType.eyes(GLOW)), LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
         pose.popPose();
         super.render(e, yaw, partial, pose, buffers, light);
     }

@@ -658,6 +658,79 @@ def earth_rise():
     return dark_reverb(rumble + grind, 0.35, 1.8)
 
 
+# ======================= NIRUMEND (earth mammoth) — infrasonic rumbles, deep trumpet, earth =======================
+def mammoth_trumpet(d, f0, f1):
+    n = int(d * SR)
+    src = osc(glide(d, f0, f1) * (1 + 0.02 * np.sin(2 * np.pi * 6 * T(d))), 'saw')
+    src = src * (1 - 0.35 + 0.35 * rattle(n, 30, 0.7))
+    v = tract(src, [(380, 1.0), (760, 0.7), (1250, 0.35), (2000, 0.1)]) + lp(src, 220) * 0.7
+    return lp(v, 2800, 3)
+
+
+def nirumend_ambient(v):
+    d = 2.8 if v == 1 else 2.2
+    n = int(d * SR)
+    t = T(d)
+    rumble = lp(osc(glide(d, 28, 34) + 2 * np.sin(2 * np.pi * 0.7 * t), 'saw'), 160, 3) * 1.2
+    growl = beast(d, 48, 42, LION_U, breath=0.4, rough=0.5, fry=0.6)
+    return dark_reverb((rumble + growl * 0.6) * adsr(n, 0.4, 0.9, 0.8), 0.3, 2.0)
+
+
+def nirumend_trumpet():
+    d = 2.2
+    n = int(d * SR)
+    x = mammoth_trumpet(d, 150, 230) * adsr(n, 0.12, 0.85, 0.7)
+    return dark_reverb(x + lp(brown(d), 90) * 0.5, 0.45, 2.4)
+
+
+def nirumend_hurt(v):
+    d = 0.8
+    n = int(d * SR)
+    return dark_reverb(mammoth_trumpet(d, 170 + v * 15, 130) * env(n, 0.02, 0.35, 1.2), 0.3, 1.4)
+
+
+def nirumend_death():
+    d = 3.8
+    n = int(d * SR)
+    x = mammoth_trumpet(d, 190, 70) * adsr(n, 0.1, 0.85, 2.0)
+    thud = pad_front(big_boom(1.8, 60, 18), 2.0)
+    return dark_reverb(mix(x, thud * 1.2), 0.45, 2.8)
+
+
+def heavy_step(v):
+    d = 0.6
+    n = int(d * SR)
+    return boom(d, 48 + v * 5, 22, 0.22) * 1.5 + lp(noise(d), 500, 3) * env(n, 0.004, 0.08) * 0.6 + lp(crackle(d, 30), 1400) * env(n, 0.005, 0.1) * 0.3
+
+
+def electric_shield():
+    d = 1.6
+    n = int(d * SR)
+    t = T(d)
+    hum = lp(osc(60 * (1 + 0.01 * np.sin(2 * np.pi * 3 * t)), 'saw'), 400, 3) + lp(osc(120, 'saw'), 500) * 0.4
+    crack = lp(crackle(d, 160), 2600) * 0.5
+    return dark_reverb((hum + crack) * adsr(n, 0.08, 0.85, 0.5), 0.35, 1.4)
+
+
+def electric_zap():
+    d = 0.7
+    n = int(d * SR)
+    snap = lp(noise(d), 2600, 3) * env(n, 0.001, 0.06)
+    buzz = lp(osc(glide(d, 90, 50), 'saw'), 600) * env(n, 0.005, 0.25) * 0.8
+    return dark_reverb(snap + buzz + boom(d, 100, 50, 0.1) * 0.6, 0.3, 1.2)
+
+
+def dust_burst():
+    d = 2.6
+    n = int(d * SR)
+    return dark_reverb((sand_rush(d, 120, 1200) * adsr(n, 0.05, 0.8, 1.2) + big_boom(d, 60, 22) * 0.7), 0.45, 2.2)
+
+
+def headbutt():
+    d = 1.4
+    return dark_reverb(big_boom(d, 120, 30) * 1.2 + lp(crackle(d, 80), 1800) * env(int(d * SR), 0.003, 0.3) * 0.4, 0.35, 1.6)
+
+
 SOUNDS = {
     'kabkaba_ambient': [lambda: ambient(1), lambda: ambient(2)],
     'kabkaba_hurt': [lambda: hurt(0), lambda: hurt(1), lambda: hurt(2)],
@@ -708,6 +781,15 @@ SOUNDS = {
     'rock_impact': [rock_impact],
     'sand_shield': [sand_shield],
     'earth_rise': [earth_rise],
+    'nirumend_ambient': [lambda: nirumend_ambient(1), lambda: nirumend_ambient(2)],
+    'nirumend_trumpet': [nirumend_trumpet],
+    'nirumend_hurt': [lambda: nirumend_hurt(0), lambda: nirumend_hurt(1)],
+    'nirumend_death': [nirumend_death],
+    'heavy_step': [lambda: heavy_step(0), lambda: heavy_step(1), lambda: heavy_step(2)],
+    'electric_shield': [electric_shield],
+    'electric_zap': [electric_zap],
+    'dust_burst': [dust_burst],
+    'headbutt': [headbutt],
 }
 
 if __name__ == '__main__':

@@ -34,6 +34,12 @@ public final class ModItems {
     public static final RegistryObject<Item> SARKAN_SPAWN_EGG = ITEMS.register("sarkan_spawn_egg",
             () -> new ForgeSpawnEggItem(ModEntities.SARKAN, 0x2E3036, 0xD8C8A0, new Item.Properties().rarity(Rarity.EPIC)));
 
+    public static final RegistryObject<Item> NIRUMEND_MISKETI = ITEMS.register("nirumend_misketi",
+            () -> new CilleMarbleItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC).fireResistant(), ModEntities.NIRUMEND::get));
+
+    public static final RegistryObject<Item> NIRUMEND_SPAWN_EGG = ITEMS.register("nirumend_spawn_egg",
+            () -> new ForgeSpawnEggItem(ModEntities.NIRUMEND, 0xCDB283, 0xD8782C, new Item.Properties().rarity(Rarity.EPIC)));
+
     public static final RegistryObject<Item> BEHMUD_SPAWN_EGG = ITEMS.register("behmud_spawn_egg",
             () -> new ForgeSpawnEggItem(ModEntities.BEHMUD, 0x0A1430, 0xBFE6EC, new Item.Properties().rarity(Rarity.EPIC)));
 
@@ -47,6 +53,8 @@ public final class ModItems {
                 output.accept(BEHMUD_SPAWN_EGG.get());
                 output.accept(SARKAN_MISKETI.get());
                 output.accept(SARKAN_SPAWN_EGG.get());
+                output.accept(NIRUMEND_MISKETI.get());
+                output.accept(NIRUMEND_SPAWN_EGG.get());
             })
             .build());
 }

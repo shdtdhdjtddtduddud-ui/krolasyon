@@ -26,6 +26,7 @@ public final class ClientEvents {
         event.registerLayerDefinition(com.krolasyon.cille.client.model.BehmudModel.LAYER, ModelLayers::createBehmud);
         event.registerLayerDefinition(SimpleModel.FISH, ModelLayers::createFish);
         event.registerLayerDefinition(com.krolasyon.cille.client.model.SarkanModel.LAYER, ModelLayers::createSarkan);
+        event.registerLayerDefinition(com.krolasyon.cille.client.model.NirumendModel.LAYER, ModelLayers::createNirumend);
     }
 
     @SubscribeEvent
@@ -36,6 +37,7 @@ public final class ClientEvents {
         event.registerEntityRenderer(ModEntities.SHADOW_SPIKE.get(), ShadowSpikeRenderer::new);
         event.registerEntityRenderer(ModEntities.BEHMUD.get(), BehmudRenderer::new);
         event.registerEntityRenderer(ModEntities.SARKAN.get(), SarkanRenderer::new);
+        event.registerEntityRenderer(ModEntities.NIRUMEND.get(), NirumendRenderer::new);
         event.registerEntityRenderer(ModEntities.VORTEX.get(), VortexRenderer::new);
         event.registerEntityRenderer(ModEntities.CILLE_PROJECTILE.get(), CilleProjectileRenderer::new);
     }

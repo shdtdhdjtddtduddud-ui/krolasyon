@@ -32,7 +32,9 @@ public class ShadowSpikeEntity extends Entity {
     private static final EntityDataAccessor<Integer> DATA_WARMUP = SynchedEntityData.defineId(ShadowSpikeEntity.class, EntityDataSerializers.INT);
     public static final int ACTIVE_TICKS = 24;
 
-    @Nullable private KabkabaEntity owner;
+    @Nullable private CilleEntity owner;
+    public static final int KIND_SHADOW = 0, KIND_ROCK = 1;
+    private static final EntityDataAccessor<Integer> DATA_KIND = SynchedEntityData.defineId(ShadowSpikeEntity.class, EntityDataSerializers.INT);
     private float damage = 9F;
     private boolean struck;
 
@@ -41,7 +43,11 @@ public class ShadowSpikeEntity extends Entity {
         this.noPhysics = true;
     }
 
-    public static void spawn(KabkabaEntity owner, double x, double z, double baseY, int warmup, float damage) {
+    public static void spawn(CilleEntity owner, double x, double z, double baseY, int warmup, float damage) {
+        spawn(owner, x, z, baseY, warmup, damage, KIND_SHADOW);
+    }
+
+    public static void spawn(CilleEntity owner, double x, double z, double baseY, int warmup, float damage, int kind) {
         Level level = owner.level();
         Double y = findGround(level, x, z, baseY + 4, baseY - 7);
         if (y == null) return;
@@ -50,6 +56,7 @@ public class ShadowSpikeEntity extends Entity {
         e.damage = damage;
         e.moveTo(x, y, z, owner.getRandom().nextFloat() * 360F, 0F);
         e.entityData.set(DATA_WARMUP, warmup);
+        e.entityData.set(DATA_KIND, kind);
         level.addFreshEntity(e);
     }
 
@@ -77,41 +84,57 @@ public class ShadowSpikeEntity extends Entity {
     public int getWarmup() { return this.entityData.get(DATA_WARMUP); }
 
     @Override
-    protected void defineSynchedData() { this.entityData.define(DATA_WARMUP, 0); }
+    protected void defineSynchedData() {
+        this.entityData.define(DATA_WARMUP, 0);
+        this.entityData.define(DATA_KIND, KIND_SHADOW);
+    }
+
+    public int getKind() { return this.entityData.get(DATA_KIND); }
 
     @Override
     public void tick() {
         super.tick();
         int t = this.tickCount - getWarmup();
+        boolean rock = getKind() == KIND_ROCK;
         if (this.level().isClientSide()) {
+            if (rock) {
+                BlockState under = this.level().getBlockState(this.blockPosition().below());
+                if (under.isAir()) under = net.minecraft.world.level.block.Blocks.DIRT.defaultBlockState();
+                if (t < 0 && random.nextInt(2) == 0)
+                    this.level().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, under), getX() + (random.nextDouble() - 0.5) * 1.4, getY() + 0.1, getZ() + (random.nextDouble() - 0.5) * 1.4, 0, 0.1, 0);
+                else if (t >= 0 && t < 6)
+                    this.level().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, under), getX() + (random.nextDouble() - 0.5), getY() + random.nextDouble() * 2, getZ() + (random.nextDouble() - 0.5), 0, 0.2, 0);
+                return;
+            }
             if (t < 0) {
                 for (int i = 0; i < 2; i++)
-                    this.level().addParticle(KabkabaEntity.dust(KabkabaEntity.INK, 1.6F), getX() + (random.nextDouble() - 0.5) * 1.6, getY() + 0.05, getZ() + (random.nextDouble() - 0.5) * 1.6, 0, 0.01, 0);
+                    this.level().addParticle(CilleEntity.dust(CilleEntity.INK, 1.6F), getX() + (random.nextDouble() - 0.5) * 1.6, getY() + 0.05, getZ() + (random.nextDouble() - 0.5) * 1.6, 0, 0.01, 0);
                 if (random.nextInt(3) == 0) this.level().addParticle(ParticleTypes.SQUID_INK, getX(), getY() + 0.1, getZ(), 0, 0.02, 0);
             } else if (t < 12) {
-                this.level().addParticle(random.nextBoolean() ? ParticleTypes.REVERSE_PORTAL : KabkabaEntity.dust(KabkabaEntity.VIOLET, 1.2F),
+                this.level().addParticle(random.nextBoolean() ? ParticleTypes.REVERSE_PORTAL : CilleEntity.dust(CilleEntity.VIOLET, 1.2F),
                         getX() + (random.nextDouble() - 0.5), getY() + random.nextDouble() * 2.2, getZ() + (random.nextDouble() - 0.5), 0, 0.05, 0);
             }
             return;
         }
         if (t == 0) {
             ServerLevel sl = (ServerLevel) this.level();
-            this.level().playSound(null, getX(), getY(), getZ(), ModSounds.SHADOW_RISE.get(), SoundSource.HOSTILE, 1.0F, 0.8F + random.nextFloat() * 0.2F);
+            this.level().playSound(null, getX(), getY(), getZ(), rock ? ModSounds.EARTH_RISE.get() : ModSounds.SHADOW_RISE.get(), SoundSource.HOSTILE, 1.0F, 0.8F + random.nextFloat() * 0.2F);
             BlockState below = this.level().getBlockState(this.blockPosition().below());
             if (!below.isAir()) sl.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, below), getX(), getY() + 0.2, getZ(), 18, 0.4, 0.2, 0.4, 0.15);
-            sl.sendParticles(ParticleTypes.SQUID_INK, getX(), getY() + 0.8, getZ(), 10, 0.3, 0.6, 0.3, 0.05);
+            if (!rock) sl.sendParticles(ParticleTypes.SQUID_INK, getX(), getY() + 0.8, getZ(), 10, 0.3, 0.6, 0.3, 0.05);
             // shadow tears through plants, leaves, glass and snow around it
             if (owner != null) Terrain.shatterSoft(sl, owner, this.blockPosition(), 1, 2);
         }
         if (t >= 0 && t <= 3 && !struck) {
             struck = true;
             for (LivingEntity e : this.level().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(0.35, 0.3, 0.35))) {
-                if (owner == null ? e instanceof KabkabaEntity : !owner.isHostileTo(e)) continue;
+                if (owner == null ? e instanceof CilleEntity : !owner.isHostileTo(e)) continue;
                 boolean hurt = owner != null ? e.hurt(damageSources().indirectMagic(this, owner), damage) : e.hurt(damageSources().magic(), damage);
                 if (hurt) {
                     e.setDeltaMovement(e.getDeltaMovement().add(0, 0.7, 0));
                     e.hurtMarked = true;
-                    e.addEffect(new MobEffectInstance(MobEffects.WITHER, 50, 0));
+                    if (!rock) e.addEffect(new MobEffectInstance(MobEffects.WITHER, 50, 0));
+                    else e.setDeltaMovement(e.getDeltaMovement().add(0, 0.25, 0));
                     e.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 40, 2));
                 }
             }

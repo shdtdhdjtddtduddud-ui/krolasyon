@@ -66,4 +66,13 @@ public final class ModSounds {
     public static final RegistryObject<SoundEvent> ROCK_IMPACT = reg("rock_impact");
     public static final RegistryObject<SoundEvent> SAND_SHIELD = reg("sand_shield");
     public static final RegistryObject<SoundEvent> EARTH_RISE = reg("earth_rise");
+    public static final RegistryObject<SoundEvent> NIRUMEND_AMBIENT = reg("nirumend_ambient");
+    public static final RegistryObject<SoundEvent> NIRUMEND_TRUMPET = reg("nirumend_trumpet");
+    public static final RegistryObject<SoundEvent> NIRUMEND_HURT = reg("nirumend_hurt");
+    public static final RegistryObject<SoundEvent> NIRUMEND_DEATH = reg("nirumend_death");
+    public static final RegistryObject<SoundEvent> HEAVY_STEP = reg("heavy_step");
+    public static final RegistryObject<SoundEvent> ELECTRIC_SHIELD = reg("electric_shield");
+    public static final RegistryObject<SoundEvent> ELECTRIC_ZAP = reg("electric_zap");
+    public static final RegistryObject<SoundEvent> DUST_BURST = reg("dust_burst");
+    public static final RegistryObject<SoundEvent> HEADBUTT = reg("headbutt");
 }

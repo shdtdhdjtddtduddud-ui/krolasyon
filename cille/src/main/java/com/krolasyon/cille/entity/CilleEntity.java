@@ -62,7 +62,7 @@ public abstract class CilleEntity extends PathfinderMob {
             CMD_RECALL = 6, CMD_AGGRESSIVE = 7, CMD_ABILITY = 20;
     /** ability 0 is always the basic attack; 30/31 are the shared entrance and recall animations */
     public static final int MELEE = 0, INTERRUPTED = 29, RELEASE = 30, RECALL = 31, MAX_ABILITIES = 32;
-    public static final int SHIELD_NONE = 0, SHIELD_REFLECT = 1, SHIELD_GUARD = 2, SHIELD_ICE = 3, SHIELD_SAND = 4;
+    public static final int SHIELD_NONE = 0, SHIELD_REFLECT = 1, SHIELD_GUARD = 2, SHIELD_ICE = 3, SHIELD_SAND = 4, SHIELD_ELECTRIC = 5;
     public static final byte EVENT_ANIM_BASE = 70;
     public static final int DEATH_TICKS = 60;
     public static final int DARK = 0x1A1430, VIOLET = 0x8A4CFF, PALE = 0xD8CCFF, INK = 0x05030C;
@@ -426,6 +426,19 @@ public abstract class CilleEntity extends PathfinderMob {
             }
             return false;
         }
+        if (shield == SHIELD_ELECTRIC && !bypass) {
+            // electric shell: most of the hit is grounded, and whoever strikes it gets shocked
+            amount *= 0.35F;
+            ServerLevel sl = serverLevel();
+            if (atk instanceof LivingEntity la && la != this && la.distanceToSqr(this) < 49) {
+                la.hurt(damageSources().lightningBolt(), 4F * power());
+                la.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 50, 2));
+                Vec3 m = la.getBoundingBox().getCenter();
+                sl.sendParticles(ParticleTypes.ELECTRIC_SPARK, m.x, m.y, m.z, 20, 0.4, 0.5, 0.4, 0.3);
+            }
+            sl.sendParticles(ParticleTypes.ELECTRIC_SPARK, getX(), getY() + getBbHeight() * 0.5, getZ(), 16, 1.5, 1.0, 1.5, 0.2);
+            this.playSound(ModSounds.ELECTRIC_ZAP.get(), 1.4F, 0.9F + random.nextFloat() * 0.1F);
+        }
         if (shield == SHIELD_SAND && !bypass) {
             // hard sand: soaks most of the blow and drains the attacker's strength into this Cille
             amount *= 0.25F;
@@ -628,9 +641,10 @@ public abstract class CilleEntity extends PathfinderMob {
 
         for (int i = 0; i < cooldowns.length; i++) if (cooldowns[i] > 0) cooldowns[i]--;
         if (globalCooldown > 0) globalCooldown--;
-        if (shieldTimer > 0 && --shieldTimer == 0 && (getShield() == SHIELD_GUARD || getShield() == SHIELD_ICE || getShield() == SHIELD_SAND)) setShield(SHIELD_NONE);
+        if (shieldTimer > 0 && --shieldTimer == 0 && (getShield() == SHIELD_GUARD || getShield() == SHIELD_ICE || getShield() == SHIELD_SAND || getShield() == SHIELD_ELECTRIC)) setShield(SHIELD_NONE);
 
         if (getShield() == SHIELD_REFLECT) reflectProjectiles(sl);
+        else if (getShield() == SHIELD_ELECTRIC) zapProjectiles(sl);
         else if (!isCasting() && this.tickCount % 2 == 0) senseProjectiles();
 
         if (retreatTicks > 0) retreatTicks--;
@@ -671,6 +685,17 @@ public abstract class CilleEntity extends PathfinderMob {
             sl.sendParticles(ParticleTypes.FLASH, p.getX(), p.getY(), p.getZ(), 1, 0, 0, 0, 0);
             sl.sendParticles(dust(VIOLET, 1.8F), p.getX(), p.getY(), p.getZ(), 12, 0.2, 0.2, 0.2, 0);
             soundAt(p.position(), ModSounds.REFLECT_HIT.get(), 1.5F, 0.95F);
+        }
+    }
+
+    /** electric shell: projectiles that come close are fried out of the air */
+    private void zapProjectiles(ServerLevel sl) {
+        for (Projectile p : this.level().getEntitiesOfClass(Projectile.class, this.getBoundingBox().inflate(2.5),
+                pr -> pr.getOwner() != this && !(pr instanceof MarbleEntity) && !(pr.getOwner() instanceof CilleEntity c && !canFight(c)))) {
+            sl.sendParticles(ParticleTypes.ELECTRIC_SPARK, p.getX(), p.getY(), p.getZ(), 14, 0.2, 0.2, 0.2, 0.3);
+            sl.sendParticles(ParticleTypes.SMOKE, p.getX(), p.getY(), p.getZ(), 4, 0.1, 0.1, 0.1, 0.02);
+            soundAt(p.position(), ModSounds.ELECTRIC_ZAP.get(), 1.2F, 1.0F);
+            p.discard();
         }
     }
 

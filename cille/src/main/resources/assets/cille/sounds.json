@@ -499,5 +499,102 @@
     "attenuation_distance": 48
    }
   ]
+ },
+ "nirumend_ambient": {
+  "subtitle": "subtitles.cille.nirumend_ambient",
+  "sounds": [
+   {
+    "name": "cille:nirumend_ambient1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "cille:nirumend_ambient2",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "nirumend_trumpet": {
+  "subtitle": "subtitles.cille.nirumend_trumpet",
+  "sounds": [
+   {
+    "name": "cille:nirumend_trumpet",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "nirumend_hurt": {
+  "subtitle": "subtitles.cille.nirumend_hurt",
+  "sounds": [
+   {
+    "name": "cille:nirumend_hurt1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "cille:nirumend_hurt2",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "nirumend_death": {
+  "subtitle": "subtitles.cille.nirumend_death",
+  "sounds": [
+   {
+    "name": "cille:nirumend_death",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "heavy_step": {
+  "subtitle": "subtitles.cille.heavy_step",
+  "sounds": [
+   {
+    "name": "cille:heavy_step1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "cille:heavy_step2",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "cille:heavy_step3",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "electric_shield": {
+  "subtitle": "subtitles.cille.electric_shield",
+  "sounds": [
+   {
+    "name": "cille:electric_shield",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "electric_zap": {
+  "subtitle": "subtitles.cille.electric_zap",
+  "sounds": [
+   {
+    "name": "cille:electric_zap",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "dust_burst": {
+  "subtitle": "subtitles.cille.dust_burst",
+  "sounds": [
+   {
+    "name": "cille:dust_burst",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "headbutt": {
+  "subtitle": "subtitles.cille.headbutt",
+  "sounds": [
+   {
+    "name": "cille:headbutt",
+    "attenuation_distance": 48
+   }
+  ]
  }
 }

@@ -19,6 +19,7 @@ import net.minecraft.world.phys.Vec3;
 /** shared Cille renderer: own death animation (no flip), glowing layer, technique beam and shield shells */
 public abstract class CilleRenderer<T extends CilleEntity, M extends CilleModel<T>> extends MobRenderer<T, M> {
     protected static final ResourceLocation SHIELD = tex("shield_sphere");
+    protected static final ResourceLocation ELECTRIC = tex("electric_sphere");
     private final ResourceLocation texture;
     private final float scale;
 
@@ -94,7 +95,14 @@ public abstract class CilleRenderer<T extends CilleEntity, M extends CilleModel<
                 case CilleEntity.SHIELD_SAND -> { r = 1.0F; g = 0.78F; b = 0.42F; a = 0.85F; }
                 default -> { r = 0.35F; g = 0.32F; b = 0.6F; a = 0.65F; }
             }
-            SmoothSphere.draw(pose, buffers.getBuffer(RenderType.entityTranslucent(SHIELD)), s, 32, 20, r, g, b, a, LightTexture.FULL_BRIGHT);
+            if (sh == CilleEntity.SHIELD_ELECTRIC) {
+                // crackling lightning shell: flickers and re-rolls its pattern every few ticks
+                pose.mulPose(Axis.XP.rotationDegrees((e.tickCount / 2) * 47F));
+                float fl = 0.75F + 0.25F * ((e.tickCount * 7) % 5) / 4F;
+                SmoothSphere.draw(pose, buffers.getBuffer(RenderType.entityTranslucentEmissive(ELECTRIC)), s, 32, 20, 0.8F * fl, 0.9F * fl, 1.0F, fl, LightTexture.FULL_BRIGHT);
+            } else {
+                SmoothSphere.draw(pose, buffers.getBuffer(RenderType.entityTranslucent(SHIELD)), s, 32, 20, r, g, b, a, LightTexture.FULL_BRIGHT);
+            }
             pose.popPose();
         }
     }
