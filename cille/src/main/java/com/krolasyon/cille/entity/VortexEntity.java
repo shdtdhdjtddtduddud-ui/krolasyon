@@ -35,7 +35,7 @@ import java.util.List;
  * SPOUT (Hortum): a towering waterspout that sucks enemies and loose ground up, spins them high and flings them out.
  */
 public class VortexEntity extends Entity {
-    public static final int KIND_WHIRLPOOL = 0, KIND_SPOUT = 1;
+    public static final int KIND_WHIRLPOOL = 0, KIND_SPOUT = 1, KIND_SAND = 2;
     private static final EntityDataAccessor<Integer> DATA_KIND = SynchedEntityData.defineId(VortexEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> DATA_BIG = SynchedEntityData.defineId(VortexEntity.class, EntityDataSerializers.BOOLEAN);
 
@@ -62,9 +62,11 @@ public class VortexEntity extends Entity {
 
     public int getKind() { return this.entityData.get(DATA_KIND); }
     public boolean isBig() { return this.entityData.get(DATA_BIG); }
-    public int life() { return getKind() == KIND_SPOUT ? 100 : 110; }
-    public float radius() { return (getKind() == KIND_SPOUT ? 3.0F : 5.5F) * (isBig() ? 1.3F : 1F); }
-    public float height() { return (getKind() == KIND_SPOUT ? 11F : 2.6F) * (isBig() ? 1.2F : 1F); }
+    public int life() { return switch (getKind()) { case KIND_SPOUT -> 100; case KIND_SAND -> 120; default -> 110; }; }
+    public float radius() { return switch (getKind()) { case KIND_SPOUT -> 3.0F; case KIND_SAND -> 3.4F; default -> 5.5F; } * (isBig() ? 1.3F : 1F); }
+    public float height() { return switch (getKind()) { case KIND_SPOUT -> 11F; case KIND_SAND -> 8F; default -> 2.6F; } * (isBig() ? 1.2F : 1F); }
+    /** columns (waterspout, sand vortex) vs the flat whirlpool */
+    public boolean isColumn() { return getKind() != KIND_WHIRLPOOL; }
 
     /** 0..1 grow-in / fade-out */
     public float size(float partial) {
@@ -84,9 +86,11 @@ public class VortexEntity extends Entity {
     public void tick() {
         super.tick();
         int t = this.tickCount;
-        boolean spout = getKind() == KIND_SPOUT;
+        boolean spout = isColumn();
+        boolean sand = getKind() == KIND_SAND;
         float R = radius(), Hh = height();
         if (this.level().isClientSide()) {
+            if (sand) { sandFx(); return; }
             float s = size(0F);
             for (int i = 0; i < (spout ? 8 : 6); i++) {
                 double h = random.nextDouble() * Hh * s;
@@ -104,12 +108,12 @@ public class VortexEntity extends Entity {
         if (owner == null || owner.isRemoved()) {
             if (t > 2) { finish(sl); return; }
         }
-        if (t % 30 == 2) sl.playSound(null, getX(), getY(), getZ(), spout ? ModSounds.WATERSPOUT.get() : ModSounds.WHIRLPOOL.get(), SoundSource.HOSTILE, 2.0F, 0.95F);
+        if (t % 30 == 2) sl.playSound(null, getX(), getY(), getZ(), sand ? ModSounds.SAND_VORTEX.get() : spout ? ModSounds.WATERSPOUT.get() : ModSounds.WHIRLPOOL.get(), SoundSource.HOSTILE, 2.0F, 0.95F);
 
         float s = size(0F);
         Vec3 c = position();
         AABB box = new AABB(c.x - R * 1.8, c.y - 2, c.z - R * 1.8, c.x + R * 1.8, c.y + Hh + 2, c.z + R * 1.8);
-        float power = owner instanceof BehmudEntity b ? b.power() : 1F;
+        float power = owner != null ? owner.power() : 1F;
         for (Entity e : this.level().getEntities(this, box, e -> e instanceof ItemEntity || (e instanceof LivingEntity && owner != null && owner.isHostileTo(e)))) {
             Vec3 d = new Vec3(c.x - e.getX(), 0, c.z - e.getZ());
             double dist = d.length();
@@ -118,7 +122,7 @@ public class VortexEntity extends Entity {
             Vec3 tangent = new Vec3(-in.z, 0, in.x);
             Vec3 v;
             if (spout) {
-                double lift = e.getY() < c.y + Hh - 1 ? 0.22 : -0.02;
+                double lift = e.getY() < c.y + (sand ? Hh * 0.45 : Hh - 1) ? (sand ? 0.12 : 0.22) : -0.02;
                 v = tangent.scale(0.45).add(in.scale(dist > 1.5 ? 0.14 : 0.02)).add(0, lift, 0);
             } else {
                 v = tangent.scale(0.32).add(in.scale(0.10 + 0.08 * (1 - dist / (R * 1.8)))).add(0, dist < 1.6 ? -0.05 : 0.02, 0);
@@ -128,7 +132,15 @@ public class VortexEntity extends Entity {
             e.fallDistance = 0;
             e.clearFire();
             if (e instanceof LivingEntity le) {
-                le.setAirSupply(Math.max(-10, le.getAirSupply() - 4));
+                if (sand) {
+                    // the sand blinds and pins: the victim is practically helpless inside
+                    le.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 40, 0));
+                    le.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 30, 4));
+                    le.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 40, 1));
+                    le.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, 40, 2));
+                } else {
+                    le.setAirSupply(Math.max(-10, le.getAirSupply() - 4));
+                }
                 if (t % 10 == 0) {
                     float dmg = (spout ? 3.0F : 3.5F) * power;
                     le.hurt(damageSources().indirectMagic(this, owner), dist < 1.8 ? dmg * 1.5F : dmg);
@@ -202,6 +214,20 @@ public class VortexEntity extends Entity {
             }
         }
         this.discard();
+    }
+
+    private void sandFx() {
+        float s = size(0F);
+        float R = radius(), Hh = height();
+        net.minecraft.core.particles.BlockParticleOption dust = new net.minecraft.core.particles.BlockParticleOption(ParticleTypes.FALLING_DUST,
+                net.minecraft.world.level.block.Blocks.SAND.defaultBlockState());
+        for (int i = 0; i < 10; i++) {
+            double h = random.nextDouble() * Hh * s;
+            double r = (0.6 + R * (h / Hh)) * s;
+            double a = random.nextDouble() * Math.PI * 2;
+            this.level().addParticle(i % 4 == 0 ? ParticleTypes.CLOUD : dust, getX() + Math.cos(a) * r, getY() + h, getZ() + Math.sin(a) * r,
+                    -Math.sin(a) * 0.3, 0.1, Math.cos(a) * 0.3);
+        }
     }
 
     @Override protected void readAdditionalSaveData(CompoundTag tag) { this.discard(); }

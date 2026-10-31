@@ -53,4 +53,17 @@ public final class ModSounds {
     public static final RegistryObject<SoundEvent> CLAMP_BITE = reg("clamp_bite");
     public static final RegistryObject<SoundEvent> SEAL_RELEASE = reg("seal_release");
     public static final RegistryObject<SoundEvent> SPACE_POWER = reg("space_power");
+    public static final RegistryObject<SoundEvent> SARKAN_AMBIENT = reg("sarkan_ambient");
+    public static final RegistryObject<SoundEvent> SARKAN_HURT = reg("sarkan_hurt");
+    public static final RegistryObject<SoundEvent> SARKAN_DEATH = reg("sarkan_death");
+    public static final RegistryObject<SoundEvent> ARMOUR_STEP = reg("armour_step");
+    public static final RegistryObject<SoundEvent> PUNCH = reg("punch");
+    public static final RegistryObject<SoundEvent> SAND_VORTEX = reg("sand_vortex");
+    public static final RegistryObject<SoundEvent> SANDSTORM = reg("sandstorm");
+    public static final RegistryObject<SoundEvent> SAND_WAVE = reg("sand_wave");
+    public static final RegistryObject<SoundEvent> ATLAS_SMASH = reg("atlas_smash");
+    public static final RegistryObject<SoundEvent> ROCK_RIP = reg("rock_rip");
+    public static final RegistryObject<SoundEvent> ROCK_IMPACT = reg("rock_impact");
+    public static final RegistryObject<SoundEvent> SAND_SHIELD = reg("sand_shield");
+    public static final RegistryObject<SoundEvent> EARTH_RISE = reg("earth_rise");
 }

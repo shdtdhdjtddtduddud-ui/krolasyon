@@ -30,7 +30,14 @@ public class CilleProjectileRenderer extends EntityRenderer<CilleProjectileEntit
         float age = e.tickCount + partial;
         pose.pushPose();
         pose.translate(0, 0.3, 0);
-        if (e.getKind() == CilleProjectileEntity.KIND_STAR) {
+        if (e.getKind() == CilleProjectileEntity.KIND_ROCK) {
+            // a torn-out boulder: the real block, tumbling
+            pose.mulPose(Axis.XP.rotationDegrees(age * 18F));
+            pose.mulPose(Axis.ZP.rotationDegrees(age * 11F));
+            pose.scale(1.4F, 1.4F, 1.4F);
+            pose.translate(-0.5, -0.5, -0.5);
+            net.minecraft.client.Minecraft.getInstance().getBlockRenderer().renderSingleBlock(e.getBlock(), pose, buffers, light, OverlayTexture.NO_OVERLAY);
+        } else if (e.getKind() == CilleProjectileEntity.KIND_STAR) {
             float r = 0.35F + 0.06F * Mth.sin(age * 1.3F);
             pose.mulPose(Axis.YP.rotationDegrees(age * 12F));
             SmoothSphere.draw(pose, buffers.getBuffer(RenderType.eyes(STAR)), r, 16, 10, 1F, 1F, 1F, 1F, LightTexture.FULL_BRIGHT);

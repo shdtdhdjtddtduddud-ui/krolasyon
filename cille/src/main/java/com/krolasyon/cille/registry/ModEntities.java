@@ -40,4 +40,8 @@ public final class ModEntities {
     public static final RegistryObject<EntityType<CilleProjectileEntity>> CILLE_PROJECTILE = ENTITIES.register("cille_projectile",
             () -> EntityType.Builder.<CilleProjectileEntity>of(CilleProjectileEntity::new, MobCategory.MISC)
                     .sized(0.6F, 0.6F).fireImmune().clientTrackingRange(8).updateInterval(1).build("cille_projectile"));
+
+    public static final RegistryObject<EntityType<SarkanEntity>> SARKAN = ENTITIES.register("sarkan",
+            () -> EntityType.Builder.of(SarkanEntity::new, MobCategory.CREATURE)
+                    .sized(1.5F, 3.4F).fireImmune().clientTrackingRange(12).build("sarkan"));
 }

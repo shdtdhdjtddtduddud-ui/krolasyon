@@ -88,6 +88,7 @@ public class BehmudEntity extends CilleEntity {
     @Override protected float cooldownScale() { return (isEmpowered() ? 0.5F : 1F) * (isPhase2() ? 0.75F : 1F); }
 
     /** damage multiplier: sealed power unleashed */
+    @Override
     public float power() { return isEmpowered() ? 1.6F : 1F; }
 
     // ------------------------------------------------------------------ flight

@@ -91,6 +91,7 @@ public abstract class CilleRenderer<T extends CilleEntity, M extends CilleModel<
             switch (sh) {
                 case CilleEntity.SHIELD_REFLECT -> { r = 0.95F; g = 0.85F; b = 1.0F; a = 0.8F; }
                 case CilleEntity.SHIELD_ICE -> { r = 0.7F; g = 0.95F; b = 1.0F; a = 0.85F; }
+                case CilleEntity.SHIELD_SAND -> { r = 1.0F; g = 0.78F; b = 0.42F; a = 0.85F; }
                 default -> { r = 0.35F; g = 0.32F; b = 0.6F; a = 0.65F; }
             }
             SmoothSphere.draw(pose, buffers.getBuffer(RenderType.entityTranslucent(SHIELD)), s, 32, 20, r, g, b, a, LightTexture.FULL_BRIGHT);

@@ -28,6 +28,12 @@ public final class ModItems {
     public static final RegistryObject<Item> KABKABA_SPAWN_EGG = ITEMS.register("kabkaba_spawn_egg",
             () -> new ForgeSpawnEggItem(ModEntities.KABKABA, 0x161925, 0x8A8F9E, new Item.Properties().rarity(Rarity.EPIC)));
 
+    public static final RegistryObject<Item> SARKAN_MISKETI = ITEMS.register("sarkan_misketi",
+            () -> new CilleMarbleItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC).fireResistant(), ModEntities.SARKAN::get));
+
+    public static final RegistryObject<Item> SARKAN_SPAWN_EGG = ITEMS.register("sarkan_spawn_egg",
+            () -> new ForgeSpawnEggItem(ModEntities.SARKAN, 0x2E3036, 0xD8C8A0, new Item.Properties().rarity(Rarity.EPIC)));
+
     public static final RegistryObject<Item> BEHMUD_SPAWN_EGG = ITEMS.register("behmud_spawn_egg",
             () -> new ForgeSpawnEggItem(ModEntities.BEHMUD, 0x0A1430, 0xBFE6EC, new Item.Properties().rarity(Rarity.EPIC)));
 
@@ -39,6 +45,8 @@ public final class ModItems {
                 output.accept(KABKABA_SPAWN_EGG.get());
                 output.accept(BEHMUD_MISKETI.get());
                 output.accept(BEHMUD_SPAWN_EGG.get());
+                output.accept(SARKAN_MISKETI.get());
+                output.accept(SARKAN_SPAWN_EGG.get());
             })
             .build());
 }

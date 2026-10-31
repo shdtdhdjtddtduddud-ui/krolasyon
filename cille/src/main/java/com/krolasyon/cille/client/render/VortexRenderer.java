@@ -16,6 +16,7 @@ import org.joml.Matrix4f;
 /** spinning funnel of water: a wide whirlpool or a tall waterspout */
 public class VortexRenderer extends EntityRenderer<VortexEntity> {
     private static final ResourceLocation WATER = CilleRenderer.tex("water_swirl");
+    private static final ResourceLocation SAND = CilleRenderer.tex("sand_swirl");
 
     public VortexRenderer(EntityRendererProvider.Context ctx) {
         super(ctx);
@@ -26,9 +27,9 @@ public class VortexRenderer extends EntityRenderer<VortexEntity> {
         float s = e.size(partial);
         if (s <= 0.01F) return;
         float age = e.tickCount + partial;
-        boolean spout = e.getKind() == VortexEntity.KIND_SPOUT;
+        boolean spout = e.isColumn();
         float R = e.radius() * s, H = e.height() * s;
-        VertexConsumer vc = buffers.getBuffer(RenderType.entityTranslucent(WATER));
+        VertexConsumer vc = buffers.getBuffer(RenderType.entityTranslucent(e.getKind() == VortexEntity.KIND_SAND ? SAND : WATER));
         funnel(pose, vc, R, H, spout, age * (spout ? 0.035F : 0.022F), age * 0.02F, 0.85F, light);
         funnel(pose, vc, R * 0.7F, H * 0.95F, spout, age * (spout ? 0.06F : 0.04F), age * 0.035F + 0.5F, 0.6F, light);
         super.render(e, yaw, partial, pose, buffers, light);
@@ -65,5 +66,5 @@ public class VortexRenderer extends EntityRenderer<VortexEntity> {
     }
 
     @Override
-    public ResourceLocation getTextureLocation(VortexEntity e) { return WATER; }
+    public ResourceLocation getTextureLocation(VortexEntity e) { return e.getKind() == VortexEntity.KIND_SAND ? SAND : WATER; }
 }

@@ -3,6 +3,7 @@ package com.krolasyon.cille.client.render;
 import com.krolasyon.cille.client.model.BehmudModel;
 import com.krolasyon.cille.client.model.CilleModel;
 import com.krolasyon.cille.client.model.KabkabaModel;
+import com.krolasyon.cille.client.model.SarkanModel;
 import com.krolasyon.cille.registry.ModItems;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.resources.ResourceLocation;
@@ -36,6 +37,8 @@ public final class MiniCille {
     public static MiniCille forItem(Item item, EntityModelSet models) {
         if (bakedFrom != models) { CACHE.clear(); bakedFrom = models; }
         return CACHE.computeIfAbsent(item, it -> {
+            if (it == ModItems.SARKAN_MISKETI.get())
+                return new MiniCille(new SarkanModel(models.bakeLayer(SarkanModel.LAYER)), "sarkan", 0.2F, 1.15F, 0F, 0.9F, 0.85F, 0.75F, 1.0F, 0.88F, 0.62F);
             if (it == ModItems.BEHMUD_MISKETI.get())
                 return new MiniCille(new BehmudModel(models.bakeLayer(BehmudModel.LAYER)), "behmud", 0.12F, 0.62F, -1.8F, 0.75F, 0.85F, 1.0F, 0.72F, 1.0F, 1.0F);
             return new MiniCille(new KabkabaModel(models.bakeLayer(KabkabaModel.LAYER)), "kabkaba", 0.11F, 0.62F, 0F, 0.42F, 0.48F, 0.9F, 1F, 1F, 1F);

@@ -1,0 +1,15 @@
+{
+  "parent": "builtin/entity",
+  "gui_light": "front",
+  "textures": { "particle": "cille:item/sarkan_misketi" },
+  "display": {
+    "gui": { "rotation": [0, 0, 0], "translation": [0, 0, 0], "scale": [1.0, 1.0, 1.0] },
+    "ground": { "rotation": [0, 0, 0], "translation": [0, 2, 0], "scale": [0.35, 0.35, 0.35] },
+    "fixed": { "rotation": [0, 0, 0], "translation": [0, 0, 0], "scale": [0.6, 0.6, 0.6] },
+    "head": { "rotation": [0, 0, 0], "translation": [0, 13, 0], "scale": [0.6, 0.6, 0.6] },
+    "thirdperson_righthand": { "rotation": [0, 0, 0], "translation": [0, 2.5, 2], "scale": [0.3, 0.3, 0.3] },
+    "thirdperson_lefthand": { "rotation": [0, 0, 0], "translation": [0, 2.5, 2], "scale": [0.3, 0.3, 0.3] },
+    "firstperson_righthand": { "rotation": [0, -20, 0], "translation": [1.5, 3.5, -1], "scale": [0.42, 0.42, 0.42] },
+    "firstperson_lefthand": { "rotation": [0, 20, 0], "translation": [1.5, 3.5, -1], "scale": [0.42, 0.42, 0.42] }
+  }
+}

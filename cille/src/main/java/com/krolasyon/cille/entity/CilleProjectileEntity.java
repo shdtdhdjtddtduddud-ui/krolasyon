@@ -28,7 +28,9 @@ import javax.annotation.Nullable;
  * and falling stars from the space power.
  */
 public class CilleProjectileEntity extends Projectile {
-    public static final int KIND_FISH = 0, KIND_TORPEDO = 1, KIND_STAR = 2;
+    public static final int KIND_FISH = 0, KIND_TORPEDO = 1, KIND_STAR = 2, KIND_ROCK = 3;
+    private static final EntityDataAccessor<net.minecraft.world.level.block.state.BlockState> DATA_BLOCK =
+            SynchedEntityData.defineId(CilleProjectileEntity.class, EntityDataSerializers.BLOCK_STATE);
     private static final EntityDataAccessor<Integer> DATA_KIND = SynchedEntityData.defineId(CilleProjectileEntity.class, EntityDataSerializers.INT);
 
     @Nullable private LivingEntity homing;
@@ -53,7 +55,26 @@ public class CilleProjectileEntity extends Projectile {
     public int getKind() { return this.entityData.get(DATA_KIND); }
 
     @Override
-    protected void defineSynchedData() { this.entityData.define(DATA_KIND, KIND_FISH); }
+    protected void defineSynchedData() {
+        this.entityData.define(DATA_KIND, KIND_FISH);
+        this.entityData.define(DATA_BLOCK, net.minecraft.world.level.block.Blocks.SANDSTONE.defaultBlockState());
+    }
+
+    /** the boulder's block (Şarkan's rock throw) */
+    public net.minecraft.world.level.block.state.BlockState getBlock() { return this.entityData.get(DATA_BLOCK); }
+
+    public static void launchRock(CilleEntity owner, net.minecraft.world.level.block.state.BlockState state, Vec3 from, Vec3 dir, double speed, @Nullable LivingEntity target) {
+        CilleProjectileEntity p = new CilleProjectileEntity(ModEntities.CILLE_PROJECTILE.get(), owner.level());
+        p.setOwner(owner);
+        p.entityData.set(DATA_KIND, KIND_ROCK);
+        p.entityData.set(DATA_BLOCK, state);
+        p.homing = target;
+        p.setPos(from.x, from.y, from.z);
+        Vec3 d = dir.lengthSqr() < 1.0E-6 ? owner.forward() : dir.normalize();
+        p.setDeltaMovement(d.scale(speed));
+        p.updateRotation();
+        owner.level().addFreshEntity(p);
+    }
 
     @Override
     public void tick() {
@@ -74,6 +95,7 @@ public class CilleProjectileEntity extends Projectile {
             if (this.tickCount > 160) { explode(); return; }
         }
         if (kind == KIND_FISH) v = v.add(0, -0.035, 0);
+        if (kind == KIND_ROCK) v = v.add(0, -0.045, 0);
         if (kind == KIND_STAR) v = v.scale(1.04);
         this.setDeltaMovement(v);
         this.setPos(getX() + v.x, getY() + v.y, getZ() + v.z);
@@ -88,6 +110,7 @@ public class CilleProjectileEntity extends Projectile {
                     this.level().addParticle(ParticleTypes.BUBBLE, getX(), getY(), getZ(), -v.x * 0.2, -v.y * 0.2, -v.z * 0.2);
                     this.level().addParticle(ParticleTypes.CLOUD, getX(), getY(), getZ(), 0, 0, 0);
                 }
+                case KIND_ROCK -> this.level().addParticle(new net.minecraft.core.particles.BlockParticleOption(ParticleTypes.BLOCK, getBlock()), getX(), getY() + 0.4, getZ(), 0, 0, 0);
                 default -> this.level().addParticle(ParticleTypes.SPLASH, getX(), getY(), getZ(), 0, 0, 0);
             }
         }
@@ -106,11 +129,14 @@ public class CilleProjectileEntity extends Projectile {
         int kind = getKind();
         Entity ownerE = this.getOwner();
         CilleEntity owner = ownerE instanceof CilleEntity c ? c : null;
-        float power = owner instanceof BehmudEntity b ? b.power() : 1F;
-        double r = switch (kind) { case KIND_TORPEDO -> 3.4; case KIND_STAR -> 2.8; default -> 2.6; };
-        float dmg = switch (kind) { case KIND_TORPEDO -> 12F; case KIND_STAR -> 9F; default -> 8F; } * power;
+        float power = owner != null ? owner.power() : 1F;
+        double r = switch (kind) { case KIND_TORPEDO -> 3.4; case KIND_STAR -> 2.8; case KIND_ROCK -> 3.0; default -> 2.6; };
+        float dmg = switch (kind) { case KIND_TORPEDO -> 12F; case KIND_STAR -> 9F; case KIND_ROCK -> 15F; default -> 8F; } * power;
         Vec3 c = position();
-        if (kind == KIND_STAR) {
+        if (kind == KIND_ROCK) {
+            sl.sendParticles(new net.minecraft.core.particles.BlockParticleOption(ParticleTypes.BLOCK, getBlock()), c.x, c.y + 0.4, c.z, 80, 1.0, 0.6, 1.0, 0.25);
+            sl.sendParticles(ParticleTypes.EXPLOSION, c.x, c.y + 0.4, c.z, 2, 0.4, 0.3, 0.4, 0);
+        } else if (kind == KIND_STAR) {
             sl.sendParticles(ParticleTypes.FLASH, c.x, c.y, c.z, 1, 0, 0, 0, 0);
             sl.sendParticles(ParticleTypes.END_ROD, c.x, c.y + 0.3, c.z, 40, 0.3, 0.3, 0.3, 0.35);
             sl.sendParticles(ParticleTypes.EXPLOSION, c.x, c.y + 0.3, c.z, 2, 0.3, 0.3, 0.3, 0);
@@ -119,7 +145,7 @@ public class CilleProjectileEntity extends Projectile {
             sl.sendParticles(ParticleTypes.SPLASH, c.x, c.y + 0.3, c.z, 80, r * 0.4, 0.5, r * 0.4, 0.5);
             sl.sendParticles(ParticleTypes.BUBBLE_POP, c.x, c.y + 0.3, c.z, 30, r * 0.4, 0.5, r * 0.4, 0.2);
         }
-        sl.playSound(null, c.x, c.y, c.z, ModSounds.WATER_BOOM.get(), SoundSource.HOSTILE, kind == KIND_TORPEDO ? 3.0F : 2.0F, kind == KIND_STAR ? 0.8F : 1.0F);
+        sl.playSound(null, c.x, c.y, c.z, kind == KIND_ROCK ? ModSounds.ROCK_IMPACT.get() : ModSounds.WATER_BOOM.get(), SoundSource.HOSTILE, kind == KIND_TORPEDO ? 3.0F : 2.0F, kind == KIND_STAR ? 0.8F : 1.0F);
         for (LivingEntity e : this.level().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(r))) {
             if (owner != null ? !owner.isHostileTo(e) : e == ownerE) continue;
             double d = Math.sqrt(e.distanceToSqr(this));
@@ -132,7 +158,7 @@ public class CilleProjectileEntity extends Projectile {
                 e.clearFire();
             }
         }
-        if (owner != null) Terrain.crater(sl, owner, c, kind == KIND_TORPEDO ? 2.4 : 1.5, kind == KIND_TORPEDO ? 6 : 3, 2.0F);
+        if (owner != null) Terrain.crater(sl, owner, c, kind == KIND_TORPEDO || kind == KIND_ROCK ? 2.4 : 1.5, kind == KIND_TORPEDO || kind == KIND_ROCK ? 6 : 3, 2.0F);
         this.discard();
     }
 

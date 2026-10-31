@@ -354,5 +354,150 @@
     "attenuation_distance": 48
    }
   ]
+ },
+ "sarkan_ambient": {
+  "subtitle": "subtitles.cille.sarkan_ambient",
+  "sounds": [
+   {
+    "name": "cille:sarkan_ambient1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "cille:sarkan_ambient2",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "sarkan_hurt": {
+  "subtitle": "subtitles.cille.sarkan_hurt",
+  "sounds": [
+   {
+    "name": "cille:sarkan_hurt1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "cille:sarkan_hurt2",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "cille:sarkan_hurt3",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "sarkan_death": {
+  "subtitle": "subtitles.cille.sarkan_death",
+  "sounds": [
+   {
+    "name": "cille:sarkan_death",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "armour_step": {
+  "subtitle": "subtitles.cille.armour_step",
+  "sounds": [
+   {
+    "name": "cille:armour_step1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "cille:armour_step2",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "cille:armour_step3",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "punch": {
+  "subtitle": "subtitles.cille.punch",
+  "sounds": [
+   {
+    "name": "cille:punch1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "cille:punch2",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "cille:punch3",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "sand_vortex": {
+  "subtitle": "subtitles.cille.sand_vortex",
+  "sounds": [
+   {
+    "name": "cille:sand_vortex",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "sandstorm": {
+  "subtitle": "subtitles.cille.sandstorm",
+  "sounds": [
+   {
+    "name": "cille:sandstorm",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "sand_wave": {
+  "subtitle": "subtitles.cille.sand_wave",
+  "sounds": [
+   {
+    "name": "cille:sand_wave",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "atlas_smash": {
+  "subtitle": "subtitles.cille.atlas_smash",
+  "sounds": [
+   {
+    "name": "cille:atlas_smash",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "rock_rip": {
+  "subtitle": "subtitles.cille.rock_rip",
+  "sounds": [
+   {
+    "name": "cille:rock_rip",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "rock_impact": {
+  "subtitle": "subtitles.cille.rock_impact",
+  "sounds": [
+   {
+    "name": "cille:rock_impact",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "sand_shield": {
+  "subtitle": "subtitles.cille.sand_shield",
+  "sounds": [
+   {
+    "name": "cille:sand_shield",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "earth_rise": {
+  "subtitle": "subtitles.cille.earth_rise",
+  "sounds": [
+   {
+    "name": "cille:earth_rise",
+    "attenuation_distance": 48
+   }
+  ]
  }
 }
