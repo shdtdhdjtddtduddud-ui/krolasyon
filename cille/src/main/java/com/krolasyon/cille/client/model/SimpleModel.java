@@ -11,6 +11,7 @@ import net.minecraft.world.entity.Entity;
 /** static helper model for effects (marble / shield / black hole sphere, shadow spike) */
 public class SimpleModel<T extends Entity> extends HierarchicalModel<T> {
     public static final ModelLayerLocation SPHERE = new ModelLayerLocation(new ResourceLocation(CilleMod.MODID, "sphere"), "main");
+    public static final ModelLayerLocation FISH = new ModelLayerLocation(new ResourceLocation(CilleMod.MODID, "fish"), "main");
     public static final ModelLayerLocation SHADOW_SPIKE = new ModelLayerLocation(new ResourceLocation(CilleMod.MODID, "shadow_spike"), "main");
 
     private final ModelPart root;

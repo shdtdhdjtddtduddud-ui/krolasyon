@@ -1,6 +1,5 @@
 package com.krolasyon.cille.client.render;
 
-import com.krolasyon.cille.client.model.KabkabaModel;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -16,8 +15,7 @@ import org.joml.Matrix4f;
 public final class SmoothSphere {
     private SmoothSphere() {}
 
-    public static final ResourceLocation MARBLE_GLASS = KabkabaRenderer.tex("marble_glass");
-    public static final ResourceLocation KABKABA = KabkabaRenderer.tex("kabkaba");
+    public static final ResourceLocation MARBLE_GLASS = CilleRenderer.tex("marble_glass");
 
     public static void draw(PoseStack pose, VertexConsumer vc, float radius, int slices, int stacks,
                             float r, float g, float b, float a, int light) {
@@ -45,22 +43,22 @@ public final class SmoothSphere {
     }
 
     /**
-     * Glass marble of the given radius centred at the pose origin, with a tiny curled-up Kabkaba turning slowly
-     * inside it. `roll` tumbles the Kabkaba while the marble rolls; the glass highlight stays put like real glass.
+     * Glass marble of the given radius centred at the pose origin, with its tiny Cille curled up and turning slowly
+     * inside it. `roll` tumbles the Cille while the marble rolls; the glass highlight stays put like real glass.
      */
-    public static void marble(PoseStack pose, MultiBufferSource buffers, KabkabaModel mini, float radius, float age, float roll, int light) {
+    public static void marble(PoseStack pose, MultiBufferSource buffers, MiniCille mini, float radius, float age, float roll, int light) {
         pose.pushPose();
         pose.mulPose(Axis.XP.rotationDegrees(roll));
         pose.mulPose(Axis.YP.rotationDegrees(age * 3.5F));
         pose.mulPose(Axis.ZP.rotationDegrees(Mth.sin(age * 0.05F) * 12F));
-        float s = radius * 0.11F;
+        float s = radius * mini.scale;
         pose.scale(s, s, s);
         pose.scale(-1F, -1F, 1F);
-        pose.translate(0, 0.62F, 0);
-        mini.poseStatic(age / 20F);
-        mini.renderToBuffer(pose, buffers.getBuffer(RenderType.entityCutoutNoCull(KABKABA)), light, OverlayTexture.NO_OVERLAY, 0.42F, 0.48F, 0.9F, 1F);
+        pose.translate(0, mini.offY, mini.offZ);
+        mini.model.poseStatic(age / 20F);
+        mini.model.renderToBuffer(pose, buffers.getBuffer(RenderType.entityCutoutNoCull(mini.texture)), light, OverlayTexture.NO_OVERLAY, mini.r, mini.g, mini.b, 1F);
         pose.popPose();
 
-        draw(pose, buffers.getBuffer(RenderType.entityTranslucent(MARBLE_GLASS)), radius, 28, 18, 1F, 1F, 1F, 1F, light);
+        draw(pose, buffers.getBuffer(RenderType.entityTranslucent(MARBLE_GLASS)), radius, 28, 18, mini.gr, mini.gg, mini.gb, 1F, light);
     }
 }

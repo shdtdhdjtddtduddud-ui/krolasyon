@@ -1,19 +1,21 @@
 package com.krolasyon.cille.client;
 
-import com.krolasyon.cille.entity.KabkabaEntity;
+import com.krolasyon.cille.entity.CilleEntity;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 
-/** Cille command menu (R): battle orders on the left, Kabkaba's abilities on the right */
+/** Cille command menu (R): battle orders on the left, the selected Cille's abilities on the right */
 public class CilleCommandScreen extends Screen {
     @Nullable private final Entity target;
     @Nullable private final Vec3 point;
+    @Nullable private CilleEntity cille;
 
     public CilleCommandScreen(@Nullable Entity target, @Nullable Vec3 point) {
         super(Component.translatable("screen.cille.title"));
@@ -23,43 +25,53 @@ public class CilleCommandScreen extends Screen {
 
     @Override
     protected void init() {
-        int w = 150, h = 20, gap = 4;
-        int lx = this.width / 2 - w - 10, rx = this.width / 2 + 10;
-        int y0 = this.height / 2 - 82;
-        int[] cmds = {KabkabaEntity.CMD_ATTACK, KabkabaEntity.CMD_STOP, KabkabaEntity.CMD_AGGRESSIVE, KabkabaEntity.CMD_DEFEND,
-                KabkabaEntity.CMD_RETREAT, KabkabaEntity.CMD_MOVE, KabkabaEntity.CMD_STAY, KabkabaEntity.CMD_RECALL};
+        this.cille = CilleClient.myCille(this.minecraft);
+        int w = 140, h = 20, gap = 3;
+        int[] abil = cille != null ? cille.commandableAbilities() : new int[0];
+        int abilCols = abil.length > 8 ? 2 : 1;
+        int total = w + 12 + abilCols * (w + 6);
+        int lx = this.width / 2 - total / 2;
+        int y0 = this.height / 2 - 92;
+        int[] cmds = {CilleEntity.CMD_ATTACK, CilleEntity.CMD_STOP, CilleEntity.CMD_AGGRESSIVE, CilleEntity.CMD_DEFEND,
+                CilleEntity.CMD_RETREAT, CilleEntity.CMD_MOVE, CilleEntity.CMD_STAY, CilleEntity.CMD_RECALL};
         String[] keys = {"attack", "stop", "aggressive", "defend", "retreat", "move", "stay", "recall"};
         for (int i = 0; i < cmds.length; i++) {
             final int cmd = cmds[i];
             Button b = Button.builder(Component.translatable("screen.cille.cmd." + keys[i]), btn -> order(cmd))
                     .bounds(lx, y0 + i * (h + gap), w, h).build();
-            if (cmd == KabkabaEntity.CMD_MOVE && point == null) b.active = false;
+            if (cmd == CilleEntity.CMD_MOVE && point == null) b.active = false;
+            if (cille == null) b.active = false;
             this.addRenderableWidget(b);
         }
-        for (int i = 0; i < CilleKeys.ABILITY_IDS.length; i++) {
-            final int id = CilleKeys.ABILITY_IDS[i];
-            this.addRenderableWidget(Button.builder(Component.translatable("ability.cille." + id).append(" [ALT+" + (i + 1) + "]"),
-                    btn -> order(KabkabaEntity.CMD_ABILITY + id)).bounds(rx, y0 + i * (h + gap), w, h).build());
+        int rx = lx + w + 12;
+        int perCol = abilCols == 2 ? (abil.length + 1) / 2 : abil.length;
+        for (int i = 0; i < abil.length; i++) {
+            final int id = abil[i];
+            int col = i / Math.max(1, perCol), row = i % Math.max(1, perCol);
+            MutableComponent label = Component.translatable(cille.abilityKey(id));
+            String key = CilleKeys.slotLabel(i);
+            if (!key.isEmpty()) label = label.append(" [" + key + "]");
+            this.addRenderableWidget(Button.builder(label, btn -> order(CilleEntity.CMD_ABILITY + id))
+                    .bounds(rx + col * (w + 6), y0 + row * (h + gap), w, h).build());
         }
     }
 
     private void order(int cmd) {
-        CilleClient.send(cmd, target, cmd == KabkabaEntity.CMD_MOVE ? point : null);
+        CilleClient.send(cmd, target, cmd == CilleEntity.CMD_MOVE ? point : null);
         this.onClose();
     }
 
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partial) {
         this.renderBackground(g);
-        int y0 = this.height / 2 - 82;
-        g.drawCenteredString(this.font, this.title, this.width / 2, y0 - 34, 0xD8CCFF);
+        int y0 = this.height / 2 - 92;
+        Component who = cille != null ? Component.translatable("screen.cille.title_named", cille.getDisplayName()) : this.title;
+        g.drawCenteredString(this.font, who, this.width / 2, y0 - 36, 0xD8CCFF);
         Component tgt = target != null ? Component.translatable("screen.cille.target", target.getDisplayName())
                 : Component.translatable("screen.cille.no_target");
-        g.drawCenteredString(this.font, tgt, this.width / 2, y0 - 20, target != null ? 0xFF8080 : 0x909090);
-        g.drawString(this.font, Component.translatable("screen.cille.orders"), this.width / 2 - 160, y0 - 10, 0xA0C8FF);
-        g.drawString(this.font, Component.translatable("screen.cille.abilities"), this.width / 2 + 10, y0 - 10, 0xC8A0FF);
-        KabkabaEntity k = CilleClient.myKabkaba(this.minecraft);
-        if (k == null) g.drawCenteredString(this.font, Component.translatable("msg.cille.cmd.none"), this.width / 2, y0 + 8 * 24 + 6, 0xFF6060);
+        g.drawCenteredString(this.font, tgt, this.width / 2, y0 - 24, target != null ? 0xFF8080 : 0x909090);
+        g.drawCenteredString(this.font, Component.translatable("screen.cille.select_hint"), this.width / 2, y0 - 13, 0x7080A0);
+        if (cille == null) g.drawCenteredString(this.font, Component.translatable("msg.cille.cmd.none"), this.width / 2, y0 + 8 * 23 + 6, 0xFF6060);
         super.render(g, mouseX, mouseY, partial);
     }
 

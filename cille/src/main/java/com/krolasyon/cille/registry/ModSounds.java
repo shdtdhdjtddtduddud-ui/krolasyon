@@ -35,4 +35,22 @@ public final class ModSounds {
     public static final RegistryObject<SoundEvent> MARBLE_THROW = reg("marble_throw");
     public static final RegistryObject<SoundEvent> MARBLE_CLACK = reg("marble_clack");
     public static final RegistryObject<SoundEvent> MARBLE_BURST = reg("marble_burst");
+
+    public static final RegistryObject<SoundEvent> ICE_HIT = reg("ice_hit");
+    public static final RegistryObject<SoundEvent> ICE_BREAK = reg("ice_break");
+    public static final RegistryObject<SoundEvent> BEHMUD_AMBIENT = reg("behmud_ambient");
+    public static final RegistryObject<SoundEvent> BEHMUD_HURT = reg("behmud_hurt");
+    public static final RegistryObject<SoundEvent> BEHMUD_DEATH = reg("behmud_death");
+    public static final RegistryObject<SoundEvent> ICE_BEAM = reg("ice_beam");
+    public static final RegistryObject<SoundEvent> ICE_FORM = reg("ice_form");
+    public static final RegistryObject<SoundEvent> WHIRLPOOL = reg("whirlpool");
+    public static final RegistryObject<SoundEvent> SONIC_WAVE = reg("sonic_wave");
+    public static final RegistryObject<SoundEvent> FISH_LAUNCH = reg("fish_launch");
+    public static final RegistryObject<SoundEvent> WATER_BOOM = reg("water_boom");
+    public static final RegistryObject<SoundEvent> TORPEDO = reg("torpedo");
+    public static final RegistryObject<SoundEvent> RUSH_DASH = reg("rush_dash");
+    public static final RegistryObject<SoundEvent> WATERSPOUT = reg("waterspout");
+    public static final RegistryObject<SoundEvent> CLAMP_BITE = reg("clamp_bite");
+    public static final RegistryObject<SoundEvent> SEAL_RELEASE = reg("seal_release");
+    public static final RegistryObject<SoundEvent> SPACE_POWER = reg("space_power");
 }

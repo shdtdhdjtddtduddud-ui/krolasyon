@@ -197,3 +197,78 @@ def halo_tex():
     k = 0.5 + 0.5 * nz(n * 3)
     col = ramp(k, [(30, 8, 60), (90, 34, 170), (150, 90, 240)])
     return _img(col, np.ones(n.shape[:2]))
+
+
+# ---------------------------------------------------------------- exploding fish (Behmud's fish bombs / torpedoes)
+FISH = Model('fish', 128, 128)
+FISH.bone('fish', None, (0, 0, 0))
+ellipsoid_l(FISH, 'fish', (0, 0, 0), (3.2, 3.6, 7), 'fish', axis='z', slices=5)
+FISH.bone('fish_tail', 'fish', (0, 0, 6))
+FISH.cube_l('fish_tail', (-0.4, -4, 0), (0.8, 8, 5), 'fish_fin')
+FISH.cube_l('fish', (-0.4, -6, -2), (0.8, 3, 5), 'fish_fin')
+for sx in (-1, 1):
+    FISH.cube_l('fish', (sx * 3.0 - 0.5, -1.6, -5.2), (1, 1.6, 1.6), 'fish_eye')
+FISH.pack()
+
+
+def fish_painter():
+    p = Painter(FISH)
+
+    @p.mat('fish')
+    def fish(c, face, W, H, r):
+        Pw, n = texel_world(FISH, c, face, W, H)
+        belly = smooth(-0.5, 2.5, Pw[..., 1])
+        col = lerp((30, 70, 120), (255, 150, 60), belly)
+        stripe = smooth(0.7, 0.95, np.sin(Pw[..., 2] * 1.4))
+        col = lerp(col, (20, 30, 60), stripe * (1 - belly))
+        g = glow_img(H, W, (255, 140, 50), belly * 0.9)
+        return col, np.ones((H, W)), g
+
+    @p.mat('fish_fin')
+    def fin(c, face, W, H, r):
+        col = np.zeros((H, W, 3), np.float32); col[:] = (90, 170, 220)
+        return col, np.ones((H, W)), None
+
+    @p.mat('fish_eye')
+    def eye(c, face, W, H, r):
+        col = np.zeros((H, W, 3), np.float32); col[:] = (255, 240, 200)
+        return col, np.ones((H, W)), glow_img(H, W, (255, 220, 160), np.ones((H, W)))
+    return p
+
+
+def star_tex():
+    n = _equirect()
+    nz = Noise3(81, freq=2.5)
+    k = nz(n * 3)
+    col = ramp(k, [(120, 160, 255), (200, 220, 255), (255, 255, 255)])
+    return _img(col, np.ones(n.shape[:2]))
+
+
+def water_tex(W=128, H=256):
+    """tileable swirling water for the whirlpool / waterspout mesh (scrolls in the renderer)"""
+    yy, xx = np.mgrid[0:H, 0:W]
+    u, v = xx / W * 2 * math.pi, yy / H * 2 * math.pi
+    s = np.sin(u * 3 + v * 2 + np.sin(v * 3) * 1.5) * 0.5 + np.sin(u * 5 - v * 4) * 0.3 + np.sin(u * 2 + v * 6) * 0.2
+    t = 0.5 + 0.5 * s / 1.0
+    col = ramp(t, [(20, 70, 140), (50, 130, 200), (140, 210, 240), (235, 250, 255)])
+    alpha = 0.45 + 0.4 * smooth(0.55, 0.95, t)
+    return _img(col, alpha)
+
+
+def behmud_icon(size=32):
+    """particle / fallback icon: pale cyan marble with a dark whale inside"""
+    S = size * 8
+    yy, xx = np.mgrid[0:S, 0:S]
+    c = S / 2
+    r = np.hypot(xx - c, yy - c) / (S * 0.46)
+    nz_ = np.sqrt(np.clip(1 - r ** 2, 0, 1))
+    d = (-(xx - c) * 0.5 - (yy - c) * 0.6) / (S * 0.46) + nz_ * 0.62
+    col = ramp(0.3 + 0.4 * (d + 1) / 2, [(20, 60, 90), (60, 140, 170), (140, 210, 225), (220, 245, 250)])
+    a = (r < 1).astype(np.float32)
+    arr = np.zeros((S, S, 4), np.float32)
+    arr[..., :3] = col; arr[..., 3] = a * 255
+    whale = (((xx - c * 0.95) / (S * 0.3)) ** 2 + ((yy - c * 1.05) / (S * 0.1)) ** 2) < 1
+    arr[whale & (a > 0), :3] = (14, 22, 44)
+    spec = np.hypot(xx - c * 1.38, yy - c * 0.62) < S * 0.1
+    arr[spec & (a > 0), :3] = (250, 252, 255)
+    return Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), 'RGBA').resize((size, size), Image.LANCZOS)

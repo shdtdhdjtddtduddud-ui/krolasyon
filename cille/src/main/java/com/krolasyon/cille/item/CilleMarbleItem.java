@@ -1,5 +1,6 @@
 package com.krolasyon.cille.item;
 
+import com.krolasyon.cille.entity.CilleEntity;
 import com.krolasyon.cille.entity.MarbleEntity;
 import com.krolasyon.cille.registry.ModSounds;
 import net.minecraft.ChatFormatting;
@@ -12,6 +13,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -23,15 +25,21 @@ import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
- * Kabkaba's marble. The first player to throw it becomes its Cahan: the bond is permanent and nobody else can
- * open the marble. Throw it; when it hits another marble (or rolls to a stop) Kabkaba bursts out.
+ * A Cille's marble. The first player to throw it becomes its Cahan: the bond is permanent and nobody else can
+ * open the marble. Throw it; when it hits another marble (or rolls to a stop) the Cille bursts out.
  */
 public class CilleMarbleItem extends Item {
-    public CilleMarbleItem(Properties props) {
+    private final Supplier<? extends EntityType<? extends CilleEntity>> type;
+
+    public CilleMarbleItem(Properties props, Supplier<? extends EntityType<? extends CilleEntity>> type) {
         super(props);
+        this.type = type;
     }
+
+    public EntityType<? extends CilleEntity> cilleType() { return type.get(); }
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
@@ -47,7 +55,7 @@ public class CilleMarbleItem extends Item {
         }
         if (tag.hasUUID("Owner") && !tag.getUUID("Owner").equals(player.getUUID())) {
             if (!level.isClientSide()) {
-                player.displayClientMessage(Component.translatable("msg.cille.refuse", tag.getString("OwnerName")).withStyle(ChatFormatting.DARK_PURPLE), true);
+                player.displayClientMessage(Component.translatable("msg.cille.refuse", tag.getString("OwnerName"), Component.translatable(cilleType().getDescriptionId())).withStyle(ChatFormatting.DARK_PURPLE), true);
                 player.hurt(level.damageSources().magic(), 2F);
                 player.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 60, 0));
                 level.playSound(null, player.getX(), player.getY(), player.getZ(), ModSounds.AMBIENT.get(), SoundSource.PLAYERS, 1.2F, 0.6F);
@@ -59,7 +67,7 @@ public class CilleMarbleItem extends Item {
             if (!tag.hasUUID("Owner")) {
                 tag.putUUID("Owner", player.getUUID());
                 tag.putString("OwnerName", player.getName().getString());
-                player.displayClientMessage(Component.translatable("msg.cille.bond").withStyle(ChatFormatting.LIGHT_PURPLE), false);
+                player.displayClientMessage(Component.translatable("msg.cille.bond", Component.translatable(cilleType().getDescriptionId())).withStyle(ChatFormatting.LIGHT_PURPLE), false);
                 ((ServerLevel) level).sendParticles(ParticleTypes.REVERSE_PORTAL, player.getX(), player.getY() + 1, player.getZ(), 60, 0.6, 1.0, 0.6, 0.3);
             }
             ItemStack thrown = stack.copy();
@@ -94,18 +102,18 @@ public class CilleMarbleItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> lines, TooltipFlag flag) {
         CompoundTag tag = stack.getTag();
-        lines.add(Component.translatable("item.cille.kabkaba_misketi.desc").withStyle(ChatFormatting.DARK_PURPLE));
+        lines.add(Component.translatable(this.getDescriptionId() + ".desc").withStyle(ChatFormatting.DARK_PURPLE));
         if (tag != null && tag.hasUUID("Owner")) {
-            lines.add(Component.translatable("item.cille.kabkaba_misketi.owner", tag.getString("OwnerName")).withStyle(ChatFormatting.LIGHT_PURPLE));
+            lines.add(Component.translatable("item.cille.marble.owner", tag.getString("OwnerName")).withStyle(ChatFormatting.LIGHT_PURPLE));
         } else {
-            lines.add(Component.translatable("item.cille.kabkaba_misketi.unbound").withStyle(ChatFormatting.GRAY));
+            lines.add(Component.translatable("item.cille.marble.unbound").withStyle(ChatFormatting.GRAY));
         }
         if (tag != null && tag.contains("Health")) {
-            lines.add(Component.translatable("item.cille.kabkaba_misketi.health", Math.round(tag.getFloat("Health"))).withStyle(ChatFormatting.RED));
+            lines.add(Component.translatable("item.cille.marble.health", Math.round(tag.getFloat("Health"))).withStyle(ChatFormatting.RED));
         }
         if (level != null && tag != null && tag.getLong("Ready") > level.getGameTime()) {
-            lines.add(Component.translatable("item.cille.kabkaba_misketi.resting").withStyle(ChatFormatting.GRAY));
+            lines.add(Component.translatable("item.cille.marble.resting").withStyle(ChatFormatting.GRAY));
         }
-        lines.add(Component.translatable("item.cille.kabkaba_misketi.help").withStyle(ChatFormatting.DARK_GRAY));
+        lines.add(Component.translatable("item.cille.marble.help").withStyle(ChatFormatting.DARK_GRAY));
     }
 }

@@ -23,6 +23,8 @@ public final class ClientEvents {
         event.registerLayerDefinition(KabkabaModel.LAYER, ModelLayers::createKabkaba);
         event.registerLayerDefinition(SimpleModel.SPHERE, ModelLayers::createSphere);
         event.registerLayerDefinition(SimpleModel.SHADOW_SPIKE, ModelLayers::createShadowSpike);
+        event.registerLayerDefinition(com.krolasyon.cille.client.model.BehmudModel.LAYER, ModelLayers::createBehmud);
+        event.registerLayerDefinition(SimpleModel.FISH, ModelLayers::createFish);
     }
 
     @SubscribeEvent
@@ -31,6 +33,9 @@ public final class ClientEvents {
         event.registerEntityRenderer(ModEntities.MARBLE.get(), MarbleRenderer::new);
         event.registerEntityRenderer(ModEntities.BLACK_HOLE.get(), BlackHoleRenderer::new);
         event.registerEntityRenderer(ModEntities.SHADOW_SPIKE.get(), ShadowSpikeRenderer::new);
+        event.registerEntityRenderer(ModEntities.BEHMUD.get(), BehmudRenderer::new);
+        event.registerEntityRenderer(ModEntities.VORTEX.get(), VortexRenderer::new);
+        event.registerEntityRenderer(ModEntities.CILLE_PROJECTILE.get(), CilleProjectileRenderer::new);
     }
 
     @SubscribeEvent

@@ -17,6 +17,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
+import com.krolasyon.cille.item.CilleMarbleItem;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkHooks;
@@ -42,11 +46,17 @@ public class MarbleEntity extends Projectile {
         this(ModEntities.MARBLE.get(), level);
         this.setOwner(thrower);
         this.stack = stack;
+        this.entityData.set(DATA_ITEM, stack.copy());
         this.setPos(thrower.getX(), thrower.getEyeY() - 0.15, thrower.getZ());
     }
 
+    private static final EntityDataAccessor<ItemStack> DATA_ITEM = SynchedEntityData.defineId(MarbleEntity.class, EntityDataSerializers.ITEM_STACK);
+
     @Override
-    protected void defineSynchedData() {}
+    protected void defineSynchedData() { this.entityData.define(DATA_ITEM, ItemStack.EMPTY); }
+
+    /** the marble item (client side: which Cille is inside) */
+    public ItemStack getItem() { return this.entityData.get(DATA_ITEM); }
 
     @Override
     public void tick() {
@@ -76,7 +86,7 @@ public class MarbleEntity extends Projectile {
 
         if (this.level().isClientSide()) {
             if (this.tickCount % 2 == 0)
-                this.level().addParticle(KabkabaEntity.dust(0x3A5ADB, 0.7F), getX(), getY() + 0.15, getZ(), 0, 0, 0);
+                this.level().addParticle(CilleEntity.dust(0x3A5ADB, 0.7F), getX(), getY() + 0.15, getZ(), 0, 0, 0);
             return;
         }
         if (clack) this.level().playSound(null, getX(), getY(), getZ(), ModSounds.MARBLE_CLACK.get(), SoundSource.PLAYERS, 0.8F, 0.85F + random.nextFloat() * 0.15F);
@@ -101,11 +111,11 @@ public class MarbleEntity extends Projectile {
         sl.sendParticles(ParticleTypes.END_ROD, mid.x, mid.y + 0.3, mid.z, 60, 0.1, 0.1, 0.1, 0.4);
         for (int i = 0; i < 64; i++) {
             double ang = i * Math.PI * 2 / 64;
-            sl.sendParticles(KabkabaEntity.dust(i % 2 == 0 ? 0x5C7CFF : KabkabaEntity.VIOLET, 2.5F), mid.x, mid.y + 0.2, mid.z, 0, Math.cos(ang), 0.05, Math.sin(ang), 0.9);
+            sl.sendParticles(CilleEntity.dust(i % 2 == 0 ? 0x5C7CFF : CilleEntity.VIOLET, 2.5F), mid.x, mid.y + 0.2, mid.z, 0, Math.cos(ang), 0.05, Math.sin(ang), 0.9);
         }
         a.level().playSound(null, mid.x, mid.y, mid.z, ModSounds.MARBLE_CLACK.get(), SoundSource.PLAYERS, 2.0F, 0.7F);
-        KabkabaEntity ka = a.open(mid);
-        KabkabaEntity kb = b.open(mid);
+        CilleEntity ka = a.open(mid);
+        CilleEntity kb = b.open(mid);
         if (ka != null && kb != null) {
             if (ka.canFight(kb)) ka.setTarget(kb);
             if (kb.canFight(ka)) kb.setTarget(ka);
@@ -113,18 +123,19 @@ public class MarbleEntity extends Projectile {
     }
 
     /** bursts the marble and releases the Cille; `away` = point the Cille is pushed away from (duel) */
-    public KabkabaEntity open(Vec3 away) {
+    public CilleEntity open(Vec3 away) {
         if (burst || this.level().isClientSide()) return null;
         burst = true;
         ServerLevel sl = (ServerLevel) this.level();
         Vec3 p = position();
-        sl.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(ModItems.KABKABA_MISKETI.get())), p.x, p.y + 0.2, p.z, 30, 0.2, 0.2, 0.2, 0.2);
+        sl.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, stack.isEmpty() ? new ItemStack(ModItems.KABKABA_MISKETI.get()) : stack.copy()), p.x, p.y + 0.2, p.z, 30, 0.2, 0.2, 0.2, 0.2);
         sl.sendParticles(ParticleTypes.REVERSE_PORTAL, p.x, p.y + 1.0, p.z, 80, 1.2, 1.4, 1.2, 0.3);
-        sl.sendParticles(KabkabaEntity.dust(KabkabaEntity.INK, 3.5F), p.x, p.y + 1.0, p.z, 50, 1.2, 1.2, 1.2, 0);
+        sl.sendParticles(CilleEntity.dust(CilleEntity.INK, 3.5F), p.x, p.y + 1.0, p.z, 50, 1.2, 1.2, 1.2, 0);
         sl.sendParticles(ParticleTypes.SQUID_INK, p.x, p.y + 0.5, p.z, 40, 0.8, 0.8, 0.8, 0.1);
         this.level().playSound(null, p.x, p.y, p.z, ModSounds.MARBLE_BURST.get(), SoundSource.PLAYERS, 3.0F, 1.0F);
 
-        KabkabaEntity k = ModEntities.KABKABA.get().create(this.level());
+        EntityType<? extends CilleEntity> type = stack.getItem() instanceof CilleMarbleItem m ? m.cilleType() : ModEntities.KABKABA.get();
+        CilleEntity k = type.create(this.level());
         if (k == null) { this.discard(); return null; }
         Vec3 spot = p;
         float yaw = this.getOwner() != null ? this.getOwner().getYRot() : random.nextFloat() * 360F;
@@ -160,7 +171,10 @@ public class MarbleEntity extends Projectile {
     @Override
     protected void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
-        if (tag.contains("Marble")) stack = ItemStack.of(tag.getCompound("Marble"));
+        if (tag.contains("Marble")) {
+            stack = ItemStack.of(tag.getCompound("Marble"));
+            this.entityData.set(DATA_ITEM, stack.copy());
+        }
     }
 
     @Override

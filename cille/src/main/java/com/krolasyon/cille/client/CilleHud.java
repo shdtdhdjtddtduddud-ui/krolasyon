@@ -1,6 +1,6 @@
 package com.krolasyon.cille.client;
 
-import com.krolasyon.cille.entity.KabkabaEntity;
+import com.krolasyon.cille.entity.CilleEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -15,7 +15,7 @@ public final class CilleHud implements IGuiOverlay {
     public void render(ForgeGui gui, GuiGraphics g, float partial, int width, int height) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.options.hideGui || mc.player == null) return;
-        KabkabaEntity k = CilleClient.myKabkaba(mc);
+        CilleEntity k = CilleClient.myCille(mc);
         if (k == null) return;
         int x = 6, y = 6, w = 132;
         g.fill(x - 3, y - 3, x + w + 3, y + 37, 0x90100A1C);

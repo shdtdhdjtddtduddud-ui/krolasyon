@@ -380,6 +380,177 @@ def marble_burst():
     return dark_reverb(mix(big_boom(d, 70, 25), shards, whoo), 0.45, 2.4)
 
 
+# ======================= BEHMUD (cosmic flying whale) — deep moans, water and ice =======================
+def whale_moan(d, f0, f1, f2=None, vib=0.03):
+    n = int(d * SR)
+    t = T(d)
+    if f2 is None:
+        f = glide(d, f0, f1)
+    else:
+        h = n // 2
+        a = f0 * (f1 / f0) ** np.linspace(0, 1, h)
+        b = f1 * (f2 / f1) ** np.linspace(0, 1, n - h)
+        f = np.concatenate([a, b])
+    f = f * (1 + vib * np.sin(2 * np.pi * 4.5 * t))
+    src = osc(f, 'saw') * 0.5 + osc(f) * 0.8 + osc(f * 2) * 0.25
+    v = tract(src, [(300, 1.0), (650, 0.5), (1200, 0.2)]) + lp(src, 250) * 0.6
+    return lp(v, 2400, 3)
+
+
+def whale_ambient(v):
+    d = 3.4 if v == 1 else 2.8
+    n = int(d * SR)
+    x = whale_moan(d, 95, 160, 110) if v == 1 else whale_moan(d, 140, 85, 120)
+    return dark_reverb(x * adsr(n, 0.6, 0.85, 1.0), 0.5, 3.0)
+
+
+def whale_hurt(v):
+    d = 0.9
+    n = int(d * SR)
+    return dark_reverb(whale_moan(d, 180 + v * 15, 110, vib=0.08) * env(n, 0.02, 0.4, 1.2), 0.35, 1.6)
+
+
+def whale_death():
+    d = 4.0
+    n = int(d * SR)
+    return dark_reverb(whale_moan(d, 150, 60, 35, vib=0.05) * adsr(n, 0.2, 0.9, 2.2), 0.55, 3.2)
+
+
+def bubbles(d, rate=30, lo=180, hi=520):
+    n = int(d * SR)
+    x = np.zeros(n)
+    for p in R.integers(0, max(1, n - 3000), int(rate * d)):
+        L = int(R.integers(800, 2600))
+        tt = np.arange(L) / SR
+        f = R.uniform(lo, hi) * (1 + tt * 8)
+        x[p:p + L] += np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-tt * 40) * R.uniform(0.3, 1.0)
+    return x
+
+
+def water_rush(d, lo=150, hi=1400):
+    n = int(d * SR)
+    t = T(d)
+    rush = lp(bp(noise(d), lo, hi), 1800) * (0.7 + 0.3 * np.sin(2 * np.pi * 0.8 * t))
+    return rush + lp(brown(d), 120) * 0.8 + bubbles(d, 20) * 0.25
+
+
+def ice_beam():
+    d = 2.6
+    n = int(d * SR)
+    t = T(d)
+    hum = lp(osc(glide(d, 70, 60) + 6 * np.sin(2 * np.pi * 3 * t), 'saw'), 350, 3)
+    hiss = lp(bp(noise(d), 600, 2400), 2600) * 0.6
+    crack = lp(crackle(d, 50), 2400) * 0.5
+    return dark_reverb((hum + hiss + crack) * adsr(n, 0.15, 0.9, 0.4), 0.35, 1.8)
+
+
+def ice_form():
+    d = 1.4
+    n = int(d * SR)
+    crack = lp(crackle(d, 80), 2600) * env(n, 0.01, 0.6)
+    groan = lp(osc(glide(d, 90, 60), 'saw'), 300) * env(n, 0.05, 0.6) * 0.5
+    return dark_reverb(crack + groan + boom(d, 70, 40, 0.2) * 0.5, 0.4, 1.6)
+
+
+def ice_hit():
+    d = 0.6
+    n = int(d * SR)
+    return dark_reverb(lp(crackle(d, 90), 2600) * env(n, 0.002, 0.12) + boom(d, 110, 60, 0.08), 0.3, 1.0)
+
+
+def ice_break():
+    d = 1.6
+    n = int(d * SR)
+    shards = lp(crackle(d, 160), 2800) * env(n, 0.002, 0.5)
+    return dark_reverb(shards + boom(d, 80, 30, 0.3) * 0.9, 0.4, 1.8)
+
+
+def whirlpool():
+    d = 3.0
+    n = int(d * SR)
+    t = T(d)
+    swirl = lp(sweep_bp(noise(d), 200, 900, 1.6), 1500) * (0.6 + 0.4 * np.sin(2 * np.pi * 2.0 * t))
+    return dark_reverb((water_rush(d) + swirl * 0.7) * adsr(n, 0.4, 0.95, 0.6), 0.4, 2.0)
+
+
+def sonic_wave():
+    d = 2.2
+    n = int(d * SR)
+    t = T(d)
+    out = np.zeros(n)
+    for k in range(3):
+        st = int(k * 0.32 * SR)
+        L = n - st
+        tt = np.arange(L) / SR
+        pulse = np.sin(2 * np.pi * np.cumsum(55 * (1 + 0.6 * np.exp(-tt * 6))) / SR) * np.exp(-tt * 3.5)
+        out[st:] += pulse * (1.0 - k * 0.15)
+    moan = whale_moan(d, 120, 90) * env(n, 0.05, 0.8) * 0.5
+    return dark_reverb(out + moan + lp(noise(d), 400) * env(n, 0.005, 0.2) * 0.6, 0.45, 2.4)
+
+
+def fish_launch():
+    d = 0.5
+    n = int(d * SR)
+    bloop = osc(glide(d, 140, 380)) * env(n, 0.005, 0.12)
+    return lp(bloop + whoosh(d, 300, 900) * 0.6 + bubbles(d, 30) * 0.3, 2400)
+
+
+def water_boom():
+    d = 2.0
+    n = int(d * SR)
+    splash = lp(noise(d), 1600, 3) * env(n, 0.004, 0.35)
+    return dark_reverb(mix(big_boom(d, 75, 24), splash * 0.9, bubbles(d, 40) * 0.35), 0.4, 2.0)
+
+
+def torpedo():
+    d = 0.9
+    n = int(d * SR)
+    return lp(whoosh(d, 200, 1200, 1.2) * 1.2 + bubbles(d, 50) * 0.3 + boom(d, 90, 50, 0.1) * 0.5, 2400)
+
+
+def rush_dash():
+    d = 0.8
+    return lp(whoosh(d, 150, 700, 1.3) * 1.3 + lp(brown(d), 120) * env(int(d * SR), 0.1, 0.3), 2200)
+
+
+def waterspout():
+    d = 3.4
+    n = int(d * SR)
+    t = T(d)
+    roar = water_rush(d, 100, 1100) * (0.6 + 0.4 * np.sin(2 * np.pi * 3.0 * t))
+    wind = lp(sweep_bp(noise(d), 150, 700, 1.4), 1000) * 0.6
+    return dark_reverb((roar + wind) * adsr(n, 0.5, 0.95, 0.8), 0.4, 2.2)
+
+
+def clamp_bite():
+    d = 0.9
+    n = int(d * SR)
+    crunch = lp(crackle(d, 120), 2200) * env(n, 0.002, 0.15)
+    thump = boom(d, 120, 50, 0.12)
+    groan = whale_moan(d, 110, 80) * env(n, 0.05, 0.35) * 0.5
+    return dark_reverb(crunch + thump + groan, 0.3, 1.2)
+
+
+def seal_release():
+    d = 4.0
+    n = int(d * SR)
+    t = T(d)
+    rise = lp(osc(glide(2.0, 30, 90), 'saw'), 300, 3) * np.linspace(0, 1, int(2.0 * SR)) ** 2
+    rise = np.concatenate([rise, np.zeros(n - len(rise))])
+    burst = np.concatenate([np.zeros(int(2.0 * SR)), big_boom(2.0, 70, 18)])[:n]
+    choir = lp(sum(osc(f * (1 + 0.004 * np.sin(2 * np.pi * (0.3 + i * 0.1) * t))) for i, f in enumerate((55, 82.5, 110, 165))), 600) * env(n, 2.0, 1.4) * 0.5
+    return dark_reverb(rise + burst * 1.2 + choir, 0.5, 3.0)
+
+
+def space_power():
+    d = 3.4
+    n = int(d * SR)
+    t = T(d)
+    drone = lp(sum(osc(f * (1 + 0.01 * np.sin(2 * np.pi * (0.2 + i * 0.13) * t)), 'saw') for i, f in enumerate((41, 61.5, 82))), 500, 3)
+    shimmer = lp(bp(noise(d), 500, 1800), 2000) * (0.5 + 0.5 * np.sin(2 * np.pi * 0.7 * t)) * 0.3
+    return dark_reverb((drone + shimmer) * adsr(n, 0.8, 0.9, 1.0), 0.55, 3.0)
+
+
 SOUNDS = {
     'kabkaba_ambient': [lambda: ambient(1), lambda: ambient(2)],
     'kabkaba_hurt': [lambda: hurt(0), lambda: hurt(1), lambda: hurt(2)],
@@ -400,6 +571,23 @@ SOUNDS = {
     'marble_throw': [marble_throw],
     'marble_clack': [lambda: marble_clack(0), lambda: marble_clack(1)],
     'marble_burst': [marble_burst],
+    'ice_hit': [ice_hit],
+    'ice_break': [ice_break],
+    'behmud_ambient': [lambda: whale_ambient(1), lambda: whale_ambient(2)],
+    'behmud_hurt': [lambda: whale_hurt(0), lambda: whale_hurt(1)],
+    'behmud_death': [whale_death],
+    'ice_beam': [ice_beam],
+    'ice_form': [ice_form],
+    'whirlpool': [whirlpool],
+    'sonic_wave': [sonic_wave],
+    'fish_launch': [fish_launch],
+    'water_boom': [water_boom],
+    'torpedo': [torpedo],
+    'rush_dash': [rush_dash],
+    'waterspout': [waterspout],
+    'clamp_bite': [clamp_bite],
+    'seal_release': [seal_release],
+    'space_power': [space_power],
 }
 
 if __name__ == '__main__':

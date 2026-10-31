@@ -28,4 +28,16 @@ public final class ModEntities {
     public static final RegistryObject<EntityType<ShadowSpikeEntity>> SHADOW_SPIKE = ENTITIES.register("shadow_spike",
             () -> EntityType.Builder.<ShadowSpikeEntity>of(ShadowSpikeEntity::new, MobCategory.MISC)
                     .sized(1.0F, 2.2F).fireImmune().clientTrackingRange(8).updateInterval(2).build("shadow_spike"));
+
+    public static final RegistryObject<EntityType<BehmudEntity>> BEHMUD = ENTITIES.register("behmud",
+            () -> EntityType.Builder.of(BehmudEntity::new, MobCategory.CREATURE)
+                    .sized(3.2F, 2.2F).fireImmune().clientTrackingRange(12).build("behmud"));
+
+    public static final RegistryObject<EntityType<VortexEntity>> VORTEX = ENTITIES.register("vortex",
+            () -> EntityType.Builder.<VortexEntity>of(VortexEntity::new, MobCategory.MISC)
+                    .sized(2.0F, 2.0F).fireImmune().clientTrackingRange(10).updateInterval(2).build("vortex"));
+
+    public static final RegistryObject<EntityType<CilleProjectileEntity>> CILLE_PROJECTILE = ENTITIES.register("cille_projectile",
+            () -> EntityType.Builder.<CilleProjectileEntity>of(CilleProjectileEntity::new, MobCategory.MISC)
+                    .sized(0.6F, 0.6F).fireImmune().clientTrackingRange(8).updateInterval(1).build("cille_projectile"));
 }

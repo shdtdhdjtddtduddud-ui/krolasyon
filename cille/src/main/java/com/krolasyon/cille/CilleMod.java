@@ -25,5 +25,6 @@ public class CilleMod {
 
     private void onAttributes(EntityAttributeCreationEvent event) {
         event.put(ModEntities.KABKABA.get(), KabkabaEntity.createAttributes().build());
+        event.put(ModEntities.BEHMUD.get(), com.krolasyon.cille.entity.BehmudEntity.createAttributes().build());
     }
 }
