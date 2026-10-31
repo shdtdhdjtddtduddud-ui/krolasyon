@@ -1,0 +1,197 @@
+{
+ "kabkaba_ambient": {
+  "subtitle": "subtitles.cille.kabkaba_ambient",
+  "sounds": [
+   {
+    "name": "cille:kabkaba_ambient1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "cille:kabkaba_ambient2",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "kabkaba_hurt": {
+  "subtitle": "subtitles.cille.kabkaba_hurt",
+  "sounds": [
+   {
+    "name": "cille:kabkaba_hurt1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "cille:kabkaba_hurt2",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "cille:kabkaba_hurt3",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "kabkaba_death": {
+  "subtitle": "subtitles.cille.kabkaba_death",
+  "sounds": [
+   {
+    "name": "cille:kabkaba_death",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "kabkaba_step": {
+  "subtitle": "subtitles.cille.kabkaba_step",
+  "sounds": [
+   {
+    "name": "cille:kabkaba_step1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "cille:kabkaba_step2",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "cille:kabkaba_step3",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "kabkaba_roar": {
+  "subtitle": "subtitles.cille.kabkaba_roar",
+  "sounds": [
+   {
+    "name": "cille:kabkaba_roar",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "claw_swipe": {
+  "subtitle": "subtitles.cille.claw_swipe",
+  "sounds": [
+   {
+    "name": "cille:claw_swipe",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "black_hole_open": {
+  "subtitle": "subtitles.cille.black_hole_open",
+  "sounds": [
+   {
+    "name": "cille:black_hole_open",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "black_hole_loop": {
+  "subtitle": "subtitles.cille.black_hole_loop",
+  "sounds": [
+   {
+    "name": "cille:black_hole_loop",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "black_hole_collapse": {
+  "subtitle": "subtitles.cille.black_hole_collapse",
+  "sounds": [
+   {
+    "name": "cille:black_hole_collapse",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "blink": {
+  "subtitle": "subtitles.cille.blink",
+  "sounds": [
+   {
+    "name": "cille:blink",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "drain": {
+  "subtitle": "subtitles.cille.drain",
+  "sounds": [
+   {
+    "name": "cille:drain",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "reflect": {
+  "subtitle": "subtitles.cille.reflect",
+  "sounds": [
+   {
+    "name": "cille:reflect",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "reflect_hit": {
+  "subtitle": "subtitles.cille.reflect_hit",
+  "sounds": [
+   {
+    "name": "cille:reflect_hit",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "shadow_rise": {
+  "subtitle": "subtitles.cille.shadow_rise",
+  "sounds": [
+   {
+    "name": "cille:shadow_rise",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "slam": {
+  "subtitle": "subtitles.cille.slam",
+  "sounds": [
+   {
+    "name": "cille:slam",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "guard": {
+  "subtitle": "subtitles.cille.guard",
+  "sounds": [
+   {
+    "name": "cille:guard",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "marble_throw": {
+  "subtitle": "subtitles.cille.marble_throw",
+  "sounds": [
+   {
+    "name": "cille:marble_throw",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "marble_clack": {
+  "subtitle": "subtitles.cille.marble_clack",
+  "sounds": [
+   {
+    "name": "cille:marble_clack1",
+    "attenuation_distance": 48
+   },
+   {
+    "name": "cille:marble_clack2",
+    "attenuation_distance": 48
+   }
+  ]
+ },
+ "marble_burst": {
+  "subtitle": "subtitles.cille.marble_burst",
+  "sounds": [
+   {
+    "name": "cille:marble_burst",
+    "attenuation_distance": 48
+   }
+  ]
+ }
+}

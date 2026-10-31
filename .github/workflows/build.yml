@@ -1,6 +1,9 @@
 name: Build mod jar
 on:
   push:
+    paths-ignore:
+      - 'cille/**'
+      - '.github/workflows/cille.yml'
   workflow_dispatch:
 permissions:
   contents: write
