@@ -551,6 +551,113 @@ def space_power():
     return dark_reverb((drone + shimmer) * adsr(n, 0.8, 0.9, 1.0), 0.55, 3.0)
 
 
+# ======================= ŞARKAN (sand & rock warrior) — heavy, earthy, low =======================
+def warrior_voice(d, f0, f1, vowel_set=None, rough=0.5, breath=0.5):
+    return beast(d, f0, f1, vowel_set or [(400, 1.0), (800, 0.6), (1300, 0.25), (2400, 0.06)], breath=breath, rough=rough, jitter=0.03)
+
+
+def sarkan_ambient(v):
+    d = 1.6 if v == 1 else 2.0
+    n = int(d * SR)
+    x = warrior_voice(d, 70 if v == 1 else 64, 58, rough=0.6) * adsr(n, 0.15, 0.7, 0.6)
+    ex = lp(bp(noise(d), 200, 1200), 1500) * np.clip((T(d) - d * 0.5) / (d * 0.5), 0, 1) * 0.3
+    return dark_reverb(x + ex, 0.25, 1.4)
+
+
+def sarkan_hurt(v):
+    d = 0.6
+    n = int(d * SR)
+    return dark_reverb(warrior_voice(d, 120 + v * 12, 85, rough=0.6) * env(n, 0.01, 0.25, 1.2), 0.2, 1.0)
+
+
+def sarkan_death():
+    d = 3.0
+    n = int(d * SR)
+    x = warrior_voice(d, 110, 45, rough=0.7) * adsr(n, 0.05, 0.85, 1.6)
+    thud = pad_front(big_boom(1.2, 70, 25), 1.6)
+    return dark_reverb(mix(x, thud * 0.8), 0.35, 2.0)
+
+
+def armour_step(v):
+    d = 0.45
+    n = int(d * SR)
+    thud = boom(d, 58 + v * 6, 30, 0.13) * 1.3
+    clank = lp(sum(np.sin(2 * np.pi * f * T(d)) * np.exp(-T(d) * k) for f, k in ((310 + v * 20, 30), (520, 45))), 1500) * 0.25
+    grit = lp(crackle(d, 40), 1600) * env(n, 0.003, 0.06) * 0.4
+    return thud + clank + grit
+
+
+def punch(v):
+    d = 0.5
+    n = int(d * SR)
+    hit = boom(d, 110 + v * 15, 45, 0.07) * 1.4
+    slap = lp(noise(d), 1400, 3) * env(n, 0.001, 0.04)
+    swish = whoosh(0.25, 300, 900) * 0.5
+    return dark_reverb(mix(pad_front(swish, 0), pad_front(hit + slap, 0.12)), 0.15, 0.8)
+
+
+def sand_rush(d, lo=200, hi=2200):
+    n = int(d * SR)
+    t = T(d)
+    hiss = lp(bp(noise(d), lo, hi), 2600, 3) * (0.6 + 0.4 * np.sin(2 * np.pi * 1.3 * t))
+    grains = lp(crackle(d, 220), 2600) * 0.35
+    return hiss + grains + lp(brown(d), 120) * 0.7
+
+
+def sand_vortex():
+    d = 3.0
+    n = int(d * SR)
+    t = T(d)
+    swirl = lp(sweep_bp(noise(d), 300, 1200, 1.6), 1800) * (0.6 + 0.4 * np.sin(2 * np.pi * 2.2 * t))
+    return dark_reverb((sand_rush(d) + swirl * 0.6) * adsr(n, 0.4, 0.95, 0.6), 0.35, 1.8)
+
+
+def sandstorm():
+    d = 3.5
+    n = int(d * SR)
+    t = T(d)
+    wind = lp(sweep_bp(noise(d), 150, 600, 1.4), 900) * (0.6 + 0.4 * np.sin(2 * np.pi * 0.6 * t))
+    return dark_reverb((sand_rush(d, 150, 1800) * 0.8 + wind) * adsr(n, 0.6, 0.95, 0.8), 0.4, 2.2)
+
+
+def sand_wave():
+    d = 2.0
+    n = int(d * SR)
+    return dark_reverb(mix(sand_rush(d) * adsr(n, 0.1, 0.9, 0.5), big_boom(d, 70, 30) * 0.6), 0.35, 1.8)
+
+
+def atlas_smash():
+    d = 2.4
+    return dark_reverb(mix(big_boom(d, 95, 20) * 1.3, lp(crackle(d, 90), 2000) * env(int(d * SR), 0.01, 0.8) * 0.5), 0.45, 2.4)
+
+
+def rock_rip():
+    d = 1.2
+    n = int(d * SR)
+    grind = lp(crackle(d, 140), 1800) * env(n, 0.05, 0.6)
+    groan = lp(osc(glide(d, 60, 45), 'saw'), 250, 3) * env(n, 0.05, 0.6) * 0.6
+    return dark_reverb(grind + groan + boom(d, 80, 40, 0.2) * 0.6, 0.3, 1.4)
+
+
+def rock_impact():
+    d = 1.8
+    return dark_reverb(big_boom(d, 90, 28) + lp(crackle(d, 130), 2200) * env(int(d * SR), 0.003, 0.5) * 0.6, 0.35, 1.8)
+
+
+def sand_shield():
+    d = 1.4
+    n = int(d * SR)
+    return dark_reverb(sand_rush(d, 250, 1800) * env(n, 0.05, 0.6) + boom(d, 70, 45, 0.3) * 0.7, 0.3, 1.4)
+
+
+def earth_rise():
+    d = 1.6
+    n = int(d * SR)
+    rumble = lp(brown(d), 140, 3) * env(n, 0.05, 0.8) * 1.4
+    grind = lp(crackle(d, 100), 1800) * env(n, 0.1, 0.7) * 0.5
+    return dark_reverb(rumble + grind, 0.35, 1.8)
+
+
 SOUNDS = {
     'kabkaba_ambient': [lambda: ambient(1), lambda: ambient(2)],
     'kabkaba_hurt': [lambda: hurt(0), lambda: hurt(1), lambda: hurt(2)],
@@ -588,6 +695,19 @@ SOUNDS = {
     'clamp_bite': [clamp_bite],
     'seal_release': [seal_release],
     'space_power': [space_power],
+    'sarkan_ambient': [lambda: sarkan_ambient(1), lambda: sarkan_ambient(2)],
+    'sarkan_hurt': [lambda: sarkan_hurt(0), lambda: sarkan_hurt(1), lambda: sarkan_hurt(2)],
+    'sarkan_death': [sarkan_death],
+    'armour_step': [lambda: armour_step(0), lambda: armour_step(1), lambda: armour_step(2)],
+    'punch': [lambda: punch(0), lambda: punch(1), lambda: punch(2)],
+    'sand_vortex': [sand_vortex],
+    'sandstorm': [sandstorm],
+    'sand_wave': [sand_wave],
+    'atlas_smash': [atlas_smash],
+    'rock_rip': [rock_rip],
+    'rock_impact': [rock_impact],
+    'sand_shield': [sand_shield],
+    'earth_rise': [earth_rise],
 }
 
 if __name__ == '__main__':

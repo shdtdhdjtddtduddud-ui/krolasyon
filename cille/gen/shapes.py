@@ -132,3 +132,7 @@ def ramp(t, cols):
 def smooth(e0, e1, x):
     t = np.clip((x - e0) / (e1 - e0), 0, 1)
     return t * t * (3 - 2 * t)
+
+
+# 5-box cross section: a much rounder (20-gon like) silhouette for heads and smooth parts
+ROUND = ((1.0, 0.32), (0.95, 0.62), (0.81, 0.81), (0.62, 0.95), (0.32, 1.0))

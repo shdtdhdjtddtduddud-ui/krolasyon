@@ -272,3 +272,34 @@ def behmud_icon(size=32):
     spec = np.hypot(xx - c * 1.38, yy - c * 0.62) < S * 0.1
     arr[spec & (a > 0), :3] = (250, 252, 255)
     return Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), 'RGBA').resize((size, size), Image.LANCZOS)
+
+
+def sand_tex(W=128, H=256):
+    """tileable whirling sand for the sand vortex mesh"""
+    yy, xx = np.mgrid[0:H, 0:W]
+    u, v = xx / W * 2 * math.pi, yy / H * 2 * math.pi
+    s = np.sin(u * 3 + v * 2 + np.sin(v * 3) * 1.5) * 0.5 + np.sin(u * 7 - v * 5) * 0.25 + np.sin(u * 2 + v * 9) * 0.25
+    grain = np.random.default_rng(3).random((H, W))
+    t = np.clip(0.5 + 0.45 * s + 0.15 * (grain - 0.5), 0, 1)
+    col = ramp(t, [(120, 92, 56), (178, 142, 92), (214, 186, 132), (240, 222, 176)])
+    alpha = 0.55 + 0.35 * smooth(0.4, 0.9, t)
+    return _img(col, alpha)
+
+
+def sarkan_icon(size=32):
+    S = size * 8
+    yy, xx = np.mgrid[0:S, 0:S]
+    c = S / 2
+    r = np.hypot(xx - c, yy - c) / (S * 0.46)
+    nz_ = np.sqrt(np.clip(1 - r ** 2, 0, 1))
+    d = (-(xx - c) * 0.5 - (yy - c) * 0.6) / (S * 0.46) + nz_ * 0.62
+    col = ramp(0.3 + 0.4 * (d + 1) / 2, [(70, 50, 24), (150, 112, 60), (214, 180, 120), (245, 230, 190)])
+    a = (r < 1).astype(np.float32)
+    arr = np.zeros((S, S, 4), np.float32)
+    arr[..., :3] = col; arr[..., 3] = a * 255
+    body = (np.abs(xx - c) < S * 0.1) & (yy > c * 0.7) & (yy < c * 1.45)
+    head = np.hypot(xx - c, yy - c * 0.6) < S * 0.07
+    arr[(body | head) & (a > 0), :3] = (36, 36, 42)
+    spec = np.hypot(xx - c * 1.38, yy - c * 0.62) < S * 0.1
+    arr[spec & (a > 0), :3] = (250, 250, 245)
+    return Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), 'RGBA').resize((size, size), Image.LANCZOS)
