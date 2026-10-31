@@ -56,6 +56,13 @@ public class KabkabaEntity extends PathfinderMob {
     private static final EntityDataAccessor<Boolean> DATA_PHASE2 = SynchedEntityData.defineId(KabkabaEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> DATA_SHIELD = SynchedEntityData.defineId(KabkabaEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_BEAM = SynchedEntityData.defineId(KabkabaEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_STANCE = SynchedEntityData.defineId(KabkabaEntity.class, EntityDataSerializers.INT);
+
+    /** battle stances chosen by the Cahan */
+    public static final int STANCE_AGGRESSIVE = 0, STANCE_DEFENSIVE = 1, STANCE_PASSIVE = 2;
+    /** commands the Cahan can give (see CommandPacket); CMD_ABILITY + ability id casts that ability */
+    public static final int CMD_ATTACK = 0, CMD_STOP = 1, CMD_DEFEND = 2, CMD_RETREAT = 3, CMD_MOVE = 4, CMD_STAY = 5,
+            CMD_RECALL = 6, CMD_AGGRESSIVE = 7, CMD_ABILITY = 20;
 
     public static final int MELEE = 0, BLACK_HOLE = 1, BLINK = 2, DRAIN = 3, REFLECT = 4, SHADOW = 5, GUARD = 6, SLAM = 7, DODGE = 8, RELEASE = 9, RECALL = 10;
     public static final int SHIELD_NONE = 0, SHIELD_REFLECT = 1, SHIELD_GUARD = 2;
@@ -80,6 +87,10 @@ public class KabkabaEntity extends PathfinderMob {
     private boolean slamDone;
     private int lastProjectileHit = -1000;
     private int recentHits;
+    private int retreatTicks;
+    private int moveTicks;
+    private int commandLock;
+    @Nullable private Vec3 movePoint;
     private String ownerName = "";
     @Nullable private CompoundTag marbleTag;
 
@@ -117,6 +128,7 @@ public class KabkabaEntity extends PathfinderMob {
         this.entityData.define(DATA_PHASE2, false);
         this.entityData.define(DATA_SHIELD, SHIELD_NONE);
         this.entityData.define(DATA_BEAM, -1);
+        this.entityData.define(DATA_STANCE, STANCE_AGGRESSIVE);
     }
 
     @Nullable public UUID getOwnerUUID() { return this.entityData.get(DATA_OWNER).orElse(null); }
@@ -130,6 +142,8 @@ public class KabkabaEntity extends PathfinderMob {
     private void setShield(int s) { this.entityData.set(DATA_SHIELD, s); }
     public int getBeamTarget() { return this.entityData.get(DATA_BEAM); }
     private void setBeam(int id) { this.entityData.set(DATA_BEAM, id); }
+    public int getStance() { return this.entityData.get(DATA_STANCE); }
+    public void setStance(int s) { this.entityData.set(DATA_STANCE, Mth.clamp(s, 0, 2)); }
     public boolean isCasting() { return currentAbility >= 0; }
     public boolean isRecalling() { return recallTicks >= 0; }
 
@@ -169,6 +183,7 @@ public class KabkabaEntity extends PathfinderMob {
         tag.putBoolean("Staying", isStaying());
         tag.putBoolean("Released", released);
         tag.putBoolean("Phase2", isPhase2());
+        tag.putInt("Stance", getStance());
         if (marbleTag != null) tag.put("Marble", marbleTag);
     }
 
@@ -179,6 +194,7 @@ public class KabkabaEntity extends PathfinderMob {
         setStaying(tag.getBoolean("Staying"));
         released = tag.getBoolean("Released");
         this.entityData.set(DATA_PHASE2, tag.getBoolean("Phase2"));
+        setStance(tag.getInt("Stance"));
         if (tag.contains("Marble")) marbleTag = tag.getCompound("Marble");
         updateBossName();
     }
@@ -259,11 +275,18 @@ public class KabkabaEntity extends PathfinderMob {
     }
 
     private void updateTarget() {
+        if (retreatTicks > 0 || getStance() == STANCE_PASSIVE) {
+            if (getTarget() != null) setTarget(null);
+            return;
+        }
         LivingEntity cur = getTarget();
         if (cur != null && (!cur.isAlive() || !canFight(cur) || distanceToSqr(cur) > 48 * 48)) {
             setTarget(null);
             cur = null;
+            commandLock = 0;
         }
+        if (commandLock > 0 && cur != null) return;          // the Cahan picked this target
+        boolean defensive = getStance() == STANCE_DEFENSIVE;
         Player owner = getOwner();
         if (owner != null) {
             LivingEntity atk = owner.getLastHurtByMob();
@@ -272,7 +295,7 @@ public class KabkabaEntity extends PathfinderMob {
                 return;
             }
             LivingEntity hit = owner.getLastHurtMob();
-            if (hit != null && owner.tickCount - owner.getLastHurtMobTimestamp() < 80 && canFight(hit) && cur != hit && !isStaying()) {
+            if (!defensive && hit != null && owner.tickCount - owner.getLastHurtMobTimestamp() < 80 && canFight(hit) && cur != hit && !isStaying()) {
                 setTarget(hit);
                 return;
             }
@@ -283,7 +306,7 @@ public class KabkabaEntity extends PathfinderMob {
             setTarget(atk);
             return;
         }
-        if (cur != null || isStaying() || this.tickCount % 10 != 0) return;
+        if (cur != null || isStaying() || defensive || moveTicks > 0 || this.tickCount % 10 != 0) return;
         double r = isOwned() ? 18 : 28;
         LivingEntity best = null;
         double bd = Double.MAX_VALUE;
@@ -307,8 +330,9 @@ public class KabkabaEntity extends PathfinderMob {
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new HoldGoal(this));
-        this.goalSelector.addGoal(2, new ChaseGoal(this));
-        this.goalSelector.addGoal(3, new FollowOwnerGoal(this));
+        this.goalSelector.addGoal(2, new CommandMoveGoal(this));
+        this.goalSelector.addGoal(3, new ChaseGoal(this));
+        this.goalSelector.addGoal(4, new FollowOwnerGoal(this));
         this.goalSelector.addGoal(7, new WildStrollGoal(this));
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 16.0F));
         this.goalSelector.addGoal(9, new RandomLookAroundGoal(this));
@@ -357,7 +381,7 @@ public class KabkabaEntity extends PathfinderMob {
                 sl.sendParticles(dust(VIOLET, 2.0F), m.x, m.y, m.z, 20, 0.4, 0.5, 0.4, 0);
                 sl.sendParticles(ParticleTypes.REVERSE_PORTAL, m.x, m.y, m.z, 25, 0.3, 0.4, 0.3, 0.3);
             }
-            sound(ModSounds.REFLECT_HIT.get(), 1.6F, 0.9F + random.nextFloat() * 0.3F);
+            sound(ModSounds.REFLECT_HIT.get(), 1.6F, 0.85F + random.nextFloat() * 0.15F);
             return false;
         }
         if (getShield() == SHIELD_GUARD && !src.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
@@ -383,7 +407,7 @@ public class KabkabaEntity extends PathfinderMob {
             startAbility(REFLECT, la);
         } else if (direct instanceof Projectile && ready(DODGE) && random.nextFloat() < 0.5F) {
             startAbility(DODGE, la);
-        } else if (la != null && direct == la && distanceToSqr(la) < 30 && random.nextFloat() < 0.45F) {
+        } else if (la != null && direct == la && getStance() != STANCE_PASSIVE && retreatTicks <= 0 && distanceToSqr(la) < 30 && random.nextFloat() < 0.45F) {
             cooldowns[MELEE] = 0;
             if (currentAbility != MELEE) startAbility(MELEE, la);
         }
@@ -409,7 +433,7 @@ public class KabkabaEntity extends PathfinderMob {
         this.setTarget(null);
         this.getNavigation().stop();
         this.level().broadcastEntityEvent(this, (byte) (EVENT_ANIM_BASE + RECALL));
-        sound(defeated ? ModSounds.HURT.get() : ModSounds.AMBIENT.get(), 2.0F, defeated ? 0.7F : 1.2F);
+        sound(defeated ? ModSounds.HURT.get() : ModSounds.AMBIENT.get(), 2.0F, defeated ? 0.7F : 0.95F);
     }
 
     private void finishRecall() {
@@ -589,7 +613,7 @@ public class KabkabaEntity extends PathfinderMob {
                     }
                     shadowPuff(sl, from);
                     shadowPuff(sl, position());
-                    sound(ModSounds.BLINK.get(), 1.5F, 1.4F);
+                    sound(ModSounds.BLINK.get(), 1.5F, 1.0F);
                 }
             }
             case RELEASE -> {
@@ -678,7 +702,7 @@ public class KabkabaEntity extends PathfinderMob {
             shadowPuff(sl, from);
             shadowPuff(sl, position());
             sl.sendParticles(ParticleTypes.SCULK_SOUL, getX(), getY() + 1.2, getZ(), 12, 0.8, 0.8, 0.8, 0.05);
-            sound(ModSounds.BLINK.get(), 2.0F, 1.2F);
+            sound(ModSounds.BLINK.get(), 2.0F, 0.95F);
         }
         if (t == 16) {
             sound(ModSounds.CLAW.get(), 2.0F, 0.75F);
@@ -725,7 +749,7 @@ public class KabkabaEntity extends PathfinderMob {
     }
 
     private void tickShadow(ServerLevel sl, int t, @Nullable LivingEntity target) {
-        if (t == 2) sound(ModSounds.ROAR.get(), 2.5F, 1.25F);
+        if (t == 2) sound(ModSounds.ROAR.get(), 2.5F, 1.0F);
         float dmg = isPhase2() ? 12F : 9F;
         if (t == 14 && target != null) {
             // unexpected: spikes erupt right under the target from its own shadow
@@ -759,7 +783,7 @@ public class KabkabaEntity extends PathfinderMob {
     }
 
     private void stompFx(ServerLevel sl) {
-        sound(ModSounds.SLAM.get(), 1.4F, 1.3F);
+        sound(ModSounds.SLAM.get(), 1.4F, 1.0F);
         Vec3 c = position().add(forward().scale(2.4));
         BlockState below = this.level().getBlockState(BlockPos.containing(c.x, getY() - 0.5, c.z));
         if (!below.isAir()) sl.sendParticles(new net.minecraft.core.particles.BlockParticleOption(ParticleTypes.BLOCK, below), c.x, getY() + 0.1, c.z, 30, 1.2, 0.1, 1.2, 0.2);
@@ -837,6 +861,9 @@ public class KabkabaEntity extends PathfinderMob {
         if (getShield() == SHIELD_REFLECT) reflectProjectiles(sl);
         else if (!isCasting() && ready(DODGE) && this.tickCount % 2 == 0) senseProjectiles();
 
+        if (retreatTicks > 0) retreatTicks--;
+        if (moveTicks > 0) moveTicks--;
+        if (commandLock > 0) commandLock--;
         if (currentAbility != RELEASE) updateTarget();
         LivingEntity target = this.getTarget();
 
@@ -847,7 +874,7 @@ public class KabkabaEntity extends PathfinderMob {
             tickAbility(id, abilityTick, t);
             abilityTick++;
             if (currentAbility == id && abilityTick >= duration(id)) endAbility();
-        } else if (target != null && !isStaying()) {
+        } else if (target != null && !isStaying() && retreatTicks <= 0 && getStance() != STANCE_PASSIVE) {
             int choice = chooseAbility(target, this.distanceToSqr(target));
             if (choice >= 0) startAbility(choice, target);
         }
@@ -869,7 +896,7 @@ public class KabkabaEntity extends PathfinderMob {
             p.hurtMarked = true;
             sl.sendParticles(ParticleTypes.FLASH, p.getX(), p.getY(), p.getZ(), 1, 0, 0, 0, 0);
             sl.sendParticles(dust(VIOLET, 1.8F), p.getX(), p.getY(), p.getZ(), 12, 0.2, 0.2, 0.2, 0);
-            soundAt(p.position(), ModSounds.REFLECT_HIT.get(), 1.5F, 1.2F);
+            soundAt(p.position(), ModSounds.REFLECT_HIT.get(), 1.5F, 0.95F);
         }
     }
 
@@ -1055,7 +1082,7 @@ public class KabkabaEntity extends PathfinderMob {
         @Override
         public boolean canUse() {
             LivingEntity t = k.getTarget();
-            return t != null && t.isAlive() && !k.isCasting() && !k.isStaying();
+            return t != null && t.isAlive() && !k.isCasting() && !k.isStaying() && k.retreatTicks <= 0 && k.moveTicks <= 0;
         }
 
         @Override public boolean canContinueToUse() { return canUse(); }
@@ -1097,7 +1124,7 @@ public class KabkabaEntity extends PathfinderMob {
         @Override
         public boolean canUse() {
             Player o = k.getOwner();
-            return o != null && !k.isStaying() && k.getTarget() == null && !o.isSpectator() && k.distanceToSqr(o) > 10 * 10;
+            return o != null && !k.isStaying() && k.getTarget() == null && !o.isSpectator() && k.moveTicks <= 0 && k.retreatTicks <= 0 && k.distanceToSqr(o) > 10 * 10;
         }
 
         @Override
@@ -1130,6 +1157,161 @@ public class KabkabaEntity extends PathfinderMob {
             if (--repath <= 0) {
                 repath = 10;
                 k.getNavigation().moveTo(o, d > 16 * 16 ? 1.5 : 1.1);
+            }
+        }
+    }
+
+
+    // ------------------------------------------------------------------ battle commands from the Cahan
+    private static void tell(Player p, String key, Object... args) {
+        p.displayClientMessage(Component.translatable(key, args).withStyle(ChatFormatting.AQUA), true);
+    }
+
+    /** a command sent by a player through the command menu / hot keys; only the Cahan is obeyed */
+    public void command(ServerPlayer p, int cmd, int targetId, @Nullable Vec3 point) {
+        if (!p.getUUID().equals(getOwnerUUID())) {
+            p.displayClientMessage(Component.translatable("msg.cille.not_owner", ownerName).withStyle(ChatFormatting.DARK_PURPLE), true);
+            return;
+        }
+        if (isRecalling() || currentAbility == RELEASE || !this.isAlive()) return;
+        Entity te = targetId >= 0 ? this.level().getEntity(targetId) : null;
+        LivingEntity tgt = te instanceof LivingEntity l && canFight(l) && l.distanceToSqr(this) < 64 * 64 ? l : null;
+        switch (cmd) {
+            case CMD_ATTACK -> {
+                LivingEntity t = tgt != null ? tgt : getTarget();
+                if (t == null) { tell(p, "msg.cille.cmd.no_target"); return; }
+                setStance(STANCE_AGGRESSIVE);
+                retreatTicks = 0;
+                moveTicks = 0;
+                setStaying(false);
+                setTarget(t);
+                commandLock = 300;
+                if (!isCasting() && distanceToSqr(t) > 12 * 12 && ready(BLINK)) startAbility(BLINK, t);
+                else sound(ModSounds.AMBIENT.get(), 2.0F, 0.9F);
+                tell(p, "msg.cille.cmd.attack", t.getDisplayName());
+            }
+            case CMD_STOP -> {
+                setStance(STANCE_PASSIVE);
+                setTarget(null);
+                commandLock = 0;
+                if (isCasting() && currentAbility != GUARD && currentAbility != REFLECT) endAbility();
+                getNavigation().stop();
+                tell(p, "msg.cille.cmd.stop");
+            }
+            case CMD_AGGRESSIVE -> {
+                setStance(STANCE_AGGRESSIVE);
+                tell(p, "msg.cille.cmd.aggressive");
+            }
+            case CMD_DEFEND -> {
+                setStance(STANCE_DEFENSIVE);
+                retreatTicks = 0;
+                int ab = ready(GUARD) ? GUARD : ready(REFLECT) ? REFLECT : -1;
+                if (ab >= 0 && (!isCasting() || currentAbility == MELEE)) startAbility(ab, getTarget());
+                tell(p, "msg.cille.cmd.defend");
+            }
+            case CMD_RETREAT -> {
+                setTarget(null);
+                commandLock = 0;
+                if (isCasting() && currentAbility != GUARD && currentAbility != REFLECT) endAbility();
+                retreatTicks = 140;
+                moveTicks = 0;
+                setStaying(false);
+                tell(p, "msg.cille.cmd.retreat");
+            }
+            case CMD_MOVE -> {
+                if (point == null || point.distanceToSqr(position()) > 80 * 80) return;
+                movePoint = point;
+                moveTicks = 240;
+                retreatTicks = 0;
+                setStaying(false);
+                setTarget(null);
+                commandLock = 0;
+                if (isCasting() && currentAbility != GUARD && currentAbility != REFLECT) endAbility();
+                tell(p, "msg.cille.cmd.move");
+            }
+            case CMD_STAY -> {
+                setStaying(!isStaying());
+                if (isStaying()) { setTarget(null); getNavigation().stop(); }
+                tell(p, isStaying() ? "msg.cille.stay" : "msg.cille.follow");
+            }
+            case CMD_RECALL -> {
+                startRecall(false);
+                tell(p, "msg.cille.recall");
+            }
+            default -> {
+                if (cmd >= CMD_ABILITY) useAbility(p, cmd - CMD_ABILITY, tgt);
+            }
+        }
+    }
+
+    private void useAbility(Player p, int id, @Nullable LivingEntity tgt) {
+        if (id < BLACK_HOLE || id > SLAM) return;
+        LivingEntity t = tgt != null ? tgt : getTarget();
+        boolean offensive = id == BLACK_HOLE || id == BLINK || id == DRAIN || id == SHADOW;
+        if (offensive && t == null) { tell(p, "msg.cille.cmd.no_target"); return; }
+        if (!ready(id)) {
+            tell(p, "msg.cille.cmd.cooldown", Component.translatable("ability.cille." + id), (cooldowns[id] + 19) / 20);
+            return;
+        }
+        setStaying(false);
+        retreatTicks = 0;
+        moveTicks = 0;
+        if (offensive || id == SLAM) setStance(STANCE_AGGRESSIVE);
+        if (t != null) {
+            setTarget(t);
+            commandLock = 300;
+        }
+        startAbility(id, t);
+        tell(p, "msg.cille.cmd.ability", Component.translatable("ability.cille." + id));
+    }
+
+    /** cooldown fraction 0..1 of an ability (server side) */
+    public float cooldownOf(int id) { return cooldowns[id] / (float) Math.max(1, cooldown(id)); }
+
+    /** obeys "retreat" (run back to the Cahan) and "move there" commands */
+    static class CommandMoveGoal extends Goal {
+        private final KabkabaEntity k;
+        private int repath;
+
+        CommandMoveGoal(KabkabaEntity k) {
+            this.k = k;
+            this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
+        }
+
+        @Override
+        public boolean canUse() { return !k.isCasting() && (k.retreatTicks > 0 || (k.moveTicks > 0 && k.movePoint != null)); }
+
+        @Override public boolean canContinueToUse() { return canUse(); }
+        @Override public void start() { repath = 0; }
+        @Override public boolean requiresUpdateEveryTick() { return true; }
+
+        @Override
+        public void stop() {
+            k.getNavigation().stop();
+            k.setRunning(false);
+        }
+
+        @Override
+        public void tick() {
+            Vec3 dest;
+            if (k.retreatTicks > 0) {
+                Player o = k.getOwner();
+                if (o == null) { k.retreatTicks = 0; return; }
+                dest = o.position();
+                if (k.distanceToSqr(o) < 4.5 * 4.5) { k.retreatTicks = 0; return; }
+            } else {
+                dest = k.movePoint;
+                if (k.position().distanceToSqr(dest) < 2.5 * 2.5) {
+                    k.moveTicks = 0;
+                    k.setStaying(true);            // hold the position it was sent to
+                    return;
+                }
+            }
+            k.setRunning(true);
+            k.getLookControl().setLookAt(dest.x, dest.y + 1, dest.z);
+            if (--repath <= 0) {
+                repath = 6;
+                k.getNavigation().moveTo(dest.x, dest.y, dest.z, 1.6);
             }
         }
     }

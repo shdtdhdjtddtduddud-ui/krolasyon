@@ -2,7 +2,6 @@ package com.krolasyon.cille.client.render;
 
 import com.krolasyon.cille.CilleMod;
 import com.krolasyon.cille.client.model.KabkabaModel;
-import com.krolasyon.cille.client.model.SimpleModel;
 import com.krolasyon.cille.entity.KabkabaEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -20,15 +19,12 @@ import net.minecraft.world.phys.Vec3;
 
 public class KabkabaRenderer extends MobRenderer<KabkabaEntity, KabkabaModel> {
     private static final ResourceLocation TEXTURE = tex("kabkaba");
-    private static final ResourceLocation SHIELD = tex("shield");
-    private static final ResourceLocation SHIELD_GLOW = tex("shield_glow");
+    private static final ResourceLocation SHIELD = tex("shield_sphere");
     public static final float SCALE = 0.4F;
-    private final SimpleModel<KabkabaEntity> sphere;
 
     public KabkabaRenderer(EntityRendererProvider.Context ctx) {
         super(ctx, new KabkabaModel(ctx.bakeLayer(KabkabaModel.LAYER)), 1.7F);
         this.addLayer(new GlowLayer<>(this, tex("kabkaba_glow")));
-        this.sphere = new SimpleModel<>(ctx.bakeLayer(SimpleModel.SPHERE));
     }
 
     static ResourceLocation tex(String n) {
@@ -82,12 +78,12 @@ public class KabkabaRenderer extends MobRenderer<KabkabaEntity, KabkabaModel> {
         if (sh != KabkabaEntity.SHIELD_NONE && e.isAlive()) {
             pose.pushPose();
             pose.translate(0, 1.45, 0);
-            float s = (sh == KabkabaEntity.SHIELD_REFLECT ? 5.6F : 5.2F) * (1F + 0.03F * Mth.sin(age * 0.6F));
+            float s = (sh == KabkabaEntity.SHIELD_REFLECT ? 2.8F : 2.6F) * (1F + 0.03F * Mth.sin(age * 0.6F));
             pose.mulPose(Axis.YP.rotationDegrees(age * 3F));
-            pose.scale(s, s * 0.9F, s);
-            float r = sh == KabkabaEntity.SHIELD_REFLECT ? 0.9F : 0.35F, g = sh == KabkabaEntity.SHIELD_REFLECT ? 0.8F : 0.32F, b = sh == KabkabaEntity.SHIELD_REFLECT ? 1.0F : 0.55F;
-            sphere.renderToBuffer(pose, buffers.getBuffer(RenderType.entityTranslucent(SHIELD)), LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, r, g, b, sh == KabkabaEntity.SHIELD_REFLECT ? 0.75F : 0.6F);
-            sphere.renderToBuffer(pose, buffers.getBuffer(RenderType.eyes(SHIELD_GLOW)), LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, r, g, b, 1F);
+            pose.scale(1F, 0.9F, 1F);
+            boolean refl = sh == KabkabaEntity.SHIELD_REFLECT;
+            float r = refl ? 0.95F : 0.35F, g = refl ? 0.85F : 0.32F, b = refl ? 1.0F : 0.6F;
+            SmoothSphere.draw(pose, buffers.getBuffer(RenderType.entityTranslucent(SHIELD)), s, 32, 20, r, g, b, refl ? 0.8F : 0.65F, LightTexture.FULL_BRIGHT);
             pose.popPose();
         }
     }

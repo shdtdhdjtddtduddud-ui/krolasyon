@@ -18,8 +18,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Kabkaba's marble. The first player to throw it becomes its Cahan: the bond is permanent and nobody else can
@@ -70,6 +73,17 @@ public class CilleMarbleItem extends Item {
         player.getCooldowns().addCooldown(this, 20);
         if (!player.getAbilities().instabuild) stack.shrink(1);
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+    }
+
+    /** smooth 3D marble model in hand, inventory and on the ground */
+    @Override
+    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+        consumer.accept(new IClientItemExtensions() {
+            @Override
+            public net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                return com.krolasyon.cille.client.render.MarbleItemRenderer.get();
+            }
+        });
     }
 
     @Override

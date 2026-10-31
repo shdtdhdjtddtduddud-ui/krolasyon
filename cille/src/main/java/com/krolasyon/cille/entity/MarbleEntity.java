@@ -79,7 +79,7 @@ public class MarbleEntity extends Projectile {
                 this.level().addParticle(KabkabaEntity.dust(0x3A5ADB, 0.7F), getX(), getY() + 0.15, getZ(), 0, 0, 0);
             return;
         }
-        if (clack) this.level().playSound(null, getX(), getY(), getZ(), ModSounds.MARBLE_CLACK.get(), SoundSource.PLAYERS, 0.8F, 0.9F + random.nextFloat() * 0.3F);
+        if (clack) this.level().playSound(null, getX(), getY(), getZ(), ModSounds.MARBLE_CLACK.get(), SoundSource.PLAYERS, 0.8F, 0.85F + random.nextFloat() * 0.15F);
 
         if (burst || this.isRemoved()) return;
         // marble duel: two marbles touching

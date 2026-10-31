@@ -20,6 +20,7 @@ public class CilleMod {
         ModItems.TABS.register(bus);
         ModSounds.SOUNDS.register(bus);
         bus.addListener(this::onAttributes);
+        com.krolasyon.cille.network.CilleNetwork.register();
     }
 
     private void onAttributes(EntityAttributeCreationEvent event) {

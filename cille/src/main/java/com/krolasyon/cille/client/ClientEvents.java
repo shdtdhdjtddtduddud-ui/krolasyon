@@ -8,6 +8,9 @@ import com.krolasyon.cille.client.render.*;
 import com.krolasyon.cille.registry.ModEntities;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraft.client.KeyMapping;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -28,5 +31,15 @@ public final class ClientEvents {
         event.registerEntityRenderer(ModEntities.MARBLE.get(), MarbleRenderer::new);
         event.registerEntityRenderer(ModEntities.BLACK_HOLE.get(), BlackHoleRenderer::new);
         event.registerEntityRenderer(ModEntities.SHADOW_SPIKE.get(), ShadowSpikeRenderer::new);
+    }
+
+    @SubscribeEvent
+    public static void registerKeys(RegisterKeyMappingsEvent event) {
+        for (KeyMapping k : CilleKeys.all()) event.register(k);
+    }
+
+    @SubscribeEvent
+    public static void registerOverlays(RegisterGuiOverlaysEvent event) {
+        event.registerAboveAll("kabkaba_status", CilleHud.INSTANCE);
     }
 }

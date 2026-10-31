@@ -1,6 +1,5 @@
 package com.krolasyon.cille.client.render;
 
-import com.krolasyon.cille.client.model.SimpleModel;
 import com.krolasyon.cille.entity.BlackHoleEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
@@ -15,14 +14,11 @@ import net.minecraft.util.Mth;
 
 /** pitch-black core with a glowing violet event horizon and two spinning accretion disks */
 public class BlackHoleRenderer extends EntityRenderer<BlackHoleEntity> {
-    private static final ResourceLocation CORE = KabkabaRenderer.tex("black_hole_core");
-    private static final ResourceLocation CORE_GLOW = KabkabaRenderer.tex("black_hole_core_glow");
+    private static final ResourceLocation CORE = KabkabaRenderer.tex("hole_sphere");
     private static final ResourceLocation DISK = KabkabaRenderer.tex("black_hole_disk");
-    private final SimpleModel<BlackHoleEntity> sphere;
 
     public BlackHoleRenderer(EntityRendererProvider.Context ctx) {
         super(ctx);
-        this.sphere = new SimpleModel<>(ctx.bakeLayer(SimpleModel.SPHERE));
     }
 
     @Override
@@ -34,12 +30,10 @@ public class BlackHoleRenderer extends EntityRenderer<BlackHoleEntity> {
         pose.pushPose();
         pose.translate(0, 0.75, 0);
 
+        float core = 1.3F * s * big * (1F + 0.05F * Mth.sin(age * 0.7F));
         pose.pushPose();
-        float core = 2.6F * s * big * (1F + 0.05F * Mth.sin(age * 0.7F));
         pose.mulPose(Axis.YP.rotationDegrees(age * 4F));
-        pose.scale(core, core, core);
-        sphere.renderToBuffer(pose, buffers.getBuffer(RenderType.entityCutoutNoCull(CORE)), LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
-        sphere.renderToBuffer(pose, buffers.getBuffer(RenderType.eyes(CORE_GLOW)), LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1F);
+        SmoothSphere.draw(pose, buffers.getBuffer(RenderType.entityCutoutNoCull(CORE)), core, 28, 18, 1F, 1F, 1F, 1F, LightTexture.FULL_BRIGHT);
         pose.popPose();
 
         for (int i = 0; i < 2; i++) {

@@ -96,7 +96,7 @@ public class ShadowSpikeEntity extends Entity {
         }
         if (t == 0) {
             ServerLevel sl = (ServerLevel) this.level();
-            this.level().playSound(null, getX(), getY(), getZ(), ModSounds.SHADOW_RISE.get(), SoundSource.HOSTILE, 1.0F, 0.8F + random.nextFloat() * 0.4F);
+            this.level().playSound(null, getX(), getY(), getZ(), ModSounds.SHADOW_RISE.get(), SoundSource.HOSTILE, 1.0F, 0.8F + random.nextFloat() * 0.2F);
             BlockState below = this.level().getBlockState(this.blockPosition().below());
             if (!below.isAir()) sl.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, below), getX(), getY() + 0.2, getZ(), 18, 0.4, 0.2, 0.4, 0.15);
             sl.sendParticles(ParticleTypes.SQUID_INK, getX(), getY() + 0.8, getZ(), 10, 0.3, 0.6, 0.3, 0.05);

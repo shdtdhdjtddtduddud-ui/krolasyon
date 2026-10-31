@@ -137,3 +137,63 @@ def marble_icon(size=32):
     arr[rim, :3] *= 0.55
     im = Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), 'RGBA').resize((size, size), Image.LANCZOS)
     return im
+
+
+# ---------------------------------------------------------------- equirectangular textures for the smooth spheres
+def _equirect(W=256, H=128):
+    yy, xx = np.mgrid[0:H, 0:W]
+    lon = (xx + 0.5) / W * 2 * math.pi           # u
+    lat = math.pi / 2 - (yy + 0.5) / H * math.pi  # v: top = +90
+    n = np.stack([np.cos(lat) * np.cos(lon), np.sin(lat), np.cos(lat) * np.sin(lon)], -1)
+    return n
+
+
+def _img(col, alpha):
+    a = np.zeros(col.shape[:2] + (4,), np.float32)
+    a[..., :3] = col
+    a[..., 3] = np.clip(alpha, 0, 1) * 255
+    return Image.fromarray(np.clip(a, 0, 255).astype(np.uint8), 'RGBA')
+
+
+def marble_glass_tex():
+    """deep blue glass: lighter on top, dark underneath, soft swirl, one big specular highlight"""
+    n = _equirect()
+    nz = Noise3(77, freq=2.2)
+    sw = nz(n * 3)
+    up = n[..., 1]
+    col = ramp(0.42 + 0.3 * (up + 1) / 2 + 0.12 * (sw - 0.5), [(6, 12, 40), (24, 44, 120), (52, 86, 178), (110, 150, 230)])
+    alpha = 0.58 + 0.18 * (1 - (up + 1) / 2) + 0.06 * sw
+    # specular highlight up-front-right and a faint secondary one
+    for d, w, s in (((0.45, 0.62, -0.64), 0.9, 1.0), ((-0.5, -0.35, -0.8), 0.96, 0.35)):
+        d = np.array(d); d /= np.linalg.norm(d)
+        k = smooth(w, w + (1 - w) * 0.75, n @ d) * s
+        col = lerp(col, (250, 252, 255), k)
+        alpha = np.maximum(alpha, k * 0.95)
+    return _img(col, alpha)
+
+
+def shield_tex():
+    n = _equirect()
+    nz = Noise3(78, freq=1.6)
+    lon = np.arctan2(n[..., 2], n[..., 0])
+    hexes = 0.5 + 0.5 * np.sin(lon * 9) * np.sin(n[..., 1] * 14)
+    sw = nz(n * 4)
+    k = smooth(0.55, 0.95, sw) * 0.6 + smooth(0.75, 0.95, hexes) * 0.4
+    col = ramp(0.25 + 0.7 * k, [(40, 14, 80), (110, 50, 200), (190, 140, 255), (240, 225, 255)])
+    return _img(col, 0.18 + 0.55 * k)
+
+
+def hole_tex():
+    n = _equirect()
+    nz = Noise3(79, freq=2.0)
+    v = smooth(0.82, 0.95, nz(n * 4))
+    col = lerp(np.zeros(n.shape[:2] + (3,), np.float32) + (3, 1, 8), (90, 40, 160), v)
+    return _img(col, np.ones(n.shape[:2]))
+
+
+def halo_tex():
+    n = _equirect()
+    nz = Noise3(80, freq=1.4)
+    k = 0.5 + 0.5 * nz(n * 3)
+    col = ramp(k, [(30, 8, 60), (90, 34, 170), (150, 90, 240)])
+    return _img(col, np.ones(n.shape[:2]))
