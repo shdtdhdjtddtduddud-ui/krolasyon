@@ -29,6 +29,27 @@ jobs:
           set +e
           gradle build --no-daemon --stacktrace 2>&1 | tee build.log
           echo "status=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+      - name: Visual self-test (headless client)
+        id: vt
+        if: steps.b.outputs.status == '0' && contains(github.event.head_commit.message, '[vtest]')
+        continue-on-error: true
+        shell: bash
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          MESA_GL_VERSION_OVERRIDE: '4.5'
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq xvfb libgl1-mesa-dri libglx-mesa0 mesa-utils > /dev/null
+          mkdir -p run
+          printf "onboardAccessibility:false\nrenderDistance:6\nsimulationDistance:6\npauseOnLostFocus:false\ntutorialStep:none\njoinedFirstServer:true\nskipMultiplayerWarning:true\nmaxFps:60\nfov:0.0\nguiScale:2\n" > run/options.txt
+          set +e
+          timeout 2400 xvfb-run -a -s "-screen 0 1600x900x24" gradle runClient --no-daemon > client.log 2>&1
+          echo "client exit $?"
+          mkdir -p vtest
+          cp run/screenshots/ctest_*.png vtest/ 2>/dev/null
+          cp run/logs/latest.log vtest/latest.log 2>/dev/null
+          tail -c 300000 client.log > vtest/client_tail.log
+          grep -E "AUTOTEST|Exception|ERROR|Caused by" client.log | head -400 > vtest/summary.log
+          cd vtest && zip -q ../vtest.zip * ; ls -la
       - name: Compile errors
         if: steps.b.outputs.status != '0'
         shell: bash
@@ -42,6 +63,7 @@ jobs:
           TAG="cille-build-${{ github.run_number }}"
           FILES="build.log"
           for f in build/libs/*.jar; do [ -f "$f" ] && FILES="$FILES $f"; done
+          [ -f vtest.zip ] && FILES="$FILES vtest.zip"
           gh release create "$TAG" $FILES --title "Cille Kabkaba build ${{ github.run_number }} (status ${{ steps.b.outputs.status }})" --notes "commit ${{ github.sha }}" --prerelease --target "${{ github.sha }}"
       - name: Fail on build error
         if: steps.b.outputs.status != '0'

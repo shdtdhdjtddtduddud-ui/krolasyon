@@ -591,6 +591,16 @@ public abstract class CilleEntity extends PathfinderMob {
 
     protected void onAbilityStart(int id) {}
 
+    /** used by the CI visual self-test to trigger a specific technique */
+    public void debugForceAbility(int id, @Nullable LivingEntity target) {
+        if (target != null) this.setTarget(target);
+        if (currentAbility >= 0) endAbility();
+        java.util.Arrays.fill(cooldowns, 100000);
+        cooldowns[id] = 0;
+        this.globalCooldown = 100000;
+        startAbility(id, target);
+    }
+
     protected void endAbility() {
         if (getShield() == SHIELD_REFLECT) setShield(shieldTimer > 0 ? SHIELD_GUARD : SHIELD_NONE);
         if (getBeamTarget() >= 0) setBeam(-1);

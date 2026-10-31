@@ -21,6 +21,10 @@ public class CilleMod {
         ModSounds.SOUNDS.register(bus);
         bus.addListener(this::onAttributes);
         com.krolasyon.cille.network.CilleNetwork.register();
+        if (Boolean.getBoolean("cille.autotest")) {
+            net.minecraftforge.fml.DistExecutor.unsafeRunWhenOn(net.minecraftforge.api.distmarker.Dist.CLIENT,
+                    () -> com.krolasyon.cille.client.AutoTest::init);
+        }
     }
 
     private void onAttributes(EntityAttributeCreationEvent event) {
