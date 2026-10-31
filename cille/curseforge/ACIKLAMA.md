@@ -7,7 +7,7 @@ Aşağıdaki her bölümü CurseForge'daki ilgili kutuya kopyala-yapıştır yap
 ## Proje adı (Project Name)
 
 ```
-Cille: Kabkaba, Behmud, Şarkan & Nirumend
+Cille: Misket Savaşları
 ```
 
 ## Kısa özet (Summary)
@@ -40,7 +40,7 @@ Cille cizgi dizisinden 4 Cille! Misketi firlat, iki misket carpisinca Cille'ler 
 Bunu açıklama editörüne olduğu gibi yapıştır (Markdown destekliyor).
 
 ```markdown
-# CİLLE – Kabkaba, Behmud, Şarkan & Nirumend
+# CİLLE: Misket Savaşları
 
 **Cille çizgi dizisindeki efsanevi Cille'ler Minecraft'ta!** Misketini fırlat, rakibinin misketiyle çarpıştır ve Cille'ler ortaya çıkıp savaşsın. Her Cille'nin kendi 3D modeli, animasyonları, sesleri ve dizideki yetenekleri var.
 
@@ -94,7 +94,7 @@ Kraterler, sökülen bloklar, donan su, kum duvarları, hortuma kapılan toprak�
 
 ---
 
-# CİLLE – Kabkaba, Behmud, Şarkan & Nirumend (English)
+# CİLLE: Marble Battles (English)
 
 **The legendary Cilles from the Turkish cartoon "Cille" come to Minecraft!** Throw your marble, smash it into your rival's marble and the Cilles burst out to fight. Every Cille has its own 3D model, animations, sounds and the techniques from the show.
 
@@ -129,7 +129,7 @@ Kraterler, sökülen bloklar, donan su, kum duvarları, hortuma kapılan toprak�
 | Dosya | Nereye | Başlık (Title) önerisi |
 |---|---|---|
 | `logo.png` | Proje logosu / avatar | – |
-| `kapak_banner.png` | Images → ilk görsel ("Featured" işaretle) | Cille – Kabkaba, Behmud, Şarkan & Nirumend |
+| `kapak_banner.png` | Images → ilk görsel ("Featured" işaretle) | Cille: Misket Savaşları |
 | `kart_kabkaba.png` | Images | Kabkaba – Karanlık Cille |
 | `kart_behmud.png` | Images | Behmud – Uzay Balinası |
 | `kart_sarkan.png` | Images | Şarkan – Kum ve Kaya Savaşçısı |

@@ -110,7 +110,7 @@ paste(bg, renders['sarkan'], 960, 1030, 660)
 paste(bg, renders['behmud'], 960, 470, 300, maxw=760)
 d = ImageDraw.Draw(bg)
 title(d, 'CİLLE', (960, 120), 150)
-title(d, 'Kabkaba  •  Behmud  •  Şarkan  •  Nirumend', (960, 236), 44, fill=(255, 255, 255), stroke=(20, 20, 40), sw=3)
+title(d, 'Misket Savaşları', (960, 236), 50, fill=(255, 255, 255), stroke=(20, 20, 40), sw=3)
 title(d, 'Minecraft 1.20.1 Forge', (960, 1050), 34, fill=(255, 255, 255), stroke=(20, 20, 40), sw=3)
 bg.convert('RGB').save(os.path.join(OUT, 'kapak_banner.png'))
 
