@@ -73,3 +73,22 @@ for k in range(4):
     d.rectangle((x - 2, y - 1, x + 2, y + 1), fill=(250, 200, 40, 255))
 icon.save(os.path.join(HERE, '..', '..', 'src/main/resources/assets/librabeyblade/textures/item/stadium.png'))
 print('ok')
+
+
+def xline():
+    """Xtreme Line rail: metal rims with gear teeth and an orange chevron drive stripe (textures/entity/xline.png)."""
+    from PIL import Image as _I
+    W, H = 32, 32
+    im = _I.new('RGBA', (W, H), (52, 54, 62, 255))
+    px = im.load()
+    for x in range(W):
+        for y in range(H):
+            c = (52, 54, 62)
+            if y < 3 or y >= H - 3:
+                c = (120, 124, 134)
+            elif (y < 9 or y >= H - 9) and (x % 8) < 4:
+                c = (150, 156, 168) if (x % 8) in (1, 2) else (110, 114, 124)
+            elif 12 <= y < 20:
+                c = (255, 120, 25) if ((x + abs(y - 16) * 2) % 16) < 9 else (200, 70, 10)
+            px[x, y] = c + (255,)
+    im.save(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'src/main/resources/assets/librabeyblade/textures/entity/xline.png'))

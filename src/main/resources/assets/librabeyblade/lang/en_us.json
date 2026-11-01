@@ -107,7 +107,7 @@
  "item.librabeyblade.stadium.desc": "Right click a block: build a large beyblade stadium (about 29 blocks). Stand on the two pads to start a match!",
  "item.librabeyblade.stadium.desc2": "To remove it: sneak + right click (or sneak + hit) the middle",
  "msg.librabeyblade.stadium_near": "There is already a stadium nearby!",
- "msg.librabeyblade.over_finish": "§6§lOVER FINISH! §r§cYour beyblade flew out of the stadium!",
+ "msg.librabeyblade.over_finish": "OVER FINISH! %s went into an Over Zone!",
  "hud.librabeyblade.title.eagle": "Earth Eagle",
  "entity.librabeyblade.eagle": "Earth Eagle",
  "item.librabeyblade.earth_eagle": "Earth Eagle 145WD",
@@ -255,7 +255,7 @@
  "hud.librabeyblade.match.battle": "Round %s - fight!",
  "hud.librabeyblade.match.round_end": "Round over",
  "hud.librabeyblade.match.end": "Match over",
- "hud.librabeyblade.match.goal": "First to %s points | Spin Finish 1, Special Move Finish 2 | no time limit",
+ "hud.librabeyblade.match.goal": "First to %s points | Spin 1, Special Move 2, Over 2, Xtreme 3",
  "key.librabeyblade.spirit": "Blader Spirit burst",
  "msg.librabeyblade.spirit": "BLADER SPIRIT! Get up, %s!",
  "msg.librabeyblade.spirit_low": "Blader Spirit is not full yet (%s/100)",
@@ -562,5 +562,9 @@
  "msg.librabeyblade.launch_bad": "Bad launch! Balance %s%% (%s) - it's wobbling badly",
  "msg.librabeyblade.launch_shaky": "Shaky launch: balance %s%% (%s)",
  "msg.librabeyblade.wobble_land": "It landed tilted and scraped the floor!",
- "msg.librabeyblade.match.balcony": "To your launch balcony! Aim 15-50° down and let it rip!"
+ "msg.librabeyblade.match.balcony": "To your launch balcony! Aim 15-50° down and let it rip!",
+ "msg.librabeyblade.xdash": "XTREME DASH!",
+ "msg.librabeyblade.xtreme_finish": "XTREME FINISH! %s was blasted into the Xtreme Zone!",
+ "msg.librabeyblade.match.xtreme_finish": "Xtreme Finish (3 points)",
+ "msg.librabeyblade.match.over_finish": "Over Finish (2 points)"
 }

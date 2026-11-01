@@ -107,7 +107,7 @@
  "item.librabeyblade.stadium.desc": "Bir bloğa sağ tıkla: büyük beyblade stadyumu kur (yaklaşık 29 blok). Maç için iki uçtaki alanlara geçin!",
  "item.librabeyblade.stadium.desc2": "Kaldırmak için: eğilip ortasına sağ tık (ya da eğilip vur)",
  "msg.librabeyblade.stadium_near": "Yakında zaten bir stadyum var!",
- "msg.librabeyblade.over_finish": "§6§lOVER FINISH! §r§cBeyblade'in stadyumdan dışarı fırladı!",
+ "msg.librabeyblade.over_finish": "OVER FİNİŞ! %s Over Bölgesi'ne düştü!",
  "hud.librabeyblade.title.eagle": "Earth Eagle",
  "entity.librabeyblade.eagle": "Earth Eagle",
  "item.librabeyblade.earth_eagle": "Earth Eagle 145WD",
@@ -255,7 +255,7 @@
  "hud.librabeyblade.match.battle": "Raund %s - savaş!",
  "hud.librabeyblade.match.round_end": "Raund bitti",
  "hud.librabeyblade.match.end": "Maç bitti",
- "hud.librabeyblade.match.goal": "%s puana ulaşan kazanır | Döngü Bitirişi 1, Özel Hareket Bitirişi 2 | süre yok",
+ "hud.librabeyblade.match.goal": "İlk %s puan | Dönüş 1, Özel Hareket 2, Over 2, Xtreme 3",
  "key.librabeyblade.spirit": "Blader Ruhu patlaması",
  "msg.librabeyblade.spirit": "BLADER RUHU! Kalk, %s!",
  "msg.librabeyblade.spirit_low": "Blader Ruhu henüz dolmadı (%s/100)",
@@ -562,5 +562,9 @@
  "msg.librabeyblade.launch_bad": "Hatalı fırlatma! Denge %%%s (%s) - beyblade fena sallanıyor",
  "msg.librabeyblade.launch_shaky": "Dengesiz fırlatma: denge %%%s (%s)",
  "msg.librabeyblade.wobble_land": "Eğik düştü ve zemine sürttü!",
- "msg.librabeyblade.match.balcony": "Fırlatma balkonuna! 15-50° aşağı nişan al ve fırlat!"
+ "msg.librabeyblade.match.balcony": "Fırlatma balkonuna! 15-50° aşağı nişan al ve fırlat!",
+ "msg.librabeyblade.xdash": "XTREME DASH!",
+ "msg.librabeyblade.xtreme_finish": "XTREME FİNİŞ! %s Xtreme Bölgesi'ne fırlatıldı!",
+ "msg.librabeyblade.match.xtreme_finish": "Xtreme Finiş (3 puan)",
+ "msg.librabeyblade.match.over_finish": "Over Finiş (2 puan)"
 }

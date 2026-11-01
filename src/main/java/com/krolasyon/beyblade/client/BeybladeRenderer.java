@@ -272,6 +272,7 @@ public class BeybladeRenderer extends EntityRenderer<BeybladeEntity> {
         else if (drago) LDragoFx.render((LDragoEntity) e, partial, t, ex, ey, ez, pose, buf, this.entityRenderDispatcher.cameraOrientation());
         else LibraFx.render(e, partial, t, ex, ey, ez, pose, buf, this.entityRenderDispatcher.cameraOrientation());
         SpecialClashFx.render(e, partial, t, ex, ey, ez, pose, buf, this.entityRenderDispatcher.cameraOrientation());
+        XtremeFx.render(e, partial, t, ex, ey, ez, pose, buf, this.entityRenderDispatcher.cameraOrientation());
         super.render(e, yaw, partial, pose, buf, light);
     }
 

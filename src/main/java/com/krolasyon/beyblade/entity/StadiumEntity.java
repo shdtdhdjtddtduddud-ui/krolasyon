@@ -56,13 +56,42 @@ public class StadiumEntity extends Entity {
     public static final float WALL_HALF_DEG = 45F;
     /** launch pads: players stand here, one at each end (+z = blue side A, -z = red side B) */
     public static final float PAD_R = 23.5F, PAD_HALF = 1.6F;
+    // ---- Beyblade X style zones (angles in degrees: 0 = +x, 90 = +z side A, 270 = -z side B)
+    /** Xtreme Line: the gear rail along the outer edge of the bowl floor; it is open in front of the Xtreme Zone */
+    public static final float RAIL_R0 = 9.45F, RAIL_R1 = 10.35F, RAIL_GAP = 20F;
+    /** Xtreme Zone: the pocket in the middle of the open end (3 points); Over Zones: two side pockets (2 points) */
+    public static final float XTREME_DEG = 0F, XTREME_HALF = 13F, OVER_HALF = 11F;
+    public static final float[] OVER_DEG = {140F, 220F};
+    /** a top has to be thrown at least this fast into a pocket to go in (slower ones bounce off its lip) */
+    public static final double POCKET_V = 0.3;
+    public static final int Z_NONE = 0, Z_OVER = 1, Z_XTREME = 2;
+
+    public static double deg(double dx, double dz) {
+        double d = Math.toDegrees(Math.atan2(dz, dx));
+        return d < 0 ? d + 360 : d;
+    }
+
+    public static double angDist(double a, double b) {
+        double d = Math.abs(((a - b) % 360 + 360) % 360);
+        return d > 180 ? 360 - d : d;
+    }
+
+    /** which pocket (if any) opens through the wall at this angle */
+    public static int zoneAt(double deg) {
+        if (angDist(deg, XTREME_DEG) < XTREME_HALF) return Z_XTREME;
+        for (float o : OVER_DEG) if (angDist(deg, o) < OVER_HALF) return Z_OVER;
+        return Z_NONE;
+    }
+
+    /** whether the Xtreme Line runs at this angle */
+    public static boolean onRail(double deg) { return angDist(deg, XTREME_DEG) > RAIL_GAP; }
     /** launch balconies at both ends: deck rows from DECK_K0 to DECK_K1 blocks out, DECK_Y blocks up; players stand on row DECK_K0 + 1 */
     public static final int DECK_K0 = 15, DECK_K1 = 18, DECK_Y = 3, DECK_HALF = 2;
     public static final double BARRIER_R0 = 14.6, BARRIER_R1 = 15.6;
     public static final int BARRIER_H = 3;
 
     public static final int M_IDLE = 0, M_COUNTDOWN = 1, M_BATTLE = 2, M_ROUND_END = 3, M_MATCH_END = 4;
-    public static final int WIN_POINTS = 3, ROUND_TICKS = 2400, LAUNCH_GRACE = 300;
+    public static final int WIN_POINTS = 4, ROUND_TICKS = 2400, LAUNCH_GRACE = 300;
 
     private static final EntityDataAccessor<Integer> DATA_MSTATE = SynchedEntityData.defineId(StadiumEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_SCORE_A = SynchedEntityData.defineId(StadiumEntity.class, EntityDataSerializers.INT);
@@ -477,6 +506,10 @@ public class StadiumEntity extends Entity {
     private void scoreFinish(int winner, @Nullable BeybladeEntity loser) {
         if (loser == null || loser.getState() == BeybladeEntity.STATE_RECALL || !loser.isAlive()) {
             roundOver(winner, 1, "msg.librabeyblade.match.forfeit");
+        } else if (loser.outZone() == Z_XTREME) {
+            roundOver(winner, 3, "msg.librabeyblade.match.xtreme_finish");
+        } else if (loser.outZone() == Z_OVER) {
+            roundOver(winner, 2, "msg.librabeyblade.match.over_finish");
         } else if (loser.finishedByAbility()) {
             roundOver(winner, 2, "msg.librabeyblade.match.ability_finish");
         } else {

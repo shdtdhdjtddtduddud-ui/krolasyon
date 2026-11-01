@@ -85,34 +85,25 @@ public final class AutoTest {
                 "summon librabeyblade:libra 4.6 -58 -14.5 {Frozen:1b}", "summon librabeyblade:tempo 6.4 -58 -14.5 {Frozen:1b}");
         record(true);
         wait(50, "lineup_front");
-        // ---- launch balconies: the stadium from outside, then a match against the AI from the balcony
-        cmd(30, "balcony_outside", CLEAR, "tp @a 14 -55 12 135 18");
-        cmd(20, "balcony_side", "tp @a -9 -57 5 -125 12");
-        cmd(2, null, "gamemode survival @a", "effect give @a minecraft:resistance 600 9 true", "tp @a 0.5 -60 9.5 180 10");
-        server(4, null, s -> {
-            ServerPlayer p = s.getPlayerList().getPlayers().get(0);
-            p.getInventory().setItem(0, new ItemStack(ModItems.STANDARD_LAUNCHER.get()));
-            p.getInventory().setItem(1, new ItemStack(ModItems.PEGASUS.get()));
-            p.getInventory().selected = 0;
-        });
-        client(0, null, mc -> showGui = true);
-        wait(30, "on_pad");
-        // sneaking on the pad for two seconds starts a match against the AI: the blader is put on the balcony
-        client(2, null, mc -> mc.options.keyShift.setDown(true));
-        wait(50, null);
-        client(2, null, mc -> mc.options.keyShift.setDown(false));
-        wait(20, "on_balcony");
-        client(2, null, mc -> {
-            mc.player.getInventory().selected = 0;
-            net.minecraft.client.KeyMapping.click(mc.options.keyUse.getKey());
-            mc.options.keyUse.setDown(true);
-        });
-        wait(38, "balcony_aim");
-        client(0, null, mc -> mc.options.keyUse.setDown(false));
-        wait(40, "balcony_launched");
-        wait(60, "balcony_battle");
-        client(0, null, mc -> showGui = false);
-        cmd(2, null, "gamemode spectator @a");
+        // ---- Beyblade X stadium: Xtreme Line rail, Over Zones and the Xtreme Zone
+        cmd(30, "xstadium_top", CLEAR, "tp @a 0.5 -36 -14.5 0 90");
+        cmd(25, "xstadium_angle", "tp @a 16 -50 -3 125 32");
+        // a top riding the rail, then dashing off it at the rival in front
+        cmd(2, null, CLEAR, "tp @a -2 -49 0 200 40",
+                "summon librabeyblade:pegasus -9.4 -58.5 -14.5 {Motion:[0.0,0.0,-0.45]}",
+                "summon librabeyblade:common -3.4 -58.6 -19.1 {Variant:2}");
+        wait(5, "rail_ride");
+        wait(5, "rail_ride_2");
+        wait(6, "xdash");
+        wait(10, "xdash_hit");
+        wait(20, null);
+        // thrown into the Xtreme Zone and into an Over Zone
+        cmd(2, null, CLEAR, "tp @a 20 -52 -14.5 90 28", "summon librabeyblade:common 9.5 -58.6 -14.5 {Variant:0,Motion:[0.9,0.05,0.0]}");
+        wait(8, "xtreme_out");
+        wait(20, "xtreme_out_2");
+        cmd(2, null, CLEAR, "tp @a -14 -52 -1 220 28", "summon librabeyblade:common -6.39 -58.6 -8.71 {Variant:5,Motion:[-0.69,0.05,0.58]}");
+        wait(8, "over_out");
+        wait(20, "over_out_2");
         record(false);
         wait(20, "END");
     }

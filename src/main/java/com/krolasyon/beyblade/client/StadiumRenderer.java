@@ -45,6 +45,7 @@ public class StadiumRenderer extends EntityRenderer<StadiumEntity> {
                     OverlayTexture.NO_OVERLAY, light, d[i + 5], d[i + 6], d[i + 7]);
         }
         renderPads(e, partial, pose, buf);
+        renderXtreme(e, partial, pose, buf, light);
         renderScars(e, partial, pose, buf);
         super.render(e, yaw, partial, pose, buf, light);
     }
@@ -104,6 +105,69 @@ public class StadiumRenderer extends EntityRenderer<StadiumEntity> {
 
     @Override
     public ResourceLocation getTextureLocation(StadiumEntity e) { return TEX; }
+
+    // ------------------------------------------------------------------ Beyblade X: Xtreme Line rail and the pockets
+    private static final ResourceLocation XLINE = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "textures/entity/xline.png");
+
+    /** the wall arcs (degrees) between the pockets */
+    static double[][] wallArcs() {
+        double x0 = XTREME_DEG + XTREME_HALF, x1 = 360 + XTREME_DEG - XTREME_HALF;
+        double o0 = OVER_DEG[0], o1 = OVER_DEG[1];
+        return new double[][]{{x0, o0 - OVER_HALF}, {o0 + OVER_HALF, o1 - OVER_HALF}, {o1 + OVER_HALF, x1}};
+    }
+
+    private void renderXtreme(StadiumEntity e, float partial, PoseStack pose, MultiBufferSource buf, int light) {
+        Matrix4f m = pose.last().pose();
+        Matrix3f n = pose.last().normal();
+        // the Xtreme Line: a gear-toothed rail along the outer edge of the bowl floor
+        VertexConsumer vc = buf.getBuffer(RenderType.entityCutoutNoCull(XLINE));
+        int RS = 110;
+        double a0d = XTREME_DEG + RAIL_GAP, span = 360 - 2 * RAIL_GAP;
+        for (int i = 0; i < RS; i++) {
+            double a0 = Math.toRadians(a0d + span * i / RS), a1 = Math.toRadians(a0d + span * (i + 1) / RS);
+            double[][] q = {{RAIL_R0, a0, 0, 0}, {RAIL_R1, a0, 0, 1}, {RAIL_R1, a1, 1, 1}, {RAIL_R0, a1, 1, 0}};
+            for (double[] p : q) {
+                double y = surface(p[0]) + 0.03;
+                com.krolasyon.beyblade.compat.VClient.vertex(vc, m, n, (float) (Math.cos(p[1]) * p[0]), (float) y, (float) (Math.sin(p[1]) * p[0]),
+                        1F, 1F, 1F, 1F, (float) p[2], (float) p[3], OverlayTexture.NO_OVERLAY, light, 0F, 1F, 0F);
+            }
+        }
+        // the pockets behind the openings: orange Xtreme Zone, blue Over Zones
+        float t = e.tickCount + partial;
+        vc = buf.getBuffer(RenderType.entityCutoutNoCull(BeyMesh.PLAIN));
+        double back = WALL_OUT + 1.5, fy = LIP_Y + 0.01;
+        double[][] pockets = {{XTREME_DEG, XTREME_HALF, 1}, {OVER_DEG[0], OVER_HALF, 0}, {OVER_DEG[1], OVER_HALF, 0}};
+        for (double[] pk : pockets) {
+            boolean x = pk[2] > 0;
+            float[] col = x ? new float[]{1F, 0.45F, 0.1F} : new float[]{0.2F, 0.5F, 1F};
+            double c = Math.toRadians(pk[0]), h = Math.toRadians(pk[1]);
+            double a0 = c - h, a1 = c + h;
+            // floor
+            quad(vc, m, n, light, pt(WALL_IN, a0, fy), pt(back, a0, fy), pt(back, a1, fy), pt(WALL_IN, a1, fy), col, 0.75F, 0, 1, 0);
+            // back wall and the two side walls
+            float[] wc = {0.55F, 0.57F, 0.62F};
+            quad(vc, m, n, light, pt(back, a0, fy), pt(back, a0, fy + 1.1), pt(back, a1, fy + 1.1), pt(back, a1, fy), wc, 1F, -Math.cos(c), 0, -Math.sin(c));
+            for (double a : new double[]{a0, a1})
+                quad(vc, m, n, light, pt(WALL_OUT, a, fy), pt(WALL_OUT, a, fy + 1.1), pt(back, a, fy + 1.1), pt(back, a, fy), wc, 0.9F, -Math.sin(a), 0, Math.cos(a));
+            // a glowing zone mark on the floor
+            pose.pushPose();
+            double mr = (WALL_IN + back) / 2;
+            pose.translate(Math.cos(c) * mr, fy + 0.02, Math.sin(c) * mr);
+            float pulse = 0.6F + 0.4F * Mth.sin(t * 0.15F + (float) pk[0]);
+            VertexConsumer g = Fx.buf(buf, Fx.SIGIL);
+            Fx.groundQuad(g, pose.last().pose(), 0.0F, x ? 1.3F : 1.0F, Fx.c(col[0], col[1], col[2], 0.9F * pulse));
+            pose.popPose();
+        }
+    }
+
+    private static float[] pt(double r, double a, double y) { return new float[]{(float) (Math.cos(a) * r), (float) y, (float) (Math.sin(a) * r)}; }
+
+    private static void quad(VertexConsumer vc, Matrix4f m, Matrix3f n, int light, float[] a, float[] b, float[] c, float[] d, float[] col, float k,
+                             double nx, double ny, double nz) {
+        for (float[] p : new float[][]{a, b, c, d})
+            com.krolasyon.beyblade.compat.VClient.vertex(vc, m, n, p[0], p[1], p[2], col[0] * k, col[1] * k, col[2] * k, 1F, 0.5F, 0.5F,
+                    OverlayTexture.NO_OVERLAY, light, (float) nx, (float) ny, (float) nz);
+    }
 
     // ------------------------------------------------------------------ mesh
     private static final List<float[]> V = new ArrayList<>();
@@ -189,10 +253,12 @@ public class StadiumRenderer extends EntityRenderer<StadiumEntity> {
             vert(Math.cos(a1) * r1, TIER1_Y, Math.sin(a1) * r1, u1, v1, nx, 0, nz);
             vert(Math.cos(a1) * r1, 0, Math.sin(a1) * r1, u1, v0, nx, 0, nz);
         }
-        // ---- four striped walls
-        int WS = 40;
-        for (int w = 0; w < 4; w++) {
-            double c = Math.toRadians(45 + 90 * w), h = Math.toRadians(WALL_HALF_DEG);
+        // ---- striped walls running round the bowl, open at the Xtreme Zone and the two Over Zones
+        double[][] arcs = wallArcs();
+        for (double[] arc : arcs) {
+            double a0d = arc[0], a1d = arc[1];
+            int WS = Math.max(4, (int) Math.round((a1d - a0d) / 90.0 * 40));
+            double c = Math.toRadians((a0d + a1d) / 2), h = Math.toRadians((a1d - a0d) / 2);
             for (int i = 0; i < WS; i++) {
                 double a0 = c - h + 2 * h * i / WS, a1 = c - h + 2 * h * (i + 1) / WS;
                 double cu0 = 512.0 * i / WS, cu1 = 512.0 * (i + 1) / WS;

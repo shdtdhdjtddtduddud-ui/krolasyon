@@ -127,6 +127,12 @@ public class BeybladeEntity extends Entity {
     private int flungTicks;
     /** still in the air after the launch */
     private boolean launchFlight;
+    // Xtreme Line rail riding and the Xtreme Dash that follows; the pocket a top was knocked into
+    private int railTicks, railDir, railCooldown, xdashTicks, outZone;
+    private double railSpeed;
+    public static final byte EV_RAIL = 86, EV_XDASH = 87, EV_OUT = 88;
+    /** client */
+    public int railClientTime = -1000, xdashClientTime = -1000, outClientTime = -1000;
     @Nullable private BeybladeEntity lockPartner;
     /** who last hurt us and when an enemy special move last hit us (match scoring: ability finish) */
     @Nullable private BeybladeEntity lastAttacker;
@@ -569,6 +575,8 @@ public class BeybladeEntity extends Entity {
             flungTicks--;
             controlled = true;
         }
+        // gear rail: riding the Xtreme Line, then the Xtreme Dash off it
+        if (!frozen && tickRail(owner)) controlled = true;
         // the launch arc flies free until the first touch of the floor (no steering back towards the owner)
         if (launchFlight) {
             if (onGround() || this.tickCount > 80) launchFlight = false;
@@ -890,6 +898,19 @@ public class BeybladeEntity extends Entity {
         float base = (float) (10 + 150 * impact);
         float toO = base * (0.6F + 0.6F * spinRatio()) * buffAttackMul() * powerMul() * partsClashMul(o);
         float toMe = base * (0.6F + 0.6F * o.spinRatio()) * o.buffAttackMul() * o.powerMul() * o.partsClashMul(this);
+        // an Xtreme Dash hits far harder and sends the other top flying, maybe into a pocket
+        if (xdashTicks > 0) toO *= 1.5F;
+        if (o.xdashTicks > 0) toMe *= 1.5F;
+        if (xdashTicks > 0) {
+            o.setDeltaMovement(o.getDeltaMovement().add(nx * 0.9 * Mth.clamp(o.knockMul(), 0.5, 1.4), 0.12, nz * 0.9 * Mth.clamp(o.knockMul(), 0.5, 1.4)));
+            o.flungTicks = 10;
+            xdashTicks = 0;
+        }
+        if (o.xdashTicks > 0) {
+            setDeltaMovement(getDeltaMovement().add(-nx * 0.9 * Mth.clamp(knockMul(), 0.5, 1.4), 0.12, -nz * 0.9 * Mth.clamp(knockMul(), 0.5, 1.4)));
+            flungTicks = 10;
+            o.xdashTicks = 0;
+        }
         // a taller spin track strikes the other one from above (upper attack)
         if (heightEdge(o) && partsUpperKick()) o.setDeltaMovement(o.getDeltaMovement().add(0, 0.22, 0));
         if (o.heightEdge(this) && o.partsUpperKick()) setDeltaMovement(getDeltaMovement().add(0, 0.22, 0));
@@ -953,6 +974,99 @@ public class BeybladeEntity extends Entity {
         }
         if (o.target == null) o.target = this;
         if (target == null) target = o;
+    }
+
+    // ---------------- Xtreme Line / Xtreme Dash / pockets ----------------
+    public int outZone() { return outZone; }
+    public boolean isXtremeDashing() { return xdashTicks > 0; }
+
+    /** server: rail riding and the dash; returns true while it has control of the movement */
+    private boolean tickRail(@Nullable Player owner) {
+        if (railCooldown > 0) railCooldown--;
+        if (xdashTicks > 0) {
+            xdashTicks--;
+            return xdashTicks > 4;
+        }
+        if (stadium == null || !inBowl || getState() != STATE_BATTLE) {
+            railTicks = 0;
+            return false;
+        }
+        double dx = getX() - stadium.getX(), dz = getZ() - stadium.getZ();
+        double r = Math.sqrt(dx * dx + dz * dz);
+        if (r < 1.0E-3) return false;
+        double nx = dx / r, nz = dz / r, tx = -nz, tz = nx;
+        double deg = StadiumEntity.deg(dx, dz);
+        Vec3 v = getDeltaMovement();
+        double vt = v.x * tx + v.z * tz;
+        com.krolasyon.beyblade.parts.BeyPart.Tip tip = parts().tip();
+        // the gear in the tip catches the rail: grippy flat tips catch it easily, sharp and ball tips hardly ever
+        boolean grippy = tip.rubber() || tip == com.krolasyon.beyblade.parts.BeyPart.Tip.FLAT || tip == com.krolasyon.beyblade.parts.BeyPart.Tip.EXTREME_FLAT
+                || tip == com.krolasyon.beyblade.parts.BeyPart.Tip.METAL_FLAT || tip == com.krolasyon.beyblade.parts.BeyPart.Tip.FINAL_DRIVE;
+        boolean point = tip == com.krolasyon.beyblade.parts.BeyPart.Tip.SHARP || tip == com.krolasyon.beyblade.parts.BeyPart.Tip.ETERNAL_SHARP
+                || tip == com.krolasyon.beyblade.parts.BeyPart.Tip.BALL || tip == com.krolasyon.beyblade.parts.BeyPart.Tip.WIDE_BALL;
+        if (railTicks == 0) {
+            double need = grippy ? 0.14 : point ? 0.32 : 0.2;
+            if (railCooldown > 0 || !onGround() || r < StadiumEntity.RAIL_R0 || r > StadiumEntity.RAIL_R1 || !StadiumEntity.onRail(deg) || Math.abs(vt) < need)
+                return false;
+            railTicks = 1;
+            railDir = vt > 0 ? 1 : -1;
+            railSpeed = Math.abs(vt);
+            this.level().broadcastEntityEvent(this, EV_RAIL);
+            play(ModSounds.GRIND.get(), 1.4F, 1.6F);
+            play(ModSounds.CHARGE.get(), 1.0F, 1.8F);
+            return true;
+        }
+        // gears meshed: the rail drives the top along the edge, faster and faster
+        railTicks++;
+        double top = (grippy ? 1.3 : 1.15) * (0.75 + 0.25 * spinRatio());
+        railSpeed = Math.min(top, railSpeed + (grippy ? 0.1 : 0.075));
+        double rr = (StadiumEntity.RAIL_R0 + StadiumEntity.RAIL_R1) / 2;
+        Vec3 tan = new Vec3(tx * railDir, 0, tz * railDir);
+        setDeltaMovement(tan.scale(railSpeed).add(nx * (rr - r) * 0.5, v.y, nz * (rr - r) * 0.5));
+        if (railTicks % 3 == 0) {
+            this.level().broadcastEntityEvent(this, EV_RAIL);
+            play(ModSounds.GRIND.get(), 0.9F, 1.5F + (float) railSpeed * 0.3F);
+        }
+        // let go: when the rival is lined up in front, when the rail ends, or after a lap section
+        Vec3 aim = null;
+        if (target != null && target.isAlive() && railTicks > 5) {
+            Vec3 to = flat(target.position().subtract(position()));
+            if (to.length() < 12 && to.normalize().dot(tan) > 0.75) aim = to.normalize();
+        }
+        boolean railEnds = !StadiumEntity.onRail(deg + railDir * 14);
+        if (aim != null || railEnds || railTicks > 26) xtremeDash(aim != null ? aim : tan, owner);
+        return true;
+    }
+
+    private void xtremeDash(Vec3 dir, @Nullable Player owner) {
+        railTicks = 0;
+        railCooldown = 80;
+        xdashTicks = 16;
+        setDeltaMovement(dir.normalize().scale(Math.max(railSpeed, 0.9) * 1.05).add(0, 0.02, 0));
+        this.level().broadcastEntityEvent(this, EV_XDASH);
+        play(ModSounds.LAUNCH.get(), 2.0F, 1.4F);
+        play(ModSounds.CLASH_HEAVY.get(), 1.2F, 1.6F);
+        addSpirit(4);
+        if (owner != null) owner.displayClientMessage(Component.translatable("msg.librabeyblade.xdash").withStyle(net.minecraft.ChatFormatting.GOLD, net.minecraft.ChatFormatting.BOLD), true);
+    }
+
+    /** thrown through the open wall into a pocket: it is out */
+    private void knockOut(StadiumEntity st, int zone, double nx, double nz) {
+        outZone = zone;
+        contained = false;
+        railTicks = xdashTicks = 0;
+        double pr = StadiumEntity.WALL_OUT + 0.7;
+        setPos(st.getX() + nx * pr, st.getY() + StadiumEntity.LIP_Y + 0.05, st.getZ() + nz * pr);
+        setDeltaMovement(0, 0.05, 0);
+        this.level().broadcastEntityEvent(this, EV_OUT);
+        play(ModSounds.METEOR_IMPACT.get(), 2.4F, zone == StadiumEntity.Z_XTREME ? 0.8F : 1.1F);
+        play(ModSounds.WALL_HIT.get(), 2.0F, 0.6F);
+        Component title = Component.translatable(zone == StadiumEntity.Z_XTREME ? "msg.librabeyblade.xtreme_finish" : "msg.librabeyblade.over_finish",
+                Component.translatable(titleKey()));
+        for (Player p : this.level().getEntitiesOfClass(Player.class, getBoundingBox().inflate(40)))
+            p.displayClientMessage(title.copy().withStyle(zone == StadiumEntity.Z_XTREME ? net.minecraft.ChatFormatting.GOLD : net.minecraft.ChatFormatting.AQUA,
+                    net.minecraft.ChatFormatting.BOLD), true);
+        defeat();
     }
 
     // ---------------- launch wobble ----------------
@@ -1690,6 +1804,15 @@ public class BeybladeEntity extends Entity {
         Vec3 v = getDeltaMovement();
         double wallR = StadiumEntity.WALL_IN - RADIUS;
         if (r < wallR && rel > -1.0) contained = true;
+        if (outZone != StadiumEntity.Z_NONE) contained = false;
+        if (contained && getState() == STATE_BATTLE && r > wallR) {
+            // the wall is open at the pockets: a top thrown hard enough goes in, a slow one bounces off the lip
+            int zone = StadiumEntity.zoneAt(StadiumEntity.deg(dx, dz));
+            if (zone != StadiumEntity.Z_NONE && v.x * nx + v.z * nz > StadiumEntity.POCKET_V) {
+                knockOut(st, zone, nx, nz);
+                return;
+            }
+        }
         if (contained && getState() != STATE_RECALL && r > wallR) {
             // the wall runs all the way round, and an invisible cylinder above it keeps flying tops in too
             setPos(st.getX() + nx * wallR, getY(), st.getZ() + nz * wallR);
@@ -1896,6 +2019,9 @@ public class BeybladeEntity extends Entity {
     @Override
     public void handleEntityEvent(byte id) {
         switch (id) {
+            case EV_RAIL -> railClientTime = this.tickCount;
+            case EV_XDASH -> xdashClientTime = this.tickCount;
+            case EV_OUT -> outClientTime = this.tickCount;
             case EV_SCLASH_BOOM, EV_SCLASH_BOOM + 1 -> {
                 // where the two moves met when the clash was decided
                 sclashBoomTime = this.tickCount;
