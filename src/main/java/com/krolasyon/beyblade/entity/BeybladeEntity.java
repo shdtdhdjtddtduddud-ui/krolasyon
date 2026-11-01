@@ -1034,7 +1034,8 @@ public class BeybladeEntity extends Entity {
             if (to.length() < 12 && to.normalize().dot(tan) > 0.75) aim = to.normalize();
         }
         boolean railEnds = !StadiumEntity.onRail(deg + railDir * 14);
-        if (aim != null || railEnds || railTicks > 26) xtremeDash(aim != null ? aim : tan, owner);
+        // without a rival in line, the end of the rail curves the top back into the bowl
+        if (aim != null || railEnds || railTicks > 26) xtremeDash(aim != null ? aim : tan.add(-nx * 0.5, 0, -nz * 0.5), owner);
         return true;
     }
 
@@ -1055,7 +1056,7 @@ public class BeybladeEntity extends Entity {
         outZone = zone;
         contained = false;
         railTicks = xdashTicks = 0;
-        double pr = StadiumEntity.WALL_OUT + 0.7;
+        double pr = StadiumEntity.WALL_OUT + 0.45;
         setPos(st.getX() + nx * pr, st.getY() + StadiumEntity.LIP_Y + 0.05, st.getZ() + nz * pr);
         setDeltaMovement(0, 0.05, 0);
         this.level().broadcastEntityEvent(this, EV_OUT);
@@ -1874,7 +1875,8 @@ public class BeybladeEntity extends Entity {
 
     private void tickDefeated(@Nullable Player owner) {
         Vec3 v = getDeltaMovement();
-        setDeltaMovement(v.x * 0.9, v.y, v.z * 0.9);
+        // a top knocked into a pocket stays in it
+        setDeltaMovement(outZone != StadiumEntity.Z_NONE ? 0 : v.x * 0.9, v.y, outZone != StadiumEntity.Z_NONE ? 0 : v.z * 0.9);
         physics();
         stadiumPhysics();
         collideBeyblades();

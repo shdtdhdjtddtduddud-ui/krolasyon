@@ -149,7 +149,12 @@ public class StadiumRenderer extends EntityRenderer<StadiumEntity> {
             quad(vc, m, n, light, pt(back, a0, fy), pt(back, a0, fy + 1.1), pt(back, a1, fy + 1.1), pt(back, a1, fy), wc, 1F, -Math.cos(c), 0, -Math.sin(c));
             for (double a : new double[]{a0, a1})
                 quad(vc, m, n, light, pt(WALL_OUT, a, fy), pt(WALL_OUT, a, fy + 1.1), pt(back, a, fy + 1.1), pt(back, a, fy), wc, 0.9F, -Math.sin(a), 0, Math.cos(a));
-            // a glowing zone mark on the floor
+        }
+        // glowing zone marks on the pocket floors (after the solid pass: a buffer must not be reused once another is taken)
+        for (double[] pk : pockets) {
+            boolean x = pk[2] > 0;
+            float[] col = x ? new float[]{1F, 0.45F, 0.1F} : new float[]{0.2F, 0.5F, 1F};
+            double c = Math.toRadians(pk[0]);
             pose.pushPose();
             double mr = (WALL_IN + back) / 2;
             pose.translate(Math.cos(c) * mr, fy + 0.02, Math.sin(c) * mr);
