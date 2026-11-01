@@ -12,11 +12,10 @@ KEY = (255, 0, 255)
 
 
 def cut(mod, anim=None, t=0.0, yaw=-35, pitch=8, size=900):
+    import smooth, tempfile
     K = importlib.import_module(mod)
-    K.M.pack()
-    tex, glow = K.P.run().images()
-    pose = K.A[anim].sample(t) if anim else None
-    im = render(K.M, tex, pose, yaw=yaw, pitch=pitch, size=size, bg=KEY, extra_glow=glow).convert('RGBA')
+    bones, _ = smooth.build(K.M, K.P, os.path.join(tempfile.gettempdir(), mod + '_promo.cmsh'))
+    im = smooth.preview(K.M, bones, size=size, yaw=yaw, pitch=pitch, bg=KEY).convert('RGBA')
     a = np.asarray(im).copy()
     m = (a[..., 0] == 255) & (a[..., 1] == 0) & (a[..., 2] == 255)
     a[m, 3] = 0
