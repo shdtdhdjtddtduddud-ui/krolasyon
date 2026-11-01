@@ -13,6 +13,7 @@ def ellipsoid_l(M, bone, center, radii, mat, axis='y', slices=6, fill=1.0, cross
     r = list(radii)
     th = 2 * r[ai] / slices
     cubes = []
+    _record(M, bone, dict(kind='ell', c=np.array(center, float), r=np.array(r, float), mat=mat, cubes=cubes))
     for s in range(slices):
         t0 = -r[ai] + s * th
         tm = t0 + th / 2
@@ -27,6 +28,8 @@ def ellipsoid_l(M, bone, center, radii, mat, axis='y', slices=6, fill=1.0, cross
                 size[o] = max(0.6, 2 * r[o] * k * f)
                 frm[o] = center[o] - size[o] / 2
             cubes.append(M.cube_l(bone, frm, size, mat, **kw))
+    for c in cubes:
+        c.prim = True
     return cubes
 
 
@@ -46,14 +49,25 @@ def limb(M, name, parent, A, B, w0, d0, w1, d1, mat, extend=2.0, slices=4):
     M.bone_w(name, parent, A, rot_zyx(x, 0, z))
     total = L + 2 * extend
     th = total / slices
+    rec = dict(kind='limb', y0=-extend, y1=L + extend, w0=w0, d0=d0, w1=w1, d1=d1, mat=mat, cubes=[])
+    _record(M, name, rec)
     for s in range(slices):
         f = (s + 0.5) / slices
         w = w0 + (w1 - w0) * f
         d = d0 + (d1 - d0) * f
         y0 = -extend + s * th
         for fa, fb in CROSS:
-            M.cube_l(name, (-w * fa / 2, y0 - 0.01, -d * fb / 2), (w * fa, th + 0.02, d * fb), mat)
+            rec['cubes'].append(M.cube_l(name, (-w * fa / 2, y0 - 0.01, -d * fb / 2), (w * fa, th + 0.02, d * fb), mat))
+    for c in rec['cubes']:
+        c.prim = True
     return L
+
+
+def _record(M, bone, rec):
+    """keeps the analytic shape next to its cube slices, for the smooth mesh builder"""
+    if not hasattr(M, 'prims'):
+        M.prims = {}
+    M.prims.setdefault(bone, []).append(rec)
 
 
 # ---------------------------------------------------------------- world-space painting

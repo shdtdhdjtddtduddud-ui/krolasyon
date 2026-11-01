@@ -14,6 +14,7 @@ public class SarkanModel extends CilleModel<SarkanEntity> {
         super(root, root.getChild("base").getChild("body").getChild("chest").getChild("head"));
     }
 
+    @Override protected String meshName() { return "sarkan"; }
     @Override protected AnimationDefinition idle() { return SarkanAnimations.IDLE; }
     @Override protected AnimationDefinition walk() { return SarkanAnimations.WALK; }
     @Override protected AnimationDefinition run() { return SarkanAnimations.RUN; }

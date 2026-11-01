@@ -1,6 +1,12 @@
 package com.krolasyon.cille.client.model;
 
+import com.krolasyon.cille.CilleMod;
 import com.krolasyon.cille.entity.CilleEntity;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.resources.ResourceLocation;
+import java.util.HashMap;
+import java.util.Map;
 import net.minecraft.client.animation.AnimationDefinition;
 import net.minecraft.client.animation.KeyframeAnimations;
 import net.minecraft.client.model.HierarchicalModel;
@@ -25,6 +31,42 @@ public abstract class CilleModel<T extends CilleEntity> extends HierarchicalMode
 
     @Override
     public ModelPart root() { return root; }
+
+    /** name of the smooth mesh in assets/cille/meshes/ */
+    protected abstract String meshName();
+
+    private ResourceLocation meshLoc;
+    private final Map<String, ModelPart> parts = new HashMap<>();
+
+    @Nullable
+    private ModelPart part(String name) {
+        return parts.computeIfAbsent(name, n -> this.getAnyDescendantWithName(n).orElse(null));
+    }
+
+    /** draws the smooth surface of every bone with that bone's animated transform; falls back to the cubes */
+    @Override
+    public void renderToBuffer(PoseStack pose, VertexConsumer vc, int light, int overlay, float r, float g, float b, float a) {
+        if (meshLoc == null) meshLoc = new ResourceLocation(CilleMod.MODID, "meshes/" + meshName() + ".cmsh");
+        CilleMesh mesh = CilleMesh.get(meshLoc);
+        if (mesh == null) {
+            super.renderToBuffer(pose, vc, light, overlay, r, g, b, a);
+            return;
+        }
+        Map<String, PoseStack.Pose> poses = new HashMap<>();
+        Map<String, Boolean> visible = new HashMap<>();
+        for (CilleMesh.Bone bone : mesh.bones) {
+            PoseStack.Pose parent = bone.parent.isEmpty() ? pose.last() : poses.getOrDefault(bone.parent, pose.last());
+            PoseStack ps = new PoseStack();
+            ps.last().pose().set(parent.pose());
+            ps.last().normal().set(parent.normal());
+            ModelPart p = part(bone.name);
+            boolean vis = visible.getOrDefault(bone.parent, true) && (p == null || p.visible);
+            if (p != null) p.translateAndRotate(ps);
+            poses.put(bone.name, ps.last());
+            visible.put(bone.name, vis);
+            if (vis && bone.hasGeometry()) bone.draw(ps.last(), vc, light, overlay, r, g, b, a);
+        }
+    }
 
     protected abstract AnimationDefinition idle();
     protected abstract AnimationDefinition walk();

@@ -18,6 +18,7 @@ import net.minecraft.world.phys.Vec3;
 
 /** shared Cille renderer: own death animation (no flip), glowing layer, technique beam and shield shells */
 public abstract class CilleRenderer<T extends CilleEntity, M extends CilleModel<T>> extends MobRenderer<T, M> {
+    public static final ResourceLocation WHITE = tex("white");
     protected static final ResourceLocation SHIELD = tex("shield_sphere");
     protected static final ResourceLocation ELECTRIC = tex("electric_sphere");
     private final ResourceLocation texture;
@@ -25,9 +26,9 @@ public abstract class CilleRenderer<T extends CilleEntity, M extends CilleModel<
 
     protected CilleRenderer(EntityRendererProvider.Context ctx, M model, String name, float shadow, float scale) {
         super(ctx, model, shadow);
-        this.texture = tex(name);
+        // smooth meshes carry their own vertex colours and glow; they are drawn over a plain white texture
+        this.texture = WHITE;
         this.scale = scale;
-        this.addLayer(new GlowLayer<>(this, tex(name + "_glow")));
     }
 
     public static ResourceLocation tex(String n) {

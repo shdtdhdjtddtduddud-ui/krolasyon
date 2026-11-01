@@ -14,6 +14,7 @@ public class BehmudModel extends CilleModel<BehmudEntity> {
         super(root, root.getChild("base").getChild("body").getChild("head"));
     }
 
+    @Override protected String meshName() { return "behmud"; }
     @Override protected AnimationDefinition idle() { return BehmudAnimations.IDLE; }
     @Override protected AnimationDefinition walk() { return BehmudAnimations.WALK; }
     @Override protected AnimationDefinition run() { return BehmudAnimations.RUN; }

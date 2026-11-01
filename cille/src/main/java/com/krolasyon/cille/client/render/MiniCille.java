@@ -24,7 +24,7 @@ public final class MiniCille {
 
     private MiniCille(CilleModel<?> model, String tex, float scale, float offY, float offZ, float r, float g, float b, float gr, float gg, float gb) {
         this.model = model;
-        this.texture = CilleRenderer.tex(tex);
+        this.texture = CilleRenderer.WHITE;
         this.scale = scale;
         this.offY = offY;
         this.offZ = offZ;

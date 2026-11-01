@@ -14,6 +14,7 @@ public class KabkabaModel extends CilleModel<KabkabaEntity> {
         super(root, root.getChild("base").getChild("body").getChild("chest").getChild("mane").getChild("head"));
     }
 
+    @Override protected String meshName() { return "kabkaba"; }
     @Override protected AnimationDefinition idle() { return KabkabaAnimations.IDLE; }
     @Override protected AnimationDefinition walk() { return KabkabaAnimations.WALK; }
     @Override protected AnimationDefinition run() { return KabkabaAnimations.RUN; }

@@ -14,6 +14,7 @@ public class NirumendModel extends CilleModel<NirumendEntity> {
         super(root, root.getChild("base").getChild("body").getChild("head"));
     }
 
+    @Override protected String meshName() { return "nirumend"; }
     @Override protected AnimationDefinition idle() { return NirumendAnimations.IDLE; }
     @Override protected AnimationDefinition walk() { return NirumendAnimations.WALK; }
     @Override protected AnimationDefinition run() { return NirumendAnimations.RUN; }
