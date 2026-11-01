@@ -85,47 +85,33 @@ public final class AutoTest {
                 "summon librabeyblade:libra 4.6 -58 -14.5 {Frozen:1b}", "summon librabeyblade:tempo 6.4 -58 -14.5 {Frozen:1b}");
         record(true);
         wait(50, "lineup_front");
-        // ---- launches by the player: a clean one, then a sloppy one (too steep, shaky aim, weak pull)
-        server(0, null, s -> BeybladeEntity.debugFlight = true);
-        cmd(2, null, CLEAR, "gamemode survival @a", "effect give @a minecraft:resistance 600 9 true", "tp @a 0.5 -60 5 180 30");
-        for (int k = 0; k < 2; k++) {
-            final boolean good = k == 0;
-            server(4, null, s -> {
-                ServerPlayer p = s.getPlayerList().getPlayers().get(0);
-                p.getInventory().setItem(0, new ItemStack(ModItems.STANDARD_LAUNCHER.get()));
-                p.getInventory().setItem(1, new ItemStack(ModItems.PEGASUS.get()));
-                p.getInventory().selected = 0;
-            });
-            client(2, null, mc -> {
-                mc.player.getInventory().selected = 0;
-                mc.player.setYRot(180F);
-                mc.player.setXRot(good ? 30F : 80F);
-                // hold right click like a player would
-                net.minecraft.client.KeyMapping.click(mc.options.keyUse.getKey());
-                mc.options.keyUse.setDown(true);
-            });
-            client(0, null, mc -> showGui = true);
-            if (good) {
-                wait(30, "launch_gauge_good");
-                wait(9, null);
-            } else {
-                // shaking the aim around while winding
-                for (int j2 = 0; j2 < 4; j2++) {
-                    final int jj = j2;
-                    client(2, null, mc -> mc.player.setYRot(180F + (jj % 2 == 0 ? 9F : -9F)));
-                }
-                wait(1, "launch_gauge_bad");
-            }
-            client(0, null, mc -> {
-                mc.options.keyUse.setDown(false);
-                mc.player.setXRot(12F);
-                mc.player.setYRot(180F);
-            });
-            wait(30, good ? "launch_good_flying" : "launch_bad_flying");
-            wait(30, good ? "launch_good_spinning" : "launch_bad_wobbling");
-            client(0, null, mc -> showGui = false);
-            cmd(30, null, CLEAR);
-        }
+        // ---- launch balconies: the stadium from outside, then a match against the AI from the balcony
+        cmd(30, "balcony_outside", CLEAR, "tp @a 14 -55 12 135 18");
+        cmd(20, "balcony_side", "tp @a -9 -57 5 -125 12");
+        cmd(2, null, "gamemode survival @a", "effect give @a minecraft:resistance 600 9 true", "tp @a 0.5 -60 9.5 180 10");
+        server(4, null, s -> {
+            ServerPlayer p = s.getPlayerList().getPlayers().get(0);
+            p.getInventory().setItem(0, new ItemStack(ModItems.STANDARD_LAUNCHER.get()));
+            p.getInventory().setItem(1, new ItemStack(ModItems.PEGASUS.get()));
+            p.getInventory().selected = 0;
+        });
+        client(0, null, mc -> showGui = true);
+        wait(30, "on_pad");
+        // sneaking on the pad for two seconds starts a match against the AI: the blader is put on the balcony
+        client(2, null, mc -> mc.options.keyShift.setDown(true));
+        wait(50, null);
+        client(2, null, mc -> mc.options.keyShift.setDown(false));
+        wait(20, "on_balcony");
+        client(2, null, mc -> {
+            mc.player.getInventory().selected = 0;
+            net.minecraft.client.KeyMapping.click(mc.options.keyUse.getKey());
+            mc.options.keyUse.setDown(true);
+        });
+        wait(38, "balcony_aim");
+        client(0, null, mc -> mc.options.keyUse.setDown(false));
+        wait(40, "balcony_launched");
+        wait(60, "balcony_battle");
+        client(0, null, mc -> showGui = false);
         cmd(2, null, "gamemode spectator @a");
         record(false);
         wait(20, "END");

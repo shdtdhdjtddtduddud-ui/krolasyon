@@ -561,5 +561,6 @@
  "launch.librabeyblade.hint.tired": "Çok uzun tuttun - kolun yoruluyor!",
  "msg.librabeyblade.launch_bad": "Hatalı fırlatma! Denge %%%s (%s) - beyblade fena sallanıyor",
  "msg.librabeyblade.launch_shaky": "Dengesiz fırlatma: denge %%%s (%s)",
- "msg.librabeyblade.wobble_land": "Eğik düştü ve zemine sürttü!"
+ "msg.librabeyblade.wobble_land": "Eğik düştü ve zemine sürttü!",
+ "msg.librabeyblade.match.balcony": "Fırlatma balkonuna! 15-50° aşağı nişan al ve fırlat!"
 }

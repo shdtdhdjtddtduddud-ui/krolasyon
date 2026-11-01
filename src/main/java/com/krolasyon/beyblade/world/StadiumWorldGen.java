@@ -42,7 +42,7 @@ public final class StadiumWorldGen {
     private StadiumWorldGen() {}
 
     private static final Logger LOG = LogUtils.getLogger();
-    public static final int CHANCE = 260, SPACING = 600, RADIUS = 19;
+    public static final int CHANCE = 260, SPACING = 600, RADIUS = 26;
     private static final ConcurrentLinkedQueue<long[]> QUEUE = new ConcurrentLinkedQueue<>();
     private static final ResourceLocation CHEST_LOOT = com.krolasyon.beyblade.compat.V.rl(LibraBeyblade.MODID, "chests/stadium");
 
@@ -114,7 +114,7 @@ public final class StadiumWorldGen {
         }
         // stone launch platforms under both pads
         for (int side = 0; side < 2; side++) {
-            int pz = z + (side == 0 ? 17 : -18);
+            int pz = z + (side == 0 ? 23 : -24);
             for (int dx = -1; dx <= 1; dx++)
                 for (int dz = 0; dz <= 1; dz++) level.setBlock(new BlockPos(x + dx, y - 1, pz + dz), Blocks.SMOOTH_STONE.defaultBlockState(), 2);
         }
@@ -122,7 +122,7 @@ public final class StadiumWorldGen {
         if (st == null) return false;
         st.moveTo(x, y, z, 0F, 0F);
         level.addFreshEntity(st);
-        BlockPos chest = new BlockPos(x + 3, y, z + 17);
+        BlockPos chest = new BlockPos(x + 3, y, z + 23);
         level.setBlock(chest, Blocks.CHEST.defaultBlockState().setValue(ChestBlock.FACING, net.minecraft.core.Direction.NORTH), 2);
         if (level.getBlockEntity(chest) instanceof ChestBlockEntity cbe) cbe.setLootTable(CHEST_LOOT, level.random.nextLong());
         return true;

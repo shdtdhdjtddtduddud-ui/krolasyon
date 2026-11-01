@@ -55,7 +55,9 @@ public class StadiumEntity extends Entity {
     /** the wall now runs all the way around: no pockets */
     public static final float WALL_HALF_DEG = 45F;
     /** launch pads: players stand here, one at each end (+z = blue side A, -z = red side B) */
-    public static final float PAD_R = 17.2F, PAD_HALF = 1.6F;
+    public static final float PAD_R = 23.5F, PAD_HALF = 1.6F;
+    /** launch balconies at both ends: deck rows from DECK_K0 to DECK_K1 blocks out, DECK_Y blocks up; players stand on row DECK_K0 + 1 */
+    public static final int DECK_K0 = 15, DECK_K1 = 18, DECK_Y = 3, DECK_HALF = 2;
     public static final double BARRIER_R0 = 14.6, BARRIER_R1 = 15.6;
     public static final int BARRIER_H = 3;
 
@@ -72,8 +74,9 @@ public class StadiumEntity extends Entity {
 
     // ---- server state
     private final List<BlockPos> barriers = new ArrayList<>();
-    private boolean barriersDone;
-    private int barrierRetry;
+    private boolean barriersDone, balconyDone;
+    private final List<BlockPos> balcony = new ArrayList<>();
+    private int barrierRetry, balconyRetry;
     @Nullable private UUID playerA, playerB, aiBey;
     private boolean vsAI;
     private int sneakTicks, waitMsg, graceTicks, outTicksA, outTicksB;
@@ -147,6 +150,10 @@ public class StadiumEntity extends Entity {
         setDeltaMovement(0, 0, 0);
         if (this.level().isClientSide()) return;
         if (!barriersDone && --barrierRetry <= 0) placeBarriers();
+        if (!balconyDone && --balconyRetry <= 0) {
+            balconyRetry = 100;
+            placeBalconies();
+        }
         tickMatch();
     }
 
@@ -179,6 +186,83 @@ public class StadiumEntity extends Entity {
         barriersDone = all;
     }
 
+    // ------------------------------------------------------------------ launch balconies
+    /** where a player of this side stands on its balcony (feet), facing the bowl */
+    public Vec3 balconyPos(int side) {
+        BlockPos c = BlockPos.containing(getX(), getY(), getZ());
+        int s = side == 0 ? 1 : -1;
+        return new Vec3(c.getX() + 0.5, c.getY() + DECK_Y + 1, c.getZ() + s * (DECK_K0 + 1) + 0.5);
+    }
+
+    /** a raised deck with railings at each end, stairs down to the launch pad, the stand in the side's colour */
+    private void placeBalconies() {
+        Level l = this.level();
+        BlockPos c = BlockPos.containing(getX(), getY(), getZ());
+        boolean all = true;
+        net.minecraft.world.level.block.state.BlockState deck = net.minecraft.world.level.block.Blocks.SMOOTH_STONE.defaultBlockState(),
+                pillar = net.minecraft.world.level.block.Blocks.STONE_BRICKS.defaultBlockState(),
+                rail = net.minecraft.world.level.block.Blocks.IRON_BARS.defaultBlockState();
+        for (int side = 0; side < 2; side++) {
+            int s = side == 0 ? 1 : -1;
+            net.minecraft.core.Direction up = side == 0 ? net.minecraft.core.Direction.NORTH : net.minecraft.core.Direction.SOUTH;
+            net.minecraft.world.level.block.state.BlockState stand = (side == 0 ? net.minecraft.world.level.block.Blocks.BLUE_CONCRETE
+                    : net.minecraft.world.level.block.Blocks.RED_CONCRETE).defaultBlockState();
+            net.minecraft.world.level.block.state.BlockState stair = net.minecraft.world.level.block.Blocks.STONE_BRICK_STAIRS.defaultBlockState()
+                    .setValue(net.minecraft.world.level.block.StairBlock.FACING, up);
+            if (!l.isLoaded(c.offset(0, 0, s * (DECK_K1 + 3)))) { all = false; continue; }
+            for (int dx = -DECK_HALF; dx <= DECK_HALF; dx++) {
+                for (int k = DECK_K0; k <= DECK_K1; k++) {
+                    boolean edge = Math.abs(dx) == DECK_HALF;
+                    put(l, c.offset(dx, DECK_Y, s * k), !edge && k == DECK_K0 + 1 ? stand : deck);
+                    // railings round the open sides and along the bowl
+                    if (edge || k == DECK_K0) put(l, c.offset(dx, DECK_Y + 1, s * k), rail);
+                }
+                // pillars under the corners
+                if (Math.abs(dx) == DECK_HALF)
+                    for (int k : new int[]{DECK_K0 + 1, DECK_K1})
+                        for (int h = 0; h < DECK_Y; h++) put(l, c.offset(dx, h, s * k), pillar);
+            }
+            // stairs down to the ground, towards the launch pad
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int i = 0; i < DECK_Y; i++) {
+                    int k = DECK_K1 + 1 + i, top = DECK_Y - 1 - i;
+                    put(l, c.offset(dx, top, s * k), stair);
+                    for (int h = 0; h < top; h++) put(l, c.offset(dx, h, s * k), pillar);
+                }
+            }
+        }
+        balconyDone = all;
+    }
+
+    private void put(Level l, BlockPos p, net.minecraft.world.level.block.state.BlockState st) {
+        net.minecraft.world.level.block.state.BlockState cur = l.getBlockState(p);
+        if (cur.is(st.getBlock())) return;
+        if (!cur.isAir() && !cur.canBeReplaced()) return;
+        l.setBlock(p, st, 2);
+        balcony.add(p.immutable());
+    }
+
+    private void removeBalconies() {
+        Level l = this.level();
+        for (BlockPos p : balcony) {
+            if (!l.isLoaded(p)) continue;
+            net.minecraft.world.level.block.state.BlockState st = l.getBlockState(p);
+            if (st.is(net.minecraft.world.level.block.Blocks.SMOOTH_STONE) || st.is(net.minecraft.world.level.block.Blocks.STONE_BRICKS)
+                    || st.is(net.minecraft.world.level.block.Blocks.IRON_BARS) || st.is(net.minecraft.world.level.block.Blocks.STONE_BRICK_STAIRS)
+                    || st.is(net.minecraft.world.level.block.Blocks.BLUE_CONCRETE) || st.is(net.minecraft.world.level.block.Blocks.RED_CONCRETE))
+                l.setBlock(p, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+        }
+        balcony.clear();
+    }
+
+    /** puts a player on its balcony, facing the bowl at a clean launch angle */
+    private void sendToBalcony(@Nullable ServerPlayer p, int side) {
+        if (p == null) return;
+        Vec3 b = balconyPos(side);
+        p.connection.teleport(b.x, b.y, b.z, side == 0 ? 180F : 0F, 30F);
+        p.displayClientMessage(Component.translatable("msg.librabeyblade.match.balcony").withStyle(net.minecraft.ChatFormatting.AQUA), true);
+    }
+
     private void removeBarriers() {
         Level l = this.level();
         for (BlockPos p : barriers) {
@@ -191,6 +275,7 @@ public class StadiumEntity extends Entity {
     public void remove(RemovalReason reason) {
         if (!this.level().isClientSide() && reason.shouldDestroy()) {
             removeBarriers();
+            removeBalconies();
             despawnAI();
         }
         super.remove(reason);
@@ -325,6 +410,9 @@ public class StadiumEntity extends Entity {
 
     private void startCountdown() {
         despawnAI();
+        // both bladers go up to their launch balconies
+        sendToBalcony(player(playerA), 0);
+        sendToBalcony(player(playerB), 1);
         this.entityData.set(DATA_ROUND, round() + 1);
         setState(M_COUNTDOWN, 80);
         broadcast(Component.translatable("msg.librabeyblade.match.round", round()).withStyle(net.minecraft.ChatFormatting.YELLOW),
@@ -506,6 +594,9 @@ public class StadiumEntity extends Entity {
         barriers.clear();
         for (Tag t : tag.getList("Barriers", Tag.TAG_LONG)) barriers.add(BlockPos.of(((LongTag) t).getAsLong()));
         barriersDone = tag.getBoolean("BarriersDone");
+        balcony.clear();
+        for (Tag t : tag.getList("Balcony", Tag.TAG_LONG)) balcony.add(BlockPos.of(((LongTag) t).getAsLong()));
+        balconyDone = tag.getBoolean("BalconyDone");
     }
 
     @Override
@@ -514,6 +605,10 @@ public class StadiumEntity extends Entity {
         for (BlockPos p : barriers) list.add(LongTag.valueOf(p.asLong()));
         tag.put("Barriers", list);
         tag.putBoolean("BarriersDone", barriersDone);
+        ListTag bl = new ListTag();
+        for (BlockPos p : balcony) bl.add(LongTag.valueOf(p.asLong()));
+        tag.put("Balcony", bl);
+        tag.putBoolean("BalconyDone", balconyDone);
     }
 
 }

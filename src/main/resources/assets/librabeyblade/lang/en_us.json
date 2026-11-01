@@ -561,5 +561,6 @@
  "launch.librabeyblade.hint.tired": "Held too long - your arm is tiring!",
  "msg.librabeyblade.launch_bad": "Bad launch! Balance %s%% (%s) - it's wobbling badly",
  "msg.librabeyblade.launch_shaky": "Shaky launch: balance %s%% (%s)",
- "msg.librabeyblade.wobble_land": "It landed tilted and scraped the floor!"
+ "msg.librabeyblade.wobble_land": "It landed tilted and scraped the floor!",
+ "msg.librabeyblade.match.balcony": "To your launch balcony! Aim 15-50° down and let it rip!"
 }
