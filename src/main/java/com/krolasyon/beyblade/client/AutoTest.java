@@ -97,13 +97,13 @@ public final class AutoTest {
         wait(6, "xdash");
         wait(10, "xdash_hit");
         wait(20, null);
-        // thrown into the Xtreme Zone and into an Over Zone
-        cmd(2, null, CLEAR, "tp @a 20 -52 -14.5 90 28", "summon librabeyblade:common 9.5 -58.6 -14.5 {Variant:0,Motion:[0.9,0.05,0.0]}");
-        wait(8, "xtreme_out");
-        wait(20, "xtreme_out_2");
-        cmd(2, null, CLEAR, "tp @a -14 -52 -1 220 28", "summon librabeyblade:common -6.39 -58.6 -8.71 {Variant:5,Motion:[-0.69,0.05,0.58]}");
-        wait(8, "over_out");
-        wait(20, "over_out_2");
+        // a long free battle of four tops with special moves: how often does anyone end up in a pocket now
+        server(0, null, s -> { BeybladeEntity.debugFlight = true; BeybladeEntity.rivalAbilities = true; });
+        cmd(2, null, CLEAR, "tp @a 0.5 -44 2 180 45",
+                "summon librabeyblade:pegasus -5 -57 -14.5", "summon librabeyblade:ldrago 6 -57 -14.5",
+                "summon librabeyblade:variares 0.5 -57 -20", "summon librabeyblade:leone 0.5 -57 -9");
+        for (int k = 0; k < 6; k++) wait(200, "free_battle_" + k);
+        server(2, null, s -> BeybladeEntity.rivalAbilities = false);
         record(false);
         wait(20, "END");
     }

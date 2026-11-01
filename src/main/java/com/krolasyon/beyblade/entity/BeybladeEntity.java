@@ -902,12 +902,12 @@ public class BeybladeEntity extends Entity {
         if (xdashTicks > 0) toO *= 1.5F;
         if (o.xdashTicks > 0) toMe *= 1.5F;
         if (xdashTicks > 0) {
-            o.setDeltaMovement(o.getDeltaMovement().add(nx * 0.9 * Mth.clamp(o.knockMul(), 0.5, 1.4), 0.12, nz * 0.9 * Mth.clamp(o.knockMul(), 0.5, 1.4)));
+            o.setDeltaMovement(o.getDeltaMovement().add(nx * 0.7 * Mth.clamp(o.knockMul(), 0.5, 1.3), 0.1, nz * 0.7 * Mth.clamp(o.knockMul(), 0.5, 1.3)));
             o.flungTicks = 10;
             xdashTicks = 0;
         }
         if (o.xdashTicks > 0) {
-            setDeltaMovement(getDeltaMovement().add(-nx * 0.9 * Mth.clamp(knockMul(), 0.5, 1.4), 0.12, -nz * 0.9 * Mth.clamp(knockMul(), 0.5, 1.4)));
+            setDeltaMovement(getDeltaMovement().add(-nx * 0.7 * Mth.clamp(knockMul(), 0.5, 1.3), 0.1, -nz * 0.7 * Mth.clamp(knockMul(), 0.5, 1.3)));
             flungTicks = 10;
             o.xdashTicks = 0;
         }
@@ -1051,10 +1051,24 @@ public class BeybladeEntity extends Entity {
         if (owner != null) owner.displayClientMessage(Component.translatable("msg.librabeyblade.xdash").withStyle(net.minecraft.ChatFormatting.GOLD, net.minecraft.ChatFormatting.BOLD), true);
     }
 
+    /**
+     * Whether a top reaching an open pocket goes in. Only a top just hit by an enemy can be knocked out (never by its
+     * own rail run or dash), it has to be flying out fast (faster with more spin left), and even then the pocket's lip
+     * sends a good share of them back.
+     */
+    private boolean pocketed(double vr) {
+        if (railTicks > 0 || xdashTicks > 0 || this.level().getGameTime() - lastAttackTick > 30) return false;
+        double need = StadiumEntity.POCKET_V + 0.35 * spinRatio();
+        if (vr < need) return false;
+        double chance = Mth.clamp((vr - need) / 0.8 + 0.25, 0, 0.85);
+        return this.random.nextDouble() < chance;
+    }
+
     /** thrown through the open wall into a pocket: it is out */
     private void knockOut(StadiumEntity st, int zone, double nx, double nz) {
         outZone = zone;
         contained = false;
+        if (debugFlight) com.mojang.logging.LogUtils.getLogger().info("[AUTOTEST] pocket {} {}", zone == StadiumEntity.Z_XTREME ? "XTREME" : "OVER", kindId());
         railTicks = xdashTicks = 0;
         double pr = StadiumEntity.WALL_OUT + 0.45;
         setPos(st.getX() + nx * pr, st.getY() + StadiumEntity.LIP_Y + 0.05, st.getZ() + nz * pr);
@@ -1298,7 +1312,7 @@ public class BeybladeEntity extends Entity {
         Vec3 dir = flat(lose.position().subtract(win.position()));
         dir = dir.lengthSqr() < 1.0E-4 ? new Vec3(1, 0, 0) : dir.normalize();
         if (lose.tryDodge(win)) return;
-        double power = Mth.clamp(1.5 + 0.9 * (margin - 1F), 1.5, 2.6) * Mth.clamp(lose.knockMul(), 0.55, 1.4);
+        double power = Mth.clamp(1.1 + 0.7 * (margin - 1F), 1.1, 2.0) * Mth.clamp(lose.knockMul(), 0.55, 1.3);
         lose.setDeltaMovement(dir.scale(power).add(0, 0.32, 0));
         lose.hurtMarked = true;
         lose.flungTicks = 14;
@@ -1809,7 +1823,7 @@ public class BeybladeEntity extends Entity {
         if (contained && getState() == STATE_BATTLE && r > wallR) {
             // the wall is open at the pockets: a top thrown hard enough goes in, a slow one bounces off the lip
             int zone = StadiumEntity.zoneAt(StadiumEntity.deg(dx, dz));
-            if (zone != StadiumEntity.Z_NONE && v.x * nx + v.z * nz > StadiumEntity.POCKET_V) {
+            if (zone != StadiumEntity.Z_NONE && pocketed(v.x * nx + v.z * nz)) {
                 knockOut(st, zone, nx, nz);
                 return;
             }

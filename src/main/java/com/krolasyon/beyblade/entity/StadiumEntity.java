@@ -60,10 +60,10 @@ public class StadiumEntity extends Entity {
     /** Xtreme Line: the gear rail along the outer edge of the bowl floor; it is open in front of the Xtreme Zone */
     public static final float RAIL_R0 = 9.45F, RAIL_R1 = 10.35F, RAIL_GAP = 20F;
     /** Xtreme Zone: the pocket in the middle of the open end (3 points); Over Zones: two side pockets (2 points) */
-    public static final float XTREME_DEG = 0F, XTREME_HALF = 13F, OVER_HALF = 11F;
+    public static final float XTREME_DEG = 0F, XTREME_HALF = 10F, OVER_HALF = 8F;
     public static final float[] OVER_DEG = {140F, 220F};
-    /** a top has to be thrown at least this fast into a pocket to go in (slower ones bounce off its lip) */
-    public static final double POCKET_V = 0.3;
+    /** a top has to be thrown at least this fast into a pocket to go in (slower ones bounce off its lip); more with high spin */
+    public static final double POCKET_V = 0.7;
     public static final int Z_NONE = 0, Z_OVER = 1, Z_XTREME = 2;
 
     public static double deg(double dx, double dz) {
