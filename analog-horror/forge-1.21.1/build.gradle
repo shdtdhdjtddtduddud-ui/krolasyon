@@ -43,7 +43,7 @@ repositories {
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.21.1-52.1.0'
-    implementation 'software.bernie.geckolib:geckolib-forge-1.21.1:[4.5,5.0)'
+    implementation('software.bernie.geckolib:geckolib-forge-1.21.1:[4.5,5.0)') { transitive = false }
 }
 
 tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
