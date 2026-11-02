@@ -339,7 +339,7 @@ public final class AutoTest {
         if (mc.screen != null && !(mc.screen instanceof com.krolasyon.horror.client.story.TapeScreen
                 || mc.screen instanceof com.krolasyon.horror.client.story.NoteScreen
                 || mc.screen instanceof com.krolasyon.horror.client.story.CreditsScreen)) mc.setScreen(null);
-        mc.options.hideGui = true;
+        mc.options.hideGui = false;
         if (inWorld < 0) {
             inWorld = tick + 80;
             LOG.info("[AUTOTEST] in world {}", System.currentTimeMillis());
