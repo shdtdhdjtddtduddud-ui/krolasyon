@@ -1,0 +1,124 @@
+{
+ "variants": {
+  "note=0,raised=false": {
+   "model": "krolasyonhorror:block/note_paper"
+  },
+  "note=0,raised=true": {
+   "model": "krolasyonhorror:block/note_paper_raised"
+  },
+  "note=1,raised=false": {
+   "model": "krolasyonhorror:block/note_paper"
+  },
+  "note=1,raised=true": {
+   "model": "krolasyonhorror:block/note_paper_raised"
+  },
+  "note=2,raised=false": {
+   "model": "krolasyonhorror:block/note_paper"
+  },
+  "note=2,raised=true": {
+   "model": "krolasyonhorror:block/note_paper_raised"
+  },
+  "note=3,raised=false": {
+   "model": "krolasyonhorror:block/note_paper"
+  },
+  "note=3,raised=true": {
+   "model": "krolasyonhorror:block/note_paper_raised"
+  },
+  "note=4,raised=false": {
+   "model": "krolasyonhorror:block/note_paper"
+  },
+  "note=4,raised=true": {
+   "model": "krolasyonhorror:block/note_paper_raised"
+  },
+  "note=5,raised=false": {
+   "model": "krolasyonhorror:block/note_paper"
+  },
+  "note=5,raised=true": {
+   "model": "krolasyonhorror:block/note_paper_raised"
+  },
+  "note=6,raised=false": {
+   "model": "krolasyonhorror:block/note_paper"
+  },
+  "note=6,raised=true": {
+   "model": "krolasyonhorror:block/note_paper_raised"
+  },
+  "note=7,raised=false": {
+   "model": "krolasyonhorror:block/note_paper"
+  },
+  "note=7,raised=true": {
+   "model": "krolasyonhorror:block/note_paper_raised"
+  },
+  "note=8,raised=false": {
+   "model": "krolasyonhorror:block/note_paper"
+  },
+  "note=8,raised=true": {
+   "model": "krolasyonhorror:block/note_paper_raised"
+  },
+  "note=9,raised=false": {
+   "model": "krolasyonhorror:block/note_paper"
+  },
+  "note=9,raised=true": {
+   "model": "krolasyonhorror:block/note_paper_raised"
+  },
+  "note=10,raised=false": {
+   "model": "krolasyonhorror:block/note_paper"
+  },
+  "note=10,raised=true": {
+   "model": "krolasyonhorror:block/note_paper_raised"
+  },
+  "note=11,raised=false": {
+   "model": "krolasyonhorror:block/note_paper"
+  },
+  "note=11,raised=true": {
+   "model": "krolasyonhorror:block/note_paper_raised"
+  },
+  "note=12,raised=false": {
+   "model": "krolasyonhorror:block/note_paper"
+  },
+  "note=12,raised=true": {
+   "model": "krolasyonhorror:block/note_paper_raised"
+  },
+  "note=13,raised=false": {
+   "model": "krolasyonhorror:block/note_paper"
+  },
+  "note=13,raised=true": {
+   "model": "krolasyonhorror:block/note_paper_raised"
+  },
+  "note=14,raised=false": {
+   "model": "krolasyonhorror:block/note_paper"
+  },
+  "note=14,raised=true": {
+   "model": "krolasyonhorror:block/note_paper_raised"
+  },
+  "note=15,raised=false": {
+   "model": "krolasyonhorror:block/note_paper"
+  },
+  "note=15,raised=true": {
+   "model": "krolasyonhorror:block/note_paper_raised"
+  },
+  "note=16,raised=false": {
+   "model": "krolasyonhorror:block/note_paper"
+  },
+  "note=16,raised=true": {
+   "model": "krolasyonhorror:block/note_paper_raised"
+  },
+  "note=17,raised=false": {
+   "model": "krolasyonhorror:block/note_paper"
+  },
+  "note=17,raised=true": {
+   "model": "krolasyonhorror:block/note_paper_raised"
+  },
+  "note=18,raised=false": {
+   "model": "krolasyonhorror:block/note_paper"
+  },
+  "note=18,raised=true": {
+   "model": "krolasyonhorror:block/note_paper_raised"
+  },
+  "note=19,raised=false": {
+   "model": "krolasyonhorror:block/note_paper"
+  },
+  "note=19,raised=true": {
+   "model": "krolasyonhorror:block/note_paper_raised"
+  }
+ }
+}

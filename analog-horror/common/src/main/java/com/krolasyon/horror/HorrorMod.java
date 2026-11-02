@@ -31,6 +31,7 @@ public class HorrorMod {
         bus.addListener(HorrorMod::creativeTab);
         MinecraftForge.EVENT_BUS.register(HauntDirector.class);
         MinecraftForge.EVENT_BUS.register(com.krolasyon.horror.house.HouseCommands.class);
+        MinecraftForge.EVENT_BUS.register(com.krolasyon.horror.story.StoryDirector.class);
         if (FMLEnvironment.dist == Dist.CLIENT) {
             com.krolasyon.horror.client.ClientSetup.init(bus);
         }

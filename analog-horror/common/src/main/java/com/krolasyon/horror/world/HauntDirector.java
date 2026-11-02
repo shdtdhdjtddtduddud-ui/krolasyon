@@ -34,6 +34,7 @@ public final class HauntDirector {
         if (!(p.level() instanceof ServerLevel level) || p.tickCount % 100 != 0) return;
         if (p.isCreative() || p.isSpectator() || level.getDifficulty() == Difficulty.PEACEFUL || level.dimension() != Level.OVERWORLD) return;
         if (Boolean.getBoolean("krolasyon.autotest")) return;
+        if (com.krolasyon.horror.story.StoryState.isActive(p)) return;
         boolean inHouse = com.krolasyon.horror.registry.ModBlocks.isHouseFloor(level.getBlockState(p.blockPosition()).getBlock());
         boolean dark = inHouse || level.getMaxLocalRawBrightness(p.blockPosition()) <= 5;
         boolean underground = p.getY() < level.getSeaLevel() - 12 && !level.canSeeSky(p.blockPosition());

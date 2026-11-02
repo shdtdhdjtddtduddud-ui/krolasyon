@@ -1,0 +1,171 @@
+{
+ "parent": "minecraft:block/block",
+ "render_type": "minecraft:cutout",
+ "textures": {
+  "brass": "krolasyonhorror:block/brass",
+  "glass": "krolasyonhorror:block/glass_dome_off",
+  "particle": "krolasyonhorror:block/glass_dome_off"
+ },
+ "elements": [
+  {
+   "from": [
+    5,
+    15,
+    5
+   ],
+   "to": [
+    11,
+    16,
+    11
+   ],
+   "faces": {
+    "north": {
+     "texture": "#brass"
+    },
+    "south": {
+     "texture": "#brass"
+    },
+    "east": {
+     "texture": "#brass"
+    },
+    "west": {
+     "texture": "#brass"
+    },
+    "up": {
+     "texture": "#brass"
+    },
+    "down": {
+     "texture": "#brass"
+    }
+   }
+  },
+  {
+   "from": [
+    5.5,
+    12,
+    5.5
+   ],
+   "to": [
+    10.5,
+    15,
+    10.5
+   ],
+   "faces": {
+    "north": {
+     "texture": "#glass"
+    },
+    "south": {
+     "texture": "#glass"
+    },
+    "east": {
+     "texture": "#glass"
+    },
+    "west": {
+     "texture": "#glass"
+    },
+    "up": {
+     "texture": "#glass"
+    },
+    "down": {
+     "texture": "#glass"
+    }
+   }
+  },
+  {
+   "from": [
+    4.5,
+    12.5,
+    6.5
+   ],
+   "to": [
+    11.5,
+    14.5,
+    9.5
+   ],
+   "faces": {
+    "north": {
+     "texture": "#glass"
+    },
+    "south": {
+     "texture": "#glass"
+    },
+    "east": {
+     "texture": "#glass"
+    },
+    "west": {
+     "texture": "#glass"
+    },
+    "up": {
+     "texture": "#glass"
+    },
+    "down": {
+     "texture": "#glass"
+    }
+   }
+  },
+  {
+   "from": [
+    6.5,
+    12.5,
+    4.5
+   ],
+   "to": [
+    9.5,
+    14.5,
+    11.5
+   ],
+   "faces": {
+    "north": {
+     "texture": "#glass"
+    },
+    "south": {
+     "texture": "#glass"
+    },
+    "east": {
+     "texture": "#glass"
+    },
+    "west": {
+     "texture": "#glass"
+    },
+    "up": {
+     "texture": "#glass"
+    },
+    "down": {
+     "texture": "#glass"
+    }
+   }
+  },
+  {
+   "from": [
+    7.5,
+    11.2,
+    7.5
+   ],
+   "to": [
+    8.5,
+    12,
+    8.5
+   ],
+   "faces": {
+    "north": {
+     "texture": "#brass"
+    },
+    "south": {
+     "texture": "#brass"
+    },
+    "east": {
+     "texture": "#brass"
+    },
+    "west": {
+     "texture": "#brass"
+    },
+    "up": {
+     "texture": "#brass"
+    },
+    "down": {
+     "texture": "#brass"
+    }
+   }
+  }
+ ]
+}

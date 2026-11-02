@@ -1,0 +1,19 @@
+{
+ "variants": {
+  "facing=north": {
+   "model": "krolasyonhorror:block/vcr"
+  },
+  "facing=east": {
+   "model": "krolasyonhorror:block/vcr",
+   "y": 90
+  },
+  "facing=south": {
+   "model": "krolasyonhorror:block/vcr",
+   "y": 180
+  },
+  "facing=west": {
+   "model": "krolasyonhorror:block/vcr",
+   "y": 270
+  }
+ }
+}

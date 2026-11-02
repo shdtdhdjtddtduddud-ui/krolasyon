@@ -1,0 +1,52 @@
+{
+ "variants": {
+  "item=0,raised=false": {
+   "model": "krolasyonhorror:block/story_tape_birthday"
+  },
+  "item=0,raised=true": {
+   "model": "krolasyonhorror:block/story_tape_birthday_raised"
+  },
+  "item=1,raised=false": {
+   "model": "krolasyonhorror:block/story_tape_party"
+  },
+  "item=1,raised=true": {
+   "model": "krolasyonhorror:block/story_tape_party_raised"
+  },
+  "item=2,raised=false": {
+   "model": "krolasyonhorror:block/story_master_tape"
+  },
+  "item=2,raised=true": {
+   "model": "krolasyonhorror:block/story_master_tape_raised"
+  },
+  "item=3,raised=false": {
+   "model": "krolasyonhorror:block/story_fuse"
+  },
+  "item=3,raised=true": {
+   "model": "krolasyonhorror:block/story_fuse_raised"
+  },
+  "item=4,raised=false": {
+   "model": "krolasyonhorror:block/story_stair_key"
+  },
+  "item=4,raised=true": {
+   "model": "krolasyonhorror:block/story_stair_key_raised"
+  },
+  "item=5,raised=false": {
+   "model": "krolasyonhorror:block/story_attic_key"
+  },
+  "item=5,raised=true": {
+   "model": "krolasyonhorror:block/story_attic_key_raised"
+  },
+  "item=6,raised=false": {
+   "model": "krolasyonhorror:block/story_lighter"
+  },
+  "item=6,raised=true": {
+   "model": "krolasyonhorror:block/story_lighter_raised"
+  },
+  "item=7,raised=false": {
+   "model": "krolasyonhorror:block/story_eviction_notice"
+  },
+  "item=7,raised=true": {
+   "model": "krolasyonhorror:block/story_eviction_notice_raised"
+  }
+ }
+}

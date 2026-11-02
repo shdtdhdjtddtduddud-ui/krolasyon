@@ -1,0 +1,76 @@
+{
+ "parent": "minecraft:block/block",
+ "render_type": "minecraft:cutout",
+ "textures": {
+  "f": "krolasyonhorror:block/dial_6",
+  "b": "krolasyonhorror:block/crt_body",
+  "k": "krolasyonhorror:block/brass",
+  "particle": "krolasyonhorror:block/dial_6"
+ },
+ "elements": [
+  {
+   "from": [
+    2,
+    0,
+    4
+   ],
+   "to": [
+    14,
+    9,
+    14
+   ],
+   "faces": {
+    "north": {
+     "texture": "#f"
+    },
+    "south": {
+     "texture": "#b"
+    },
+    "east": {
+     "texture": "#b"
+    },
+    "west": {
+     "texture": "#b"
+    },
+    "up": {
+     "texture": "#b"
+    },
+    "down": {
+     "texture": "#b"
+    }
+   }
+  },
+  {
+   "from": [
+    6,
+    9,
+    7
+   ],
+   "to": [
+    10,
+    12,
+    11
+   ],
+   "faces": {
+    "north": {
+     "texture": "#k"
+    },
+    "south": {
+     "texture": "#k"
+    },
+    "east": {
+     "texture": "#k"
+    },
+    "west": {
+     "texture": "#k"
+    },
+    "up": {
+     "texture": "#k"
+    },
+    "down": {
+     "texture": "#k"
+    }
+   }
+  }
+ ]
+}

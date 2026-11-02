@@ -1,0 +1,30 @@
+{
+ "parent": "minecraft:block/block",
+ "render_type": "minecraft:cutout",
+ "textures": {
+  "i": "krolasyonhorror:item/attic_key",
+  "particle": "krolasyonhorror:item/attic_key"
+ },
+ "elements": [
+  {
+   "from": [
+    2,
+    -6,
+    2
+   ],
+   "to": [
+    14,
+    -5.7,
+    14
+   ],
+   "faces": {
+    "up": {
+     "texture": "#i"
+    },
+    "down": {
+     "texture": "#i"
+    }
+   }
+  }
+ ]
+}

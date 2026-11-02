@@ -15,7 +15,12 @@ public final class ClientSetup {
         HatmanEntity.CLIENT_TICK = ClientFx::onHatmanTick;
         HatmanEntity.CLIENT_EVENT = ClientFx::onHatmanEvent;
         MinecraftForge.EVENT_BUS.register(ClientFx.class);
-        com.krolasyon.horror.compat.GuiHook.register(HorrorOverlay::render);
+        com.krolasyon.horror.compat.GuiHook.register(g -> {
+            HorrorOverlay.render(g);
+            com.krolasyon.horror.client.story.StoryOverlay.render(g);
+        }, com.krolasyon.horror.client.story.ClientStory::hideHud);
+        MinecraftForge.EVENT_BUS.register(com.krolasyon.horror.client.story.ClientStory.class);
+        com.krolasyon.horror.story.StoryBridge.OPEN_NOTE = n -> net.minecraft.client.Minecraft.getInstance().setScreen(new com.krolasyon.horror.client.story.NoteScreen(n));
         if (Boolean.getBoolean("krolasyon.autotest")) com.krolasyon.horror.compat.AutoTest.init();
     }
 

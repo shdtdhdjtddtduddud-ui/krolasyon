@@ -137,5 +137,125 @@
     "sounds": [
       "krolasyonhorror:distant_call"
     ]
+  },
+  "story.jingle": {
+    "subtitle": "subtitles.krolasyonhorror.story.jingle",
+    "sounds": [
+      "krolasyonhorror:s_jingle"
+    ]
+  },
+  "story.music_box": {
+    "subtitle": "subtitles.krolasyonhorror.story.music_box",
+    "sounds": [
+      "krolasyonhorror:s_music_box"
+    ]
+  },
+  "story.applause": {
+    "subtitle": "subtitles.krolasyonhorror.story.applause",
+    "sounds": [
+      "krolasyonhorror:s_applause"
+    ]
+  },
+  "story.phone_beep": {
+    "subtitle": "subtitles.krolasyonhorror.story.phone_beep",
+    "sounds": [
+      "krolasyonhorror:s_phone_beep"
+    ]
+  },
+  "story.rain": {
+    "subtitle": "subtitles.krolasyonhorror.story.rain",
+    "sounds": [
+      {
+        "name": "krolasyonhorror:s_rain",
+        "stream": true
+      }
+    ]
+  },
+  "story.house_amb": {
+    "subtitle": "subtitles.krolasyonhorror.story.house_amb",
+    "sounds": [
+      {
+        "name": "krolasyonhorror:s_house_amb",
+        "stream": true
+      }
+    ]
+  },
+  "story.door_slam": {
+    "subtitle": "subtitles.krolasyonhorror.story.door_slam",
+    "sounds": [
+      "krolasyonhorror:s_door_slam"
+    ]
+  },
+  "story.power_on": {
+    "subtitle": "subtitles.krolasyonhorror.story.power_on",
+    "sounds": [
+      "krolasyonhorror:s_power_on"
+    ]
+  },
+  "story.tv_on": {
+    "subtitle": "subtitles.krolasyonhorror.story.tv_on",
+    "sounds": [
+      "krolasyonhorror:s_tv_on"
+    ]
+  },
+  "story.radio_sweep": {
+    "subtitle": "subtitles.krolasyonhorror.story.radio_sweep",
+    "sounds": [
+      "krolasyonhorror:s_radio_sweep"
+    ]
+  },
+  "story.fire": {
+    "subtitle": "subtitles.krolasyonhorror.story.fire",
+    "sounds": [
+      "krolasyonhorror:s_fire"
+    ]
+  },
+  "story.page": {
+    "subtitle": "subtitles.krolasyonhorror.story.page",
+    "sounds": [
+      "krolasyonhorror:s_page"
+    ]
+  },
+  "story.vcr_insert": {
+    "subtitle": "subtitles.krolasyonhorror.story.vcr_insert",
+    "sounds": [
+      "krolasyonhorror:s_vcr_insert"
+    ]
+  },
+  "story.brim_voice": {
+    "subtitle": "subtitles.krolasyonhorror.story.brim_voice",
+    "sounds": [
+      "krolasyonhorror:s_brim_voice"
+    ]
+  },
+  "story.pickup": {
+    "subtitle": "subtitles.krolasyonhorror.story.pickup",
+    "sounds": [
+      "krolasyonhorror:s_pickup"
+    ]
+  },
+  "story.candle_light": {
+    "subtitle": "subtitles.krolasyonhorror.story.candle_light",
+    "sounds": [
+      "krolasyonhorror:s_candle_light"
+    ]
+  },
+  "story.balloon_pop": {
+    "subtitle": "subtitles.krolasyonhorror.story.balloon_pop",
+    "sounds": [
+      "krolasyonhorror:s_balloon_pop"
+    ]
+  },
+  "story.dial_click": {
+    "subtitle": "subtitles.krolasyonhorror.story.dial_click",
+    "sounds": [
+      "krolasyonhorror:s_dial_click"
+    ]
+  },
+  "story.fuse_spark": {
+    "subtitle": "subtitles.krolasyonhorror.story.fuse_spark",
+    "sounds": [
+      "krolasyonhorror:s_fuse_spark"
+    ]
   }
 }

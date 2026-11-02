@@ -1,7 +1,10 @@
 {
  "variants": {
-  "": {
+  "lit=true": {
    "model": "krolasyonhorror:block/bulb_fixture"
+  },
+  "lit=false": {
+   "model": "krolasyonhorror:block/bulb_fixture_off"
   }
  }
 }

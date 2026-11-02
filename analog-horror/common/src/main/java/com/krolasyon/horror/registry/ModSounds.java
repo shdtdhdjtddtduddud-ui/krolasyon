@@ -33,6 +33,18 @@ public final class ModSounds {
     public static final RegistryObject<SoundEvent> DRONE = reg("fx.drone");
     public static final RegistryObject<SoundEvent> DISTANT_CALL = reg("fx.distant_call");
 
+    public static final String[] STORY_NAMES = {"jingle", "music_box", "applause", "phone_beep", "rain", "house_amb", "door_slam", "power_on", "tv_on",
+            "radio_sweep", "fire", "page", "vcr_insert", "brim_voice", "pickup", "candle_light", "balloon_pop", "dial_click", "fuse_spark"};
+
+    static {
+        for (String n : STORY_NAMES) reg("story." + n);
+    }
+
+    /** looks up any of this mod's sound events by its short name, e.g. "story.jingle" or "fx.static" */
+    public static SoundEvent byName(String name) {
+        return net.minecraftforge.registries.ForgeRegistries.SOUND_EVENTS.getValue(Compat.id(name));
+    }
+
     private static RegistryObject<SoundEvent> reg(String name) {
         return REG.register(name, () -> SoundEvent.createVariableRangeEvent(Compat.id(name)));
     }

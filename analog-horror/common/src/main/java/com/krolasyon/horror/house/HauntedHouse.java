@@ -2,11 +2,21 @@ package com.krolasyon.horror.house;
 
 import com.krolasyon.horror.block.FacingDecorBlock;
 import com.krolasyon.horror.registry.ModBlocks;
+import com.krolasyon.horror.registry.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CampfireBlock;
+import net.minecraft.world.level.block.CandleBlock;
+import net.minecraft.world.level.block.LadderBlock;
+import net.minecraft.world.level.block.TrapDoorBlock;
+import net.minecraft.world.level.block.BarrelBlock;
+import com.krolasyon.horror.block.CounterBlock;
+import com.krolasyon.horror.block.PropBlock;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.LightBlock;
 import net.minecraft.world.level.block.SlabBlock;
@@ -38,6 +48,116 @@ public final class HauntedHouse {
     /** builds the house with its north-west inner corner at {@code origin} (origin.y = ground floor level) */
     public static void build(ServerLevel level, BlockPos origin) {
         new HauntedHouse(level, origin).build();
+    }
+
+    /** the house plus everything the story needs: notes, pickups, devices, the party room and Victor's attic */
+    public static void buildStory(ServerLevel level, BlockPos origin) {
+        HauntedHouse h = new HauntedHouse(level, origin);
+        h.build();
+        h.story();
+        setLights(level, origin, 6, 17, false);
+    }
+
+    /** switches every story-controlled light (lamps, bulbs, sconces) between y0 and y1 (local) */
+    public static void setLights(ServerLevel level, BlockPos o, int y0, int y1, boolean on) {
+        for (int x = 0; x <= 20; x++)
+            for (int y = y0; y <= y1; y++)
+                for (int z = 0; z <= 22; z++) {
+                    BlockPos p = o.offset(x, y, z);
+                    BlockState st = level.getBlockState(p);
+                    Block b = st.getBlock();
+                    if ((b == ModBlocks.CEILING_LAMP.get() || b == ModBlocks.BULB_FIXTURE.get() || b == ModBlocks.CANDLE_SCONCE.get())
+                            && st.getValue(BlockStateProperties.LIT) != on)
+                        level.setBlock(p, st.setValue(BlockStateProperties.LIT, on), 3);
+                }
+    }
+
+    private void note(int n, int x, int y, int z, boolean raised) {
+        set(x, y, z, ModBlocks.NOTE_PAPER.get().defaultBlockState().setValue(PropBlock.NOTE, n).setValue(PropBlock.RAISED, raised));
+    }
+
+    public static BlockState item(int i, boolean raised) {
+        return ModBlocks.STORY_ITEM.get().defaultBlockState().setValue(PropBlock.ITEM, i).setValue(PropBlock.RAISED, raised);
+    }
+
+    private void story() {
+        // living room: VCR, fireplace
+        set(5, 1, 13, f(ModBlocks.VCR.get(), Direction.SOUTH));
+        BlockState brick = b(Blocks.BRICKS);
+        fill(1, 1, 17, 1, 4, 17, brick);
+        fill(1, 1, 19, 1, 4, 19, brick);
+        fill(1, 2, 18, 1, 4, 18, brick);
+        set(1, 1, 18, Blocks.CAMPFIRE.defaultBlockState().setValue(CampfireBlock.LIT, false).setValue(CampfireBlock.FACING, Direction.EAST));
+        // storage: the fuse box
+        set(16, 2, 1, f(ModBlocks.FUSE_BOX.get(), Direction.SOUTH).setValue(CounterBlock.FUSES, 0));
+        // notes
+        note(0, 11, 1, 20, false);
+        note(1, 4, 2, 1, false);
+        note(2, 13, 2, 1, false);
+        note(3, 4, 2, 17, true);
+        note(4, 17, 1, 9, false);
+        note(18, 6, 1, 10, false);
+        note(5, 16, 7, 15, false);
+        note(6, 2, 8, 10, false);
+        note(7, 9, 7, 13, false);
+        note(8, 4, 7, 16, false);
+        note(9, 14, 7, 9, false);
+        note(10, 18, 7, 9, false);
+        note(11, 13, 7, 3, false);
+        note(12, 19, 7, 2, false);
+        note(13, 2, 8, 2, false);
+        note(14, 5, 13, 6, false);
+        note(15, 15, 13, 6, false);
+        note(16, 13, 13, 8, false);
+        note(17, 7, 13, 15, false);
+        note(19, 12, 13, 18, false);
+        // pickups
+        set(4, 2, 6, item(ModItems.TAPE_BIRTHDAY, true));
+        set(16, 7, 8, item(ModItems.LIGHTER, false));
+        set(2, 7, 2, b(Blocks.CHEST));
+        set(3, 7, 2, item(ModItems.ATTIC_KEY, false));
+        set(13, 13, 7, item(ModItems.EVICTION_NOTICE, false));
+        // Mira's party room
+        set(16, 7, 5, Blocks.SPRUCE_SLAB.defaultBlockState().setValue(SlabBlock.TYPE, SlabType.TOP));
+        set(16, 8, 5, b(Blocks.CAKE));
+        candle(Blocks.BLACK_CANDLE, 14, 4);
+        candle(Blocks.RED_CANDLE, 18, 4);
+        candle(Blocks.BLUE_CANDLE, 14, 6);
+        candle(Blocks.WHITE_CANDLE, 18, 6);
+        set(13, 9, 10, b(ModBlocks.BALLOON_WHITE.get()));
+        set(19, 9, 9, b(ModBlocks.BALLOON_GOLD.get()));
+        set(17, 10, 2, b(ModBlocks.BALLOON_WHITE.get()));
+        set(14, 10, 3, b(ModBlocks.BALLOON_GOLD.get()));
+        set(16, 10, 6, b(ModBlocks.BULB_FIXTURE.get()));
+        // porch mailbox
+        set(12, 1, 24, Blocks.BARREL.defaultBlockState().setValue(BarrelBlock.FACING, Direction.UP));
+    }
+
+    private void candle(Block c, int x, int z) {
+        set(x, 7, z, c.defaultBlockState().setValue(CandleBlock.CANDLES, 1).setValue(CandleBlock.LIT, false));
+    }
+
+    /** Victor's workshop in the roof space, reached by a padlocked hatch from the upstairs hallway */
+    private void attic() {
+        fill(0, 12, 0, 20, 12, 22, b(Blocks.DARK_OAK_PLANKS));
+        for (int y = 7; y <= 11; y++) set(9, y, 10, Blocks.LADDER.defaultBlockState().setValue(LadderBlock.FACING, Direction.EAST));
+        set(9, 12, 10, Blocks.SPRUCE_TRAPDOOR.defaultBlockState().setValue(TrapDoorBlock.HALF, Half.TOP).setValue(TrapDoorBlock.OPEN, false)
+                .setValue(TrapDoorBlock.FACING, Direction.SOUTH));
+        for (int x = 6; x <= 14; x++) {
+            set(x, 13, 1, f(ModBlocks.CRT_TV.get(), Direction.SOUTH));
+            set(x, 14, 1, Blocks.DARK_OAK_SLAB.defaultBlockState().setValue(SlabBlock.TYPE, SlabType.TOP));
+            set(x, 15, 1, f(ModBlocks.CRT_TV.get(), Direction.SOUTH));
+        }
+        for (int x = 8; x <= 11; x++) {
+            set(x, 13, 4, b(Blocks.STRIPPED_DARK_OAK_WOOD));
+            set(x, 14, 4, f(ModBlocks.DIAL.get(), Direction.SOUTH));
+        }
+        set(12, 13, 4, Blocks.BLAST_FURNACE.defaultBlockState());
+        set(12, 14, 4, b(Blocks.LIGHTNING_ROD));
+        set(7, 13, 8, b(Blocks.LECTERN));
+        set(10, 16, 10, b(ModBlocks.BULB_FIXTURE.get()));
+        set(10, 16, 5, b(ModBlocks.BULB_FIXTURE.get()));
+        set(4, 13, 2, b(Blocks.COBWEB)); set(16, 15, 20, b(Blocks.COBWEB)); set(5, 13, 20, b(Blocks.BARREL));
     }
 
     /** where the camera / player should stand to start: just inside the front door, looking down the hallway */
@@ -112,6 +232,7 @@ public final class HauntedHouse {
 
         groundFloor();
         upperFloor();
+        attic();
 
         // windows (tinted, so the house stays dark inside)
         BlockState glass = b(Blocks.TINTED_GLASS);

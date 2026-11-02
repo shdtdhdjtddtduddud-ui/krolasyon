@@ -1,7 +1,10 @@
 {
  "variants": {
-  "": {
+  "lit=true": {
    "model": "krolasyonhorror:block/ceiling_lamp"
+  },
+  "lit=false": {
+   "model": "krolasyonhorror:block/ceiling_lamp_off"
   }
  }
 }

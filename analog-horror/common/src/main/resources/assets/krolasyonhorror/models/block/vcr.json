@@ -1,0 +1,43 @@
+{
+ "parent": "minecraft:block/block",
+ "render_type": "minecraft:cutout",
+ "textures": {
+  "b": "krolasyonhorror:block/crt_body",
+  "f": "krolasyonhorror:block/vcr_front",
+  "particle": "krolasyonhorror:block/crt_body"
+ },
+ "elements": [
+  {
+   "from": [
+    1,
+    0,
+    3
+   ],
+   "to": [
+    15,
+    3.5,
+    13
+   ],
+   "faces": {
+    "north": {
+     "texture": "#f"
+    },
+    "south": {
+     "texture": "#b"
+    },
+    "east": {
+     "texture": "#b"
+    },
+    "west": {
+     "texture": "#b"
+    },
+    "up": {
+     "texture": "#b"
+    },
+    "down": {
+     "texture": "#b"
+    }
+   }
+  }
+ ]
+}

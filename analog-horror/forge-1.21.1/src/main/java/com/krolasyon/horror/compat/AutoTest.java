@@ -34,12 +34,12 @@ import java.util.function.Consumer;
  */
 public final class AutoTest {
     private static final Logger LOG = LogUtils.getLogger();
-    private int tick, inWorld = -1;
+    private int tick, inWorld = -1, lastT = -1;
     private boolean worldRequested;
     private final List<Cue> cues = new ArrayList<>();
     private static final int[] LIGHTS_Z = {1, -3, -7, -11, -15, -19, -23, -27, -31, -35, -39, -43};
 
-    record Cue(int at, int until, String shot, Consumer<Ctx> fn) {}
+    record Cue(int at, int until, String shot, Consumer<Ctx> fn, Runnable client) {}
 
     /** per-tick context */
     record Ctx(MinecraftServer server, ServerLevel level, int t, int local) {}
@@ -49,11 +49,13 @@ public final class AutoTest {
         MinecraftForge.EVENT_BUS.register(new AutoTest());
     }
 
-    private void at(int t, Consumer<Ctx> fn) { cues.add(new Cue(t, t, null, fn)); }
+    private void at(int t, Consumer<Ctx> fn) { cues.add(new Cue(t, t, null, fn, null)); }
 
-    private void span(int from, int to, Consumer<Ctx> fn) { cues.add(new Cue(from, to, null, fn)); }
+    private void client(int t, Runnable r) { cues.add(new Cue(t, t, null, null, r)); }
 
-    private void shot(int t, String name) { cues.add(new Cue(t, t, name, null)); }
+    private void span(int from, int to, Consumer<Ctx> fn) { cues.add(new Cue(from, to, null, fn, null)); }
+
+    private void shot(int t, String name) { cues.add(new Cue(t, t, name, null, null)); }
 
     private static void cmd(Ctx c, String... commands) {
         for (String s : commands)
@@ -271,8 +273,51 @@ public final class AutoTest {
         shot(H + 375, "house_hatman_upper");
         span(H + 381, H + 430, c -> cam(c, 70.5, -54, 2.0, 180, 3));
         shot(H + 425, "house_hatman_close");
-        at(H + 440, c -> LOG.info("[AUTOTEST] finished"));
-        shot(H + 441, "END");
+        // ------------------------------------------------ story mode (cutscenes, tapes, notes, HUD) - English then Turkish
+        int S = H + 450;
+        at(S, c -> {
+            scene("story_start");
+            clear(c);
+            cmd(c, "gamemode survival @a", "tp @a 30.5 -60 80.5 180 0");
+        });
+        at(S + 10, c -> com.krolasyon.horror.story.StoryDirector.start(c.server().getPlayerList().getPlayers().get(0)));
+        shot(S + 110, "story_intro_a");
+        shot(S + 420, "story_intro_b");
+        shot(S + 700, "story_intro_c");
+        shot(S + 1000, "story_intro_d");
+        shot(S + 1290, "story_intro_e");
+        shot(S + 1400, "story_chapter1");
+        shot(S + 1560, "story_objective");
+        client(S + 1600, () -> net.minecraft.client.Minecraft.getInstance().setScreen(new com.krolasyon.horror.client.story.TapeScreen("tape2")));
+        shot(S + 1700, "story_tape2_a");
+        shot(S + 1950, "story_tape2_b");
+        client(S + 1960, () -> net.minecraft.client.Minecraft.getInstance().setScreen(null));
+        client(S + 1980, () -> com.krolasyon.horror.story.StoryBridge.OPEN_NOTE.accept(19));
+        shot(S + 2000, "story_note19");
+        client(S + 2010, () -> net.minecraft.client.Minecraft.getInstance().setScreen(null));
+        client(S + 2020, () -> com.krolasyon.horror.story.StoryBridge.TO_CLIENT.add(com.krolasyon.horror.story.StoryBridge.Msg.of("caught")));
+        shot(S + 2040, "story_caught");
+        client(S + 2080, () -> com.krolasyon.horror.story.StoryBridge.TO_CLIENT.add(com.krolasyon.horror.story.StoryBridge.Msg.of("fade_in")));
+        client(S + 2120, () -> {
+            net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+            mc.options.languageCode = "tr_tr";
+            mc.getLanguageManager().setSelected("tr_tr");
+            mc.reloadResourcePacks();
+        });
+        client(S + 2320, () -> com.krolasyon.horror.story.StoryBridge.TO_CLIENT.add(com.krolasyon.horror.story.StoryBridge.Msg.of("chapter", "", 3)));
+        shot(S + 2380, "story_tr_chapter3");
+        client(S + 2480, () -> net.minecraft.client.Minecraft.getInstance().setScreen(new com.krolasyon.horror.client.story.TapeScreen("tape4")));
+        shot(S + 2620, "story_tr_tape4");
+        client(S + 2640, () -> net.minecraft.client.Minecraft.getInstance().setScreen(null));
+        client(S + 2660, () -> com.krolasyon.horror.story.StoryBridge.OPEN_NOTE.accept(10));
+        shot(S + 2680, "story_tr_note10");
+        client(S + 2690, () -> net.minecraft.client.Minecraft.getInstance().setScreen(new com.krolasyon.horror.client.story.CreditsScreen("evict")));
+        shot(S + 2780, "story_tr_ending");
+        shot(S + 3150, "story_tr_credits");
+        client(S + 3160, () -> net.minecraft.client.Minecraft.getInstance().setScreen(null));
+        at(S + 3200, c -> com.krolasyon.horror.story.StoryDirector.stop(c.server().getPlayerList().getPlayers().get(0)));
+        at(S + 3240, c -> LOG.info("[AUTOTEST] finished"));
+        shot(S + 3241, "END");
     }
 
     @SubscribeEvent
@@ -291,7 +336,9 @@ public final class AutoTest {
             return;
         }
         if (mc.level == null || mc.player == null || mc.getSingleplayerServer() == null) return;
-        if (mc.screen != null) mc.setScreen(null);
+        if (mc.screen != null && !(mc.screen instanceof com.krolasyon.horror.client.story.TapeScreen
+                || mc.screen instanceof com.krolasyon.horror.client.story.NoteScreen
+                || mc.screen instanceof com.krolasyon.horror.client.story.CreditsScreen)) mc.setScreen(null);
         mc.options.hideGui = true;
         if (inWorld < 0) {
             inWorld = tick + 80;
@@ -300,8 +347,17 @@ public final class AutoTest {
         int t = tick - inWorld;
         if (t < 0) return;
         MinecraftServer srv = mc.getSingleplayerServer();
+        int prevT = lastT;
+        lastT = t;
         for (Cue cue : cues) {
-            if (t < cue.at() || t > cue.until()) continue;
+            if (cue.at() == cue.until() ? (cue.at() <= prevT || cue.at() > t) : (t < cue.at() || t > cue.until())) continue;
+            if (cue.client() != null) {
+                try {
+                    cue.client().run();
+                } catch (Throwable ex) {
+                    LOG.error("[AUTOTEST] client cue failed", ex);
+                }
+            }
             if (cue.fn() != null) {
                 srv.execute(() -> {
                     try {

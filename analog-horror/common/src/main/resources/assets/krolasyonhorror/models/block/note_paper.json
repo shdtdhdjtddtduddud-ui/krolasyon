@@ -1,0 +1,42 @@
+{
+ "parent": "minecraft:block/block",
+ "render_type": "minecraft:cutout",
+ "textures": {
+  "p": "krolasyonhorror:block/note_paper",
+  "particle": "krolasyonhorror:block/note_paper"
+ },
+ "elements": [
+  {
+   "from": [
+    3,
+    0,
+    3
+   ],
+   "to": [
+    13,
+    0.25,
+    13
+   ],
+   "faces": {
+    "north": {
+     "texture": "#p"
+    },
+    "south": {
+     "texture": "#p"
+    },
+    "east": {
+     "texture": "#p"
+    },
+    "west": {
+     "texture": "#p"
+    },
+    "up": {
+     "texture": "#p"
+    },
+    "down": {
+     "texture": "#p"
+    }
+   }
+  }
+ ]
+}

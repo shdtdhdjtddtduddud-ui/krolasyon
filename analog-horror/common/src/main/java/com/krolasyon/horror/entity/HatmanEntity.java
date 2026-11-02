@@ -78,6 +78,10 @@ public class HatmanEntity extends CompatMonster {
     private boolean leftArm, relocatedLowHealth;
     private Vec3 lastPos = Vec3.ZERO;
     public int clientJumpscareCooldown;
+    /** spawned and directed by the story; ignores daylight and despawn rules */
+    public boolean storyControlled;
+    /** 0 apparition, 1 stalker, 2 hunter, 3 host */
+    public int storyMode;
 
     public HatmanEntity(EntityType<? extends Monster> type, Level level) {
         super(type, level);
@@ -180,7 +184,7 @@ public class HatmanEntity extends CompatMonster {
 
         Player p = findTarget();
         if (p == null) {
-            if (++noPlayerTicks > 1200) this.discard();
+            if (++noPlayerTicks > 1200 && !storyControlled) this.discard();
             roam();
             return;
         }
@@ -198,7 +202,7 @@ public class HatmanEntity extends CompatMonster {
         updateAggression(p, observed, dist);
 
         // creatures of the dark: it will not linger in open daylight
-        if (getState() != HUNT && level().isDay() && level().canSeeSky(this.blockPosition()) && !observed && stateTicks > 40) {
+        if (!storyControlled && getState() != HUNT && level().isDay() && level().canSeeSky(this.blockPosition()) && !observed && stateTicks > 40) {
             vanish(true);
             return;
         }
@@ -225,7 +229,11 @@ public class HatmanEntity extends CompatMonster {
         }
         if (pendingLightTimer >= 0 && --pendingLightTimer < 0 && pendingLight != null) {
             BlockState bs = level().getBlockState(pendingLight);
-            if (isLight(bs)) {
+            if (isLight(bs) && bs.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.LIT)
+                    && !(bs.getBlock() instanceof net.minecraft.world.level.block.CandleBlock)) {
+                level().setBlock(pendingLight, bs.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.LIT, false), 3);
+                level().playSound(null, pendingLight, ModSounds.EXTINGUISH.get(), SoundSource.HOSTILE, 1.0F, 1.0F);
+            } else if (isLight(bs)) {
                 level().destroyBlock(pendingLight, true);
                 level().playSound(null, pendingLight, ModSounds.EXTINGUISH.get(), SoundSource.HOSTILE, 1.0F, 1.0F);
                 ((ServerLevel) level()).sendParticles(ParticleTypes.SMOKE, pendingLight.getX() + 0.5, pendingLight.getY() + 0.6, pendingLight.getZ() + 0.5, 8, 0.1, 0.1, 0.1, 0.01);
@@ -577,6 +585,10 @@ public class HatmanEntity extends CompatMonster {
     }
 
     private static boolean isLight(BlockState s) {
+        if (s.getBlock() == com.krolasyon.horror.registry.ModBlocks.CANDLE_SCONCE.get()
+                || s.getBlock() == com.krolasyon.horror.registry.ModBlocks.CEILING_LAMP.get()
+                || s.getBlock() == com.krolasyon.horror.registry.ModBlocks.BULB_FIXTURE.get())
+            return s.getValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.LIT);
         return s.is(Blocks.TORCH) || s.is(Blocks.WALL_TORCH) || s.is(Blocks.SOUL_TORCH) || s.is(Blocks.SOUL_WALL_TORCH)
                 || s.is(Blocks.LANTERN) || s.is(Blocks.SOUL_LANTERN) || s.is(BlockTags.CANDLES);
     }
@@ -586,7 +598,8 @@ public class HatmanEntity extends CompatMonster {
         if (!level().getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) return;
         BlockPos c = this.blockPosition();
         for (BlockPos bp : BlockPos.betweenClosed(c.offset(-3, 0, -3), c.offset(3, 4, 3))) {
-            if (isLight(level().getBlockState(bp))) {
+            BlockState lb = level().getBlockState(bp);
+            if (isLight(lb) && !(storyControlled && lb.getBlock() instanceof net.minecraft.world.level.block.CandleBlock)) {
                 pendingLight = bp.immutable();
                 pendingLightTimer = 13;
                 extinguishCooldown = 60;
@@ -679,7 +692,45 @@ public class HatmanEntity extends CompatMonster {
     protected float getSoundVolume() { return 1.4F; }
 
     @Override
-    public boolean removeWhenFarAway(double d) { return getState() != HUNT; }
+    public boolean removeWhenFarAway(double d) { return getState() != HUNT && !storyControlled; }
+
+    // ------------------------------------------------------------------ story control
+    public void storyApparition() {
+        storyControlled = true;
+        storyMode = 0;
+        initialized = true;
+        this.setNoAi(true);
+        setState(FROZEN);
+    }
+
+    public void storyStalk(float aggr) {
+        storyControlled = true;
+        initialized = true;
+        this.setNoAi(false);
+        this.aggression = aggr;
+        storyMode = 1;
+        setState(STALK);
+    }
+
+    public void storyHunt(Player p) {
+        storyControlled = true;
+        initialized = true;
+        this.setNoAi(false);
+        storyMode = 2;
+        startHunt(p, true);
+    }
+
+    public void storyHost() {
+        storyControlled = true;
+        storyMode = 3;
+        initialized = true;
+        this.setNoAi(true);
+        setState(STALK);
+    }
+
+    public void storyAction(String name) { playAction(name); }
+
+    public void storyVanish() { vanish(true); }
 
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {

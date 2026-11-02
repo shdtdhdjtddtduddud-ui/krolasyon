@@ -1,0 +1,154 @@
+{
+ "variants": {
+  "digit=0,facing=north": {
+   "model": "krolasyonhorror:block/dial_0"
+  },
+  "digit=1,facing=north": {
+   "model": "krolasyonhorror:block/dial_1"
+  },
+  "digit=2,facing=north": {
+   "model": "krolasyonhorror:block/dial_2"
+  },
+  "digit=3,facing=north": {
+   "model": "krolasyonhorror:block/dial_3"
+  },
+  "digit=4,facing=north": {
+   "model": "krolasyonhorror:block/dial_4"
+  },
+  "digit=5,facing=north": {
+   "model": "krolasyonhorror:block/dial_5"
+  },
+  "digit=6,facing=north": {
+   "model": "krolasyonhorror:block/dial_6"
+  },
+  "digit=7,facing=north": {
+   "model": "krolasyonhorror:block/dial_7"
+  },
+  "digit=8,facing=north": {
+   "model": "krolasyonhorror:block/dial_8"
+  },
+  "digit=9,facing=north": {
+   "model": "krolasyonhorror:block/dial_9"
+  },
+  "digit=0,facing=east": {
+   "model": "krolasyonhorror:block/dial_0",
+   "y": 90
+  },
+  "digit=1,facing=east": {
+   "model": "krolasyonhorror:block/dial_1",
+   "y": 90
+  },
+  "digit=2,facing=east": {
+   "model": "krolasyonhorror:block/dial_2",
+   "y": 90
+  },
+  "digit=3,facing=east": {
+   "model": "krolasyonhorror:block/dial_3",
+   "y": 90
+  },
+  "digit=4,facing=east": {
+   "model": "krolasyonhorror:block/dial_4",
+   "y": 90
+  },
+  "digit=5,facing=east": {
+   "model": "krolasyonhorror:block/dial_5",
+   "y": 90
+  },
+  "digit=6,facing=east": {
+   "model": "krolasyonhorror:block/dial_6",
+   "y": 90
+  },
+  "digit=7,facing=east": {
+   "model": "krolasyonhorror:block/dial_7",
+   "y": 90
+  },
+  "digit=8,facing=east": {
+   "model": "krolasyonhorror:block/dial_8",
+   "y": 90
+  },
+  "digit=9,facing=east": {
+   "model": "krolasyonhorror:block/dial_9",
+   "y": 90
+  },
+  "digit=0,facing=south": {
+   "model": "krolasyonhorror:block/dial_0",
+   "y": 180
+  },
+  "digit=1,facing=south": {
+   "model": "krolasyonhorror:block/dial_1",
+   "y": 180
+  },
+  "digit=2,facing=south": {
+   "model": "krolasyonhorror:block/dial_2",
+   "y": 180
+  },
+  "digit=3,facing=south": {
+   "model": "krolasyonhorror:block/dial_3",
+   "y": 180
+  },
+  "digit=4,facing=south": {
+   "model": "krolasyonhorror:block/dial_4",
+   "y": 180
+  },
+  "digit=5,facing=south": {
+   "model": "krolasyonhorror:block/dial_5",
+   "y": 180
+  },
+  "digit=6,facing=south": {
+   "model": "krolasyonhorror:block/dial_6",
+   "y": 180
+  },
+  "digit=7,facing=south": {
+   "model": "krolasyonhorror:block/dial_7",
+   "y": 180
+  },
+  "digit=8,facing=south": {
+   "model": "krolasyonhorror:block/dial_8",
+   "y": 180
+  },
+  "digit=9,facing=south": {
+   "model": "krolasyonhorror:block/dial_9",
+   "y": 180
+  },
+  "digit=0,facing=west": {
+   "model": "krolasyonhorror:block/dial_0",
+   "y": 270
+  },
+  "digit=1,facing=west": {
+   "model": "krolasyonhorror:block/dial_1",
+   "y": 270
+  },
+  "digit=2,facing=west": {
+   "model": "krolasyonhorror:block/dial_2",
+   "y": 270
+  },
+  "digit=3,facing=west": {
+   "model": "krolasyonhorror:block/dial_3",
+   "y": 270
+  },
+  "digit=4,facing=west": {
+   "model": "krolasyonhorror:block/dial_4",
+   "y": 270
+  },
+  "digit=5,facing=west": {
+   "model": "krolasyonhorror:block/dial_5",
+   "y": 270
+  },
+  "digit=6,facing=west": {
+   "model": "krolasyonhorror:block/dial_6",
+   "y": 270
+  },
+  "digit=7,facing=west": {
+   "model": "krolasyonhorror:block/dial_7",
+   "y": 270
+  },
+  "digit=8,facing=west": {
+   "model": "krolasyonhorror:block/dial_8",
+   "y": 270
+  },
+  "digit=9,facing=west": {
+   "model": "krolasyonhorror:block/dial_9",
+   "y": 270
+  }
+ }
+}

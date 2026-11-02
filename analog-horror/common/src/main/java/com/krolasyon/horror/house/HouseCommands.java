@@ -12,15 +12,26 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-/** /hatman ev (or house) builds the house in front of you; /hatman cagir spawns the Hatman in its dark bedroom. */
+/** /hatman ev|house builds the house; /hatman hikaye|story starts the story (singleplayer); /hatman stop leaves it. */
 public final class HouseCommands {
     private HouseCommands() {}
 
     @SubscribeEvent
     public static void register(RegisterCommandsEvent e) {
-        e.getDispatcher().register(Commands.literal("hatman").requires(s -> s.hasPermission(2))
-                .then(Commands.literal("ev").executes(HouseCommands::house))
-                .then(Commands.literal("house").executes(HouseCommands::house)));
+        e.getDispatcher().register(Commands.literal("hatman")
+                .then(Commands.literal("ev").requires(s -> s.hasPermission(2)).executes(HouseCommands::house))
+                .then(Commands.literal("house").requires(s -> s.hasPermission(2)).executes(HouseCommands::house))
+                .then(Commands.literal("story").executes(HouseCommands::story))
+                .then(Commands.literal("hikaye").executes(HouseCommands::story))
+                .then(Commands.literal("stop").executes(c -> {
+                    com.krolasyon.horror.story.StoryDirector.stop(c.getSource().getPlayerOrException());
+                    return 1;
+                })));
+    }
+
+    private static int story(CommandContext<CommandSourceStack> ctx) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        com.krolasyon.horror.story.StoryDirector.start(ctx.getSource().getPlayerOrException());
+        return 1;
     }
 
     private static int house(CommandContext<CommandSourceStack> ctx) {
