@@ -156,10 +156,10 @@ public final class AutoTest {
         T += 180;   // peeking out of the side room
         at(T, c -> {
             scene("peek");
-            cmd(c, "setblock -3 -60 -12 minecraft:oak_door[facing=east,half=lower,open=true]", "setblock -3 -59 -12 minecraft:oak_door[facing=east,half=upper,open=true]");
+            cmd(c, "setblock -3 -59 -12 minecraft:air", "setblock -3 -60 -12 minecraft:air", "kill @e[type=item]");
             HatmanEntity h = hat(c);
             if (h != null) h.debugState(HatmanEntity.PEEK, 0);
-            place(c, -3.6, -11.5, 0);
+            place(c, -2.75, -11.5, 0);
         });
         span(T, T + 170, c -> cam(c, 1.2, -60, -2.0 - c.local() * 0.01, 165, 2));
         shot(T + 100, "c_peek");
