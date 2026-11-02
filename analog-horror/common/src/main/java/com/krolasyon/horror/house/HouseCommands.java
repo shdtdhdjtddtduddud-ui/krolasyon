@@ -23,6 +23,14 @@ public final class HouseCommands {
                 .then(Commands.literal("house").requires(s -> s.hasPermission(2)).executes(HouseCommands::house))
                 .then(Commands.literal("story").executes(HouseCommands::story))
                 .then(Commands.literal("hikaye").executes(HouseCommands::story))
+                .then(Commands.literal("durum").executes(c -> {
+                    com.krolasyon.horror.story.StoryDirector.status(c.getSource().getPlayerOrException());
+                    return 1;
+                }))
+                .then(Commands.literal("status").executes(c -> {
+                    com.krolasyon.horror.story.StoryDirector.status(c.getSource().getPlayerOrException());
+                    return 1;
+                }))
                 .then(Commands.literal("stop").executes(c -> {
                     com.krolasyon.horror.story.StoryDirector.stop(c.getSource().getPlayerOrException());
                     return 1;

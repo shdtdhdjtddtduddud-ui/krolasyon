@@ -163,6 +163,7 @@ public final class StoryDirector {
 
     private static void media(ServerPlayer p, StoryState s, boolean on) {
         s.media = on;
+        s.mediaTicks = 0;
         for (HatmanEntity h : hatmen(p.serverLevel(), s)) {
             if (on) {
                 h.setNoAi(true);
@@ -173,11 +174,13 @@ public final class StoryDirector {
 
     private static void cutscene(ServerPlayer p, StoryState s, String id) {
         media(p, s, true);
+        s.mediaWhat = "cs:" + id;
         StoryBridge.send(p, new Msg("cutscene", id, 0, s.origin.getX(), s.origin.getY(), s.origin.getZ()));
     }
 
     private static void tape(ServerPlayer p, StoryState s, String id) {
         media(p, s, true);
+        s.mediaWhat = "tape:" + id;
         StoryBridge.send(p, Msg.of("tape", id));
     }
 
@@ -374,6 +377,34 @@ public final class StoryDirector {
         s.save(p);
     }
 
+    /** the digits actually shown on the four dials (x = 8..11, left to right seen from the front) */
+    private static int[] readDials(ServerLevel l, StoryState s) {
+        int[] d = new int[4];
+        for (int i = 0; i < 4; i++) {
+            BlockState b = l.getBlockState(s.at(8 + i, 14, 4));
+            d[i] = b.getBlock() == ModBlocks.DIAL.get() ? b.getValue(CounterBlock.DIGIT) : 0;
+        }
+        return d;
+    }
+
+    /** 1102 read from the front, or the same digits read from behind the desk */
+    private static boolean dialsSolved(int[] d) {
+        return d[0] == 1 && d[1] == 1 && d[2] == 0 && d[3] == 2 || d[0] == 2 && d[1] == 0 && d[2] == 1 && d[3] == 1;
+    }
+
+    private static void trySolveDials(ServerPlayer p, StoryState s, ServerLevel l) {
+        boolean inAttic = p.getY() - s.origin.getY() >= 12.5;
+        boolean ready = s.step.equals("ch4_dials") || inAttic && (s.step.equals("ch4_start") || s.step.equals("ch3_escape"));
+        if (!ready || s.media || !dialsSolved(readDials(l, s))) return;
+        if (!s.step.equals("ch4_dials")) {
+            clearHatmen(l, s);
+            s.step = "ch4_dials";
+            chapter(p, s, 4);
+        }
+        sound(p, "story.radio_sweep", 1F);
+        tape(p, s, "tape4");
+    }
+
     private static int fuseTotal(ServerPlayer p, StoryState s) { return Math.min(3, s.fusesInserted + count(p, ModItems.FUSE)); }
 
     private static void ensureHost(ServerLevel l, StoryState s) {
@@ -467,6 +498,9 @@ public final class StoryDirector {
                     if (h != null) h.storyHunt(p);
                 }
                 if (p.getY() - s.origin.getY() >= 12.5) enter(p, s, "ch4_start");
+            }
+            case "ch4_dials" -> {
+                if (s.stepTicks % 20 == 0) trySolveDials(p, s, l);
             }
             case "ch4_chase" -> {
                 if (s.stepTicks == 40 || hatmen(l, s).isEmpty() && s.stepTicks > 40 && --s.respawnTimer <= 0) {
@@ -595,6 +629,19 @@ public final class StoryDirector {
 
     public static String debugStep(ServerPlayer p) { return StoryState.get(p).step; }
 
+    /** /hatman durum - where the story is, for players who feel stuck */
+    public static void status(ServerPlayer p) {
+        StoryState s = StoryState.get(p);
+        if (!s.active) {
+            p.sendSystemMessage(Component.translatable("msg.krolasyonhorror.start_hint"));
+            return;
+        }
+        int[] d = readDials(p.serverLevel(), s);
+        p.sendSystemMessage(Component.literal("[Hatman] step=" + s.step + " chapter=" + s.chapter + " notes=" + s.notes.size() + "/20 fuses="
+                + s.fusesInserted + " dials=" + d[0] + d[1] + d[2] + d[3] + (s.media ? " (media)" : "")));
+        if (!s.objective.isEmpty()) StoryBridge.send(p, Msg.of("objective", s.objective, s.objectiveArg));
+    }
+
     // ------------------------------------------------------------------ events
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent e) {
@@ -635,6 +682,13 @@ public final class StoryDirector {
                 setDoor(l, s, 8, 7, 19, true);
             }
             s.knocks = 0;
+        }
+        // watchdog: a cutscene or tape that never reported back (closed some unusual way) must not soft-lock the story
+        if (s.media && ++s.mediaTicks > 20 * 150 && s.mediaWhat != null) {
+            String what = s.mediaWhat;
+            s.mediaWhat = null;
+            media(p, s, false);
+            afterMedia(p, s, what);
         }
         if (!s.media) {
             tickStep(p, s, l);
@@ -784,13 +838,10 @@ public final class StoryDirector {
             if (idx < 0 || idx > 3) return true;
             int d = (st.getValue(CounterBlock.DIGIT) + 1) % 10;
             l.setBlock(pos, st.setValue(CounterBlock.DIGIT, d), 3);
-            s.dials[idx] = d;
+            s.dials = readDials(l, s);
             sound(p, "story.dial_click", 1F);
             say(p, "dial", s.dials[0], s.dials[1], s.dials[2], s.dials[3]);
-            if (step.equals("ch4_dials") && s.dials[0] == 1 && s.dials[1] == 1 && s.dials[2] == 0 && s.dials[3] == 2) {
-                sound(p, "story.radio_sweep", 1F);
-                tape(p, s, "tape4");
-            }
+            trySolveDials(p, s, l);
             return true;
         }
         if (b instanceof CandleBlock && ly >= 6 && ly <= 10) {

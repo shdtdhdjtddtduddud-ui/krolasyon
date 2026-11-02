@@ -33,6 +33,8 @@ public final class StoryState {
     public boolean media;
     public int appSeen, caughtTimer, knocks, knockTimer, trickTimer = 1600, flickerTimer, respawnTimer, hostTimer;
     public String objective = "";
+    public String mediaWhat;
+    public int mediaTicks;
     public int objectiveArg = -1;
 
     public static StoryState get(Player p) {
