@@ -6,8 +6,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
-import net.minecraftforge.client.event.RenderGuiEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /** Analog-tape overlay: vignette, rolling static, scanlines, tracking bands, chroma tear and the jumpscare frame. */
 public final class HorrorOverlay {
@@ -20,15 +18,13 @@ public final class HorrorOverlay {
     private static final ResourceLocation JUMPSCARE = Compat.id("textures/gui/jumpscare.png");
     private static final RandomSource RNG = RandomSource.create();
 
-    @SubscribeEvent
-    public static void onRender(RenderGuiEvent.Post e) {
+    public static void render(GuiGraphics g) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
         float in = ClientFx.intensity;
         float flash = ClientFx.flashTicks / 12F;
         boolean scare = ClientFx.jumpscareTicks > 0;
         if (in < 0.02F && flash <= 0 && !scare) return;
-        GuiGraphics g = e.getGuiGraphics();
         int w = g.guiWidth(), h = g.guiHeight();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();

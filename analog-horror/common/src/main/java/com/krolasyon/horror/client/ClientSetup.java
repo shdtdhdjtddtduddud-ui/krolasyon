@@ -15,7 +15,7 @@ public final class ClientSetup {
         HatmanEntity.CLIENT_TICK = ClientFx::onHatmanTick;
         HatmanEntity.CLIENT_EVENT = ClientFx::onHatmanEvent;
         MinecraftForge.EVENT_BUS.register(ClientFx.class);
-        MinecraftForge.EVENT_BUS.register(HorrorOverlay.class);
+        com.krolasyon.horror.compat.GuiHook.register(HorrorOverlay::render);
         if (Boolean.getBoolean("krolasyon.autotest")) com.krolasyon.horror.compat.AutoTest.init();
     }
 

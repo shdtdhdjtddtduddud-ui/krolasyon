@@ -613,7 +613,7 @@ public class HatmanEntity extends CompatMonster {
             Vec3 pos = groundAt(x, p.getY(), z, dim);
             if (pos == null) continue;
             Vec3 eye = p.getEyePosition();
-            Vec3 head = pos.add(0, dim.height * 0.8, 0);
+            Vec3 head = pos.add(0, dim.makeBoundingBox(0, 0, 0).getYsize() * 0.8, 0);
             boolean visible = level().clip(new ClipContext(eye, head, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, p)).getType() == HitResult.Type.MISS;
             Vec3 dir = pos.subtract(p.position()).multiply(1, 0, 1).normalize();
             double behind = -dir.dot(look);
