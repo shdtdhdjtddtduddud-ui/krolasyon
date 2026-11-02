@@ -246,8 +246,33 @@ public final class AutoTest {
         at(T + 360, c -> { HatmanEntity h = hat(c); if (h != null) h.debugState(HatmanEntity.STALK, 99.5F); });
         shot(T + 420, "ai_hunt");
         shot(T + 470, "ai_hunt2");
-        at(T + 520, c -> LOG.info("[AUTOTEST] finished"));
-        shot(T + 521, "END");
+        // ------------------------------------------------ the haunted house (reference photos)
+        int H = T + 540;
+        at(H, c -> {
+            scene("house_build");
+            clear(c);
+            cmd(c, "gamemode spectator @a", "effect clear @a", "time set 6000", "tp @a 95 -50 30 140 8");
+        });
+        at(H + 20, c -> com.krolasyon.horror.house.HauntedHouse.build(c.level(), new net.minecraft.core.BlockPos(60, -61, -11)));
+        span(H + 21, H + 80, c -> cam(c, 95, -50, 30, 140.2F, 8));
+        shot(H + 75, "house_exterior");
+        at(H + 81, c -> cmd(c, "time set 18000"));
+        span(H + 82, H + 140, c -> cam(c, 70.5, -60, 10.3, 180, 2));
+        shot(H + 135, "house_hall_ground");
+        span(H + 141, H + 200, c -> cam(c, 66.6, -58.2, 9.6, 163.5F, 16));
+        shot(H + 195, "house_living");
+        span(H + 201, H + 260, c -> cam(c, 74.5, -54, 10.4, 180, 6));
+        shot(H + 255, "house_landing");
+        span(H + 261, H + 320, c -> cam(c, 70.5, -54, 10.4, 180, 3));
+        shot(H + 315, "house_hall_upper");
+        at(H + 321, c -> cmd(c, "summon krolasyonhorror:hatman 70.5 -54 -5.0 {NoAI:1b,PersistenceRequired:1b,Rotation:[0f,0f]}"));
+        at(H + 324, c -> { HatmanEntity h = hat(c); if (h != null) h.debugState(HatmanEntity.FROZEN, 0); });
+        span(H + 321, H + 380, c -> cam(c, 70.5, -54, 10.4, 180, 3));
+        shot(H + 375, "house_hatman_upper");
+        span(H + 381, H + 430, c -> cam(c, 70.5, -54, 2.0, 180, 3));
+        shot(H + 425, "house_hatman_close");
+        at(H + 440, c -> LOG.info("[AUTOTEST] finished"));
+        shot(H + 441, "END");
     }
 
     @SubscribeEvent

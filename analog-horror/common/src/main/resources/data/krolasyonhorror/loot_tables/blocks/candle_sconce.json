@@ -1,0 +1,1 @@
+{"type": "minecraft:block", "pools": [{"rolls": 1, "entries": [{"type": "minecraft:item", "name": "krolasyonhorror:candle_sconce"}], "conditions": [{"condition": "minecraft:survives_explosion"}]}]}

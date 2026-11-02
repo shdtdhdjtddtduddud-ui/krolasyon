@@ -1,0 +1,19 @@
+{
+ "variants": {
+  "facing=north": {
+   "model": "krolasyonhorror:block/armchair"
+  },
+  "facing=east": {
+   "model": "krolasyonhorror:block/armchair",
+   "y": 90
+  },
+  "facing=south": {
+   "model": "krolasyonhorror:block/armchair",
+   "y": 180
+  },
+  "facing=west": {
+   "model": "krolasyonhorror:block/armchair",
+   "y": 270
+  }
+ }
+}

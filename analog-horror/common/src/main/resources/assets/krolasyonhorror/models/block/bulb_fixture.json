@@ -1,0 +1,107 @@
+{
+ "parent": "minecraft:block/block",
+ "render_type": "minecraft:cutout",
+ "textures": {
+  "brass": "krolasyonhorror:block/brass",
+  "bulb": "krolasyonhorror:block/bulb",
+  "particle": "krolasyonhorror:block/bulb"
+ },
+ "elements": [
+  {
+   "from": [
+    6,
+    15,
+    6
+   ],
+   "to": [
+    10,
+    16,
+    10
+   ],
+   "faces": {
+    "north": {
+     "texture": "#brass"
+    },
+    "south": {
+     "texture": "#brass"
+    },
+    "east": {
+     "texture": "#brass"
+    },
+    "west": {
+     "texture": "#brass"
+    },
+    "up": {
+     "texture": "#brass"
+    },
+    "down": {
+     "texture": "#brass"
+    }
+   }
+  },
+  {
+   "from": [
+    7,
+    13,
+    7
+   ],
+   "to": [
+    9,
+    15,
+    9
+   ],
+   "faces": {
+    "north": {
+     "texture": "#brass"
+    },
+    "south": {
+     "texture": "#brass"
+    },
+    "east": {
+     "texture": "#brass"
+    },
+    "west": {
+     "texture": "#brass"
+    },
+    "up": {
+     "texture": "#brass"
+    },
+    "down": {
+     "texture": "#brass"
+    }
+   }
+  },
+  {
+   "from": [
+    6.5,
+    10,
+    6.5
+   ],
+   "to": [
+    9.5,
+    13,
+    9.5
+   ],
+   "faces": {
+    "north": {
+     "texture": "#bulb"
+    },
+    "south": {
+     "texture": "#bulb"
+    },
+    "east": {
+     "texture": "#bulb"
+    },
+    "west": {
+     "texture": "#bulb"
+    },
+    "up": {
+     "texture": "#bulb"
+    },
+    "down": {
+     "texture": "#bulb"
+    }
+   }
+  }
+ ]
+}

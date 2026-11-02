@@ -1,0 +1,6 @@
+{
+ "parent": "minecraft:block/carpet",
+ "textures": {
+  "wool": "krolasyonhorror:block/runner_rug"
+ }
+}

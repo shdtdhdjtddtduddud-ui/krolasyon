@@ -2,6 +2,7 @@ package com.krolasyon.horror;
 
 import com.krolasyon.horror.compat.Compat;
 import com.krolasyon.horror.entity.HatmanEntity;
+import com.krolasyon.horror.registry.ModBlocks;
 import com.krolasyon.horror.registry.ModEntities;
 import com.krolasyon.horror.registry.ModItems;
 import com.krolasyon.horror.registry.ModSounds;
@@ -22,11 +23,14 @@ public class HorrorMod {
     public HorrorMod() {
         IEventBus bus = Compat.modBus();
         ModEntities.REG.register(bus);
+        ModBlocks.REG.register(bus);
+        ModBlocks.TABS.register(bus);
         ModItems.REG.register(bus);
         ModSounds.REG.register(bus);
         bus.addListener(HorrorMod::attributes);
         bus.addListener(HorrorMod::creativeTab);
         MinecraftForge.EVENT_BUS.register(HauntDirector.class);
+        MinecraftForge.EVENT_BUS.register(com.krolasyon.horror.house.HouseCommands.class);
         if (FMLEnvironment.dist == Dist.CLIENT) {
             com.krolasyon.horror.client.ClientSetup.init(bus);
         }

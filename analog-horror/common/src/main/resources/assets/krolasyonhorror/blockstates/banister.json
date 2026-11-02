@@ -1,0 +1,19 @@
+{
+ "variants": {
+  "facing=north": {
+   "model": "krolasyonhorror:block/banister"
+  },
+  "facing=east": {
+   "model": "krolasyonhorror:block/banister",
+   "y": 90
+  },
+  "facing=south": {
+   "model": "krolasyonhorror:block/banister",
+   "y": 180
+  },
+  "facing=west": {
+   "model": "krolasyonhorror:block/banister",
+   "y": 270
+  }
+ }
+}

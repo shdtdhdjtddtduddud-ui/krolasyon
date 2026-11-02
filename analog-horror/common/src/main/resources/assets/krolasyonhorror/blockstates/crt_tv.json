@@ -1,0 +1,19 @@
+{
+ "variants": {
+  "facing=north": {
+   "model": "krolasyonhorror:block/crt_tv"
+  },
+  "facing=east": {
+   "model": "krolasyonhorror:block/crt_tv",
+   "y": 90
+  },
+  "facing=south": {
+   "model": "krolasyonhorror:block/crt_tv",
+   "y": 180
+  },
+  "facing=west": {
+   "model": "krolasyonhorror:block/crt_tv",
+   "y": 270
+  }
+ }
+}

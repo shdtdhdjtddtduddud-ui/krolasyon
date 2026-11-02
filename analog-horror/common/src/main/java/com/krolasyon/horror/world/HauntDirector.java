@@ -34,26 +34,27 @@ public final class HauntDirector {
         if (!(p.level() instanceof ServerLevel level) || p.tickCount % 100 != 0) return;
         if (p.isCreative() || p.isSpectator() || level.getDifficulty() == Difficulty.PEACEFUL || level.dimension() != Level.OVERWORLD) return;
         if (Boolean.getBoolean("krolasyon.autotest")) return;
-        boolean dark = level.getMaxLocalRawBrightness(p.blockPosition()) <= 5;
+        boolean inHouse = com.krolasyon.horror.registry.ModBlocks.isHouseFloor(level.getBlockState(p.blockPosition()).getBlock());
+        boolean dark = inHouse || level.getMaxLocalRawBrightness(p.blockPosition()) <= 5;
         boolean underground = p.getY() < level.getSeaLevel() - 12 && !level.canSeeSky(p.blockPosition());
-        if (!level.isNight() && !(underground && dark)) {
+        if (!level.isNight() && !(underground && dark) && !inHouse) {
             DREAD.put(p.getUUID(), Math.max(0, DREAD.getOrDefault(p.getUUID(), 0) - 2));
             return;
         }
         if (!level.getEntitiesOfClass(HatmanEntity.class, new AABB(p.blockPosition()).inflate(160)).isEmpty()) return;
-        int dread = DREAD.getOrDefault(p.getUUID(), 0) + (dark ? 2 : 1);
+        int dread = DREAD.getOrDefault(p.getUUID(), 0) + (inHouse ? 4 : dark ? 2 : 1);
         DREAD.put(p.getUUID(), dread);
         // ~5 minutes of quiet build-up, then an increasing chance each check
         if (dread < 6 || p.getRandom().nextInt(Math.max(2, 22 - dread)) != 0) return;
-        if (trySpawn(level, p)) DREAD.put(p.getUUID(), 0);
+        if (inHouse ? trySpawn(level, p, 8, 10) : trySpawn(level, p, 26, 14)) DREAD.put(p.getUUID(), 0);
     }
 
-    public static boolean trySpawn(ServerLevel level, Player p) {
+    public static boolean trySpawn(ServerLevel level, Player p, double minR, double spreadR) {
         HatmanEntity probe = ModEntities.HATMAN.get().create(level);
         if (probe == null) return false;
         for (int i = 0; i < 24; i++) {
             double ang = p.getRandom().nextDouble() * Math.PI * 2;
-            double r = 26 + p.getRandom().nextDouble() * 14;
+            double r = minR + p.getRandom().nextDouble() * spreadR;
             int x = (int) Math.floor(p.getX() + Math.cos(ang) * r), z = (int) Math.floor(p.getZ() + Math.sin(ang) * r);
             for (int dy = 8; dy >= -10; dy--) {
                 BlockPos pos = new BlockPos(x, (int) p.getY() + dy, z);

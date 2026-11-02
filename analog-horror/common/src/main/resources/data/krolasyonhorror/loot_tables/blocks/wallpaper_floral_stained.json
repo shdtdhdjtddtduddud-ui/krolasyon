@@ -1,0 +1,1 @@
+{"type": "minecraft:block", "pools": [{"rolls": 1, "entries": [{"type": "minecraft:item", "name": "krolasyonhorror:wallpaper_floral_stained"}], "conditions": [{"condition": "minecraft:survives_explosion"}]}]}

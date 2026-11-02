@@ -1,0 +1,46 @@
+{
+ "parent": "minecraft:block/block",
+ "render_type": "minecraft:cutout",
+ "textures": {
+  "art": "krolasyonhorror:block/picture_landscape",
+  "frame": "krolasyonhorror:block/dark_wood",
+  "particle": "krolasyonhorror:block/picture_landscape"
+ },
+ "elements": [
+  {
+   "from": [
+    1,
+    4,
+    15
+   ],
+   "to": [
+    15,
+    13,
+    16
+   ],
+   "faces": {
+    "north": {
+     "texture": "#art",
+     "uv": [
+      0,
+      0,
+      16,
+      16
+     ]
+    },
+    "east": {
+     "texture": "#frame"
+    },
+    "west": {
+     "texture": "#frame"
+    },
+    "up": {
+     "texture": "#frame"
+    },
+    "down": {
+     "texture": "#frame"
+    }
+   }
+  }
+ ]
+}
