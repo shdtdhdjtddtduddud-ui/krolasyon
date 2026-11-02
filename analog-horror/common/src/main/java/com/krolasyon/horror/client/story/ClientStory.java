@@ -162,6 +162,11 @@ public final class ClientStory {
     }
 
     @SubscribeEvent
+    public static void onRenderHand(net.minecraftforge.client.event.RenderHandEvent e) {
+        if (cutscene != null) e.setCanceled(true);
+    }
+
+    @SubscribeEvent
     public static void onRenderPlayer(RenderPlayerEvent.Pre e) {
         if (cutscene != null) e.setCanceled(true);
     }

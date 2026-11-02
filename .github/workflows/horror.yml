@@ -43,6 +43,18 @@ jobs:
           set +e
           gradle build --no-daemon --stacktrace 2>&1 | tee build.log
           echo "status=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+      - name: Probe Forge client API
+        if: steps.b.outputs.status == '0'
+        continue-on-error: true
+        shell: bash
+        run: |
+          J=$(find ~/.gradle/caches -name "forge-${{ matrix.mc }}-*mapped_official*.jar" -o -name "forge-${{ matrix.mc }}-*-srg*.jar" 2>/dev/null | grep -v sources | head -1)
+          echo "jar: $J" > probe2.log
+          unzip -l "$J" | grep -E "client/event/[A-Za-z]*(Gui|Overlay|Layer|Render(Tick|Hand))[A-Za-z$]*\.class" | awk '{print $4}' >> probe2.log
+          mkdir -p /tmp/pj && cd /tmp/pj && unzip -q -o "$J" 'net/minecraft/client/Minecraft.class' 'net/minecraft/client/gui/Gui.class' 2>/dev/null
+          javap -p -c -classpath /tmp/pj net.minecraft.client.Minecraft | grep -nE "onRenderTick|blitToScreen|GameRenderer.render|runTick" | head -40 >> $GITHUB_WORKSPACE/analog-horror/forge-${{ matrix.mc }}/probe2.log
+          javap -p -classpath /tmp/pj net.minecraft.client.gui.Gui | grep -E "render|Layer" | head -40 >> $GITHUB_WORKSPACE/analog-horror/forge-${{ matrix.mc }}/probe2.log
+          cat $GITHUB_WORKSPACE/analog-horror/forge-${{ matrix.mc }}/probe2.log
       - name: Visual test + trailer capture (headless client)
         if: steps.b.outputs.status == '0' && (matrix.mc == '1.20.1' || contains(github.event.head_commit.message, '[smoke]'))
         continue-on-error: true
@@ -80,6 +92,7 @@ jobs:
         run: |
           TAG="horror-${{ github.run_number }}-${{ matrix.mc }}"
           FILES="build.log probe.log"
+          [ -f probe2.log ] && FILES="$FILES probe2.log"
           for f in build/libs/*.jar; do [ -f "$f" ] && FILES="$FILES $f"; done
           [ -f vtest-${{ matrix.mc }}.zip ] && FILES="$FILES vtest-${{ matrix.mc }}.zip"
           [ -f rec.mkv ] && FILES="$FILES rec.mkv"

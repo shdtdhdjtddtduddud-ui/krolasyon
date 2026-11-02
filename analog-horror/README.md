@@ -40,6 +40,28 @@ Jar dosyaları her CI derlemesinde GitHub Releases'a (`horror-<no>-<sürüm>`) y
 - Gerilim arttıkça hızlanan kalp atışı, kovalamaca dronu ve kamera titremesi.
 - Yakından göz göze gelince tam ekran jumpscare karesi.
 
+## Hikâye modu: ŞAPKALI ADAM: KİRA GÜNÜ / THE HATMAN: RENT DUE
+Tek oyunculu, doğrusal bir korku hikâyesi. Tamamı Ardel evinde geçer. Başlatmak için `/hatman hikaye` (ya da `/hatman story`), çıkmak için `/hatman stop` yazılır. Hikâye kendi evini bulunduğun yerin önüne kurar, seni macera moduna alır ve geceyi, yağmuru sabitler.
+
+**Konu:** 2 Kasım 2026. Bir emlakçı, 1998'den beri mühürlü Ardel evindeki aile kasetlerini dijitale aktarman için seni tutar. Kasetlerde "Bay Kenar'ın Komşuluk Saati" adında, hiçbir kanalın yayınlamadığı bir çocuk programı vardır. Sunucusu hasır şapkalı, çok uzun bir adamdır. Ev her 28 yılda bir "kira" toplar ve bu gece kira günüdür.
+
+| Bölüm | İçerik |
+|---|---|
+| Giriş | Sesli mesaj, eve giriş sinematiği |
+| 1 — Kasetler | Mira'nın doğum günü öncesi kaseti, koridordaki ilk görüntü, depo |
+| 2 — Görgü Kuralları | 3 sigorta (balon, portre, kapı çalma bulmacası), Komşuluk Saati yayını, "gözünü ayırma" bölümü |
+| 3 — Doğum Günü | Mira'nın odası, mum sırası bulmacası, 3. dakikada serbest kalan avcı, parti kaseti, çatıya kaçış |
+| 4 — Ölü Kanal | Victor'un atölyesi, verici kadran şifresi, itiraf kaseti, aşağı kovalamaca |
+| 5 — Kira Günü | Sürpriz gerçek, oturma odası stüdyoya dönüşür, son seçim |
+
+- 20 okunabilir not ve 4 kaset (tam ekran VHS oynatıcı).
+- 9 ara sahne: sinematik kamera, siyah bantlar ve harf harf yazılan altyazılar.
+- Bölüm kartları ve görev göstergesi.
+- 3 son: **Yeni Sunucu**, **Tahliye** ve en az 16 notla açılan gizli **Gönderene İade**.
+- Yakalanınca ölmezsin: jumpscare, karartma ve son kayıt noktasına dönüş.
+- Tüm metinler Türkçe ve İngilizce; oyunun dili ne ise o görünür.
+- Tahmini oynanış süresi, keşfe ve notları okumaya göre yaklaşık 1,5–2 saattir.
+
 ## Geliştirme
 - `gen/`: model (`hatman.py`), dokular (`paint_hatman.py`), animasyonlar (`hatman_anim.py`) ve sesler (`hsounds.py`). `python3 gen/build.py` ile varlıklar üretilir.
 - `common/`: iki sürümün ortak Java kodu ve varlıkları.
