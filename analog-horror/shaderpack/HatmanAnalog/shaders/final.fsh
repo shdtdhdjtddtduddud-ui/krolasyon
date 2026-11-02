@@ -72,5 +72,5 @@ void main() {
     float blink = step(0.5, fract(t * 0.8));
     c = mix(c, vec3(0.9, 0.08, 0.06), smoothstep(9.0, 7.5, r) * blink);
 #endif
-    gl_FragColor = vec4(clamp(c, 0.0, 1.0), 1.0);
+    gl_FragData[0] = vec4(clamp(c, 0.0, 1.0), 1.0);
 }
