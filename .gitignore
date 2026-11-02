@@ -3,3 +3,6 @@ build/
 run/
 *.log
 __pycache__/
+analog-horror/**/build/
+analog-horror/**/run/
+analog-horror/**/.gradle/

@@ -1,0 +1,89 @@
+name: Analog Horror mod
+on:
+  push:
+    paths:
+      - 'analog-horror/**'
+      - '.github/workflows/horror.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - mc: '1.20.1'
+            java: '17'
+          - mc: '1.21.1'
+            java: '21'
+    defaults:
+      run:
+        working-directory: analog-horror/forge-${{ matrix.mc }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.8'
+      - name: Probe dependency versions
+        shell: bash
+        run: |
+          curl -s https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/software/bernie/geckolib/geckolib-forge-${{ matrix.mc }}/maven-metadata.xml | grep -o '<version>[^<]*' | tail -8 > probe.log || true
+          curl -s https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml | grep -o "<version>${{ matrix.mc }}-[^<]*" | tail -5 >> probe.log || true
+          cat probe.log
+      - name: Build
+        id: b
+        shell: bash
+        run: |
+          set +e
+          gradle build --no-daemon --stacktrace 2>&1 | tee build.log
+          echo "status=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+      - name: Visual test + trailer capture (headless client)
+        if: steps.b.outputs.status == '0' && (matrix.mc == '1.20.1' || contains(github.event.head_commit.message, '[smoke]'))
+        continue-on-error: true
+        shell: bash
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          MESA_GL_VERSION_OVERRIDE: '4.5'
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq xvfb libgl1-mesa-dri libglx-mesa0 mesa-utils ffmpeg > /dev/null
+          mkdir -p run
+          printf "onboardAccessibility:false\nrenderDistance:6\nsimulationDistance:6\npauseOnLostFocus:false\ntutorialStep:none\njoinedFirstServer:true\nskipMultiplayerWarning:true\nmaxFps:60\nfov:-0.2\ngamma:0.4\nsoundCategory_master:0.0\n" > run/options.txt
+          Xvfb :99 -screen 0 1280x720x24 > /dev/null 2>&1 &
+          export DISPLAY=:99
+          sleep 2
+          touch client.log
+          ( for i in $(seq 1 1500); do grep -q "AUTOTEST\] in world" client.log && break; sleep 1; done
+            date +%s%3N > rec_start.txt
+            ffmpeg -loglevel error -f x11grab -framerate 30 -video_size 1280x720 -i :99 -c:v libx264 -preset veryfast -crf 17 -pix_fmt yuv420p rec.mkv ) &
+          set +e
+          timeout 1700 gradle runClient --no-daemon > client.log 2>&1
+          echo "client exit $?"
+          pkill -INT ffmpeg; sleep 5
+          mkdir -p vtest
+          cp run/screenshots/htest_*.png vtest/ 2>/dev/null
+          cp run/logs/latest.log vtest/latest.log 2>/dev/null
+          cp rec_start.txt vtest/ 2>/dev/null
+          tail -c 300000 client.log > vtest/client_tail.log
+          grep -E "AUTOTEST|Exception|ERROR|krolasyonhorror" client.log | head -400 > vtest/summary.log
+          cd vtest && zip -q ../vtest-${{ matrix.mc }}.zip * ; ls -la
+      - name: Publish release
+        if: always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="horror-${{ github.run_number }}-${{ matrix.mc }}"
+          FILES="build.log probe.log"
+          for f in build/libs/*.jar; do [ -f "$f" ] && FILES="$FILES $f"; done
+          [ -f vtest-${{ matrix.mc }}.zip ] && FILES="$FILES vtest-${{ matrix.mc }}.zip"
+          [ -f rec.mkv ] && FILES="$FILES rec.mkv"
+          gh release create "$TAG" $FILES --title "Analog Horror ${{ matrix.mc }} build ${{ github.run_number }} (status ${{ steps.b.outputs.status }})" --notes "commit ${{ github.sha }}" --prerelease --target "${{ github.sha }}"
+      - name: Fail on build error
+        if: steps.b.outputs.status != '0'
+        run: exit 1

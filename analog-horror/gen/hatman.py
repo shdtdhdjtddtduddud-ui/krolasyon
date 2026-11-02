@@ -1,205 +1,148 @@
-"""The Hatman - emaciated analog-horror stalker: tiny head under a wide straw hat, glossy charcoal skin,
-pale sternum, absurdly long multi-jointed limbs and fork-like fingers."""
-import os, sys, math, numpy as np
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../gen'))
-from core import Model, Anim, rot_zyx
-from paint import Painter, noise2, lerp
+"""The Hatman - high detail GeckoLib model (authored upright, posture comes from bone rest rotations)."""
+import math, numpy as np
+from geo import Geo
 
-M = Model('hatman', 128, 128)
+G = Geo('hatman', 512, 512)
+S_ = {'right': -1, 'left': 1}
 
+# =============================== torso ===============================
+G.bone('root', None, (0, 0, 0))
+G.bone('base', 'root', (0, 30, 0))
+G.bone('hips', 'base', (0, 30, 0))
+G.box('hips', (-2.3, 28.6, -1.2), (4.6, 3.2, 2.6), 'skin')
+for s in (-1, 1):
+    G.rod('hips', (s * 0.9, 32.0, 0.1), (s * 2.9, 30.0, -0.7), 1.0, 2.0, 'skin_bone')        # iliac crest
+    G.box('hips', (s * 2.25 - 0.8, 29.0, -0.8), (1.6, 1.7, 1.7), 'skin_joint')                # hip ball
+G.box('hips', (-1.1, 28.9, 1.2), (2.2, 2.6, 0.6), 'skin_bone')                                 # sacrum
 
-def up(name, parent, A, B, w, d, mat, extend=0.0, **kw):
-    """bone at A whose local -y points at B (upward segments keep natural rotation axes)"""
-    A = np.array(A, float); B = np.array(B, float)
-    v = B - A; L = np.linalg.norm(v); v = -v / L
-    x = math.asin(max(-1, min(1, v[2])))
-    z = math.atan2(-v[0], v[1])
-    M.bone_w(name, parent, A, rot_zyx(x, 0, z))
-    M.cube_l(name, (-w / 2, -L - extend, -d / 2), (w, L + 2 * extend, d), mat, **kw)
-    return L
+G.bone('waist', 'hips', (0, 31.5, 0.2), (10, 0, 0))
+G.box('waist', (-0.7, 31.3, 0.0), (1.4, 7.4, 1.4), 'skin_bone')                                # spine column
+G.box('waist', (-1.3, 31.6, -1.1), (2.6, 6.2, 1.5), 'skin_belly')                               # sunken abdomen
+for i in range(5):
+    G.box('waist', (-0.45, 31.8 + i * 1.45, 1.25), (0.9, 0.7, 0.55), 'skin_bone')              # vertebra knobs
+for s in (-1, 1):
+    G.rod('waist', (s * 0.7, 38.2, -0.9), (s * 2.3, 36.2, -0.2), 0.5, 0.6, 'rib')               # floating ribs
+    G.rod('waist', (s * 0.7, 37.1, -0.9), (s * 2.0, 35.5, -0.1), 0.45, 0.55, 'rib')
 
+G.bone('chest', 'waist', (0, 38.5, 0.3), (20, 0, 0))
+G.box('chest', (-2.5, 38.4, -1.4), (5.0, 8.4, 3.4), 'skin_chest')
+G.box('chest', (-1.5, 39.4, -1.95), (3.0, 6.2, 0.6), 'sternum')
+for k, y in enumerate((45.6, 44.2, 42.8, 41.4, 40.0)):
+    for s in (-1, 1):
+        G.rod('chest', (s * 2.45, y, 1.5), (s * 2.6, y - 1.0, -1.1), 0.55, 0.6, 'rib')
+        G.rod('chest', (s * 2.45, y - 1.0, -1.35), (s * 1.3, y - 1.6 - k * 0.1, -1.85), 0.55, 0.5, 'rib')
+for s in (-1, 1):
+    G.rod('chest', (s * 0.35, 46.4, -1.6), (s * 3.5, 46.7, -0.3), 0.6, 0.6, 'skin_bone')        # collarbone
+    G.box('chest', (s * 1.75 - 1.15, 42.6, 1.75), (2.3, 3.6, 0.5), 'skin_bone', pivot=(s * 1.75, 44.4, 2.0), rot=(0, -s * 14, s * 6))  # scapula
+G.box('chest', (-3.3, 45.3, -0.9), (6.6, 1.6, 2.7), 'skin')                                     # shoulder yoke
+for i in range(5):
+    G.box('chest', (-0.45, 39.0 + i * 1.6, 1.85), (0.9, 0.75, 0.6), 'skin_bone')
 
-def local(name, parent, off, rot=(0, 0, 0)):
-    M.bone(name, parent, (0, 0, 0))
-    M.bones[name].off = [float(v) for v in off]
-    M.bones[name].rot = [float(v) for v in rot]
+G.bone('neck', 'chest', (0, 46.8, -0.1), (28, 0, 0))
+G.box('neck', (-0.65, 46.5, -0.7), (1.3, 3.2, 1.3), 'skin')
+for i in range(3):
+    G.box('neck', (-0.4, 46.9 + i * 0.9, 0.5), (0.8, 0.55, 0.45), 'skin_bone')
+for s in (-1, 1):
+    G.rod('neck', (s * 0.75, 46.9, -0.9), (s * 0.3, 49.4, -0.5), 0.4, 0.4, 'skin_joint')
 
+G.bone('head', 'neck', (0, 49.4, -0.2), (-48, 0, 0))
+G.box('head', (-1.6, 50.3, -1.9), (3.2, 2.9, 3.6), 'skull')
+G.box('head', (-1.3, 49.5, -2.45), (2.6, 1.8, 0.8), 'face')
+G.box('head', (-1.4, 51.75, -2.25), (2.8, 0.5, 0.6), 'skull')                                   # brow ridge
+G.box('head', (-1.0, 48.95, -2.6), (2.0, 0.85, 2.3), 'jaw', pivot=(0, 49.6, -0.3), rot=(10, 0, 0))
+for s in (-1, 1):
+    G.box('head', (s * 1.45 - 0.3, 50.6, -2.05), (0.6, 0.55, 1.3), 'skull')                      # cheekbones
+G.box('head', (-1.2, 50.8, 1.6), (2.4, 2.0, 0.5), 'skull')                                      # back bump
 
-# ---------------- skeleton (world rest pose: y down, front -z, feet at y=24) ----------------
-M.bone('base', None, (0, -6, 0))
-M.bone('hips', 'base', (0, -6, 0))
-M.cube('hips', (-2.6, -7.5, -1.6), (5.2, 3, 3.2), 'skin_dark')
-up('waist', 'hips', (0, -7, 0), (0, -13.5, -1.4), 2.6, 2.2, 'skin_ribs', extend=0.5)
-up('chest', 'waist', (0, -13.5, -1.4), (0, -21.5, -4.6), 6.2, 3.4, 'skin_chest')
-M.cube_l('chest', (-1.6, -7.4, -2.05), (3.2, 6.2, 0.6), 'sternum')
-M.cube_l('chest', (-3.9, -8.6, -1.3), (7.8, 2.0, 2.6), 'skin_dark')            # bony shoulder bar
-up('neck', 'chest', (0, -21.3, -4.6), (0, -23.4, -6.9), 1.5, 1.5, 'skin', extend=0.3)
-local('head', 'neck', (0, -2.9, 0), (-38, 0, 0))
-M.cube_l('head', (-1.7, -3.6, -2.0), (3.4, 3.8, 3.4), 'head')
-M.cube_l('head', (-1.2, -0.9, -2.3), (2.4, 1.3, 1.6), 'jaw')
-local('hat', 'head', (0, -3.4, 0), (6, 0, -7))
-M.cube_l('hat', (-2.2, -2.7, -2.2), (4.4, 2.6, 4.4), 'hat_crown')
-M.cube_l('hat', (-2.35, -0.95, -2.35), (4.7, 0.8, 4.7), 'hat_band')
-M.cube_l('hat', (-6.2, -0.35, -4.3), (12.4, 0.5, 8.6), 'hat_brim')
-M.cube_l('hat', (-4.3, -0.37, -6.2), (8.6, 0.5, 12.4), 'hat_brim')
-M.cube_l('hat', (-5.1, -0.36, -5.1), (10.2, 0.5, 10.2), 'hat_brim')
+# hat: straw sun hat, octagonal crown, 16-slab drooping brim with rolled rim
+G.bone('hat', 'head', (0, 52.6, -0.1), (-6, 0, 7))
+HY = 52.55
+G.box('hat', (-2.3, HY, -2.4), (4.6, 2.7, 4.6), 'straw')
+G.box('hat', (-2.3, HY, -2.4), (4.6, 2.64, 4.6), 'straw', pivot=(0, HY, -0.1), rot=(0, 45, 0))
+G.box('hat', (-1.9, HY + 2.55, -0.3), (3.8, 0.35, 0.4), 'straw_dark')                           # pinch dent
+G.box('hat', (-2.4, HY - 0.05, -2.5), (4.8, 0.8, 4.8), 'band')
+G.box('hat', (-2.4, HY - 0.06, -2.5), (4.8, 0.78, 4.8), 'band', pivot=(0, HY, -0.1), rot=(0, 45, 0))
+G.box('hat', (-2.7, HY - 0.35, -2.8), (5.4, 0.4, 5.4), 'brim')
+N = 16
+for i in range(N):
+    a = i * 360 / N
+    hgt = 0.012 * (i % 2)
+    G.box('hat', (-1.45, HY - 0.36 + hgt, -0.1 - 6.7), (2.9, 0.38, 4.5), 'brim', pivot=(0, HY - 0.2, -0.1), rot=(5, a, 0))
+    G.box('hat', (-1.35, HY - 0.92 + hgt, -0.1 - 6.95), (2.7, 0.55, 0.6), 'brim_rim', pivot=(0, HY - 0.2, -0.1), rot=(5, a + 11.25, 0))
 
-for s, side in ((-1, 'right'), (1, 'left')):
-    X = lambda x: s * x
-    # legs
-    hip, knee, ankle = (X(1.5), -6, 0), (X(2.4), 9, -1.6), (X(2.0), 22.2, 0.7)
-    M.seg(f'{side}_thigh', 'hips', hip, knee, 1.8, 1.8, 'skin_leg', extend=0.3)
-    M.cube_l(f'{side}_thigh', (-1.1, 13.6, -1.2), (2.2, 2.4, 2.3), 'skin_joint')
-    M.seg(f'{side}_shin', f'{side}_thigh', knee, ankle, 1.5, 1.5, 'skin_leg', extend=0.2)
-    M.seg(f'{side}_foot', f'{side}_shin', ankle, (X(2.0), 23.0, -3.6), 1.8, 1.6, 'skin_dark')
-    M.cube_l(f'{side}_foot', (-1.15, -0.6, -1.0), (2.3, 4.8, 1.9), 'shoe')
-    # arms
-    sh, el, wr, pa = (X(3.5), -20.0, -3.6), (X(5.3), -7.5, -2.6), (X(5.8), 5.5, -4.6), (X(5.9), 8.4, -5.0)
-    M.seg(f'{side}_upper', 'chest', sh, el, 1.6, 1.6, 'skin_arm', extend=0.4)
-    M.cube_l(f'{side}_upper', (-1.05, 11.6, -1.05), (2.1, 2.0, 2.1), 'skin_joint')
-    M.seg(f'{side}_fore', f'{side}_upper', el, wr, 1.3, 1.3, 'skin_arm', extend=0.2)
-    M.seg(f'{side}_hand', f'{side}_fore', wr, pa, 2.0, 0.8, 'skin_dark', extend=0.2)
-    for i, dx in enumerate((-1.25, -0.42, 0.42, 1.25)):
-        k1 = (pa[0] + X(dx) * 1.3, pa[1] + 4.0, pa[2] - 0.6 + abs(dx) * 0.25)
-        k2 = (pa[0] + X(dx) * 1.9, pa[1] + 8.2 - abs(dx) * 0.9, pa[2] - 1.5 + abs(dx) * 0.3)
-        M.seg(f'{side}_f{i}a', f'{side}_hand', (pa[0] + X(dx) * 0.8, pa[1] - 0.2, pa[2]), k1, 0.45, 0.45, 'finger', extend=0.1)
-        M.seg(f'{side}_f{i}b', f'{side}_f{i}a', k1, k2, 0.4, 0.4, 'finger_tip', extend=0.05)
-    tb = (pa[0] - X(1.1), pa[1] - 1.0, pa[2] - 0.4)
-    tk = (pa[0] - X(2.6), pa[1] + 2.4, pa[2] - 1.4)
-    M.seg(f'{side}_thumb_a', f'{side}_hand', tb, tk, 0.45, 0.45, 'finger', extend=0.1)
-    M.seg(f'{side}_thumb_b', f'{side}_thumb_a', tk, (pa[0] - X(3.0), pa[1] + 5.6, pa[2] - 2.2), 0.4, 0.4, 'finger_tip')
+# =============================== legs ===============================
+for side, s in S_.items():
+    H = np.array((s * 1.7, 30.0, 0.2)); K = np.array((s * 1.9, 15.2, 0.0)); A = np.array((s * 1.8, 1.7, 0.45))
+    M = H + (K - H) * 0.45
+    G.bone(f'{side}_thigh', 'hips', H, (-12, 0, 0))
+    G.rod(f'{side}_thigh', H, M, 1.9, 2.0, 'skin')
+    G.rod(f'{side}_thigh', M, K + (0, 0.6, 0), 1.45, 1.6, 'skin')
+    G.rod(f'{side}_thigh', H + (-s * 0.5, -1, -0.9), K + (-s * 0.3, 2.2, -0.6), 0.55, 0.55, 'sinew')
+    G.rod(f'{side}_thigh', K + (0, 5.5, 0.85), K + (0, 0.8, 0.9), 0.5, 0.5, 'sinew')
+    G.box(f'{side}_thigh', K + (-1.0, -1.0, -1.0), (2.0, 2.1, 2.0), 'skin_joint')
+    G.box(f'{side}_thigh', K + (-0.7, -0.6, -1.65), (1.4, 1.7, 0.6), 'skin_bone')                     # kneecap
 
-# ---------------- textures ----------------
-P = Painter(M)
-DARK, MID, HI = (14, 11, 10), (38, 30, 27), (88, 74, 66)
+    G.bone(f'{side}_shin', f'{side}_thigh', K, (20, 0, 0))
+    G.rod(f'{side}_shin', K, A, 1.1, 1.25, 'skin')
+    G.rod(f'{side}_shin', K + (0, -0.6, -0.8), A + (0, 1.3, -0.65), 0.55, 0.45, 'skin_bone')           # tibia ridge
+    G.rod(f'{side}_shin', K + (0, -1.8, 0.55), K + (0, -7.5, 0.5), 1.25, 1.1, 'skin')                  # calf
+    for sx in (-1, 1):
+        G.box(f'{side}_shin', A + (sx * 0.75 - 0.35, -0.3, -0.35), (0.7, 0.8, 0.7), 'skin_joint')     # ankle bones
 
+    G.bone(f'{side}_foot', f'{side}_shin', A, (-8, 0, 0))
+    ax, ay, az = A
+    G.box(f'{side}_foot', (ax - 1.2, 0.0, az - 4.6), (2.4, 0.45, 6.2), 'sole')
+    G.box(f'{side}_foot', (ax - 1.1, 0.4, az - 3.6), (2.2, 1.35, 4.9), 'leather')
+    G.box(f'{side}_foot', (ax - 0.95, 0.4, az - 4.45), (1.9, 1.0, 1.0), 'leather')                      # toe cap
+    G.box(f'{side}_foot', (ax - 1.0, 0.0, az + 0.8), (2.0, 0.75, 1.0), 'sole')                          # heel
+    G.box(f'{side}_foot', (ax - 0.8, 1.55, az - 3.2), (1.6, 0.3, 2.0), 'leather_dark', pivot=(ax, 1.6, az - 2.2), rot=(-12, 0, 0))
+    G.box(f'{side}_foot', (ax - 0.8, 1.72, az - 1.2), (1.6, 0.06, 1.7), 'shoe_hole')
 
-def skin(c, face, W, H, r, lo=DARK, mid=MID, hi=HI, ribs=False, joint=False, sheen=1.0):
-    yy, xx = np.mgrid[0:H, 0:W]
-    n = noise2(H, W, r, 2.5)
-    t = np.clip(0.25 + (n - 0.5) * 0.9, 0, 1)
-    col = lerp(lo, mid, t)
-    # glossy wet sheen along one edge column (looks like the slick skin in the photo)
-    if face in ('north', 'west', 'top') and W > 1:
-        k = (xx == (1 if W > 2 else 0)) & (r.random((H, W)) < 0.75)
-        col[k] = lerp(col[k], hi, 0.6 * sheen)
-    if ribs and face in ('north', 'west', 'east'):
-        col[(yy % 2 == 0)] = lerp(col[(yy % 2 == 0)], hi, 0.28)
-    if joint:
-        col = lerp(col, (70, 58, 52), 0.35 * (n > 0.5))
-    if face == 'bottom':
-        col *= 0.6
-    return col, np.ones((H, W)), None
+# =============================== arms ===============================
+for side, s in S_.items():
+    Sh = np.array((s * 3.5, 45.2, 0.2)); E = np.array((s * 3.9, 32.0, 0.4)); W = np.array((s * 3.9, 18.4, 0.1))
+    G.bone(f'{side}_upper', 'chest', Sh, (-34, 0, -s * 4))
+    G.box(f'{side}_upper', Sh + (-0.95, -1.1, -0.95), (1.9, 2.1, 1.9), 'skin_joint')
+    Mu = Sh + (E - Sh) * 0.4
+    G.rod(f'{side}_upper', Sh, Mu, 1.5, 1.6, 'skin')
+    G.rod(f'{side}_upper', Mu, E + (0, 0.5, 0), 1.15, 1.25, 'skin')
+    G.rod(f'{side}_upper', Sh + (0, -2.5, -0.9), E + (0, 2.2, -0.75), 0.45, 0.45, 'sinew')
+    G.box(f'{side}_upper', E + (-0.8, -0.85, -0.8), (1.6, 1.7, 1.7), 'skin_joint')
+    G.box(f'{side}_upper', E + (-0.45, -0.7, 0.8), (0.9, 1.3, 0.8), 'skin_bone')                        # olecranon
 
+    G.bone(f'{side}_fore', f'{side}_upper', E, (-14, 0, 0))
+    G.rod(f'{side}_fore', E + (-s * 0.32, 0, -0.3), W + (-s * 0.3, 0.3, -0.25), 0.75, 0.8, 'skin')     # radius
+    G.rod(f'{side}_fore', E + (s * 0.32, 0, 0.35), W + (s * 0.3, 0.3, 0.3), 0.7, 0.75, 'skin_bone')   # ulna
+    G.rod(f'{side}_fore', E + (0, -0.6, 0), E + (0, -5.2, -0.1), 1.3, 1.3, 'skin')                   # forearm muscle
+    G.box(f'{side}_fore', W + (-0.75, -0.3, -0.6), (1.5, 1.0, 1.2), 'skin_joint')
 
-P.mats['skin'] = skin
-P.mats['skin_arm'] = skin
-P.mats['skin_leg'] = lambda c, f, W, H, r: skin(c, f, W, H, r, sheen=1.2)
-P.mats['skin_dark'] = lambda c, f, W, H, r: skin(c, f, W, H, r, lo=(8, 7, 7), mid=(26, 21, 19), sheen=0.6)
-P.mats['skin_ribs'] = lambda c, f, W, H, r: skin(c, f, W, H, r, ribs=True)
-P.mats['skin_joint'] = lambda c, f, W, H, r: skin(c, f, W, H, r, joint=True, sheen=1.4)
-P.mats['finger'] = lambda c, f, W, H, r: skin(c, f, W, H, r, lo=(10, 8, 8), mid=(30, 24, 22), sheen=1.5)
-
-
-@P.mat('finger_tip')
-def finger_tip(c, face, W, H, r):
-    col, a, _ = skin(c, face, W, H, r, lo=(10, 8, 8), mid=(30, 24, 22), sheen=1.5)
-    col[-2:] = (150, 138, 120)       # pale claw tips
-    col[-1:] = (196, 186, 166)
-    return col, a, None
-
-
-@P.mat('skin_chest')
-def skin_chest(c, face, W, H, r):
-    col, a, _ = skin(c, face, W, H, r)
-    yy, xx = np.mgrid[0:H, 0:W]
-    if face in ('north', 'west', 'east'):
-        rib = (yy % 2 == 1) & (yy > H * 0.25)
-        col[rib] = lerp(col[rib], (96, 82, 72), 0.35)
-    if face == 'south':  # visible spine knobs
-        col[(xx == W // 2) & (yy % 2 == 0)] = (84, 72, 64)
-    return col, a, None
-
-
-@P.mat('sternum')
-def sternum(c, face, W, H, r):
-    # the pale, greyish ribcage patch on the creature's chest
-    yy, xx = np.mgrid[0:H, 0:W]
-    n = noise2(H, W, r, 1.5)
-    col = lerp((120, 112, 104), (196, 190, 182), np.clip(n * 1.1, 0, 1))
-    col[(yy % 2 == 1)] = lerp(col[(yy % 2 == 1)], (70, 62, 58), 0.45)
-    edge = (xx == 0) | (xx == W - 1)
-    col[edge] = lerp(col[edge], MID, 0.6)
-    return col, np.ones((H, W)), None
-
-
-@P.mat('head')
-def head(c, face, W, H, r):
-    col, a, _ = skin(c, face, W, H, r, lo=(6, 5, 5), mid=(22, 18, 16), sheen=0.5)
-    if face == 'north':
-        # barely visible, sunken pinprick eyes
-        col[1, 0] = (52, 46, 40); col[1, W - 1] = (52, 46, 40)
-    return col, a, None
-
-
-@P.mat('jaw')
-def jaw(c, face, W, H, r):
-    col, a, _ = skin(c, face, W, H, r, lo=(6, 5, 5), mid=(20, 16, 14), sheen=0.4)
-    if face == 'north':
-        col[H - 1] = (90, 82, 70)
-        col[H - 1, ::2] = (20, 14, 12)
-    return col, a, None
-
-
-def straw(c, face, W, H, r, base=(176, 152, 112), dark=(120, 98, 68), weave=True):
-    yy, xx = np.mgrid[0:H, 0:W]
-    n = noise2(H, W, r, 1.7)
-    col = lerp(dark, base, np.clip(0.45 + (n - 0.5) * 1.2, 0, 1))
-    if weave:
-        k = ((xx + yy) % 3 == 0)
-        col[k] = lerp(col[k], dark, 0.35)
-        k2 = ((xx - yy) % 5 == 0)
-        col[k2] = lerp(col[k2], (214, 196, 160), 0.3)
-    return col
-
-
-@P.mat('hat_brim')
-def hat_brim(c, face, W, H, r):
-    col = straw(c, face, W, H, r)
-    a = np.ones((H, W))
-    if face in ('top', 'bottom'):
-        yy, xx = np.mgrid[0:H, 0:W]
-        # rounded silhouette - the three overlapping slabs form a disc
-        cx, cy = (W - 1) / 2, (H - 1) / 2
-        rad = np.hypot((xx - cx) / (W / 2), (yy - cy) / (H / 2))
-        a = (rad <= 1.04).astype(float)
-        rim = (rad > 0.86) & (rad <= 1.04)
-        col[rim] = lerp(col[rim], (132, 108, 74), 0.55)
-        if face == 'bottom':
-            col *= 0.55
-    return col, a, None
-
-
-@P.mat('hat_crown')
-def hat_crown(c, face, W, H, r):
-    col = straw(c, face, W, H, r, base=(190, 168, 128))
-    if face == 'top':
-        col = lerp(col, (120, 96, 64), 0.25)
-    return col, np.ones((H, W)), None
-
-
-@P.mat('hat_band')
-def hat_band(c, face, W, H, r):
-    n = noise2(H, W, r, 2)
-    col = lerp((22, 16, 14), (60, 44, 34), n)
-    return col, np.ones((H, W)), None
-
-
-@P.mat('shoe')
-def shoe(c, face, W, H, r):
-    yy, xx = np.mgrid[0:H, 0:W]
-    n = noise2(H, W, r, 2)
-    col = lerp((58, 40, 26), (122, 88, 56), np.clip(n * 1.2, 0, 1))
-    if face in ('west', 'east', 'north', 'south'):
-        col[-1:] = (30, 22, 16)
-    return col, np.ones((H, W)), None
+    G.bone(f'{side}_hand', f'{side}_fore', W, (-6, 0, 0))
+    G.box(f'{side}_hand', W + (-0.42, -3.3, -1.3), (0.84, 3.4, 2.65), 'skin_hand')
+    for i, dz in enumerate((-1.0, -0.33, 0.33, 1.0)):
+        G.rod(f'{side}_hand', W + (s * 0.4, -0.2, dz * 0.6), W + (s * 0.45, -3.3, dz), 0.3, 0.38, 'skin_bone')  # metacarpal ridges
+    tips = (2.3, 2.6, 2.5, 2.0)
+    for i, dz in enumerate((-1.05, -0.36, 0.36, 1.05)):
+        base = W + (0, -3.3, dz)
+        lens = (3.1 * tips[i] / 2.5, 2.7 * tips[i] / 2.5, 2.2 * tips[i] / 2.5)
+        par = f'{side}_hand'
+        p = base.copy()
+        for k, L in enumerate(lens):
+            bn = f'{side}_f{i}{"abc"[k]}'
+            G.bone(bn, par, p, ((-10 + i * 6.5) if k == 0 else 4, 0, 0))
+            G.box(bn, p + (-0.37, -0.45, -0.37), (0.74, 0.8, 0.74), 'knuckle')
+            G.vrod(bn, p, L, 0.5, 0.5, 'finger')
+            if k == 2:
+                G.vrod(bn, p + (0, -L, 0), 0.9, 0.36, 0.36, 'claw')
+                G.vrod(bn, p + (0, -L - 0.9, 0), 0.7, 0.2, 0.2, 'claw_tip')
+            par = bn
+            p = p + (0, -L, 0)
+    tb = W + (-s * 0.1, -1.6, -1.35)
+    G.bone(f'{side}_thumb_a', f'{side}_hand', tb, (-28, 0, s * 8))
+    G.box(f'{side}_thumb_a', tb + (-0.37, -0.4, -0.37), (0.74, 0.8, 0.74), 'knuckle')
+    G.vrod(f'{side}_thumb_a', tb, 2.4, 0.52, 0.52, 'finger')
+    tk = tb + (0, -2.4, 0)
+    G.bone(f'{side}_thumb_b', f'{side}_thumb_a', tk, (10, 0, 0))
+    G.box(f'{side}_thumb_b', tk + (-0.35, -0.4, -0.35), (0.7, 0.75, 0.7), 'knuckle')
+    G.vrod(f'{side}_thumb_b', tk, 1.9, 0.46, 0.46, 'finger')
+    G.vrod(f'{side}_thumb_b', tk + (0, -1.9, 0), 0.8, 0.34, 0.34, 'claw')
+    G.vrod(f'{side}_thumb_b', tk + (0, -2.7, 0), 0.6, 0.18, 0.18, 'claw_tip')

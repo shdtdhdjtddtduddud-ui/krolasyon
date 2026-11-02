@@ -1,0 +1,141 @@
+{
+  "hatman.ambient": {
+    "subtitle": "subtitles.krolasyonhorror.hatman.ambient",
+    "sounds": [
+      "krolasyonhorror:ambient1",
+      "krolasyonhorror:ambient2",
+      "krolasyonhorror:ambient3",
+      "krolasyonhorror:breath"
+    ]
+  },
+  "hatman.step": {
+    "subtitle": "subtitles.krolasyonhorror.hatman.step",
+    "sounds": [
+      "krolasyonhorror:step1",
+      "krolasyonhorror:step2",
+      "krolasyonhorror:step3"
+    ]
+  },
+  "hatman.hurt": {
+    "subtitle": "subtitles.krolasyonhorror.hatman.hurt",
+    "sounds": [
+      "krolasyonhorror:hurt1",
+      "krolasyonhorror:hurt2"
+    ]
+  },
+  "hatman.death": {
+    "subtitle": "subtitles.krolasyonhorror.hatman.death",
+    "sounds": [
+      "krolasyonhorror:death"
+    ]
+  },
+  "hatman.scream": {
+    "subtitle": "subtitles.krolasyonhorror.hatman.scream",
+    "sounds": [
+      "krolasyonhorror:scream"
+    ]
+  },
+  "hatman.swipe": {
+    "subtitle": "subtitles.krolasyonhorror.hatman.swipe",
+    "sounds": [
+      "krolasyonhorror:swipe"
+    ]
+  },
+  "hatman.hit": {
+    "subtitle": "subtitles.krolasyonhorror.hatman.hit",
+    "sounds": [
+      "krolasyonhorror:hit"
+    ]
+  },
+  "hatman.grab": {
+    "subtitle": "subtitles.krolasyonhorror.hatman.grab",
+    "sounds": [
+      "krolasyonhorror:grab"
+    ]
+  },
+  "hatman.leap": {
+    "subtitle": "subtitles.krolasyonhorror.hatman.leap",
+    "sounds": [
+      "krolasyonhorror:leap"
+    ]
+  },
+  "hatman.twitch": {
+    "subtitle": "subtitles.krolasyonhorror.hatman.twitch",
+    "sounds": [
+      "krolasyonhorror:twitch"
+    ]
+  },
+  "hatman.hat_tip": {
+    "subtitle": "subtitles.krolasyonhorror.hatman.hat_tip",
+    "sounds": [
+      "krolasyonhorror:hat_tip"
+    ]
+  },
+  "hatman.vanish": {
+    "subtitle": "subtitles.krolasyonhorror.hatman.vanish",
+    "sounds": [
+      "krolasyonhorror:vanish"
+    ]
+  },
+  "hatman.emerge": {
+    "subtitle": "subtitles.krolasyonhorror.hatman.emerge",
+    "sounds": [
+      "krolasyonhorror:emerge"
+    ]
+  },
+  "hatman.extinguish": {
+    "subtitle": "subtitles.krolasyonhorror.hatman.extinguish",
+    "sounds": [
+      "krolasyonhorror:extinguish"
+    ]
+  },
+  "fx.static": {
+    "subtitle": "subtitles.krolasyonhorror.fx.static",
+    "sounds": [
+      "krolasyonhorror:static1",
+      "krolasyonhorror:static2"
+    ]
+  },
+  "fx.heartbeat": {
+    "subtitle": "subtitles.krolasyonhorror.fx.heartbeat",
+    "sounds": [
+      "krolasyonhorror:heartbeat"
+    ]
+  },
+  "fx.jumpscare": {
+    "subtitle": "subtitles.krolasyonhorror.fx.jumpscare",
+    "sounds": [
+      "krolasyonhorror:jumpscare"
+    ]
+  },
+  "fx.knock": {
+    "subtitle": "subtitles.krolasyonhorror.fx.knock",
+    "sounds": [
+      "krolasyonhorror:knock"
+    ]
+  },
+  "fx.whisper": {
+    "subtitle": "subtitles.krolasyonhorror.fx.whisper",
+    "sounds": [
+      "krolasyonhorror:whisper"
+    ]
+  },
+  "fx.fake_step": {
+    "subtitle": "subtitles.krolasyonhorror.fx.fake_step",
+    "sounds": [
+      "krolasyonhorror:fake_step"
+    ]
+  },
+  "fx.drone": {
+    "subtitle": "subtitles.krolasyonhorror.fx.drone",
+    "sounds": [
+      "krolasyonhorror:drone"
+    ]
+  },
+  "fx.distant_call": {
+    "subtitle": "subtitles.krolasyonhorror.fx.distant_call",
+    "sounds": [
+      "krolasyonhorror:distant_call"
+    ]
+  }
+}
