@@ -33,9 +33,9 @@ w('lib/settings.glsl', r'''
 #define CONTRAST 1.08 // [0.9 1.0 1.08 1.15 1.25]
 #define COLOR_GRADE 1 // [0 1 2 3]
 #define VIGNETTE 1.0 // [0.0 0.5 1.0 1.5 2.0]
-#define FILM_GRAIN 0.6 // [0.0 0.3 0.6 1.0 1.5]
+#define FILM_GRAIN 0.3 // [0.0 0.15 0.3 0.6 1.0 1.5]
 #define VHS_EFFECT
-#define VHS_STRENGTH 1.0 // [0.5 1.0 1.5 2.0]
+#define VHS_STRENGTH 0.5 // [0.25 0.5 1.0 1.5 2.0]
 #define SCANLINES
 #define REC_OVERLAY
 ''')

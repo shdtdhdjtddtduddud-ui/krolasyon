@@ -94,10 +94,10 @@ public final class ClientFx {
             droneTimer = 170;
             play(ModSounds.DRONE.get(), 0.5F, 1.0F);
         }
-        if (intensity > 0.5F && --staticTimer <= 0) {
-            staticTimer = 60 + RNG.nextInt(120);
+        if (intensity > 0.8F && --staticTimer <= 0) {
+            staticTimer = 200 + RNG.nextInt(300);
             if (RNG.nextFloat() < intensity) {
-                flashTicks = Math.max(flashTicks, 5);
+                flashTicks = Math.max(flashTicks, 3);
                 play(ModSounds.STATIC.get(), 0.25F + intensity * 0.3F, 0.9F + RNG.nextFloat() * 0.2F);
             }
         }

@@ -78,13 +78,13 @@ public class TapeScreen extends Screen {
         RenderSystem.enableBlend();
         g.blit(Compat.id("textures/tape/" + frame + ".png"), x0 + jitter, y0, iw, ih, 0, 0, 320, 240, 320, 240);
         // tape noise
-        float sa = t < 12 ? 0.9F - t * 0.06F : 0.1F + (rng.nextInt(90) == 0 ? 0.5F : 0F);
+        float sa = t < 10 ? 0.45F - t * 0.04F : 0.05F + (rng.nextInt(150) == 0 ? 0.2F : 0F);
         g.setColor(1F, 1F, 1F, sa);
         g.blit(STATIC[rng.nextInt(4)], x0, y0, iw, ih, rng.nextInt(128), rng.nextInt(64), iw / 3, ih / 3, 256, 128);
         g.setColor(1F, 1F, 1F, 1F);
-        for (int y = y0; y < y0 + ih; y += 3) g.fill(x0, y, x0 + iw, y + 1, 0x22000000);
+        for (int y = y0; y < y0 + ih; y += 3) g.fill(x0, y, x0 + iw, y + 1, 0x12000000);
         int band = y0 + (t * 5) % (ih + 30) - 15;
-        g.fill(x0, band, x0 + iw, band + 4, 0x30FFFFFF);
+        g.fill(x0, band, x0 + iw, band + 3, 0x14FFFFFF);
         if (rng.nextInt(6) == 0) {
             int y = y0 + rng.nextInt(ih);
             g.fill(x0, y, x0 + iw, y + 1 + rng.nextInt(2), 0x40FFFFFF);

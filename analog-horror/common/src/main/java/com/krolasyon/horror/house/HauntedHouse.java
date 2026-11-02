@@ -90,33 +90,8 @@ public final class HauntedHouse {
         set(1, 1, 18, Blocks.CAMPFIRE.defaultBlockState().setValue(CampfireBlock.LIT, false).setValue(CampfireBlock.FACING, Direction.EAST));
         // storage: the fuse box
         set(16, 2, 1, f(ModBlocks.FUSE_BOX.get(), Direction.SOUTH).setValue(CounterBlock.FUSES, 0));
-        // notes
-        note(0, 11, 1, 20, false);
-        note(1, 4, 2, 1, false);
-        note(2, 13, 2, 1, false);
-        note(3, 4, 2, 17, true);
-        note(4, 17, 1, 9, false);
-        note(18, 6, 1, 10, false);
-        note(5, 16, 7, 15, false);
-        note(6, 2, 8, 10, false);
-        note(7, 9, 7, 13, false);
-        note(8, 4, 7, 16, false);
-        note(9, 14, 7, 9, false);
-        note(10, 18, 7, 9, false);
-        note(11, 13, 7, 3, false);
-        note(12, 19, 7, 2, false);
-        note(13, 2, 8, 2, false);
-        note(14, 5, 13, 6, false);
-        note(15, 15, 13, 6, false);
-        note(16, 13, 13, 8, false);
-        note(17, 7, 13, 15, false);
-        note(19, 12, 13, 18, false);
-        // pickups
-        set(4, 2, 6, item(ModItems.TAPE_BIRTHDAY, true));
-        set(16, 7, 8, item(ModItems.LIGHTER, false));
+        // notes and pickups appear chapter by chapter - see StoryProps
         set(2, 7, 2, b(Blocks.CHEST));
-        set(3, 7, 2, item(ModItems.ATTIC_KEY, false));
-        set(13, 13, 7, item(ModItems.EVICTION_NOTICE, false));
         // Mira's party room
         set(16, 7, 5, Blocks.SPRUCE_SLAB.defaultBlockState().setValue(SlabBlock.TYPE, SlabType.TOP));
         set(16, 8, 5, b(Blocks.CAKE));

@@ -37,11 +37,11 @@ public final class HorrorOverlay {
         }
 
         // vignette darkens toward the edges as it gets closer
-        g.setColor(1F, 1F, 1F, Math.min(1F, in * 0.9F));
+        g.setColor(1F, 1F, 1F, Math.min(0.6F, in * 0.55F));
         g.blit(VIGNETTE, 0, 0, w, h, 0, 0, 256, 256, 256, 256);
 
         // rolling static
-        float sa = Math.min(0.55F, Math.max(0F, in - 0.6F) * 0.35F + flash * 0.55F);
+        float sa = Math.min(0.28F, Math.max(0F, in - 0.85F) * 0.6F + flash * 0.3F);
         if (sa > 0.01F) {
             g.setColor(1F, 1F, 1F, sa);
             ResourceLocation tex = STATIC[RNG.nextInt(STATIC.length)];
@@ -51,16 +51,16 @@ public final class HorrorOverlay {
         g.setColor(1F, 1F, 1F, 1F);
 
         // scanlines
-        int sl = (int) (Math.min(1F, in + flash) * 38);
+        int sl = in > 0.5F || flash > 0 ? (int) (Math.min(1F, in + flash) * 14) : 0;
         if (sl > 2) for (int y = 0; y < h; y += 3) g.fill(0, y, w, y + 1, sl << 24);
 
         // tracking bands and horizontal tears
         long t = mc.level != null ? mc.level.getGameTime() : 0;
-        if (in > 0.55F || flash > 0) {
+        if (in > 0.8F || flash > 0.3F) {
             int band = (int) ((t * 7) % (h + 40)) - 20;
-            int ba = (int) (Math.min(1F, Math.max(0F, in - 0.55F) * 1.2F + flash) * 70);
+            int ba = (int) (Math.min(1F, Math.max(0F, in - 0.8F) + flash * 0.6F) * 35);
             g.fill(0, band, w, band + 6 + RNG.nextInt(6), (ba << 24) | 0xDDDDDD);
-            int tears = (int) (Math.max(0F, in - 0.6F) * 6 + flash * 5);
+            int tears = (int) (flash * 3);
             for (int i = 0; i < tears; i++) {
                 int y = RNG.nextInt(h), x = RNG.nextInt(w / 3);
                 g.fill(x, y, x + w / 2 + RNG.nextInt(w / 2), y + 1 + RNG.nextInt(2), (RNG.nextInt(80) + 40) << 24 | (RNG.nextBoolean() ? 0xFF3030 : 0x30C0FF));

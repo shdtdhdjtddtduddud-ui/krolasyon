@@ -71,6 +71,7 @@ public final class StoryDirector {
         s.candles = "";
         s.dials = new int[4];
         s.chapter = 0;
+        s.step = "intro";
         s.media = false;
         s.caughtTimer = 0;
         clearHatmen(l, s);
@@ -264,9 +265,11 @@ public final class StoryDirector {
     // ------------------------------------------------------------------ steps
     private static void enter(ServerPlayer p, StoryState s, String step) {
         ServerLevel l = p.serverLevel();
+        if (StoryProps.stage(step) < StoryProps.stage(s.step) && s.active && !step.startsWith("end")) step = s.step;
         s.step = step;
         s.stepTicks = 0;
         s.appSeen = 0;
+        StoryProps.sync(l, s);
         switch (step) {
             case "intro" -> {
                 cp(s, 10.5, 1, 20.5, 180F);
