@@ -48,32 +48,33 @@ def plaster(base, dark, size=32, grime=0.35):
     return mix(col, dark, grime * (noise(size, size, 10) > 0.62) * 0.6)
 
 
-def floral(size=32, base=(232, 218, 188), ink=(150, 96, 58), stain=0.0):
+def floral(size=64, base=(232, 218, 188), ink=(150, 96, 58), stain=0.0):
     img = Image.new('RGB', (size * 3, size * 3), base)
     d = ImageDraw.Draw(img)
     r = np.random.default_rng(4)
-    # half-drop repeat of small flower clusters
-    motifs = [(8, 6), (24, 22), (24, 6), (8, 22)]
+    # small sprigs on a half-drop grid, like old cottage wallpaper
+    motifs = [(8 + 16 * i, 6 + 16 * j + (8 if i % 2 else 0)) for i in range(size // 16) for j in range(size // 16)]
     for (mx, my) in motifs:
         for ox in range(3):
             for oy in range(3):
                 cx, cy = mx + ox * size, my + oy * size
-                for k in range(6):
-                    a = k / 6 * math.tau + (mx * 0.1)
-                    px, py = cx + math.cos(a) * 3.2, cy + math.sin(a) * 3.2
-                    d.ellipse((px - 1.6, py - 1.6, px + 1.6, py + 1.6), fill=tuple(int(c * (0.85 + 0.3 * r.random())) for c in ink))
-                d.ellipse((cx - 1.2, cy - 1.2, cx + 1.2, cy + 1.2), fill=(110, 70, 40))
-                for k in range(3):
+                for k in range(5):
+                    a = k / 5 * math.tau + mx * 0.3
+                    px, py = cx + math.cos(a) * 2.1, cy + math.sin(a) * 2.1
+                    c = tuple(int(v * (0.8 + 0.35 * r.random())) for v in ink)
+                    d.ellipse((px - 1.2, py - 1.2, px + 1.2, py + 1.2), fill=c)
+                d.point((cx, cy), fill=(96, 62, 34))
+                for k in range(2):
                     a = r.random() * math.tau
-                    d.line((cx + math.cos(a) * 4, cy + math.sin(a) * 4, cx + math.cos(a) * 7, cy + math.sin(a) * 7), fill=(170, 140, 100))
-    img = img.crop((size, size, 2 * size, 2 * size)).filter(ImageFilter.GaussianBlur(0.35))
+                    d.line((cx + math.cos(a) * 3, cy + math.sin(a) * 3, cx + math.cos(a) * 5.5, cy + math.sin(a) * 5.5), fill=(150, 136, 96))
+    img = img.crop((size, size, 2 * size, 2 * size)).filter(ImageFilter.GaussianBlur(0.3))
     col = np.asarray(img).astype(np.float32)
-    col = mix(col, (200, 182, 150), noise(size, size, 5) * 0.35)
-    col[:, ::8] = mix(col[:, ::8], (205, 188, 156), 0.25)       # faint stripes
+    col = mix(col, (204, 186, 154), noise(size, size, 10) * 0.35)
+    col[:, ::16] = mix(col[:, ::16], (210, 192, 160), 0.2)
     if stain:
-        st = noise(size, size, 8, 3, seed=7)
+        st = noise(size, size, 16, 3, seed=7)
         col = mix(col, (150, 118, 72), np.clip((st - 0.55) * 4, 0, 1) * stain)
-        col = col * (0.82 + 0.18 * noise(size, size, 4))[..., None]
+        col = col * (0.82 + 0.18 * noise(size, size, 8))[..., None]
     return col
 
 
@@ -90,14 +91,14 @@ def fuzz(base, dark, size=32, dirt=0.0, seed=1):
     n = noise(size, size, 4, 3, seed=seed)
     col = mix(dark, base, 0.6 + (n - 0.5) * 0.7 + (r.random((size, size)) - 0.5) * 0.25)
     if dirt:
-        sp = r.random((size, size)) < 0.06 * dirt
-        col[sp] = mix(col[sp], (40, 26, 18), 0.7)
-        bl = noise(size, size, 7, 2, seed=seed + 5) > 0.68
-        col[bl] = mix(col[bl], (58, 36, 24), 0.5)
+        sp = r.random((size, size)) < 0.05 * dirt
+        col[sp] = mix(col[sp], (40, 26, 18), 0.6)
+        bl = noise(size, size, 5, 2, seed=seed + 5)
+        col = mix(col, (70, 48, 34), np.clip((bl - 0.62) * 4, 0, 1) * 0.35 * dirt)
     return col
 
 
-save('carpet_brown_dirty', fuzz((112, 64, 46), (70, 40, 30), dirt=1.0, seed=3))
+save('carpet_brown_dirty', fuzz((96, 60, 44), (66, 40, 30), dirt=0.45, seed=3))
 save('carpet_beige', fuzz((206, 180, 136), (176, 150, 110), dirt=0.12, seed=4))
 
 # persian rug field + border

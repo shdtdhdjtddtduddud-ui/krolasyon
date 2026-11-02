@@ -265,7 +265,7 @@ public final class AutoTest {
         shot(H + 255, "house_landing");
         span(H + 261, H + 320, c -> cam(c, 70.5, -54, 10.4, 180, 3));
         shot(H + 315, "house_hall_upper");
-        at(H + 321, c -> cmd(c, "summon krolasyonhorror:hatman 70.5 -54 -5.0 {NoAI:1b,PersistenceRequired:1b,Rotation:[0f,0f]}"));
+        at(H + 321, c -> cmd(c, "summon krolasyonhorror:hatman 70.5 -54 -2.4 {NoAI:1b,PersistenceRequired:1b,Rotation:[0f,0f]}"));
         at(H + 324, c -> { HatmanEntity h = hat(c); if (h != null) h.debugState(HatmanEntity.FROZEN, 0); });
         span(H + 321, H + 380, c -> cam(c, 70.5, -54, 10.4, 180, 3));
         shot(H + 375, "house_hatman_upper");
