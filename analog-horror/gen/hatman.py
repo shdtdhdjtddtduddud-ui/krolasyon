@@ -45,17 +45,18 @@ for i in range(3):
 for s in (-1, 1):
     G.rod('neck', (s * 0.75, 46.9, -0.9), (s * 0.3, 49.4, -0.5), 0.4, 0.4, 'skin_joint')
 
-G.bone('head', 'neck', (0, 49.4, -0.2), (-48, 0, 0))
-G.box('head', (-1.6, 50.3, -1.9), (3.2, 2.9, 3.6), 'skull')
-G.box('head', (-1.3, 49.5, -2.45), (2.6, 1.8, 0.8), 'face')
-G.box('head', (-1.4, 51.75, -2.25), (2.8, 0.5, 0.6), 'skull')                                   # brow ridge
-G.box('head', (-1.0, 48.95, -2.6), (2.0, 0.85, 2.3), 'jaw', pivot=(0, 49.6, -0.3), rot=(10, 0, 0))
+G.bone('head', 'neck', (0, 49.4, -0.2))          # look bone - GeckoLib overwrites its rotation with the head yaw/pitch
+G.bone('skull', 'head', (0, 49.4, -0.2), (-48, 0, 0))
+G.box('skull', (-1.6, 50.3, -1.9), (3.2, 2.9, 3.6), 'skull')
+G.box('skull', (-1.3, 49.5, -2.45), (2.6, 1.8, 0.8), 'face')
+G.box('skull', (-1.4, 51.75, -2.25), (2.8, 0.5, 0.6), 'skull')                                   # brow ridge
+G.box('skull', (-1.0, 48.95, -2.6), (2.0, 0.85, 2.3), 'jaw', pivot=(0, 49.6, -0.3), rot=(10, 0, 0))
 for s in (-1, 1):
-    G.box('head', (s * 1.45 - 0.3, 50.6, -2.05), (0.6, 0.55, 1.3), 'skull')                      # cheekbones
-G.box('head', (-1.2, 50.8, 1.6), (2.4, 2.0, 0.5), 'skull')                                      # back bump
+    G.box('skull', (s * 1.45 - 0.3, 50.6, -2.05), (0.6, 0.55, 1.3), 'skull')                      # cheekbones
+G.box('skull', (-1.2, 50.8, 1.6), (2.4, 2.0, 0.5), 'skull')                                      # back bump
 
 # hat: straw sun hat, octagonal crown, 16-slab drooping brim with rolled rim
-G.bone('hat', 'head', (0, 52.6, -0.1), (-6, 0, 7))
+G.bone('hat', 'skull', (0, 52.6, -0.1), (-6, 0, 7))
 HY = 52.55
 G.box('hat', (-2.3, HY, -2.4), (4.6, 2.7, 4.6), 'straw')
 G.box('hat', (-2.3, HY, -2.4), (4.6, 2.64, 4.6), 'straw', pivot=(0, HY, -0.1), rot=(0, 45, 0))

@@ -54,7 +54,7 @@ def seq(name, length, frames, loop=False, interp='catmullrom', pos=None):
         names |= set(d)
     for b in sorted(names):
         for t, d in frames:
-            a.key(b, 'rotation', t, d.get(b, (0, 0, 0)), interp)
+            a.key('skull' if b == 'head' else b, 'rotation', t, d.get(b, (0, 0, 0)), interp)
     for b, keys in (pos or {}).items():
         for k in keys:
             a.key(b, 'position', k[0], k[1], k[2] if len(k) > 2 else interp)

@@ -37,7 +37,7 @@ public final class AutoTest {
     private int tick, inWorld = -1;
     private boolean worldRequested;
     private final List<Cue> cues = new ArrayList<>();
-    private static final int[] LIGHTS_Z = {1, -7, -15, -23, -31, -39};
+    private static final int[] LIGHTS_Z = {1, -3, -7, -11, -15, -19, -23, -27, -31, -35, -39, -43};
 
     record Cue(int at, int until, String shot, Consumer<Ctx> fn) {}
 
@@ -65,7 +65,7 @@ public final class AutoTest {
     }
 
     private static HatmanEntity hat(Ctx c) {
-        List<HatmanEntity> l = c.level().getEntitiesOfClass(HatmanEntity.class, new AABB(-200, -80, -200, 200, 40, 200));
+        List<HatmanEntity> l = c.level().getEntitiesOfClass(HatmanEntity.class, new AABB(-200, -80, -200, 200, 40, 200), e -> e.isAlive() && !e.isRemoved());
         return l.isEmpty() ? null : l.get(0);
     }
 
@@ -75,6 +75,11 @@ public final class AutoTest {
         h.moveTo(x, -60, z, yaw, 0);
         h.setYHeadRot(yaw);
         h.setYBodyRot(yaw);
+    }
+
+    private static void clear(Ctx c) {
+        for (HatmanEntity h : c.level().getEntitiesOfClass(HatmanEntity.class, new AABB(-200, -80, -200, 200, 40, 200))) h.discard();
+        cmd(c, "kill @e[type=item]");
     }
 
     private static void sound(Ctx c, SoundEvent s, double z, float vol) {
@@ -101,7 +106,6 @@ public final class AutoTest {
                     "fill -3 -60 -48 3 -57 -48 minecraft:white_concrete", "fill -3 -60 5 3 -57 5 minecraft:white_concrete",
                     "fill -3 -56 -48 3 -56 5 minecraft:white_wool",
                     "fill -9 -61 -17 -3 -56 -8 minecraft:white_concrete hollow",
-                    "fill 2 -60 -48 2 -60 4 minecraft:smooth_quartz_slab", "fill -2 -60 -48 -2 -60 4 minecraft:smooth_quartz_slab",
                     "setblock -3 -60 -12 minecraft:oak_door[facing=east,half=lower]", "setblock -3 -59 -12 minecraft:oak_door[facing=east,half=upper]",
                     "setblock 3 -60 -27 minecraft:oak_door[facing=west,half=lower]", "setblock 3 -59 -27 minecraft:oak_door[facing=west,half=upper]",
                     "setblock 0 -60 -47 minecraft:oak_door[facing=south,half=lower]", "setblock 0 -59 -47 minecraft:oak_door[facing=south,half=upper]",
@@ -130,6 +134,7 @@ public final class AutoTest {
         at(345, c -> { HatmanEntity h = hat(c); if (h != null) { h.debugCrawl(false); h.debugState(HatmanEntity.HUNT, 100); } });
         span(345, 380, c -> place(c, 0.5, 24 + (c.t() - 345) * 0.25, 0));
         span(345, 380, c -> cam(c, 6.5, -59.5, 28.0, 120, 5));
+        span(381, 440, c -> cam(c, 6.5, -59.0, 32.75, 90, 12));
         shot(368, "model_run");
         at(390, c -> cmd(c, "kill @e[type=krolasyonhorror:hatman]"));
         shot(420, "model_death");
@@ -154,7 +159,7 @@ public final class AutoTest {
             cmd(c, "setblock -3 -60 -12 minecraft:oak_door[facing=east,half=lower,open=true]", "setblock -3 -59 -12 minecraft:oak_door[facing=east,half=upper,open=true]");
             HatmanEntity h = hat(c);
             if (h != null) h.debugState(HatmanEntity.PEEK, 0);
-            place(c, -4.2, -11.5, -90);
+            place(c, -3.6, -11.5, 0);
         });
         span(T, T + 170, c -> cam(c, 1.2, -60, -2.0 - c.local() * 0.01, 165, 2));
         shot(T + 100, "c_peek");
@@ -176,7 +181,7 @@ public final class AutoTest {
         at(T + 30, c -> {
             HatmanEntity h = hat(c);
             if (h != null) h.debugState(HatmanEntity.FROZEN, 0);
-            place(c, 0.4, -8.5, 10);
+            place(c, 0.4, -6.5, 10);
             lights(c, true, LIGHTS_Z);
         });
         span(T + 30, T + 190, c -> cam(c, 0.5, -60, 1.5 - c.local() * 0.006, 180, 3));
@@ -192,11 +197,11 @@ public final class AutoTest {
         T += 100;   // scream and charge
         at(T, c -> { scene("scream"); HatmanEntity h = hat(c); if (h != null) { h.debugState(HatmanEntity.HUNT, 100); h.debugAction("scream"); } sound(c, ModSounds.SCREAM.get(), -8, 2F); });
         shot(T + 14, "c_scream");
-        span(T + 46, T + 66, c -> place(c, 0.4, -8.5 + c.local() * 0.38, 0));
+        span(T + 46, T + 66, c -> place(c, 0.4, -6.5 + c.local() * 0.30, 0));
         span(T, T + 70, c -> cam(c, 0.5, -60, 0.3, 180, 3));
         at(T + 62, c -> ClientFx.debugJumpscare());
         shot(T + 64, "c_jumpscare");
-        at(T + 70, c -> { lights(c, false, LIGHTS_Z); cmd(c, "kill @e[type=krolasyonhorror:hatman]", "tp @e[type=item] 0 -200 0"); });
+        at(T + 70, c -> { lights(c, false, LIGHTS_Z); clear(c); });
 
         T += 110;   // it crawls
         at(T, c -> {
@@ -208,7 +213,7 @@ public final class AutoTest {
         span(T + 2, T + 160, c -> place(c, 0.5, -32.5 + c.local() * 0.13, 0));
         span(T, T + 160, c -> cam(c, 0.5, -60, 2.0, 180, 8));
         shot(T + 110, "c_crawl");
-        at(T + 160, c -> cmd(c, "kill @e[type=krolasyonhorror:hatman]", "tp @e[type=item] 0 -200 0"));
+        at(T + 160, c -> clear(c));
 
         T += 180;   // it rises from the floor
         at(T, c -> {
@@ -219,7 +224,7 @@ public final class AutoTest {
         at(T + 62, c -> { HatmanEntity h = hat(c); if (h != null) h.debugState(HatmanEntity.STALK, 0); });
         span(T, T + 90, c -> cam(c, 0.5, -60, 0.0, 180, 6));
         shot(T + 30, "c_emerge");
-        at(T + 90, c -> { scene("end_cinematic"); cmd(c, "kill @e[type=krolasyonhorror:hatman]", "tp @e[type=item] 0 -200 0"); });
+        at(T + 90, c -> { scene("end_cinematic"); clear(c); });
 
         // ------------------------------------------------ live AI outdoors at night
         T += 110;
@@ -246,6 +251,9 @@ public final class AutoTest {
     }
 
     @SubscribeEvent
+    public void hideHud(net.minecraftforge.client.event.RenderGuiOverlayEvent.Pre e) { e.setCanceled(true); }
+
+    @SubscribeEvent
     public void onTick(TickEvent.ClientTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         Minecraft mc = Minecraft.getInstance();
@@ -262,7 +270,7 @@ public final class AutoTest {
         }
         if (mc.level == null || mc.player == null || mc.getSingleplayerServer() == null) return;
         if (mc.screen != null) mc.setScreen(null);
-        mc.options.hideGui = true;
+        mc.options.hideGui = false;   // vanilla HUD is cancelled below, the mod's VHS overlay stays visible
         if (inWorld < 0) {
             inWorld = tick + 80;
             LOG.info("[AUTOTEST] in world {}", System.currentTimeMillis());

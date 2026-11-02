@@ -53,7 +53,7 @@ jobs:
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq xvfb libgl1-mesa-dri libglx-mesa0 mesa-utils ffmpeg > /dev/null
           mkdir -p run
-          printf "onboardAccessibility:false\nrenderDistance:6\nsimulationDistance:6\npauseOnLostFocus:false\ntutorialStep:none\njoinedFirstServer:true\nskipMultiplayerWarning:true\nmaxFps:60\nfov:-0.2\ngamma:0.4\nsoundCategory_master:0.0\n" > run/options.txt
+          printf "onboardAccessibility:false\nrenderDistance:6\nsimulationDistance:6\npauseOnLostFocus:false\ntutorialStep:none\njoinedFirstServer:true\nskipMultiplayerWarning:true\nmaxFps:60\nfov:-0.2\ngamma:1.0\nsoundCategory_master:0.0\n" > run/options.txt
           Xvfb :99 -screen 0 1280x720x24 > /dev/null 2>&1 &
           export DISPLAY=:99
           sleep 2
