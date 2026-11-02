@@ -130,7 +130,7 @@ jobs:
           pactl set-default-sink rec || true
           pactl info | head -20 || true
           mkdir -p run
-          printf "onboardAccessibility:false\nrenderDistance:7\nsimulationDistance:6\npauseOnLostFocus:false\ntutorialStep:none\njoinedFirstServer:true\nskipMultiplayerWarning:true\nmaxFps:60\nfov:0.0\ngamma:0.5\nsoundCategory_master:1.0\nsoundCategory_music:0.0\nshowSubtitles:false\n" > run/options.txt
+          printf "onboardAccessibility:false\nrenderDistance:7\nsimulationDistance:6\npauseOnLostFocus:false\ntutorialStep:none\njoinedFirstServer:true\nskipMultiplayerWarning:true\nmaxFps:60\nfov:0.0\ngamma:1.0\nsoundCategory_master:1.0\nsoundCategory_music:0.0\nshowSubtitles:false\n" > run/options.txt
           Xvfb :99 -screen 0 1280x720x24 > /dev/null 2>&1 &
           export DISPLAY=:99
           sleep 2

@@ -32,13 +32,24 @@ public class CreditsScreen extends Screen {
     @Override
     public boolean isPauseScreen() { return false; }
 
-    @Override
-    public void onClose() {
+    private void report() {
         if (!done) {
             done = true;
             StoryBridge.TO_SERVER.add(StoryBridge.Msg.of("credits_done"));
         }
+    }
+
+    @Override
+    public void onClose() {
+        report();
         super.onClose();
+    }
+
+    /** however the screen goes away (ESC, end of tape, replaced by another screen) the story must hear about it */
+    @Override
+    public void removed() {
+        report();
+        super.removed();
     }
 
     @Override
