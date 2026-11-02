@@ -319,7 +319,7 @@ public final class StoryDirector {
                 cp(s, 3.5, 7, 4.5, 180F);
                 objective(p, s, "escape_attic", -1);
                 List<HatmanEntity> hs = hatmen(l, s);
-                HatmanEntity h = hs.isEmpty() ? spawn(l, s, 10.5, 7, 12.5, 180F) : hs.get(0);
+                HatmanEntity h = hs.isEmpty() ? spawn(l, s, 15.5, 7, 18.5, 90F) : hs.get(0);
                 if (h != null) h.storyHunt(p);
             }
             case "ch4_start" -> {
@@ -463,14 +463,14 @@ public final class StoryDirector {
             }
             case "ch3_escape" -> {
                 if (hatmen(l, s).isEmpty() && --s.respawnTimer <= 0) {
-                    HatmanEntity h = spawn(l, s, 10.5, 7, 12.5, 180F);
+                    HatmanEntity h = spawn(l, s, 15.5, 7, 18.5, 90F);
                     if (h != null) h.storyHunt(p);
                 }
                 if (p.getY() - s.origin.getY() >= 12.5) enter(p, s, "ch4_start");
             }
             case "ch4_chase" -> {
                 if (s.stepTicks == 40 || hatmen(l, s).isEmpty() && s.stepTicks > 40 && --s.respawnTimer <= 0) {
-                    HatmanEntity h = spawn(l, s, 10.5, 13, 2.5, 0F);
+                    HatmanEntity h = spawn(l, s, 10.5, 13, 20.5, 180F);
                     if (h != null) h.storyHunt(p);
                 }
                 if (in(p, s, 1, 1, 13, 7, 4, 21)) enter(p, s, "ch5_start");

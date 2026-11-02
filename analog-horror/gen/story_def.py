@@ -75,7 +75,7 @@ MESSAGES = {
     'chapter': ('CHAPTER %s', 'BÖLÜM %s'),
     'new_objective': ('NEW OBJECTIVE', 'YENİ GÖREV'),
     'tape_label': ('CH 13', 'KANAL 13'),
-    'skip': ('Hold [ESC] to skip', 'Atlamak için [ESC]'),
+    'skip': ('[ESC] to skip', 'Atlamak için [ESC]'),
     'story_done': ('Thank you for playing.', 'Oynadığın için teşekkürler.'),
 }
 

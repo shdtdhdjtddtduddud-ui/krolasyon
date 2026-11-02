@@ -116,7 +116,7 @@
   "msg.krolasyonhorror.chapter": "CHAPTER %s",
   "msg.krolasyonhorror.new_objective": "NEW OBJECTIVE",
   "msg.krolasyonhorror.tape_label": "CH 13",
-  "msg.krolasyonhorror.skip": "Hold [ESC] to skip",
+  "msg.krolasyonhorror.skip": "[ESC] to skip",
   "msg.krolasyonhorror.story_done": "Thank you for playing.",
   "item.krolasyonhorror.tape_birthday": "VHS Tape — \"Mira, Oct 31\"",
   "item.krolasyonhorror.tape_party": "VHS Tape — \"PARTY!!\"",
