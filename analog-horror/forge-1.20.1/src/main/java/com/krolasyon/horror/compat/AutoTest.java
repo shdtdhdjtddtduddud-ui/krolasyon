@@ -545,7 +545,7 @@ public final class AutoTest {
         go(40, 5.5, 1, 19.5, 180, 0, 2.6, 1, 18.5, 90, 30);
         at(T, c -> scene("p_ending"));
         use(1, 1, 18, -1);
-        wait(10 + len("end_evict") + 780);
+        idle(10 + len("end_evict") + 780);
         at(T, c -> scene("p_end"));
         at(T + 40, c -> LOG.info("[AUTOTEST] finished"));
         shot(T + 41, "END");
