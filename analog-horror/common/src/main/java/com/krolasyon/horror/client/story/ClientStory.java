@@ -146,6 +146,11 @@ public final class ClientStory {
         if (report) StoryBridge.TO_SERVER.add(Msg.of("cs_done", id));
     }
 
+    /** ends the running cutscene early (used by the scripted capture) */
+    public static void debugSkipCutscene() {
+        if (cutscene != null) endCutscene(true);
+    }
+
     static StoryData.Line currentLine() {
         if (cutscene == null) return null;
         for (StoryData.Line l : cutscene.lines()) if (csTick >= l.start() && csTick < l.start() + l.dur()) return l;

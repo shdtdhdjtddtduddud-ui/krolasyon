@@ -554,6 +554,47 @@ public final class StoryDirector {
         if (fs.getBlock() instanceof CampfireBlock) l.setBlock(fp, fs.setValue(CampfireBlock.LIT, true), 3);
     }
 
+    // ------------------------------------------------------------------ scripted playthrough support (CI capture only)
+    /** uses the block at a house-local position as the player would, optionally holding a story item and sneaking */
+    public static void debugUse(ServerPlayer p, int lx, int ly, int lz, int heldItem, boolean sneak) {
+        StoryState s = StoryState.get(p);
+        if (!s.active) return;
+        ServerLevel l = p.serverLevel();
+        if (heldItem >= 0) {
+            var inv = p.getInventory();
+            for (int i = 0; i < inv.getContainerSize(); i++) {
+                if (inv.getItem(i).getItem() == ModItems.STORY[heldItem].get()) {
+                    ItemStack cur = inv.getItem(inv.selected);
+                    inv.setItem(inv.selected, inv.getItem(i));
+                    if (i != inv.selected) inv.setItem(i, cur);
+                    break;
+                }
+            }
+        }
+        BlockPos pos = s.at(lx, ly, lz);
+        BlockState st = l.getBlockState(pos);
+        p.setShiftKeyDown(sneak);
+        boolean used = !s.media && s.caughtTimer == 0 && interact(p, s, l, pos, st, st.getBlock(), p.getMainHandItem());
+        p.setShiftKeyDown(false);
+        if (!used && st.getBlock() instanceof DoorBlock) {
+            BlockPos low = st.getValue(DoorBlock.HALF) == net.minecraft.world.level.block.state.properties.DoubleBlockHalf.UPPER ? pos.below() : pos;
+            boolean open = !l.getBlockState(low).getValue(DoorBlock.OPEN);
+            setDoor(l, s, low.getX() - s.origin.getX(), low.getY() - s.origin.getY(), low.getZ() - s.origin.getZ(), open);
+            l.playSound(null, low, open ? net.minecraft.sounds.SoundEvents.WOODEN_DOOR_OPEN : net.minecraft.sounds.SoundEvents.WOODEN_DOOR_CLOSE,
+                    SoundSource.BLOCKS, 1F, 1F);
+        }
+    }
+
+    public static void debugEnter(ServerPlayer p, String step) {
+        StoryState s = StoryState.get(p);
+        if (!s.active) return;
+        s.media = false;
+        s.caughtTimer = 0;
+        enter(p, s, step);
+    }
+
+    public static String debugStep(ServerPlayer p) { return StoryState.get(p).step; }
+
     // ------------------------------------------------------------------ events
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent e) {

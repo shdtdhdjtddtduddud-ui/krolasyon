@@ -96,7 +96,13 @@ public final class AutoTest {
         LOG.info("[AUTOTEST] SCENE {} {}", name, System.currentTimeMillis());
     }
 
+    private static final boolean PLAY = Boolean.getBoolean("krolasyon.playthrough");
+
     private AutoTest() {
+        if (PLAY) {
+            playthrough();
+            return;
+        }
         // ------------------------------------------------ build the hallway
         at(0, c -> {
             scene("build");
@@ -320,8 +326,236 @@ public final class AutoTest {
         shot(S + 3241, "END");
     }
 
+    // =============================================================== scripted story playthrough (gameplay video)
+    private static final int OX = 20, OY = -60, OZ = 50;
+    private int T;
+
+    private static net.minecraft.server.level.ServerPlayer pl(Ctx c) { return c.server().getPlayerList().getPlayers().get(0); }
+
+    /** smooth move of the player between two house-local poses */
+    private void go(int ticks, double x0, double y0, double z0, float yaw0, float p0, double x1, double y1, double z1, float yaw1, float p1) {
+        int from = T, to = T + ticks;
+        span(from, to, c -> {
+            double u = (c.t() - from) / (double) Math.max(1, to - from);
+            u = u * u * (3 - 2 * u);
+            float yaw = yaw0 + net.minecraft.util.Mth.wrapDegrees(yaw1 - yaw0) * (float) u;
+            cam(c, OX + x0 + (x1 - x0) * u, OY + y0 + (y1 - y0) * u, OZ + z0 + (z1 - z0) * u, yaw, (float) (p0 + (p1 - p0) * u));
+        });
+        T = to + 1;
+    }
+
+    private void hold(int ticks, double x, double y, double z, float yaw, float p) { go(ticks, x, y, z, yaw, p, x, y, z, yaw, p); }
+
+    private void use(int x, int y, int z, int item) { useAt(T, x, y, z, item, false); }
+
+    private void useAt(int t, int x, int y, int z, int item, boolean sneak) {
+        at(t, c -> com.krolasyon.horror.story.StoryDirector.debugUse(pl(c), x, y, z, item, sneak));
+    }
+
+    private void idle(int ticks) { T += ticks; }
+
+    private void note(int n, int ticks) {
+        client(T, () -> {
+            com.krolasyon.horror.story.StoryBridge.OPEN_NOTE.accept(n);
+            com.krolasyon.horror.story.StoryBridge.TO_SERVER.add(com.krolasyon.horror.story.StoryBridge.Msg.of("note", "", n));
+        });
+        client(T + ticks, () -> Minecraft.getInstance().setScreen(null));
+        T += ticks + 5;
+    }
+
+    private void closeScreenAt(int t) { client(t, () -> Minecraft.getInstance().setScreen(null)); }
+
+    private static int len(String cutscene) { return com.krolasyon.horror.story.StoryData.CUTSCENES.get(cutscene).length(); }
+
+    private void playthrough() {
+        final int TAPE1 = 0, TAPE3 = 1, STAIRKEY = 4, ATTICKEY = 5, LIGHTER = 6;
+        T = 0;
+        at(0, c -> {
+            scene("p_exterior");
+            cmd(c, "gamerule doDaylightCycle false", "gamerule doWeatherCycle false", "gamerule doMobSpawning false", "gamerule sendCommandFeedback false",
+                    "difficulty normal", "time set 18000", "weather thunder", "kill @e[type=!player]", "gamemode spectator @a", "tp @a 30.5 -45 110 180 20");
+        });
+        at(5, c -> com.krolasyon.horror.house.HauntedHouse.buildStory(c.level(), new net.minecraft.core.BlockPos(OX, OY, OZ)));
+        T = 60;
+        // slow orbit around the house, then down the front path
+        int o0 = T, o1 = T + 360;
+        span(o0, o1, c -> {
+            double u = (c.t() - o0) / (double) (o1 - o0);
+            double ang = Math.toRadians(-60 + 140 * u);
+            double cx = OX + 10, cz = OZ + 12, r = 38;
+            double x = cx + Math.sin(ang) * r, z = cz + Math.cos(ang) * r;
+            float yaw = (float) Math.toDegrees(Math.atan2(-(cx - x), cz - z));
+            cam(c, x, OY + 12 - 4 * u, z, yaw, 12);
+        });
+        T = o1 + 1;
+        go(200, 10.5, 4, 54, 180, 6, 10.5, 2.4, 33, 180, 0);
+        // ------------------------------------------------ start the story (intro cutscene)
+        at(T, c -> {
+            scene("p_story");
+            cmd(c, "gamemode survival @a", "tp @a 30.5 -60 80.5 180 0");
+        });
+        at(T + 5, c -> com.krolasyon.horror.story.StoryDirector.start(pl(c)));
+        T += 10 + len("intro") + 30;
+        hold(130, 10.5, 1, 20.5, 180, 0);
+        // ------------------------------------------------ chapter 1
+        at(T, c -> scene("p_ch1"));
+        go(90, 10.5, 1, 20.5, 180, 0, 10.5, 1, 9.5, 180, 0);
+        go(20, 10.5, 1, 9.5, 180, 0, 9.6, 1, 8.5, 90, 0);
+        use(8, 1, 8, -1);
+        idle(15);
+        go(50, 9.6, 1, 8.5, 90, 0, 5.6, 1, 7.6, 135, 38);
+        use(4, 2, 6, -1);
+        idle(40);
+        note(1, 130);
+        go(40, 5.6, 1, 7.6, 135, 20, 9.6, 1, 8.6, 0, 0);
+        go(60, 9.6, 1, 8.6, 0, 0, 9.6, 1, 17.5, 90, 0);
+        use(8, 1, 17, -1);
+        idle(15);
+        go(50, 9.6, 1, 17.5, 90, 0, 5.0, 1, 16.2, 170, 14);
+        at(T, c -> scene("p_tape1"));
+        useAt(T, 5, 1, 13, TAPE1, false);
+        closeScreenAt(T + 420);
+        idle(440);
+        go(40, 5.0, 1, 16.2, 170, 0, 9.6, 1, 17.5, 270, 0);
+        go(60, 9.6, 1, 17.5, 270, 0, 10.5, 1, 11.5, 180, 0);
+        at(T, c -> scene("p_apparition"));
+        hold(110, 10.5, 1, 11.5, 180, 2);
+        go(40, 10.5, 1, 11.5, 180, 0, 11.2, 1, 8.5, 270, 0);
+        go(50, 11.2, 1, 8.5, 270, 0, 14.5, 1, 5.5, 160, 30);
+        use(13, 1, 1, -1);
+        idle(30);
+        note(2, 120);
+        go(50, 14.5, 1, 5.5, 160, 0, 11.2, 1, 8.5, 0, 0);
+        go(50, 11.2, 1, 8.5, 0, 0, 10.6, 1, 16.5, 270, 0);
+        use(12, 1, 16, STAIRKEY);
+        idle(20);
+        go(40, 10.6, 1, 16.5, 270, 0, 14.5, 1, 16.5, 270, 0);
+        // ------------------------------------------------ chapter 2
+        at(T, c -> scene("p_ch2"));
+        T += len("upstairs") + 170;
+        go(40, 14.5, 1, 16.5, 270, 0, 17.6, 1, 20.6, 0, 0);
+        go(20, 17.6, 1, 20.6, 0, 0, 18.5, 1.6, 21.3, 180, -10);
+        go(70, 18.5, 1.6, 21.3, 180, -10, 18.5, 7.0, 16.3, 180, 0);
+        go(40, 18.5, 7, 16.3, 180, 0, 15.6, 7, 15.8, 150, -25);
+        use(14, 8, 14, -1);
+        idle(25);
+        hold(20, 15.6, 7, 15.8, 150, 40);
+        use(14, 7, 14, -1);
+        idle(20);
+        note(5, 140);
+        go(40, 15.6, 7, 15.8, 150, 0, 13.6, 7, 20.5, 90, 0);
+        go(40, 13.6, 7, 20.5, 90, 0, 10.5, 7, 20.5, 180, 0);
+        go(50, 10.5, 7, 20.5, 180, 0, 10.5, 7, 16.5, 90, 5);
+        use(9, 8, 16, -1);
+        idle(30);
+        go(40, 10.5, 7, 16.5, 90, 0, 9.7, 7, 19.5, 90, 0);
+        useAt(T, 8, 7, 19, -1, true);
+        useAt(T + 12, 8, 7, 19, -1, true);
+        useAt(T + 24, 8, 7, 19, -1, true);
+        hold(90, 9.7, 7, 19.5, 90, 0);
+        go(40, 9.7, 7, 19.5, 90, 0, 6.5, 7, 19.3, 0, 35);
+        use(6, 7, 20, -1);
+        idle(30);
+        at(T, c -> scene("p_fusebox"));
+        hold(30, 16.5, 1, 3.6, 180, 12);
+        use(16, 2, 1, -1);
+        useAt(T + 20, 16, 2, 1, -1, false);
+        useAt(T + 40, 16, 2, 1, -1, false);
+        idle(50);
+        T += len("power_on") + 20;
+        at(T, c -> scene("p_tape2"));
+        hold(10, 9.6, 1, 17.5, 90, 0);
+        go(40, 9.6, 1, 17.5, 90, 0, 5.5, 1, 16.5, 170, 10);
+        closeScreenAt(T + 560);
+        idle(580);
+        // never look away
+        at(T, c -> scene("p_lookaway"));
+        hold(10, 14.5, 7, 20.5, 90, 0);
+        go(40, 14.5, 7, 20.5, 90, 0, 10.5, 7, 20.0, 180, 0);
+        hold(100, 10.5, 7, 20.0, 180, 2);
+        go(15, 10.5, 7, 20.0, 180, 0, 10.5, 7, 20.0, 0, 0);
+        hold(70, 10.5, 7, 20.0, 0, 0);
+        go(15, 10.5, 7, 20.0, 0, 0, 10.5, 7, 20.0, 180, 2);
+        hold(60, 10.5, 7, 20.0, 180, 2);
+        go(15, 10.5, 7, 20.0, 180, 0, 10.5, 7, 20.0, 0, 0);
+        hold(130, 10.5, 7, 20.0, 0, 0);
+        go(60, 15.5, 7, 19.5, 90, 0, 15.5, 7, 10.5, 180, 0);
+        // ------------------------------------------------ chapter 3
+        at(T, c -> scene("p_ch3"));
+        T += len("mira_room") + 170;
+        hold(20, 16.5, 7, 9.2, 180, 50);
+        use(16, 7, 8, -1);
+        idle(20);
+        note(10, 140);
+        hold(10, 16.5, 7, 8.2, 180, 32);
+        useAt(T, 14, 7, 4, LIGHTER, false);
+        useAt(T + 25, 18, 7, 4, LIGHTER, false);
+        useAt(T + 50, 14, 7, 6, LIGHTER, false);
+        useAt(T + 75, 18, 7, 6, LIGHTER, false);
+        hold(140, 16.5, 7, 8.2, 180, 32);
+        use(15, 7, 5, -1);
+        idle(20);
+        at(T, c -> scene("p_tape3"));
+        hold(20, 5.0, 1, 16.2, 170, 14);
+        useAt(T, 5, 1, 13, TAPE3, false);
+        closeScreenAt(T + 560);
+        idle(580);
+        at(T, c -> scene("p_key"));
+        hold(10, 10.5, 7, 10.5, 180, 0);
+        go(60, 10.5, 7, 10.5, 180, 0, 4.5, 7, 3.5, 120, 30);
+        use(3, 7, 2, -1);
+        idle(20);
+        go(35, 4.5, 7, 3.5, 300, 0, 9.5, 7, 9.6, 0, -40);
+        use(9, 12, 10, ATTICKEY);
+        idle(5);
+        go(25, 9.5, 7, 10.5, 0, -40, 9.5, 13.0, 10.5, 180, 0);
+        // ------------------------------------------------ chapter 4
+        at(T, c -> scene("p_ch4"));
+        T += len("attic") + 170;
+        go(40, 10.5, 13, 12.5, 180, 0, 13.5, 13, 8.6, 180, 55);
+        use(13, 13, 7, -1);
+        idle(20);
+        note(14, 150);
+        go(30, 13.5, 13, 8.6, 180, 0, 9.5, 13, 6.3, 180, 30);
+        use(8, 14, 4, -1);
+        useAt(T + 20, 9, 14, 4, -1, false);
+        useAt(T + 40, 11, 14, 4, -1, false);
+        useAt(T + 60, 11, 14, 4, -1, false);
+        idle(70);
+        at(T, c -> scene("p_tape4"));
+        closeScreenAt(T + 700);
+        idle(720);
+        at(T, c -> scene("p_chase"));
+        go(15, 9.5, 13, 6.3, 180, 0, 9.5, 13, 10.5, 0, 30);
+        go(20, 9.5, 13, 10.5, 0, 30, 9.5, 7, 10.5, 0, 0);
+        go(35, 9.5, 7, 10.5, 0, 0, 10.5, 7, 19.5, 0, 0);
+        go(20, 10.5, 7, 19.5, 0, 0, 13.6, 7, 20.5, 270, 0);
+        go(25, 13.6, 7, 20.5, 270, 0, 18.5, 7.0, 16.3, 0, 20);
+        go(45, 18.5, 7.0, 16.3, 0, 20, 18.5, 1.6, 21.3, 0, 10);
+        go(30, 18.5, 1.6, 21.3, 0, 0, 13.5, 1, 16.5, 90, 0);
+        go(25, 13.5, 1, 16.5, 90, 0, 9.6, 1, 17.5, 90, 0);
+        go(25, 9.6, 1, 17.5, 90, 0, 6.5, 1, 17.5, 90, 0);
+        // ------------------------------------------------ chapter 5
+        at(T, c -> scene("p_ch5"));
+        T += len("twist") + 170;
+        hold(30, 5.6, 1, 14.6, 200, 20);
+        use(4, 1, 13, -1);
+        idle(30);
+        hold(160, 5.5, 1, 19.5, 180, 4);
+        go(40, 5.5, 1, 19.5, 180, 0, 2.6, 1, 18.5, 90, 30);
+        at(T, c -> scene("p_ending"));
+        use(1, 1, 18, -1);
+        wait(10 + len("end_evict") + 780);
+        at(T, c -> scene("p_end"));
+        at(T + 40, c -> LOG.info("[AUTOTEST] finished"));
+        shot(T + 41, "END");
+        // a few stills for checking
+        shot(250, "p_orbit");
+        shot(560, "p_path");
+    }
+
     @SubscribeEvent
-    public void hideHud(net.minecraftforge.client.event.RenderGuiOverlayEvent.Pre e) { e.setCanceled(true); }
+    public void hideHud(net.minecraftforge.client.event.RenderGuiOverlayEvent.Pre e) { if (!PLAY) e.setCanceled(true); }
 
     @SubscribeEvent
     public void onTick(TickEvent.ClientTickEvent event) {

@@ -137,6 +137,213 @@ public final class HauntedHouse {
         set(x, 7, z, c.defaultBlockState().setValue(CandleBlock.CANDLES, 1).setValue(CandleBlock.LIT, false));
     }
 
+    // ======================================================================== exterior
+    private static BlockState st(Block stairs, Direction f, Half h) {
+        return stairs.defaultBlockState().setValue(StairBlock.FACING, f).setValue(StairBlock.HALF, h);
+    }
+
+    /** a framed window with a sill, header and open shutters, cut through the shell and the inner wall */
+    private void window(int a0, int y0, int w, int h, Direction out) {
+        BlockState outer = b(Blocks.GRAY_STAINED_GLASS), inner = b(Blocks.GLASS);
+        BlockState shutter = Blocks.DARK_OAK_TRAPDOOR.defaultBlockState().setValue(TrapDoorBlock.FACING, out).setValue(TrapDoorBlock.OPEN, true);
+        BlockState sill = st(Blocks.SPRUCE_STAIRS, out.getOpposite(), Half.TOP), header = Blocks.DARK_OAK_SLAB.defaultBlockState();
+        for (int i = -1; i <= w; i++) {
+            for (int j = -1; j <= h; j++) {
+                int[] p = wallPos(a0 + i, out);
+                boolean inside = i >= 0 && i < w && j >= 0 && j < h;
+                if (inside) {
+                    set(p[0], y0 + j, p[1], outer);
+                    set(p[0] - out.getStepX(), y0 + j, p[1] - out.getStepZ(), inner);
+                }
+                int fx = p[0] + out.getStepX(), fz = p[1] + out.getStepZ();
+                if (j == -1 && i >= 0 && i < w) set(fx, y0 - 1, fz, sill);
+                else if (j == h && i >= -1 && i <= w) set(fx, y0 + h, fz, header);
+                else if ((i == -1 || i == w) && j >= 0 && j < h) set(fx, y0 + j, fz, shutter);
+            }
+        }
+    }
+
+    /** shell coordinate of position {@code a} along the wall facing {@code out} */
+    private static int[] wallPos(int a, Direction out) {
+        return switch (out) {
+            case SOUTH -> new int[]{a, 23};
+            case NORTH -> new int[]{a, -1};
+            case WEST -> new int[]{-1, a};
+            default -> new int[]{21, a};
+        };
+    }
+
+    private void exterior() {
+        BlockState plankA = b(Blocks.SPRUCE_PLANKS), plankB = b(Blocks.DARK_OAK_PLANKS), stone = b(Blocks.STONE_BRICKS),
+                mossy = b(Blocks.MOSSY_STONE_BRICKS), log = b(Blocks.DARK_OAK_LOG);
+        // clapboard siding, stone plinth, belt beam
+        for (int y = 0; y <= 11; y++) {
+            for (int x = -1; x <= 21; x++)
+                for (int z : new int[]{-1, 23}) {
+                    BlockState bs = y <= 1 ? ((x * 7 + y * 3) % 5 == 0 ? mossy : stone) : y == 5 ? b(Blocks.STRIPPED_DARK_OAK_WOOD) : (y % 2 == 0 ? plankA : plankB);
+                    if (!(z == 23 && x == 10 && (y == 1 || y == 2))) set(x, y, z, bs);
+                }
+            for (int z = -1; z <= 23; z++)
+                for (int x : new int[]{-1, 21}) {
+                    BlockState bs = y <= 1 ? ((z * 7 + y * 3) % 5 == 0 ? mossy : stone) : y == 5 ? b(Blocks.STRIPPED_DARK_OAK_WOOD) : (y % 2 == 0 ? plankA : plankB);
+                    set(x, y, z, bs);
+                }
+        }
+        for (int[] c : new int[][]{{-1, -1}, {21, -1}, {-1, 23}, {21, 23}, {-1, 5}, {-1, 11}, {-1, 17}, {21, 5}, {21, 11}, {7, -1}, {13, -1}, {7, 23}, {13, 23}})
+            fill(c[0], 2, c[1], c[0], 11, c[1], log);
+        // skirt around the plinth
+        for (int x = -2; x <= 22; x++) {
+            set(x, 0, -2, st(Blocks.STONE_BRICK_STAIRS, Direction.SOUTH, Half.BOTTOM));
+        }
+        for (int z = -1; z <= 23; z++) {
+            set(-2, 0, z, st(Blocks.STONE_BRICK_STAIRS, Direction.EAST, Half.BOTTOM));
+            set(22, 0, z, st(Blocks.STONE_BRICK_STAIRS, Direction.WEST, Half.BOTTOM));
+        }
+        // windows
+        window(3, 2, 3, 2, Direction.SOUTH); window(15, 2, 3, 2, Direction.SOUTH);
+        window(3, 8, 3, 2, Direction.SOUTH); window(15, 8, 3, 2, Direction.SOUTH);
+        window(14, 2, 1, 2, Direction.WEST); window(20, 2, 1, 2, Direction.WEST); window(4, 2, 2, 2, Direction.WEST);
+        window(3, 8, 2, 2, Direction.WEST); window(14, 8, 2, 2, Direction.WEST); window(18, 8, 2, 2, Direction.WEST);
+        window(4, 2, 1, 2, Direction.EAST); window(4, 8, 3, 2, Direction.EAST);
+        window(3, 2, 2, 2, Direction.NORTH); window(18, 2, 2, 2, Direction.NORTH); window(4, 8, 3, 2, Direction.NORTH); window(15, 8, 3, 2, Direction.NORTH);
+        // gables: round attic windows, bargeboard trim, finials
+        for (int z : new int[]{-1, 23}) {
+            for (int[] g : new int[][]{{10, 15}, {10, 16}, {10, 17}, {9, 16}, {11, 16}}) set(g[0], g[1], z, b(Blocks.GRAY_STAINED_GLASS));
+            for (int[] g : new int[][]{{10, 14}, {10, 18}, {8, 16}, {12, 16}, {9, 15}, {11, 15}, {9, 17}, {11, 17}}) set(g[0], g[1], z, b(Blocks.STRIPPED_DARK_OAK_LOG));
+            for (int i = 0; i <= 11; i++) {
+                int zz = z == 23 ? 25 : -3;
+                set(-2 + i, 12 + i - 1, zz, st(Blocks.DARK_OAK_STAIRS, Direction.WEST, Half.TOP));
+                set(22 - i, 12 + i - 1, zz, st(Blocks.DARK_OAK_STAIRS, Direction.EAST, Half.TOP));
+            }
+            set(10, 24, z == 23 ? 24 : -2, b(Blocks.LIGHTNING_ROD));
+        }
+        // chimneys with smoke
+        for (int[] c : new int[][]{{2, 6}, {17, 15}}) {
+            fill(c[0], 11, c[1], c[0] + 1, 21, c[1] + 1, b(Blocks.BRICKS));
+            set(c[0], 21, c[1], Blocks.CAMPFIRE.defaultBlockState().setValue(CampfireBlock.LIT, true));
+        }
+        // wrap-around porch
+        fill(-3, 0, 24, 23, 0, 28, b(Blocks.DARK_OAK_PLANKS));
+        fill(-3, 0, 28, 23, 0, 28, b(Blocks.STRIPPED_DARK_OAK_WOOD));
+        fill(-4, 5, 24, 24, 5, 29, Blocks.SPRUCE_SLAB.defaultBlockState().setValue(SlabBlock.TYPE, SlabType.TOP));
+        for (int x = -4; x <= 24; x++) set(x, 5, 30, st(Blocks.DARK_OAK_STAIRS, Direction.NORTH, Half.TOP));
+        for (int x : new int[]{-3, 2, 7, 13, 18, 23}) {
+            fill(x, 1, 28, x, 4, 28, b(Blocks.STRIPPED_DARK_OAK_LOG));
+            set(x, 4, 29, st(Blocks.DARK_OAK_STAIRS, Direction.NORTH, Half.TOP));
+        }
+        for (int x = -2; x <= 22; x++) if ((x < 9 || x > 11) && x != 2 && x != 7 && x != 13 && x != 18) set(x, 1, 28, b(Blocks.DARK_OAK_FENCE));
+        for (int z = 24; z <= 27; z++) { set(-3, 1, z, b(Blocks.DARK_OAK_FENCE)); set(23, 1, z, b(Blocks.DARK_OAK_FENCE)); }
+        for (int x = 9; x <= 11; x++) set(x, 0, 29, st(Blocks.DARK_OAK_STAIRS, Direction.NORTH, Half.BOTTOM));
+        for (int x : new int[]{0, 10, 20}) set(x, 4, 26, Blocks.LANTERN.defaultBlockState().setValue(net.minecraft.world.level.block.LanternBlock.HANGING, true));
+        set(4, 1, 25, st(Blocks.SPRUCE_STAIRS, Direction.NORTH, Half.BOTTOM));
+        set(6, 1, 26, st(Blocks.SPRUCE_STAIRS, Direction.WEST, Half.BOTTOM));
+        set(8, 1, 29, Blocks.JACK_O_LANTERN.defaultBlockState().setValue(net.minecraft.world.level.block.CarvedPumpkinBlock.FACING, Direction.SOUTH));
+        set(12, 1, 29, Blocks.CARVED_PUMPKIN.defaultBlockState().setValue(net.minecraft.world.level.block.CarvedPumpkinBlock.FACING, Direction.SOUTH));
+        set(-3, 4, 24, b(Blocks.COBWEB)); set(23, 4, 27, b(Blocks.COBWEB));
+        tower();
+        grounds();
+    }
+
+    /** a square corner turret with a steep spire and one faintly lit window */
+    private void tower() {
+        int x0 = 22, z0 = 16, x1 = 27, z1 = 21, top = 16;
+        for (int y = 0; y <= top; y++)
+            for (int x = x0; x <= x1; x++)
+                for (int z = z0; z <= z1; z++) {
+                    boolean edge = x == x0 || x == x1 || z == z0 || z == z1;
+                    boolean corner = (x == x0 || x == x1) && (z == z0 || z == z1);
+                    if (!edge) { set(x, y, z, Blocks.AIR.defaultBlockState()); continue; }
+                    set(x, y, z, corner ? b(Blocks.DARK_OAK_LOG) : y <= 1 ? b(Blocks.STONE_BRICKS) : y == 5 || y == 11 ? b(Blocks.STRIPPED_DARK_OAK_WOOD)
+                            : y % 2 == 0 ? b(Blocks.SPRUCE_PLANKS) : b(Blocks.DARK_OAK_PLANKS));
+                }
+        for (int y : new int[]{3, 8, 13}) {
+            for (int dy = 0; dy < 2; dy++) {
+                set(24, y + dy, z1, b(Blocks.GRAY_STAINED_GLASS)); set(25, y + dy, z1, b(Blocks.GRAY_STAINED_GLASS));
+                set(x1, y + dy, 18, b(Blocks.GRAY_STAINED_GLASS)); set(x1, y + dy, 19, b(Blocks.GRAY_STAINED_GLASS));
+            }
+            set(24, y - 1, z1 + 1, st(Blocks.SPRUCE_STAIRS, Direction.NORTH, Half.TOP)); set(25, y - 1, z1 + 1, st(Blocks.SPRUCE_STAIRS, Direction.NORTH, Half.TOP));
+        }
+        set(24, 9, 18, Blocks.LIGHT.defaultBlockState().setValue(LightBlock.LEVEL, 7));
+        // spire
+        for (int i = 0; i <= 3; i++) {
+            int y = top + 1 + i * 2, a0 = x0 - 1 + i, a1 = x1 + 1 - i, b0 = z0 - 1 + i, b1 = z1 + 1 - i;
+            for (int dy = 0; dy < 2; dy++) {
+                for (int x = a0; x <= a1; x++) {
+                    set(x, y + dy, b0, st(Blocks.DEEPSLATE_TILE_STAIRS, Direction.SOUTH, Half.BOTTOM));
+                    set(x, y + dy, b1, st(Blocks.DEEPSLATE_TILE_STAIRS, Direction.NORTH, Half.BOTTOM));
+                }
+                for (int z = b0 + 1; z < b1; z++) {
+                    set(a0, y + dy, z, st(Blocks.DEEPSLATE_TILE_STAIRS, Direction.EAST, Half.BOTTOM));
+                    set(a1, y + dy, z, st(Blocks.DEEPSLATE_TILE_STAIRS, Direction.WEST, Half.BOTTOM));
+                }
+                if (a1 - a0 > 1) fill(a0 + 1, y + dy, b0 + 1, a1 - 1, y + dy, b1 - 1, b(Blocks.DEEPSLATE_TILES));
+            }
+        }
+        fill(24, 25, 18, 25, 25, 19, b(Blocks.DEEPSLATE_TILES));
+        fill(24, 26, 18, 24, 27, 18, b(Blocks.DARK_OAK_FENCE));
+        set(24, 28, 18, b(Blocks.LIGHTNING_ROD));
+    }
+
+    /** overgrown front yard: iron fence with stone pillars, gravel path, lamp posts, dead trees, weeds */
+    private void grounds() {
+        net.minecraft.util.RandomSource r = net.minecraft.util.RandomSource.create(1998L);
+        for (int x = -9; x <= 31; x++)
+            for (int z = -7; z <= 40; z++) {
+                if (x >= -4 && x <= 28 && z >= -3 && z <= 30) continue;
+                int k = r.nextInt(10);
+                if (k == 0) set(x, -1, z, b(Blocks.COARSE_DIRT));
+                else if (k == 1) set(x, -1, z, b(Blocks.PODZOL));
+            }
+        for (int z = 30; z <= 40; z++)
+            for (int x = 9; x <= 11; x++) set(x, -1, z, (x + z) % 4 == 0 ? b(Blocks.COARSE_DIRT) : b(Blocks.DIRT_PATH));
+        // perimeter fence
+        for (int x = -9; x <= 31; x++)
+            for (int z : new int[]{-7, 40}) {
+                if (z == 40 && x >= 8 && x <= 12) continue;
+                set(x, 0, z, x % 5 == 0 ? b(Blocks.STONE_BRICK_WALL) : b(Blocks.IRON_BARS));
+                set(x, 1, z, x % 5 == 0 ? b(Blocks.STONE_BRICK_WALL) : b(Blocks.IRON_BARS));
+            }
+        for (int z = -7; z <= 40; z++)
+            for (int x : new int[]{-9, 31}) {
+                set(x, 0, z, z % 5 == 0 ? b(Blocks.STONE_BRICK_WALL) : b(Blocks.IRON_BARS));
+                set(x, 1, z, z % 5 == 0 ? b(Blocks.STONE_BRICK_WALL) : b(Blocks.IRON_BARS));
+            }
+        for (int x : new int[]{7, 13}) {
+            fill(x, 0, 40, x, 2, 40, b(Blocks.STONE_BRICKS));
+            set(x, 3, 40, b(Blocks.LANTERN));
+        }
+        // lamp posts along the path
+        for (int[] p : new int[][]{{7, 34}, {13, 34}}) {
+            fill(p[0], 0, p[1], p[0], 2, p[1], b(Blocks.DARK_OAK_FENCE));
+            set(p[0], 3, p[1], b(Blocks.LANTERN));
+        }
+        // dead trees
+        for (int[] t : new int[][]{{-5, 33, 8}, {26, 34, 9}, {-6, -3, 7}, {28, 2, 8}}) deadTree(t[0], t[1], t[2], r);
+        // weeds
+        for (int i = 0; i < 160; i++) {
+            int x = -8 + r.nextInt(39), z = -6 + r.nextInt(46);
+            if (x >= -4 && x <= 28 && z >= -3 && z <= 30) continue;
+            if (x >= 8 && x <= 12 && z >= 29) continue;
+            int k = r.nextInt(3);
+            set(x, 0, z, k == 0 ? b(Blocks.DEAD_BUSH) : k == 1 ? b(Blocks.FERN) : b(Blocks.SWEET_BERRY_BUSH));
+        }
+    }
+
+    private void deadTree(int x, int z, int h, net.minecraft.util.RandomSource r) {
+        fill(x, 0, z, x, h, z, b(Blocks.DARK_OAK_LOG));
+        Direction[] dirs = {Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST};
+        for (int i = 0; i < 4; i++) {
+            Direction d = dirs[(i + r.nextInt(4)) % 4];
+            int y = h - 3 + i % 3, len = 2 + r.nextInt(2);
+            for (int k = 1; k <= len; k++) {
+                int bx = x + d.getStepX() * k, bz = z + d.getStepZ() * k, by = y + k / 2;
+                set(bx, by, bz, Blocks.DARK_OAK_LOG.defaultBlockState().setValue(net.minecraft.world.level.block.RotatedPillarBlock.AXIS, d.getAxis()));
+                if (k == len) { set(bx, by + 1, bz, b(Blocks.DARK_OAK_FENCE)); set(bx + d.getStepX(), by + 1, bz + d.getStepZ(), b(Blocks.DARK_OAK_FENCE)); }
+            }
+        }
+        set(x, h + 1, z, b(Blocks.DARK_OAK_FENCE));
+    }
+
     /** Victor's workshop in the roof space, reached by a padlocked hatch from the upstairs hallway */
     private void attic() {
         fill(0, 12, 0, 20, 12, 22, b(Blocks.DARK_OAK_PLANKS));
@@ -199,7 +406,9 @@ public final class HauntedHouse {
     private void build() {
         BlockState air = Blocks.AIR.defaultBlockState();
         // ---------------------------------------------------------------- clear + shell
-        fill(-3, 0, -3, 23, 24, 25, air);
+        fill(-9, 0, -7, 31, 30, 40, air);
+        fill(-9, -4, -7, 31, -2, 40, b(Blocks.DIRT));
+        fill(-9, -1, -7, 31, -1, 40, b(Blocks.GRASS_BLOCK));
         fill(-1, -1, -1, 21, -1, 23, b(Blocks.COBBLED_DEEPSLATE));
         BlockState planks = b(Blocks.SPRUCE_PLANKS), log = b(Blocks.DARK_OAK_LOG), beam = b(Blocks.STRIPPED_DARK_OAK_LOG);
         fill(-1, 0, -1, 21, 11, -1, planks);
@@ -234,20 +443,9 @@ public final class HauntedHouse {
         upperFloor();
         attic();
 
-        // windows (tinted, so the house stays dark inside)
-        BlockState glass = b(Blocks.TINTED_GLASS);
-        for (int[] w : new int[][]{{-1, 16}, {-1, 18}, {-1, 4}, {-1, 15}}) {
-            int y = w[1] == 15 ? 8 : 2;
-            if (w[1] == 4) y = 8;
-            fill(w[0], y, w[1], w[0] + 1, y + 1, w[1], glass);
-        }
-        fill(20, 2, 4, 21, 3, 4, glass);
-        fill(20, 8, 17, 21, 9, 17, glass);
-        // front door + porch
         door(10, 1, 23, Blocks.DARK_OAK_DOOR, Direction.NORTH, false);
         opening(10, 1, 22);
-        fill(8, 0, 24, 12, 0, 25, b(Blocks.SPRUCE_PLANKS));
-        set(9, 1, 24, b(Blocks.LANTERN));
+        exterior();
     }
 
     private void groundFloor() {
